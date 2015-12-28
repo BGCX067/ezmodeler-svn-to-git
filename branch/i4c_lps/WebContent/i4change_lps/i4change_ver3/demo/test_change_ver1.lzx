@@ -1,0 +1,318 @@
+<canvas  width="100%" height="100%" debug="true" bgcolor="0x808080">
+
+<include href="../GraphBox.lzx" />
+  <include href="../GraphBoxDrag.lzx" />
+  <include href="../GraphConnector.lzx" />
+  <include href="../GraphConnectorPanel.lzx" />
+  <include href="../GraphPanel.lzx" />
+  <include href="../Tools.lzx" />
+  
+  <dataset name="mydata" src="http://127.0.0.1:8000/DBTest/getwin.jsp" request="false" type="http" />
+  
+  <dataset name="max_activity" src="http://127.0.0.1:8000/DBTest/max_seq_activity.jsp" request="false" type="http" />
+
+
+  <dataset name="dsSendData" request="false" src="http://127.0.0.1:8000/DBTest/Updatediag.jsp" type="http"/>
+
+  <method name="sendData_new" args="action,x,y,seq_id">
+      var d=canvas.datasets.dsSendData;                       // 3
+      var p=new LzParam();                                    // 3a
+      p.addValue("action", action, true);
+      p.addValue("x", x, false);
+      p.addValue("y", y, false);      
+      p.addValue("seq_id", seq_id, false);      
+      d.setQueryString(p);
+      Debug.write("Query String :: " + d.getQueryString(p));
+      d.doRequest();                                         // 3d
+      
+    </method>
+
+
+  
+  <alert name="conalert">
+    Connection between these types is not allowed!
+  </alert>
+  
+  <alert name="deletealert">
+    Cannot delete objects of this type!
+  </alert>
+  
+  <alert name="detailalert">
+  Show details here!
+  </alert>
+
+  <class name="ElementType1" extends="GraphBoxDrag" width="450" height="200" colorBody="0xFFAC2F">
+    <method name="materialize">
+      this.caption.setText("ROLE");
+    </method>
+    <method name="doAction" args="action">
+      if ( action == "details" ) canvas.detailalert.open();
+      else if ( action == "remove" ) canvas.deletealert.open();
+      else super.doAction(action);
+    </method>
+ 
+   <inputtext name="myText" x="5" y="22" width="100" height="100" multiline="true">Role</inputtext>
+
+   
+  </class>
+
+
+  <class name="Activity" extends="GraphBoxDrag" width="120" height="85" colorBody="white">
+
+	
+	<view width="${parent.width}" height="${parent.height}" />
+
+    <method name="materialize">
+    
+    	Debug.write("Message :: " + text_msg );
+      this.myText.setText(text_msg);
+     this.caption.setText("Activity"+activity_name);
+
+    </method>
+    <method name="doAction" args="action">
+      if ( action == "details" ) canvas.detailalert.open();
+      else if ( action == "remove" )
+	{ 
+		this.setVisible( false );
+            LzFocus.clearFocus();
+            LzModeManager.release( this );
+		this.update();
+	    canvas.sendData_new("delete",this.x,this.y,this.activity_name);
+	}
+      else super.doAction(action);
+    </method>
+
+    
+  </class>
+
+
+  <class name="ElementType3" extends="GraphBoxDrag" width="95" height="45" colorBody="0x99CCFF">
+
+    <method name="materialize">
+      this.caption.setText("Type 3");
+    </method>
+    <method name="doAction" args="action">
+      if ( action == "details" ) canvas.detailalert.open();
+      else super.doAction(action);
+    </method>
+    <text x="5" y="22">Line 1</text>
+  </class>
+
+  <class name="Role" extends="window" width="95" height="150">
+	   <inputtext name="myText"  x="0" y="0" width="${parent.width}" height="50" multiline="true">ROLE</inputtext>
+	
+  </class>
+
+
+  <view name="menubar" x="0" y="0" width="100" height="200" >
+    <simplelayout axis="y"/>
+
+
+    
+    <datapointer id="max_activity_ptr" xpath="max_activity:/rectangle[1]/activity[1] " />
+    <datapointer id="mydp" xpath="mydata:/rectangle[1]/win[1] " />
+
+ <handler name="ondata" reference="mydata">
+		Debug.write("Recieved Data in Loading.... !!!!");
+
+	
+	do{
+	      var b = canvas.scr.panel.addBoxByClass("Activity", {
+	      	    activity_name: Number(mydp.getNodeAttribute('seq_id')),
+	      		x:Number(mydp.getNodeAttribute('x')),
+				y: Number(mydp.getNodeAttribute('y')),
+				myText: mydp.getNodeAttribute('text') , visible: true, obj_type: 'Activity' });
+  	             b.redraw();
+
+	} while (mydp.selectNext());
+
+	mydp.setXPath("mydata:/rectangle[1]/win[1]");
+	
+      </handler>
+
+    <button id="x" y="180" x="10" width="100" >Load Data..
+
+      
+      <method event="onclick">
+      	
+		canvas.datasets.mydata.doRequest();
+	
+	</method>
+
+
+    </button>
+
+    <button y="100" x="10" width="100" >Clear
+      <method event="onclick">
+        <![CDATA[
+
+		scr.setVisible( false );
+            LzFocus.clearFocus();
+            LzModeManager.release( scr );
+
+	    var subs = canvas.scr.subviews;
+		for(var i = 0; i < subs.length; i++) {
+		Debug.write("Subview from main :: " + subs[i].id);
+		}	
+
+        ]]>
+      </method>
+    </button>
+
+
+    <button y="120" x="10" width="100">Add: Role
+      <method event="onclick">
+        <![CDATA[
+
+          var b = new Role(canvas.scr, {name:'role', x:150, y:100, width:200, height:150,closeable: 'true', resizable:'true', haswindowfocus:'false',
+					 inset_top: 20,inset_bottom:6,inset_right:5,inset_left:2,
+					  bgcolor: 0x6677DD});
+		b.sendBehind();
+  	      var subs = canvas.scr.subviews;
+		for(var i = 0; i < subs.length; i++) {
+		Debug.write("Subview from main :: " + subs[i].id);
+		}	
+        ]]>
+      </method>
+    </button>
+
+    <button y="140" x="10" width="100">Save
+      
+    <method event="onclick">
+   	
+        <![CDATA[
+
+        var subs = canvas.scr.subviews;
+        var x_save=10;
+        var y_save=10;
+        var subs_act = canvas.scr.panel.subviews;
+	
+                
+        for(var i = 0; i < subs_act.length; i++) {
+        	
+		Debug.write("Checking instanceOf",subs_act[i] );       
+        	var class_name= Activity(i);
+		//var tmp_class = new canvas.scr.panel.addBoxByClass("Activity", {visible: false});
+		var tmp_class = subs_act[i];
+        	var what_vis = class_name.getAttribute('visible');
+      	Debug.write("What is Counter :: " + i);
+        	Debug.write("What is obj_type :: " , tmp_class.obj_type);
+
+
+		var tmp_id = "Activity"+i;
+
+		 	    if((tmp_class.obj_type == "Activity" ) && (tmp_class.visible == true) ) {
+				Debug.write("In saving mode");
+        	Debug.write("------------------");
+        	Debug.write("What is Class name new :: " , subs_act[i]);
+        	Debug.write("What is Class name :: " + class_name);
+      	Debug.write("What is tmp_class.id :: " + tmp_class.id);
+      	Debug.write("What is tmp_class.activity_name :: " + tmp_class.activity_name);
+		Debug.write("What is X :: " , tmp_class.x);
+      	Debug.write("What is Counter :: " + i);
+
+
+
+          			canvas.sendData_new("update",tmp_class.x,tmp_class.y,tmp_class.activity_name);
+          			}
+
+        	
+	      }
+
+        ]]>
+      </method>
+      
+      
+    </button>
+
+    <button y="120" x="10" width="100">Truncate ::
+      <method event="onclick">
+        <![CDATA[
+
+	canvas.sendData_new("truncate",1,1,0);
+
+        ]]>
+      </method>
+    </button>
+
+   
+    <handler name="ondata" reference="max_activity">
+        <![CDATA[
+
+      var ctr=0;
+      var name="Activity";
+      
+	do{
+		ctr=Number(max_activity_ptr.getNodeAttribute('seq_id'));
+		Debug.write(" What is Counter :: " + ctr);
+		
+	} while (max_activity_ptr.selectNext());
+	  
+	   ctr=ctr+1;
+	   name=name+ctr;
+	   var id_activity = name;
+	   Debug.write("What is id Created for Activity ::"+ id_activity);
+	   Debug.write("What is name Created for Activity ::"+ ctr);
+
+	  canvas.sendData_new("insert",25,25,ctr);
+	  
+          var b = canvas.scr.panel.addBoxByClass("Activity", {
+          id: id_activity, 
+          activity_name: ctr, x: 25, y: 25, visible: true, obj_type: 'Activity' });
+          b.redraw();
+          
+          Debug.write(" Increased Counter :: " + ctr);
+          
+          max_activity_ptr.setXPath("max_activity:/rectangle[1]/activity[1]");
+        ]]>
+      </handler>
+
+
+
+   <button>Add: Activity
+    
+        <method event="onclick">
+
+  	  canvas.datasets.max_activity.doRequest();
+	
+	  </method>
+   </button>
+
+
+   </view>  
+
+      
+
+
+  <view name="scr" x="${parent.menubar.width}" y="0" width="${parent.width}" 
+        height="${parent.height}" clip="true" bgcolor="0x404040">
+
+    <method name="oninit">
+    var incr = 0;	 
+    </method>
+
+
+    <GraphPanel name="panel" oninit="this.restart()" >
+
+      <method name="getConnectionClass" args="box1,box2">
+        <![CDATA[
+        // Returns the class of the connector, which should be used for connecting box1 and box2
+        // null, if the connection is not allowed"
+        if ( (box1['classname'] == 'ElementType1' && box2['classname'] == 'ElementType3') ||
+          (box2['classname'] == 'ElementType1' && box1['classname'] == 'ElementType3') ) {
+            canvas.conalert.open();
+            return null;
+        }
+        return "GraphConnector";
+        ]]>
+      </method>
+    </GraphPanel>
+
+  
+    <scrollbar axis="x"/>
+    <scrollbar axis="y"/> 
+  </view>
+  
+
+
+</canvas>

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+	
+<class name="feedbackPod" extends="view" 
+       width="${ parent.width }" height="$once{ parent.height }">
+    
+    <attribute name="labelid" type="number" setter="setLabelId(labelid)" />
+    <method name="setLabelId" args="_labelid" >
+        this.labelid = _labelid;
+        this.setAttribute("headerText",canvas.getLabelName(this.labelid));
+    </method>
+    
+    <attribute name="headerText" value="" type="string" />
+    
+    <view name="_head" x="1" y="2" width="${ parent.width-2 }" height="34" bgcolor="0x3F5B9E">
+        
+        <text x="10" fontstyle="bold" fontsize="14" fgcolor="0xFFFFFF" 
+              text="$once{ parent.parent.headerText }" valign="middle"></text>
+        
+        <view resource="kaleidoscope_textbox_milk" width="${ parent.width }" height="30"
+              stretches="width">
+            
+        </view>
+        
+    </view>
+    
+    <selfLoadingImage name="_iconImage" x="1" width="${ parent.width-2 }" 
+                      y="33" height="${ parent.height -35 }"
+              loadingImage="images/Medical Professionals.jpg" />
+    
+    <view x="1" width="${ parent.width - 2 }" y="34" height="${ parent.height - 35 }"
+          bgcolor="0x3F5B9E" opacity="0.1">
+    	
+    </view>
+    
+    <view layout="axis:x;spacing:2;inset:2" width="${ parent.width-2 }" x="1" 
+          y="${ parent._iconImage.imageHeight + 33 }"
+          height="${ parent.height - parent._iconImage.imageHeight - 33 }">
+        
+        <view y="2" height="${ parent.height-4 }" 
+              width="${ ((parent.width / 3)*2)-3 }" bgcolor="0x8CC63F">
+            <handler name="onmouseover">
+                this.setAttribute("bgcolor",0xB4D87C);
+            </handler>
+            <handler name="onmouseout">
+                this.setAttribute("bgcolor",0x8CC63F);
+            </handler>
+            <handler name="onmousedown">
+                this.setAttribute("bgcolor",0x76A332);
+            </handler>
+            <handler name="onclick">
+                new lz.checkLoginData(canvas);
+            </handler>
+            
+            <labelText labelid="1352" fgcolor="0xFFFFFF" 
+            		   width="${ parent.width - 100 }" multiline="true"
+            		   fontstyle="italic" fontsize="16"
+                       resize="true" valign="middle" align="center" />
+            
+        </view>
+        
+        <view y="2" height="${ parent.height-4 }" 
+              width="${ (parent.width / 3)-3 }" bgcolor="0x8CC63F">
+            <handler name="onmouseover">
+                this.setAttribute("bgcolor",0xB4D87C);
+            </handler>
+            <handler name="onmouseout">
+                this.setAttribute("bgcolor",0x8CC63F);
+            </handler>
+            <handler name="onmousedown">
+                this.setAttribute("bgcolor",0x76A332);
+            </handler>
+            <handler name="onclick">
+                new lz.registerWizzard(canvas);   
+            </handler>
+            
+            <labelText labelid="1353" fgcolor="0xFFFFFF" fontstyle="bold" fontsize="16"
+                       resize="true" valign="middle" align="center" />
+        </view>
+        
+    </view>
+    
+</class>
+
+
+</library>

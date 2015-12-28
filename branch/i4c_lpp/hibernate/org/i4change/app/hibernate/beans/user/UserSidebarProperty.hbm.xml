@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+  <class table="usersidebarproperty" lazy="false" name="org.i4change.app.hibernate.beans.user.UserSidebarProperty">
+    <id column="usersidebarproperty_id" name="userSidebarPropertyId">
+      <generator class="increment"/>
+    </id>
+    <many-to-one outer-join="true" insert="true" column="user_id" lazy="false" update="true" name="users" class="org.i4change.app.hibernate.beans.user.Users"/>
+    <property name="diagramNo" type="long" column="diagramNo"/>
+    <property name="inserted" type="java.util.Date" column="inserted"/>
+    <property name="updated" type="java.util.Date" column="updated"/>
+    <property name="currentOpenitem" type="string" column="currentOpenitem"/>
+    <property name="currentMaxWidth" type="double" column="currentMaxWidth"/>
+    <property name="diagramWidth" type="double" column="diagramWidth"/>
+    <property name="diagramY" type="double" column="diagramY"/>
+    <property name="isOpen" type="boolean" column="isOpen"/>
+    <property name="diagramX" type="double" column="diagramX"/>
+    <property name="currentZoom" type="int" column="currentZoom"/>
+    <property name="diagramHeight" type="double" column="diagramHeight"/>
+    <property name="saveItemStatus" type="boolean" column="saveitemstatus"/>
+    <property name="showPreNextDiagramsOnFlows" type="boolean" column="showprenextdiagramsonflows"/>
+  </class>
+</hibernate-mapping>

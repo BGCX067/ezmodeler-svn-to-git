@@ -1,0 +1,6 @@
+<org.openmeetings.app.hibernate.beans.basic.RemoteSessionObject>
+  <firstname>sebo</firstname>
+  <lastname>wago</lastname>
+  <pictureUrl>http://hastenichgesehen.de/pic1.jpg</pictureUrl>
+  <email>s.wagner@webbase-design.de</email>
+</org.openmeetings.app.hibernate.beans.basic.RemoteSessionObject>

@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<library>
+
+<!--- "System" panel on the dashboard -->
+<class name="revisionhistorySidebar" extends="sideBarPod" labelid="601"
+       iconName="icon_history_inspector" contentHeight="360" contentY="20">
+    
+    <attribute name="currentRemoteDiagram" value="null" />
+    
+    <handler name="oninit">
+        //Add Help Item
+        canvas.addCurrentHelpId(16,this.__constructor__.classname);
+    </handler>
+    
+    <method name="refresh" args="diagram">
+        this.currentRemoteDiagram = diagram;
+        if (this.contentIsInited) {
+            this.content._inner.getDiagramHistoryByNo.doCall();
+        }
+    </method>
+    
+    <handler name="contentInit" >
+        this.currentRemoteDiagram = canvas.currentDiagramRef._scrollcontent.contentArea._currentBoard.currentDiagramObject;
+        new lz.revisionhistorySidebarContent(this,{name:'content'});
+    </handler>
+</class> 
+
+<class name="revisionhistorySidebarContent" extends="view" y="20" 
+       bgcolor="$once{ canvas.currentMenuLayoutBackGround }" 
+      x="16" width="${ parent.width-16 }" 
+      height="$once{ parent.height-21 }" >
+    
+    <attribute name="currentDiagram" value="null" />
+    
+    <netRemoteCallHib name="getDiagramObjectsById" funcname="diagramservice.getDiagramObjectsById" 
+                      remotecontext="$once{ canvas.thishib }" >      
+        <attribute name="diagramId" value="" type="string" />
+        <netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+        <netparam><method name="getValue">return parent.diagramId;</method></netparam> 
+        <netparam><method name="getValue">return hib.currentdomainObj.organisation_id;</method></netparam>
+        <handler name="ondata" args="value">
+            if ($debug) Debug.write("getDiagramObjectsByNo: ",value);
+            parent.loadDiagram(value);
+        </handler>
+    </netRemoteCallHib>         
+    
+    <method name="loadDiagram" args="value">
+        //if ($debug) Debug.write("loadDiagram: ",this.currentDiagram);
+        
+        canvas.currentDiagram = this.currentDiagram;
+        canvas.currentInstanceList = value;
+        
+        if (this.currentDiagram.diagramType.diagramTypeId == 1) {
+            quicklinkAct('processgroup');
+        } else if (this.currentDiagram.diagramType.diagramTypeId == 2) {
+            quicklinkAct('roleView');
+        } else if (this.currentDiagram.diagramType.diagramTypeId == 3) {
+            quicklinkAct('hierarchical');
+        }
+    </method>
+    
+    <method name="startNewSearch">
+        
+    </method>      
+    
+    <view width="$once{ parent.width }" name="_inner"
+          height="$once{ parent.height }" >
+        
+        <handler name="onclickedItem" args="obj">
+            //if ($debug) Debug.write("obj",obj.diagramObj.diagramId);
+            parent.currentDiagram = obj.diagramObj;
+            parent.getDiagramObjectsById.diagramId = obj.diagramObj.diagramId;
+            parent.getDiagramObjectsById.doCall();
+        </handler>
+    
+        <handler name="oninit">
+            this.addHeaderItem(589,40);
+            this.addHeaderItem(588,112);
+            this.addHeaderItem(602,70);
+            this.addHeaderItem(603,160);
+            
+            if($debug) Debug.write("this.getDiagramHistoryByNo: ",parent.parent.currentRemoteDiagram);
+            this.getDiagramHistoryByNo.doCall();
+        </handler>  
+        
+        <method name="addHeaderItem" args="labelid,width" >
+            if ($debug) Debug.write("addHeaderItem: ",labelid,width,this.width,this._innerlisthead._inn.width);
+            new turnOverListHeaderItem(this._innerlisthead._inn,{labelid:labelid,width:width,subviewsid:this._innerlisthead._inn.subviews.length});
+        </method>     
+        
+        <netRemoteCallHib name="getDiagramHistoryByNo" funcname="diagramservice.getDiagramHistoryByNo" 
+                          remotecontext="$once{ canvas.thishib }" >      
+            <netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+            <netparam><method name="getValue">return hib.currentdomainObj.organisation_id;</method></netparam>
+            <netparam><method name="getValue">return parent.parent.parent.parent.currentRemoteDiagram.diagramNo;</method></netparam>
+            <netparam><method name="getValue">return hib.userlang;</method></netparam> 
+            <handler name="ondata" args="value">
+                if ($debug) Debug.write("getDiagramHistoryByNo: ",value);
+                parent.doLoadList(value);
+            </handler>
+        </netRemoteCallHib>            
+        
+        <method name="doLoadList" args="loadList">
+            <![CDATA[
+                for (var i=0;i<loadList.length;i++) {
+                    
+                    //if ($debug) Debug.write("loadList[i]: ",loadList[i]);
+                    
+                    new historyListItem(this._innerlist._inn._inn,{
+                        diagramObj:loadList[i],
+                        diagramNo:loadList[i].diagramNo,
+                        diagramrevisionId:loadList[i].diagramrevision.diagramrevisionId,
+                        diagramname:loadList[i].name,
+                        insertedby:loadList[i].insertedby.login,
+                        comment:loadList[i].diagramrevision.comment,
+                        typelabel:loadList[i].diagramType.label.value,
+                        inserted:parseDateToStringTime(loadList[i].inserted)
+                    });
+                    
+                }
+            ]]>
+        </method> 
+        
+        <method name="clearList">
+            this._innerlist._inn._inn.destroy();
+            new innerList(this._innerlist._inn,{name:'_inn'});
+        </method>
+        
+        <method name="sendWidthUpdate" args="w,subviewsid" >
+            <![CDATA[
+            ////Debug.write(w,subviewsid,this._innerlist._inn);
+            for (var i=0;i<this._innerlist._inn._inn.subviews.length;i++){
+                this._innerlist._inn._inn.subviews[i].subviews[subviewsid].setAttribute('width',w);
+            }
+            ]]>
+        </method>           
+                  
+        <view name="_innerlisthead" height="20" width="$once{ parent.width }" 
+            x="${ parent._innerlist.x }" y="2" clip="true">
+            <view name="_inn" layout="axis:x;spacing:0" />
+        </view>         
+
+        <view name="_innerlist" height="$once{ parent.height-22 }" width="$once{ parent.width }"
+            y="22" clip="true">
+            <view name="_inn" >
+                <innerList name="_inn" />
+            </view>
+            <vscrollbar name="_scrollbar" />
+            <hscrollbar />
+        </view>
+        
+    </view>
+
+</class>
+    
+<class name="historyListItem" extends="view" layout="axis:x;spacing:0" 
+    bgcolor="0xFFFFFF"
+    onmouseover="this.setBGColor(canvas.baseMouseOvercolorizer)" 
+    onmouseout="this.setBGColor(0xFFFFFF)" >
+	<attribute name="diagramObj" value="null" />
+    
+	<attribute name="diagramNo" value="0" type="number" />
+	<attribute name="diagramrevisionId" value="0" type="number" />
+	<attribute name="diagramname" value="" type="string" />
+	<attribute name="typelabel" value="" type="string" />
+	<attribute name="inserted" value="" type="string" />
+	<attribute name="insertedby" value="" type="string" />
+	<attribute name="comment" value="" type="string" />	
+
+	<turnOverTextItem text="$once{ parent.diagramrevisionId }" width="40" />
+	<turnOverTextItem text="$once{ parent.inserted }" width="112" />
+	<turnOverTextItem text="$once{ parent.insertedby }" width="70" />
+	<turnOverTextItem text="$once{ parent.comment }" width="160" />
+    
+    <handler name="ondblclick">
+        this.parent.parent.parent.parent.onclickedItem.sendEvent(this);
+    </handler>
+    
+    <labelTooltip multiline="true">
+        <handler name="onInitText">
+            this.setAttribute('text','Comment: '+parent.comment)
+        </handler>
+    </labelTooltip>
+    
+</class>
+
+</library>

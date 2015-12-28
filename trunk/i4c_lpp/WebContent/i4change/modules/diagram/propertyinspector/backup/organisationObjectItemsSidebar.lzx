@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<library> 
+
+<class name="organisationObjectItem" extends="baseContentListItem" showhandcursor="false"> 
+
+    <attribute name="obj" value="null" />
+    <attribute name="currentDiagram" value="null" />
+    
+    <handler name="ondblclick">
+        //if ($debug) Debug.write("ondblcick: ",this);
+        canvas.loadDiagramByIdAndObject(obj.diagramInstanceObject.diagram.diagramId,
+            obj.diagramInstanceObject.diagram);
+    </handler>
+
+    <turnOverTextItem text="$once{ parent.obj.diagramInstanceObject.diagramObject.name }" width="150" />
+    <turnOverTextItem text="$once{ parent.obj.diagramInstanceObject.diagram.name }" width="200" />
+    
+    <attribute name="_tempxValue" type="number" value="0" />
+    <attribute name="_tempyValue" type="number" value="0" />
+    
+    <labelTooltip text="$once{ canvas.getLabelName(810) + 
+        parseDateToStringTime(parent.obj.diagramObject.inserted) }" />
+
+</class>
+
+<class name="organisationObjectItems" extends="view" >
+    
+    <attribute name="baseObject" value="null" />
+    <attribute name="diagramObjectId" value="0" type="number" />
+    
+    <handler name="oninit">
+        this.getObjectsByOrganizations.doCall();
+    </handler>
+    
+    <netRemoteCallRPC name="getObjectsByOrganizations" 
+                      funcname="diagramservice.getObjectsByOrganizations" 
+                      remotecontext="$once{  canvas. }" >      
+        <netparam><method name="getValue"> return canvas.sessionId;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.diagramObjectId;</method></netparam>
+        <netparam><method name="getValue">return canvas.currentdomainObj.organisation_id;</method></netparam>
+        <handler name="ondata" args="value">
+            //The onResult-Handler will be called be the rtmpconnection
+            //if ($debug) Debug.write("getOrganizationsByObjects: ",value);
+            parent.renderContent(value);
+        </handler>  
+    </netRemoteCallRPC>  
+    
+    <method name="renderContent" args="value">
+        <![CDATA[
+            for (var i=0;i<value.length;i++) {
+                new lz.organisationObjectItem(this._infoContent._inner,{
+                        obj:value[i]
+                    });
+            }
+            
+            //FIXME: TODO: Check for current Org-Objects in the current Diagram
+        ]]>
+    </method>   
+    
+    <labelText x="0" labelid="813" />    
+    
+    <view x="${ parent.parent.parent.width - 38 }"   resource="messagebox_warning_rsc" onmouseover="" onmouseout="">
+        <labelTooltip labelid="812" />
+    </view>
+    
+    <view x="80" y="20" name="_infoContent" height="100" clip="true"
+          width="${ parent.parent.parent.width - 96 }" bgcolor="0xDDDDDD">
+        <view name="_inner" layout="axis:y;spacing:2">
+            
+        </view>
+        <vscrollbar name="_scrollbar" />
+    </view>
+    
+</class>
+
+
+
+</library>

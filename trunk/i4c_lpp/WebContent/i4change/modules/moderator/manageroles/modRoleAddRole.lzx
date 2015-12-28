@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<library>
+
+<!--- "System" panel on the dashboard -->
+<class name="modRoleAddRole" extends="guiPresenter" resizeable="false"
+       x="$once{ parent.width-this.width-16 }" y="100" width="400" 
+       height="130" closable="true" labelid="698" >
+    
+    <attribute name="refObj" value="null" />
+    
+    <attribute name="errortext" value="" type="string" />
+    <attribute name="errorid" value="0" type="number" />    
+       
+    <!-- resizeable="false"
+	   width="300" height="300" closable="true" labelid="604" y="10">
+     -->
+    <handler name="oninit">
+        //Add Help Item
+        canvas.addCurrentHelpId(29,this.__constructor__.classname);
+    </handler> 
+    <handler name="oninit">
+        lz.ModeManager.makeModal(this);
+    </handler>
+    
+    <handler name="onclose">
+        lz.ModeManager.release(this);
+    </handler>
+    
+    <method name="saveAndLoadDiagramObject">
+        //if ($debug) Debug.write("saveAndLoadDiagramObject ");
+        this.parent.setAttribute('errortext','');
+        this.checkForUniqueName.doCall();
+    </method>
+    
+   <netRemoteCallRPC name="checkForUniqueName" funcname="checkForUniqueName" 
+                      remotecontext="$once{  canvas.diagramServiceRPC }" >      
+        <netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+        <netparam><method name="getValue">return parent.parent.roleName.getText();</method></netparam> 
+        <netparam><method name="getValue">return '0';</method></netparam> 
+        <netparam><method name="getValue">return "unit";</method></netparam> 
+        <netparam><method name="getValue">return canvas.currentdomainObj.organisation_id;</method></netparam>
+        <handler name="ondata" args="value">
+            <![CDATA[
+                //if ($debug) Debug.write("checkForUniqueName: ",value);
+                if (value < 0){
+                    parent.errorid = value;
+                    parent.getErrorByCode.doCall();
+                } else {
+                    parent.addDiagramObject.doCall();
+                }
+            ]]>
+        </handler>
+    </netRemoteCallRPC>  
+    
+    <netRemoteCallRPC name="getErrorByCode" funcname="getErrorByCode" 
+    				  remotecontext="$once{  canvas.errorServiceRPC }" >      
+        <netparam><method name="getValue"> return canvas.sessionId; </method></netparam>
+        <netparam><method name="getValue"> return parent.parent.errorid; </method></netparam>
+        <netparam><method name="getValue"> return  canvas.userlang; </method></netparam>
+        <handler name="ondata" args="value">
+            Debug.write("getErrorByCode ",value);
+            //this.parent.destroy();
+            this.parent.setAttribute('errortext',value.errmessage);
+        </handler>
+    </netRemoteCallRPC>     
+
+   <netRemoteCallRPC name="addDiagramObject" funcname="addDiagramObject" 
+                      remotecontext="$once{  canvas.diagramServiceRPC }" >      
+        <netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+        <netparam><method name="getValue">return parent.parent.roleName.getText();</method></netparam> 
+        <netparam><method name="getValue">return 'unitFixed';</method></netparam> 
+        <netparam><method name="getValue">return canvas.currentdomainObj.organisation_id;</method></netparam>
+        <handler name="ondata" args="value">
+            <![CDATA[
+                //if ($debug) Debug.write("checkForUniqueName: ",value);
+                if (value < 0){
+                    parent.errorid = value;
+                    parent.getErrorByCode.doCall();
+                } else {
+                    parent.refObj.setDiagramObject(parent.roleName.getText(),value);
+                    parent.close();
+                }
+            ]]>
+        </handler>
+    </netRemoteCallRPC> 
+
+    <labelText labelid="699" width="200" y="24" resize="false" x="2"/>  
+    <customEdittext name="roleName" y="24" x="120" width="270" text="" />
+    
+
+    <view y="24" width="298" height="$once{ parent.height-60 }">
+        <text y="30" x="10" fontsize="10" fontstyle="bold" text="${ parent.parent.errortext }"
+            multiline="true" width="270" />
+    </view>    
+    
+    <simpleLabelButton labelid="701" width="100" x="$once{ parent.width-105*2 }" 
+                       y="$once{ parent.height-24 }">
+        <handler name="onclick">
+            this.parent.saveAndLoadDiagramObject();
+        </handler>
+    </simpleLabelButton>  
+    <simpleLabelButton labelid="725" width="100" x="$once{ parent.width-105*1 }" 
+                       y="$once{ parent.height-24 }">
+        <handler name="onclick">
+            this.parent.close();
+        </handler>
+    </simpleLabelButton>       
+</class> 
+
+</library>

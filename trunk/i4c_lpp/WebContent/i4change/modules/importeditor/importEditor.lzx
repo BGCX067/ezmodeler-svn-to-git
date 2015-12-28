@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<library>
+	<include href="../../base/components/text/customEdittext.lzx" />
+
+<!--- "System" panel on the dashboard -->
+<class name="importEditor" extends="view" 
+       width="$once{ parent.width }" height="380">
+    <handler name="oninit">
+        //Add Help Item
+        canvas.addCurrentHelpId(32,this.__constructor__.classname);
+    </handler>   
+    <attribute name="currentDiagramName" value="" type="string" />
+    <attribute name="currentDiagramType" value="" type="string" />
+    <attribute name="mapItemToImport" value="null" />
+    <attribute name="itemToCheck" value="null" />
+    
+    <attribute name="itemToCheckObjectId" value="0" type="number" />
+    <attribute name="itemToCheckObjectName" value="" type="string" />
+    
+    <attribute name="currentCheckSequence" value="0" type="number" />
+    
+    <handler name="oninit">
+        <![CDATA[
+	        this.doCheckNextObject();
+        ]]>
+    </handler>
+    
+    <method name="doCheckNextObject">
+        <![CDATA[
+	        if (this.currentCheckSequence < this.mapItemToImport.printItemList.length) {
+	            this.itemToCheck = this.mapItemToImport.printItemList[this.currentCheckSequence];
+	            //if ($debug) Debug.write("itemToCheck: ",itemToCheck);
+	            this.itemToCheckObjectId = this.itemToCheck[this.itemToCheck.length-7];
+                this.itemToCheckObjectName = this.itemToCheck[this.itemToCheck.length-8];
+	            //if ($debug) Debug.write("itemToCheckObjectId: ",itemToCheckObjectId);
+	            this.currentCheckSequence++;
+	            if (this.itemToCheckObjectId != 0){
+	                this.getDiagramObjectById.doCall();
+	            } else {
+	                this.doCheckNextObject();
+	            }
+	        } else {
+	            //if ($debug) Debug.write("Check Complete");
+                this._loadingCheck.setAttribute('visibility','hidden');
+                this._startCheck.setAttribute('visibility','visible');
+	        }
+        ]]>
+    </method>
+    
+    <netRemoteCallRPC name="getDiagramObjectById" funcname="getDiagramObjectById" 
+                      remotecontext="$once{  canvas.diagramServiceRPC }" >    
+        <netparam><method name="getValue">return canvas.sessionId;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.itemToCheckObjectId;</method></netparam>
+        <handler name="ondata" args="value">
+            <![CDATA[
+                //if ($debug) Debug.write("getDiagramObjectById: ",value);
+                if (value != null){
+                    //if ($debug) Debug.write("Found Object conflict");
+                    parent._conflictTable.addItem(value);
+                } else {
+                    //if ($debug) Debug.write("Object does not exist, Reset the Object ID");
+                }
+                parent.doCheckNextObject();
+            ]]>
+        </handler>
+    </netRemoteCallRPC>     
+        
+    <labelText y="0" fontstyle="bold" labelid="674" />
+    <customEdittext x="160" name="_cname" width="300" text="$once{ parent.currentDiagramName }" />
+    
+    <labelText y="24" labelid="675" />
+    <labelText y="24" x="160" width="200" text="$once{ parent.currentDiagramType }" />
+    
+    <labelText name="_loadingCheck" y="44" fontstyle="italic" labelid="677" />
+    <labelText name="_startCheck" y="44" fgcolor="red" visibility="hidden" multiline="true"
+               fontstyle="italic" labelid="676" width="$once{ parent.width }" />
+    
+    <labelText y="74" labelid="681" />
+    <view name="_conflictTable" y="94" width="260" height="${ parent.height-204 }" >
+        
+        <handler name="onclickedItem" args="obj">
+            ////if ($debug) Debug.write("obj",obj);
+            parent.itemToCheckObjectName = obj.newName;
+            parent._solvedTable.addItem(obj.obj);
+            obj.destroy();
+        </handler>
+    
+        <handler name="oninit">
+            this.addHeaderItem(678,80);
+            this.addHeaderItem(679,80);
+            this.addHeaderItem(680,80);
+            this.getDiagramList.doCall();
+        </handler>  
+        
+        <method name="switchAll">
+            <![CDATA[
+                while (this._innerlist._inn._inn.subviews.length > 0) {
+                    var item = this._innerlist._inn._inn.subviews[0];
+                   this.onclickedItem.sendEvent(item);
+                }
+            ]]>
+        </method>
+        
+        <method name="addHeaderItem" args="labelid,width" >
+            ////if ($debug) Debug.write("addHeaderItem: ",labelid,width,this.width,this._innerlisthead._inn.width);
+            new lz.turnOverListHeaderItem(this._innerlisthead._inn,{labelid:labelid,width:width,subviewsid:this._innerlisthead._inn.subviews.length});
+        </method>       
+        
+        <method name="addItem" args="item">
+            <![CDATA[
+                    new lz.importEditorListItem(this._innerlist._inn._inn,{
+                        obj:item,
+                        newName:parent.itemToCheckObjectName,
+                        oldName:item.name,
+                        objectTypeName:item.objectTypeName
+                    });
+            ]]>
+        </method> 
+        
+        <method name="sendWidthUpdate" args="w,subviewsid" >
+            <![CDATA[
+            ////Debug.write(w,subviewsid,this._innerlist._inn);
+            for (var i=0;i<this._innerlist._inn._inn.subviews.length;i++){
+                this._innerlist._inn._inn.subviews[i].subviews[subviewsid].setAttribute('width',w);
+            }
+            ]]>
+        </method>           
+                  
+        <view name="_innerlisthead" height="20" width="${ parent.width }" 
+            x="${ parent._innerlist.x }" y="2" clip="true">
+            <view name="_inn" layout="axis:x;spacing:0" />
+        </view>         
+
+        <view name="_innerlist" height="${ parent.height-22 }" width="${ parent.width }"
+            y="22" clip="true">
+            <view name="_inn" >
+                <innerList name="_inn" />
+            </view>
+            <vscrollbar name="_scrollbar" />
+            <hscrollbar />
+        </view>
+        
+    </view>
+    
+    <simpleLabelButton name="_moveAll" x="280" labelid="686" width="40" y="140">
+        <handler name="onclick">
+            //if ($debug) Debug.write("onclick ALL: ",this);
+            parent._conflictTable.switchAll();
+        </handler>
+    </simpleLabelButton> 
+    
+    <simpleLabelButton name="_removeAll" x="280" labelid="687" width="40" y="164">
+        <handler name="onclick">
+            //if ($debug) Debug.write("onclick NONE: ",this);
+            parent._solvedTable.switchAll();
+        </handler>
+    </simpleLabelButton>
+    
+    <labelText y="74" x="340" labelid="685" />
+    <view name="_solvedTable" y="94" x="340" width="260" height="${ parent.height-204 }" >
+        
+        <handler name="onclickedItem" args="obj">
+            ////if ($debug) Debug.write("obj",obj);
+            parent.itemToCheckObjectName = obj.newName;
+            parent._conflictTable.addItem(obj.obj);
+            obj.destroy();            
+        </handler>
+    
+        <handler name="oninit">
+            this.addHeaderItem(678,80);
+            this.addHeaderItem(679,80);
+            this.addHeaderItem(680,80);
+            this.getDiagramList.doCall();
+        </handler>  
+        
+        <method name="switchAll">
+            <![CDATA[
+                while (this._innerlist._inn._inn.subviews.length > 0) {
+                    var item = this._innerlist._inn._inn.subviews[0];
+                   this.onclickedItem.sendEvent(item);
+                }
+            ]]>
+        </method>   
+        
+        <method name="getObjectList">
+            <![CDATA[
+                var myArray = new Array();
+                for (var i=0;i<this._innerlist._inn._inn.subviews.length;i++) {
+                    var item = this._innerlist._inn._inn.subviews[i];
+                    myArray.push(item.obj);
+                }
+                return myArray;
+            ]]>
+        </method>     
+        
+        <method name="addHeaderItem" args="labelid,width" >
+            ////if ($debug) Debug.write("addHeaderItem: ",labelid,width,this.width,this._innerlisthead._inn.width);
+            new lz.turnOverListHeaderItem(this._innerlisthead._inn,{labelid:labelid,width:width,subviewsid:this._innerlisthead._inn.subviews.length});
+        </method>       
+        
+        <method name="addItem" args="item">
+            <![CDATA[
+                    new lz.importEditorListItem(this._innerlist._inn._inn,{
+                        obj:item,
+                        newName:parent.itemToCheckObjectName,
+                        oldName:item.name,
+                        objectTypeName:item.objectTypeName
+                    });
+            ]]>
+        </method> 
+        
+        <method name="sendWidthUpdate" args="w,subviewsid" >
+            <![CDATA[
+            ////Debug.write(w,subviewsid,this._innerlist._inn);
+            for (var i=0;i<this._innerlist._inn._inn.subviews.length;i++){
+                this._innerlist._inn._inn.subviews[i].subviews[subviewsid].setAttribute('width',w);
+            }
+            ]]>
+        </method>           
+                  
+        <view name="_innerlisthead" height="20" width="${ parent.width }" 
+            x="${ parent._innerlist.x }" y="2" clip="true">
+            <view name="_inn" layout="axis:x;spacing:0" />
+        </view>         
+
+        <view name="_innerlist" height="${ parent.height-22 }" width="${ parent.width }"
+            y="22" clip="true">
+            <view name="_inn" >
+                <innerList name="_inn" />
+            </view>
+            <vscrollbar name="_scrollbar" />
+            <hscrollbar />
+        </view>
+        
+    </view>
+    
+    <!--
+    <view name="_access" x="10" y="$once{ parent.height - 100 }" layout="axis:y;spacing:2">
+        <labelCheckbox name="_read" value="true" labelid="727" fontsize="12"/>
+        <labelCheckbox name="_issueOnly" value="true" labelid="729" fontsize="12"/>
+        <labelCheckbox name="_write" labelid="728" fontsize="12"/>
+    </view>        
+     -->
+    <simpleLabelButton name="_close" x="$once{ parent.width - 105*2 }" 
+            y="$once{ parent.height - 24 }" labelid="682" width="100" height="20">
+        <handler name="onclick">
+            this.parent.parent.close();
+        </handler>
+    </simpleLabelButton>    
+    
+    <simpleLabelButton name="_next" x="$once{ parent.width - 105 }" 
+            y="$once{ parent.height - 24 }" labelid="684" width="100" height="20">
+        <handler name="onclick">
+            this.parent.parent.loadImportFinishDialog(
+                    parent._solvedTable.getObjectList(),parent._cname.getText(),
+	                true,true,true
+                );
+        </handler>
+    </simpleLabelButton>    
+    
+</class> 
+
+
+<class name="importEditorListItem" extends="view" layout="axis:x;spacing:0" 
+    bgcolor="0xFFFFFF" showhandcursor="false"
+    onmouseover="this.setAttribute('bgcolor',canvas.baseMouseOvercolorizer)" 
+    onmouseout="this.setAttribute('bgcolor',0xFFFFFF)" >
+    
+    <attribute name="obj" value="null" />
+
+    <attribute name="newName" value="" type="string" />
+    <attribute name="oldName" value="" type="string" />
+    <attribute name="objectTypeName" value="" type="string" />
+    
+    <turnOverTextItem text="$once{ parent.newName }" width="80" />
+    <turnOverTextItem text="$once{ parent.oldName }" width="80" />
+    <turnOverTextItem text="$once{ parent.objectTypeName }" width="80" />
+    
+    <handler name="ondblclick">
+        this.parent.parent.parent.parent.onclickedItem.sendEvent(this);
+    </handler>
+    
+    <labelTooltip>
+        <handler name="onInitText">
+            this.setAttribute('text','Last Update: '+parent.obj.inserted+' by:'+parent.obj.insertedby.login)
+        </handler>
+    </labelTooltip>
+    
+</class>
+
+</library>

@@ -1,0 +1,327 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+<class name="userProfileLicenseInfo" extends="view" x="2" >
+    
+    <attribute name="userObj" value="null" />
+    <attribute name="refObj" value="null" />
+    <attribute name="discount" value="0" type="number" />
+    <attribute name="numberOfUsers" value="0" type="number" />
+    <attribute name="overallDiscountPrice" value="0" type="number" />
+    <attribute name="pricePerUser" value="0" type="number" />
+    
+    <method name="setUserLicense" args="refObj,userObj">
+        //if ($debug) Debug.write("setUserLicense: ",userObj);
+        
+        this.refObj = refObj;
+        this.userObj = userObj;
+        
+        if (userObj.isPending) {
+            
+            this._content.license_expire_date_label.setAttribute("visibility","hidden");
+            this._content.license_expire_date.setAttribute("visibility","hidden");
+            
+            if (userObj.maxWorkDays != null) {
+                this._content.license_free_version_workdays.setAttribute("text",userObj.maxWorkDays);
+            } else {
+                this._content.license_free_version_workdays.setAttribute("text",canvas.getLabelName(1115));
+            }
+            
+            if (userObj.expireDate != null) {
+                this._content.license_free_version_expiredate.setAttribute("text",parseDateToString(userObj.expireDate));
+            } else {
+                this._content.license_free_version_expiredate.setAttribute("text",canvas.getLabelName(914));
+            }
+            
+        } else {
+            
+            this._content.license_free_version_info_text_label.setAttribute("visibility","hidden");
+            this._content.license_free_version_workdays_label.setAttribute("visibility","hidden");
+            this._content.license_free_version_workdays.setAttribute("visibility","hidden");
+            this._content.license_free_version_expiredate_label.setAttribute("visibility","hidden");
+            this._content.license_free_version_expiredate.setAttribute("visibility","hidden");
+            
+            if (userObj.expireDate == null) {
+                this._content.license_expire_date.setAttribute("text",canvas.getLabelName(914));
+            } else {
+                this._content.license_expire_date.setAttribute("text",parseDateToString(userObj.expireDate));
+            }
+            
+        }
+        
+        if (this.userObj.pricePerUser == null) {
+            var defaultUserPricing =  canvas.getConfByKey("defaultUserPricing");
+            this.pricePerUser = Number(defaultUserPricing.conf_value);
+        } else {
+            this.pricePerUser = this.userObj.pricePerUser;
+        }
+        
+        this.pricePerUser = Math.round(this.pricePerUser*100)/100;
+        
+        this._content._licenseItems_single_price._licenseItems_single_price.setAttribute("text",this.pricePerUser+" USD");
+        
+        //this._content.license_free_version_freelicenses
+        if (this.userObj.unlimitedLicenses) {
+        	this._content.license_free_version_freelicenses.setAttribute("text",
+				canvas.getLabelName(1115));
+        } else {
+	        var licenseUserPayed = 0;
+	        if (this.userObj.licenseUserPayed != null) {
+	        	licenseUserPayed = this.userObj.licenseUserPayed;
+	        }
+	        var licenseUserUsed = 0;
+	        if (this.userObj.licenseUserUsed != null) {
+	        	licenseUserUsed = this.userObj.licenseUserUsed;
+	        }
+			this._content.license_free_version_freelicenses.setAttribute("text",
+				(licenseUserPayed-licenseUserUsed));
+        }
+        
+        if (this.userObj.useDefaultDiscounts == null || this.userObj.useDefaultDiscounts) {
+        	this.setDefaultDiscountData();
+        } else {
+        	this.setCustomDiscountData();
+        }
+    </method>
+    
+    <method name="setDiscountPricing">
+        
+        this.discount = Number(this._content._licenseItems_discount_users._licenseItems_discount_numberUser.getValue());
+        this.numberOfUsers = Number(this._content._licenseItems_discount_users._licenseItems_discount_numberUser.text);
+        
+        //if ($debug) Debug.write(" setDiscountPricing: ",this.discount," numberOfUsers:",this.numberOfUsers);
+        
+        this._content._licenseItems_discount_price._licenseItems_discount_price.setAttribute("text",this.discount+"%");
+        
+        var overallPrice = numberOfUsers * this.pricePerUser;
+        
+        //if ($debug) Debug.write(" overallPrice: ",overallPrice);
+        
+        var discountPrice = (overallPrice/100) * discount; 
+        
+        //if ($debug) Debug.write(" discountPrice: ",discountPrice);
+        
+        this.overallDiscountPrice = overallPrice - discountPrice;
+        
+        //if ($debug) Debug.write(" this.overallDiscountPrice: ",this.overallDiscountPrice);
+        
+        this.overallDiscountPrice = Math.round(this.overallDiscountPrice*100)/100;
+        
+        //if ($debug) Debug.write(" this.overallDiscountPrice : ",this.overallDiscountPrice );
+        
+        this._content._licenseItems_sum_price._licenseItems_sum_price.setAttribute("text",this.overallDiscountPrice+" USD");
+        
+        if (this.numberOfUsers != 0) {
+        	var discountPricePerUser = this.overallDiscountPrice / this.numberOfUsers;
+        } else {
+        	var discountPricePerUser = 0;
+        }
+        var discountPricePerUserFull = Math.round(discountPricePerUser);
+        
+        discountPricePerUser = Math.round(discountPricePerUser*100)/100;
+        
+        this._content._licenseItems_priceperuser_price._licenseItems_priceperuser_price.setAttribute("text",discountPricePerUser+" USD");
+        
+        if (this.userObj.discounts == null || this.userObj.discounts.length == 0) {
+            var maxNumberOfUser =  canvas.getConfByKey("maxNumberOfUser");
+            //if ($debug) Debug.write("maxNumberOfUser.conf_value",maxNumberOfUser.conf_value,this.numberOfUsers);
+            if (this.numberOfUsers == Number(maxNumberOfUser.conf_value)) {
+                new lz.errorPopupWithLabel(canvas,{labelid:1135,labelerrorid:1134})
+            }
+        }
+        
+    </method>
+    
+    <method name="setCustomDiscountData">
+    	<![CDATA[
+    		var ccBox = this._content._licenseItems_discount_users._licenseItems_discount_numberUser;
+                
+    		for (var i=0;i<this.userObj.discounts.length;i++) {
+				ccBox.addItem(this.userObj.discounts[i].numberOfUsers,
+				    			this.userObj.discounts[i].discount);
+    		}
+    		
+    		if (this.userObj.discounts.length != 0){
+    			ccBox.selectItemAt(0);
+    		}
+    	]]>
+    </method>
+    
+    <method name="setDefaultDiscountData">
+        <![CDATA[
+            if (this.userObj.discounts == null || this.userObj.discounts.length == 0) {
+                
+                //Use Default Settings
+                var ccBox = this._content._licenseItems_discount_users._licenseItems_discount_numberUser;
+                
+                var confObj =  canvas.getConfByKey("discountNumberOfUsers1");
+                var discountObj =  canvas.getConfByKey("discountAmount1");
+                ccBox.addItem(confObj.conf_value,discountObj.conf_value);
+                
+                var confObj2 =  canvas.getConfByKey("discountNumberOfUsers2");
+                var discountObj2 =  canvas.getConfByKey("discountAmount2");
+                ccBox.addItem(confObj2.conf_value,discountObj2.conf_value);
+                
+                var maxNumberOfUser =  canvas.getConfByKey("maxNumberOfUser");
+                var discountObj3 =  canvas.getConfByKey("discountAmount2");
+                ccBox.addItem(maxNumberOfUser.conf_value,discountObj3.conf_value);
+                
+                ccBox.selectItem(discountObj.conf_value);
+            }
+        ]]>
+    </method>
+    
+    <view name="_bg" opacity="0.8" bgcolor="0xF0F0F0" 
+          width="196" height="${ parent.height }" />
+    
+    <view name="_content" layout="axis:y;spacing:2" >
+	    <labelText name="license_expire_date_label" labelid="1117" multiline="true"
+	               width="196" resize="false" />
+	    <labelText name="license_expire_date" 
+	               fgcolor="0x666666" width="196" resize="false" />
+	    
+	    <labelText name="license_free_version_info_text_label" labelid="1118" multiline="true"
+	               width="196" resize="false" />
+	    
+	    <labelText name="license_free_version_workdays_label" labelid="1119" multiline="true"
+	               width="196" resize="false" />
+	    <labelText name="license_free_version_workdays" 
+	               fgcolor="0x666666" width="196" resize="false" />
+	    
+	    <labelText name="license_free_version_expiredate_label" labelid="1120" multiline="true"
+	               width="196" resize="false" />
+	    <labelText name="license_free_version_expiredate"
+	               fgcolor="0x666666" width="196" resize="false" />
+                   
+        <view name="_licenseItems_single_price">
+            <labelText name="_licenseItems_single_Labels" labelid="1133" multiline="true"
+                   width="100" resize="false" fontstyle="bold" />
+            <labelText x="110" width="86" fontstyle="bold" fgcolor="0xFF3300" 
+                       name="_licenseItems_single_price" />
+        </view>
+               
+               <!--    
+        <simpleLabelButton height="28" width="196"  bgcolor="$once{ canvas.baseMousecolorizer }">
+            <view x="4" layout="axis:x;spacing:2" y="2">
+	            <view oninit="this.setSource(canvas.getIconPathByName('icon_settings_license_info_buy_rsc'))" />
+	            <labelText width="160" y="2" fontsize="12" 
+                           fontstyle="bold" labelid="1127" />
+            </view>
+            <handler name="onclick">
+                this.addTransaction.doCall();
+            </handler>
+            
+            <netRemoteCallRPC name="addTransaction" funcname="addTransaction" 
+                              remotecontext="$once{  canvas.userServiceRPC }"> 
+		        <netparam><method name="getValue">return canvas.sessionId;</method></netparam>
+                <netparam><method name="getValue">return parent.parent.parent.parent.pricePerUser;</method></netparam>
+                <netparam><method name="getValue">return 1;</method></netparam>
+		        <handler name="ondata" args="value">
+		            <![CDATA[
+		                //if ($debug) Debug.write("addTransaction: ",value);
+		                
+                        //var baseUrlPaypalConf =  canvas.getConfByKey("baseUrlPaypal");
+                        //if ($debug) Debug.write(baseUrlPaypalConf.conf_value);
+                        //var baseUrlPaypal = baseUrlPaypalConf.conf_value + "doDirectPayment?lang="+hib.userlang+"&command=pay&t="+value;
+                        //if ($debug) Debug.write(baseUrlPaypal);
+                        
+                        //lz.Browser.loadURL(baseUrlPaypal,"_BLANK");
+                        
+		                parent.parent.parent.refObj.loadPaymentFormByTransaction(value,
+		                              parent.parent.parent.pricePerUser,1);
+		                
+		            ]]>
+		        </handler>
+		    </netRemoteCallRPC>           
+     
+            <labelTooltip multiline="true" labelid="1129" />
+        </simpleLabelButton> 
+         -->
+        
+        <labelText name="license_free_version_freelicenses_label" labelid="1125" multiline="true"
+                   width="196" resize="false" />
+        <labelText name="license_free_version_freelicenses"
+                   fgcolor="0x666666" width="196" resize="false" />
+        
+        <labelText name="license_discount_offers_label" labelid="1121" multiline="true"
+                   width="196" resize="false" />
+        <labelText name="license_discount_offers_label2" labelid="1122" multiline="true"
+                   width="196" resize="false" fontstyle="bold" />
+        
+        <view name="_licenseItems_discount_users">
+            <labelText name="_licenseItems_discount_numberUser_Labels" labelid="1123" multiline="true"
+                   width="110" resize="false" />
+            <omComboBox x="116" width="76" name="_licenseItems_discount_numberUser" editable="false">
+                <!-- -->
+                <handler name="onselect">
+                    parent.parent.parent.setDiscountPricing();
+                </handler>
+            </omComboBox>
+        </view>
+        
+        <view name="_licenseItems_discount_price">
+            <labelText name="_licenseItems_discount_price_Labels" labelid="1124" multiline="true"
+                   width="100" resize="false" />
+            <labelText x="110" width="86" name="_licenseItems_discount_price" />
+        </view>
+        
+        <view name="_licenseItems_priceperuser_price">
+            <labelText name="_licenseItems_priceperuser_Labels" labelid="1132" multiline="true"
+                   width="100" resize="false" />
+            <labelText x="110" width="86" name="_licenseItems_priceperuser_price" />
+        </view>
+        
+        <view name="_licenseItems_sum_price">
+            <labelText name="_licenseItems_sum_Labels" labelid="1133" multiline="true"
+                   width="100" resize="false" fontstyle="bold" />
+            <labelText x="110" width="86" fontstyle="bold" fgcolor="0xFF3300" 
+                       name="_licenseItems_sum_price" />
+        </view>
+        
+        <!--
+        <simpleLabelButton height="28" width="196"  bgcolor="$once{ canvas.baseMousecolorizer }">
+            <view x="4" layout="axis:x;spacing:2" y="2">
+                <view oninit="this.setSource(canvas.getIconPathByName('icon_settings_license_info_buy_rsc'))" />
+                <labelText width="160" y="2" fontsize="12" 
+                           fontstyle="bold" labelid="1130" />
+            </view>
+            <handler name="onclick">
+            	if (parent.parent.numberOfUsers != 0) {
+                	this.addTransaction.doCall();
+            	} else {
+            		//FIXME: Add Error Dialog
+            		//if ($debug) Debug.warn("Show Warning")
+            	}
+            </handler>
+            
+            <netRemoteCallRPC name="addTransaction" funcname="addTransaction" 
+                              remotecontext="$once{  canvas.userServiceRPC }"> 
+                <netparam><method name="getValue">return canvas.sessionId;</method></netparam>
+                <netparam><method name="getValue">return parent.parent.parent.parent.overallDiscountPrice;</method></netparam>
+                <netparam><method name="getValue">return parent.parent.parent.parent.numberOfUsers;</method></netparam>
+                <handler name="ondata" args="value">
+                    <![CDATA[
+                        //if ($debug) Debug.write("addTransaction: ",value);
+                        
+                        //var baseUrlPaypalConf =  canvas.getConfByKey("baseUrlPaypal");
+                        //if ($debug) Debug.write(baseUrlPaypalConf.conf_value);
+                        //var baseUrlPaypal = baseUrlPaypalConf.conf_value + "doDirectPayment?lang="+hib.userlang+"&command=pay&t="+value;
+                        //if ($debug) Debug.write(baseUrlPaypal);
+                        
+                        //lz.Browser.loadURL(baseUrlPaypal,"_BLANK");
+                        parent.parent.parent.refObj.loadPaymentFormByTransaction(value,
+                                    parent.parent.parent.overallDiscountPrice,
+                                    parent.parent.parent.numberOfUsers);
+                    ]]>
+                </handler>
+            </netRemoteCallRPC>     
+            
+            <labelTooltip multiline="true" labelid="1131" />
+        </simpleLabelButton>
+         -->
+        
+    </view>
+    
+</class>
+
+</library>

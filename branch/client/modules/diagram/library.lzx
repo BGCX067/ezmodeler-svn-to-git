@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+    <include href="diagramsidebar/" />
+    <include href="propertyinspector/" />
+    <include href="mainDiagram/" />
+    <include href="explorer/" />
+	<include href="processgroup/" />
+	<include href="hierarchical/" />
+	<include href="roleview/" />
+    <include href="singleRole/" />
+    <include href="drilldownandup/" />
+    <include href="saveupdatedialog/" />
+    
+</library>

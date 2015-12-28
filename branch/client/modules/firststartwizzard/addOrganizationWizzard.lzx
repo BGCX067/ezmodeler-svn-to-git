@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+    
+<class name="addOrganizationWizzard" extends="view" >
+    
+    <event name="onComplete" />
+    
+    <method name="register">
+        //this.registerB.onclick.sendEvent();
+        this.addPendingOrganization.orgName = this._orgItems.orgname.getText();
+        this.addPendingOrganization.orgPatternMap = this._orgItems._orgPatternlist.getValuesForUpdate();
+        this.addPendingOrganization.doCall();
+    </method>
+    
+    <infoIconBox y="0" x="10" width="$once{ parent.width - 20 }"
+                 labelid="907" />    
+                 
+    <pendingOrgForm name="_orgItems" y="60" /> 
+    
+    <netRemoteCallHib name="addPendingOrganization" funcname="organisationservice.addPendingOrganization" 
+        remotecontext="$once{ canvas.thishib }" activeErrorHandler="true" >
+        <attribute name="orgPatternMap" value="null" />
+        <attribute name="orgName" value="null" />         
+        <netparam><method name="getValue">return canvas.sessionId;</method></netparam>
+        <netparam><method name="getValue">return parent.orgName;</method></netparam>
+        <netparam><method name="getValue">return parent.orgPatternMap;</method></netparam>     
+        <handler name="ondata" args="value">
+            <![CDATA[
+                //The onResult-Handler will be called be the rtmpconnection
+                if ($debug) Debug.write("addPendingOrganization: ",value);
+                if (value > 0) {
+                    parent.getOrganisationsByUser.newOrgId = value;
+                    parent.getOrganisationsByUser.doCall();
+                }
+            ]]>
+        </handler>  
+    </netRemoteCallHib>   
+    
+    <netRemoteCallHib name="getOrganisationsByUser" funcname="organisationservice.getOrganisationsByUser" 
+                      remotecontext="$once{ canvas.thishib }" >      
+        <netparam><method name="getValue"> return canvas.sessionId; </method></netparam> 
+        <attribute name="newOrgId" value="0" type="number"/>
+        <handler name="ondata" args="value">
+            <![CDATA[
+                //The onResult-Handler will be called be the rtmpconnection
+                if ($debug) Debug.write("getOrganisationsByUser: ",value);
+                hib.userobject.organisation_users = value;
+                for (var i=0;i<value.length;i++){
+                    if (newOrgId == value[i].organisation.organisation_id) {
+                        if ($debug) Debug.write("Found Newly added Org",i,value[i]);
+                        hib.currentdomain = value[i].organisation.name;
+                        hib.currentdomainObj = value[i].organisation; 
+                        hib.currentdomainUserObj = value[i];
+                    }
+                }
+                
+                if ($debug) Debug.write("hib.currentdomainUserObj: ",hib.currentdomainUserObj,hib.currentdomainObj);
+                if (hib.currentdomainUserObj != null && hib.currentdomainUserObj.isModerator) {
+                    hib.userobject.userlevel.level_id = 2;
+                }
+                parent.checkOrganizationStatus.doCall();
+            ]]>
+        </handler>  
+    </netRemoteCallHib>       
+ 
+            
+    <netRemoteCallHib name="checkOrganizationStatus" funcname="organisationservice.checkOrganizationStatus"
+                  activeErrorHandler="true" remotecontext="$once{ canvas.thishib }" >
+        <netparam><method name="getValue">return canvas.sessionId;</method></netparam>
+        <netparam><method name="getValue">return hib.currentdomainObj.organisation_id;</method></netparam>
+        <handler name="ondata" args="value">
+            //The onResult-Handler will be called be the rtmpconnection
+            if ($debug) Debug.write("checkOrganizationStatus ",value);
+            if (value > 0){
+                parent.getUserByOrganization.doCall();
+                parent.getPropertyValidationTypes.doCall();
+                //show an Info Dialog with the remaining Days in this Pending Organization
+            }
+        </handler>  
+    </netRemoteCallHib> 
+    
+    <netRemoteCallHib name="getPropertyValidationTypes" funcname="propertyservice.getPropertyValidationTypes" 
+                      dataobject="propertyValidationTypes" remotecontext="$once{ canvas.thishib }" >
+        <netparam><method name="getValue">return canvas.sessionId;</method></netparam>
+        <handler name="ondata" args="value">
+            //The onResult-Handler will be called be the rtmpconnection
+            if ($debug) Debug.write("getPropertyValidationTypes ",value);
+        </handler>  
+    </netRemoteCallHib> 
+    
+    <netRemoteCallHib name="getUserByOrganization" funcname="userservice.getUserByOrganization"
+                      remotecontext="$once{ canvas.thishib }" >
+        <netparam><method name="getValue">return canvas.sessionId;</method></netparam>
+        <netparam><method name="getValue">return hib.currentdomainObj.organisation_id;</method></netparam>
+        <handler name="ondata" args="value">
+            //The onResult-Handler will be called be the rtmpconnection
+            if ($debug) Debug.write("getUserByOrganization ",value,hib.currentdomainObj.organisation_id);
+            canvas.orgUserList = value;
+            //parent.getModeratorsByOrganization.doCall();
+            parent.getRolesBySelf.doCall();
+        </handler>  
+    </netRemoteCallHib> 
+    
+    <netRemoteCallHib name="getRolesBySelf" funcname="roleservice.getRolesBySelf" 
+                      remotecontext="$once{ canvas.thishib }" >    
+        <netparam><method name="getValue"> return canvas.sessionId; </method></netparam>   
+        <netparam><method name="getValue"> return hib.currentdomainObj.organisation_id;</method></netparam> 
+        <handler name="ondata" args="value">
+            <![CDATA[
+                //The onResult-Handler will be called be the rtmpconnection
+                if ($debug) Debug.write("hibRtmpConnection/getRolesBySelf [",value,"]");
+                
+                _currentUserHeaderMenu.setAttribute('visibility','visible');
+	            if (hib.currentRole != null) {
+	                _currentUserHeaderMenu.setAttribute('text',
+	                            hib.userobject.login + '@' + hib.currentdomainObj.name 
+	                            + " (" + canvas.getLabelName(709) + hib.currentRole.roleObject.name + ")");            
+	            } else {
+	                _currentUserHeaderMenu.setAttribute('text',
+	                            hib.userobject.login + '@' + hib.currentdomainObj.name );            
+	            }
+	            _currentUserHeaderMenu.bringToFront();
+                parent.onComplete.sendEvent();
+            ]]>
+        </handler>  
+    </netRemoteCallHib>
+                    
+
+</class>
+
+</library>

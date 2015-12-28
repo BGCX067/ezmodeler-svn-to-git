@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<library> 
+
+<class name="organisationObjectItem" extends="baseContentListItem" showhandcursor="false"> 
+
+    <attribute name="obj" value="null" />
+
+    <handler name="ondblclick">
+        canvas.loadDiagramByIdAndObject(obj.diagramInstanceObject.diagram.diagramId,
+            obj.diagramInstanceObject.diagram);
+    </handler>
+
+    <turnOverTextItem text="$once{ parent.obj.diagramInstanceObject.diagramObject.name }" width="190" />
+    <turnOverTextItem text="$once{ parent.obj.diagramInstanceObject.diagram.name }" width="200" />
+    
+    <labelTooltip text="$once{ canvas.getLabelName(810) + 
+        parseDateToStringTime(parent.obj.diagramObject.inserted) }" />
+
+</class>
+
+<class name="organisationObjectItems" extends="baseOrgItems" >
+    
+    <method name="doInitNewItemList" args="baseObject,diagramObjectId">
+        this.baseObject = baseObject;
+        this.diagramObjectId = diagramObjectId;
+        //if ($debug) Debug.write("doInitNewItemList ",this)
+        if (this.visibility != "hidden") {
+        	this.getObjectsByOrganizations.doCall();
+        }
+    </method>    
+    
+    <handler name="onvisible">
+    	////if ($debug) Debug.warn("Should Update onvisible",this);
+    	if (!this.isinited) {
+    		return;
+    	}
+    	this.getObjectsByOrganizations.doCall();
+    </handler>
+    
+    <netRemoteCallRPC name="getObjectsByOrganizations" 
+                      funcname="getObjectsByOrganizations" 
+                      remotecontext="$once{  canvas.diagramServiceRPC }" >      
+        <netparam><method name="getValue"> return canvas.sessionId;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.diagramObjectId;</method></netparam>
+        <netparam><method name="getValue">return canvas.currentdomainObj.organisation_id;</method></netparam>
+        <handler name="ondata" args="value">
+            //The onResult-Handler will be called be the rtmpconnection
+            //if ($debug) Debug.write("getObjectsByOrganizations: ",value);
+            parent.renderContent(value);
+        </handler>  
+    </netRemoteCallRPC>  
+    
+    <method name="renderContent" args="value">
+        <![CDATA[
+            for (var i=0;i<value.length;i++) {
+                new lz.organisationObjectItem(this._innerlist._inn._inn,{
+                        obj:value[i]
+                    });
+            }
+        ]]>
+    </method>  
+    
+    <!--
+    <labelText x="0" labelid="813" />    
+     -->
+     
+    <view x="${ parent.parent.parent.width - 38 }"   resource="messagebox_warning_rsc" onmouseover="" onmouseout="">
+        <labelTooltip labelid="812" />
+    </view>
+    
+</class>
+
+<class name="organisationObjectItemsSidebar"  extends="sideBarPod" labelid="838"
+      iconName="icon_connectedFlows_inspector" contentHeight="184" contentY="20">
+    
+    <attribute name="selectedObj" value="null" />
+    <attribute name="baseObject" value="null" />
+    
+    <method name="setObjectSelectedObj" args="objRef,baseObject,diagramObjectId">
+        <![CDATA[   
+            //init content if not inited yet
+            this.checkContentInitHidden();
+            this.selectedObj = objRef;
+            this.baseObject = baseObject;
+            
+            this.content.clearList();
+            ////if ($debug) Debug.write()
+            if (this.selectedObj.typeOfObject == "unit" 
+                || this.selectedObj.typeOfObject == "departement" 
+                || this.selectedObj.typeOfObject == "company" 
+                || this.selectedObj.typeOfObject == "unitFixed" 
+                || this.selectedObj.typeOfObject == "departementFixed" 
+                || this.selectedObj.typeOfObject == "companyFixed") {
+                //if ($debug) Debug.write("setObjectSelectedObj: ",this.baseObject);
+                this.content.doInitNewItemList(baseObject,diagramObjectId);
+            }
+        ]]>  
+    </method>
+    
+    <method name="checkContentInitHidden">
+        if (!this.contentIsInited){
+            new lz.organisationObjectItems(this,{name:'content',visibility:'hidden'});
+            this.contentIsInited = true;
+        }
+    </method>       
+    
+    <handler name="contentInit" >
+        new lz.organisationObjectItems(this,{name:'content'});
+    </handler>
+    
+</class>
+
+</library>

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+    
+<class name="boundingBoxReadOnly" extends="view">
+   
+    <method name="removeIt">
+        Debug.write("removeIt +**********",this.isinited);
+        this.whiteboardRef.setAttribute('boundingIsActive',false);
+        this._innerDrag._label.destroyLabel();
+        this.whiteboardRef.parent.parent.parent.parent.setCurrentSelectedObject(null);
+        this.destroy();
+    </method>
+
+    <attribute name="ex" value="0" type="number" />
+    <attribute name="ey" value="0" type="number" />
+    <attribute name="ewidth" value="0" type="number" />
+    <attribute name="eheight" value="0" type="number" />
+    
+    <attribute name="startdragX" value="0" type="number" />
+    <attribute name="startdragY" value="0" type="number" />
+    <attribute name="startdragWidth" value="0" type="number" />
+    <attribute name="startdragHeight" value="0" type="number" />
+    
+    <attribute name="objRef" value="null" />
+    <attribute name="whiteboardRef" value="null" />
+    <attribute name="doHandlerUpdates" value="false" type="boolean" />  
+    <attribute name="boundingDoUpdateOnInit" value="false" type="boolean" />  
+    
+    <attribute name="snapWidth" value="0" type="number" />
+    <attribute name="snapHeight" value="0" type="number" />
+    
+    <attribute name="multiselect" value="false" type="boolean" /> 
+    
+    <attribute name="mousetracker_del" value="$once{ new LzDelegate(this, 'updateIdleFunction' )}" />
+
+    <!--- Minimum width for the windowy, default: 60.
+          @keywords final -->
+    <attribute name="minwidth" value="2"/>
+
+    <!--- Minimum height for the window, default: 50.
+          @keywords final -->
+    <attribute name="minheight" value="2"/>    
+    
+    <handler name="oninit">
+        ////if ($debug) Debug.write("onninit BOUNDINGBOX: ",this.objRef,this.objRef,this);
+        this.setAttribute('x',this.ex);
+        this.setAttribute('y',this.ey);
+        this.setAttribute('width',this.ewidth);
+        this.setAttribute('height',this.eheight);   
+        //Set Selection in Box to current Object
+        //if ($debug) Debug.write("Set Selection in Box to current Object "+this.objRef.name);
+        this.whiteboardRef.parent.parent.parent.parent.setCurrentSelectedObject(this.objRef);
+    </handler>
+    
+    <method name="resetValues">
+        this.ex = this.objRef.x;
+        this.ey = this.objRef.y;
+        this.ewidth = this.objRef.width;
+        this.eheight = this.objRef.height;          
+        this.setAttribute('x',this.objRef.x);
+        this.setAttribute('y',this.objRef.y);
+        this.setAttribute('width',this.objRef.width);
+        this.setAttribute('height',this.objRef.height); 
+        this.setStartValues();  
+    </method>
+    
+    <method name="setStartValues">
+        this.startdragX = this.x;
+        this.startdragY = this.y;
+        this.startdragWidth = this.width;
+        this.startdragHeight = this.height;         
+    </method>
+    
+    <method name="setFixedValues">
+    	this.setAttribute('x',this.objRef.x);
+    	this.setAttribute('y',this.objRef.y);
+        this.setAttribute('width',this.objRef.width);
+        this.setAttribute('height',this.objRef.height);        
+    </method>
+    
+	<method name="_applyClickDragstateFromThis">
+		var foundBounding = null;
+		if (!this.boundingDoUpdateOnInit) {
+			//if ($debug) Debug.write("doSetHandModus CurrentLy Focusing: ",this.objRef);
+    		foundBounding = parent.parent._currentBoard.doSetHandModusByObject(this.objRef);
+		} else {
+			this.boundingDoUpdateOnInit = false;
+		}
+    </method>      
+    
+    <view resource="_boundingBoxPointerTL" x="0" y="0" />
+    <view resource="_boundingBoxPointerTR" x="${ parent.width-this.width }" y="0" />
+    <view name="_boundingBoxPointerUR_noresize" resource="_boundingBoxPointerUR_noresize" 
+          x="${ parent.width-this.width }" y="${ parent.height-this.height }" />
+    <view resource="_boundingBoxPointerUL" x="0" y="${ parent.height-this.height }" />
+    
+</class>
+
+
+</library>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+    
+    <include href="payment/" />
+    <include href="userSettingsTabUser.lzx" />
+    <include href="userSettingsTabCompany.lzx" />
+    <include href="userSettingsTabLicense.lzx" />
+    <include href="userProfileLicenseInfo.lzx" />
+    <include href="userSettings.lzx" />
+
+</library>

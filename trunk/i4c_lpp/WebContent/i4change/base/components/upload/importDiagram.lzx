@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+ 
+ <class name="importDiagram" extends="guiPresenter" labelid="673"
+       resizeable="false"
+       x="${ canvas.width/2 - this.width/2 }"
+       y="${ canvas.height/2 - this.height/2 - 50 }" 
+       docking="true" closable="true" width="264" height="200">
+    
+    <attribute name="winobj" value="null" />
+	<attribute name="sessionid" value="" type="string" />
+    <attribute name="exportJobId" value="" type="string" />
+    <attribute name="uploadmodule" value="users" type="string" />
+    <attribute name="secondid" value="0" type="number" />
+    
+    <attribute name="mapItemToImport" value=" null" />
+    
+    <attribute name="currentDiagram" value=" null" />
+    <attribute name="mapItemToImportCleared" value=" null" />
+    
+    <attribute name="read" value="true" type="boolean" />
+    <attribute name="write" value="true" type="boolean" />
+    <attribute name="onlyIssues" value="true" type="boolean" />    
+    
+    <handler name="oninit">
+        lz.ModeManager.makeModal(this);
+        this.getNewExportJobId.doCall();
+    </handler>
+    
+    <handler name="onclose">
+        lz.ModeManager.release(this);
+    </handler>
+    
+    <netRemoteCallRPC name="getNewExportJobId" funcname="getNewExportJobId" 
+                      remotecontext="$once{  canvas.applicationRPC }" >    
+        <netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+        <handler name="ondata" args="value">
+            <![CDATA[
+                //if ($debug) Debug.write("getNewExportJobId: ",value);
+                parent.exportJobId = value;
+            ]]>
+        </handler>
+    </netRemoteCallRPC>    
+    
+    <netRemoteCallRPC name="getItemToImportMap" funcname="getItemToImportMap" 
+                      remotecontext="$once{  canvas.diagramServiceRPC }" >    
+        <netparam><method name="getValue">return canvas.sessionId;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.exportJobId;</method></netparam>
+        <handler name="ondata" args="value">
+            <![CDATA[
+                //if ($debug) Debug.write("getItemToImportMap: ",value);
+                parent.mapItemToImport = value;
+                parent.switchScreen();
+            ]]>
+        </handler>
+    </netRemoteCallRPC>     
+    
+    <method name="switchScreen">
+        //this.myFileUpload.destroy();
+        this.txtFile.destroy();
+        this.browse.destroy();
+        this.upload.destroy();
+        this.progress2.destroy();
+        this.progressBar.destroy();
+        this._close.destroy();
+        this.switchSizes.doStart();
+    </method>     
+    
+    <method name="initEditor">
+        new lz.importEditor(this,{
+                x:2,y:20,
+                currentDiagramName:this.mapItemToImport.diagramName,
+                currentDiagramType:this.mapItemToImport.diagramType,
+                mapItemToImport:this.mapItemToImport
+            });
+    </method>
+    
+    <method name="loadImportFinishDialog" args="overWriteList,newName,read,issueOnly,write">
+        <![CDATA[
+            //if ($debug) Debug.write("overWriteList: ",overWriteList);
+            
+            this.read = read;
+            this.onlyIssues = issueOnly;
+            this.write = write;
+            
+            this.mapItemToImportCleared = this.mapItemToImport;
+            this.mapItemToImportCleared.diagramName = newName;
+            
+            for (var i=0;i<this.mapItemToImportCleared.printItemList.length;i++) {
+                var item = this.mapItemToImportCleared.printItemList[i];
+                var itemToCheckObjectId = item[item.length-7];
+                //if ($debug) Debug.write("itemToCheckObjectId: ",itemToCheckObjectId);
+                var bool = false;
+                for (var k=0;k<overWriteList.length;k++) {
+                    
+                    ////if ($debug) Debug.write("overWriteList: ",overWriteList[k]);
+                    
+                    if (itemToCheckObjectId == overWriteList[k].diagramObjectId){
+                        bool = true;
+                        //if ($debug) Debug.write("FOUND: ",itemToCheckObjectId);
+                        break;
+                    }
+                    
+                }
+                
+                if (!bool){
+                    item[item.length-7] = 0;
+                    this.mapItemToImportCleared.printItemList[i] = item;
+                }
+                
+            }
+            
+            //if ($debug) Debug.write("Result Items ",this.mapItemToImportCleared.printItemList);
+        
+            this.saveNewDiagram.doCall();
+        ]]>
+    </method>
+    
+    <netRemoteCallRPC name="saveNewDiagram" funcname="saveNewDiagram" 
+                      remotecontext="$once{  canvas.diagramServiceRPC }" >
+        <attribute name="revisionComment" type="string" value="Import from XML" />
+        <netparam><method name="getValue"> return canvas.sessionId;</method></netparam>
+        <netparam><method name="getValue"> return parent.parent.mapItemToImportCleared.diagramName;</method></netparam>
+        <netparam><method name="getValue"> return parent.revisionComment;</method></netparam>
+        <netparam><method name="getValue"> return parent.parent.mapItemToImportCleared.printItemList;</method></netparam>
+        <netparam><method name="getValue"> return canvas.currentdomainObj.organisation_id;</method></netparam>
+        <netparam><method name="getValue"> return parent.parent.mapItemToImportCleared.diagramType;</method></netparam>
+        <netparam><method name="getValue"> return parent.parent.read;</method></netparam>
+        <netparam><method name="getValue"> return parent.parent.write;</method></netparam>
+        <netparam><method name="getValue"> return parent.parent.onlyIssues;</method></netparam>
+        <netparam><method name="getValue"> return null;</method></netparam>
+        <handler name="ondata" args="value">
+            //The onResult-Handler will be called be the rtmpconnection
+            //if ($debug) Debug.write("saveNewDiagram: ",value);
+            if (value > 0){
+                parent.getDiagramById.diagramId = value;
+                parent.getDiagramObjectsById.diagramId = value;
+                parent.getDiagramById.doCall();
+            }
+        </handler>  
+    </netRemoteCallRPC>     
+    
+    <netRemoteCallRPC name="getDiagramById" funcname="getDiagramById" 
+                      remotecontext="$once{  canvas.diagramServiceRPC }" >      
+        <attribute name="diagramId" value="" type="string" />
+        <netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+        <netparam><method name="getValue">return parent.diagramId;</method></netparam> 
+        <handler name="ondata" args="value">
+            //if ($debug) Debug.write("getDiagramById: ",value);
+            parent.currentDiagram = value;
+            parent.getDiagramObjectsById.doCall();
+        </handler>
+    </netRemoteCallRPC>   
+    
+    <netRemoteCallRPC name="getDiagramObjectsById" funcname="getDiagramObjectsById" 
+              remotecontext="$once{  canvas.diagramServiceRPC }" >      
+        <attribute name="diagramId" value="" type="string" />
+        <netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+        <netparam><method name="getValue">return parent.diagramId;</method></netparam> 
+        <netparam><method name="getValue">return canvas.currentdomainObj.organisation_id;</method></netparam>
+        <handler name="ondata" args="value">
+            //if ($debug) Debug.write("getDiagramObjectsByNo: ",value);
+            parent.loadDiagram(value);
+        </handler>
+    </netRemoteCallRPC> 
+    
+    <method name="loadDiagram" args="value">
+        //if ($debug) Debug.write("loadDiagram: ",this.currentDiagram);
+        
+        canvas.currentDiagram = this.currentDiagram;
+        canvas.currentInstanceList = value;
+        
+        if (this.currentDiagram.diagramType.diagramTypeId == 1) {
+            quicklinkAct('processgroup');
+        } else if (this.currentDiagram.diagramType.diagramTypeId == 2) {
+            quicklinkAct('roleView');
+        } else if (this.currentDiagram.diagramType.diagramTypeId == 3) {
+            quicklinkAct('hierarchical');
+        } else if (this.currentDiagram.diagramType.diagramTypeId == 4) {
+            quicklinkAct('singleRole');
+        }
+        this.close();
+    </method>
+    
+ 	<fileUpload name="myFileUpload" isOnlyXml="true" >
+		<method name="onComplete" args="fr">
+			Debug.write("oncomplete ",fr);
+			this.parent.progressBar.setValue(100);
+			this.parent.getItemToImportMap.doCall();
+		</method>
+
+		<method name="onProgress" args="fr, bytesLoaded, bytesTotal">
+			<![CDATA[
+				this.parent.progressBar.setValue(bytesLoaded * 100 / bytesTotal);
+				if (Math.round(bytesLoaded * 100 / bytesTotal)==100){
+					this.parent.progressBar.setAttribute('visible',false);
+					this.parent.progress2.setAttribute('visible',true);
+				}
+			]]>
+		</method>
+    
+	    <method name="onHTTPError" args="fr, httpError">
+	        <![CDATA[
+	            Debug.write('onHTTPError invoked: ' + httpError);
+	            new lz.errorPopup(canvas,{error:'HTTP-ERROR: '+httpError});
+	            this.parent.close();            
+	        ]]>
+	    </method>
+    
+		<method name="onSelect" args="fr">
+			//Debug.write("onSelect: ",getName());
+			this.parent.txtFile.setAttribute("text",getName());
+			this.parent.upload.setAttribute('enabled', true);
+		</method>
+	</fileUpload>
+	
+	<borderedInputtext x="10" fontsize="12" y="60" width="200" name="txtFile" editable="false" />
+
+	<button fontsize="12" name="browse" x="10" y="80" text="browse" width="200" height="20">
+		<handler name="onclick">
+			parent.myFileUpload.browse();
+		</handler>
+	</button>
+
+    <!-- moduleName=videoconf1'; -->
+	<button name="upload" x="10" y="100" text="Upload" width="200" enabled="false" height="20">
+		<handler name="onclick">
+			<![CDATA[
+			var uploadurl = canvas.httpprotocol+'://'+canvas.rtmphostlocal+':'+canvas.httpport
+				+'/'+canvas.webAppRootKey+'/ImportDiagram?orgId='+canvas.currentdomainObj.organisation_id
+				+'&sid='+canvas.sessionId
+                +'&jobId='+parent.exportJobId;
+            //if ($debug) Debug.write("uploadurl: ",uploadurl);
+			parent.myFileUpload.upload(uploadurl);
+			]]>
+		</handler>
+	</button>
+	<text name="progress2" visible="false" x="10" y="140" width="200" >Converting Document</text>
+	<view name="progressBar" x="10" y="140" width="200" height="10" bgcolor="#C6CEDF">
+		<view x="1" y="1" width="198" height="8" bgcolor="#FFFFFF"/>
+		<view name="status" x="1" y="1" height="8" bgcolor="#D6DEEF"/>
+		<method name="setValue" args="value">
+			<![CDATA[
+                status.setAttribute('width', value * 198 / 100);
+                percent.setAttribute("text",Math.round(value) + '%');
+			]]>
+		</method>
+		<text name="percent" align="center" resize="true" y="-18" fontstyle="bold" 
+			fontsize="10" fgcolor="#555555"/>
+	</view>
+	
+	<button name="_close" x="90" y="170" text="Cancel" width="160" height="20">
+		<handler name="onclick">
+			Debug.write("this.parent: ",this.parent);
+			this.parent.close();
+		</handler>
+	</button>
+    
+
+
+    <animator name="switchSizes" start="false" onstop="parent.switchSizes2.doStart()"
+          attribute="width" to="604" duration="750"/>
+    <animator name="switchSizes2" start="false" onstop="parent.initEditor()"
+          attribute="height" to="400" duration="750"/>
+
+     
+</class>
+	
+</library>
+ 

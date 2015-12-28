@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+    
+<class name="uniqueObjectNameErrorDialog" extends="guiPresenter" labelid="204"
+    docking="true" resizeable="false" closable="false" width="300" y="100"
+    x="$once{ canvas.width/2-this.width/2 }" height="230">
+
+    <attribute name="refObj" value="null" />
+    
+    <handler name="oninit">
+        //Add Help Item
+        canvas.addCurrentHelpId(14,this.__constructor__.classname);
+    </handler>
+    
+    <attribute name="errortext" value="" type="string" />
+    <attribute name="errorid" value="0" type="number" />
+
+    <attribute name="objectName" value="" type="string" />
+    <attribute name="diagramObjectId" value="0" type="number" />
+    
+    <attribute name="previousText" value="" type="string" />
+    <attribute name="currentDiagram" value="null" />
+    <attribute name="baseObject" value="null" />
+    <attribute name="typeOfObject" value="" type="string" />
+    
+    <handler name="oninit">
+        //if (this.previousText == this.objectName) {
+        //    this.previousText = this.previousText+getStringDateFileSave();
+        //    this.objectName = this.previousText;
+        //    this.newName.setAttribute('text',this.previousText);
+        //}
+        this.refObj.stopDoCountAutoSave();
+        lz.ModeManager.makeModal(this);
+        this.getErrorByCode.doCall();
+    </handler>
+    <handler name="onclose">
+        this.refObj.resumeDoCountAutoSave();
+        lz.ModeManager.release(this);
+    </handler>    
+    
+    <method name="doCallCanel">
+        this.refObj.sendNewName(this.previousText);
+        this.close();
+    </method>
+    
+    <method name="doCallBack">
+        this.objectName = this.newName.getText();
+        
+        //First check Local 
+        var foundHere = this.refObj.checkForLocalDuplicates(this.objectName,this.baseObject,this.diagramObjectId,this.typeOfObject);
+        
+        //Then check for Remote if not found
+        if (!foundHere){
+	        this.checkForUniqueName.doCall();
+        } else {
+            new lz.rpcErrorDialog(canvas.main_content._content.inner,{errorid:-37});
+            this.newName.oninit.sendEvent();
+        }
+    </method>
+    
+	<method name="deleteAndClose">
+		if ($debug) Debug.write("deleteAndClose: ",this.baseObject.name);
+		this.refObj.deleteItemByName(this.baseObject.name);
+		this.close();
+	</method>    
+
+    
+   	<netRemoteCallRPC name="checkForUniqueName" funcname="checkForUniqueName" 
+                      remotecontext="$once{  canvas.diagramServiceRPC }" activeErrorHandler="true">      
+        <netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+        <netparam><method name="getValue">return parent.parent.objectName;</method></netparam> 
+        <netparam><method name="getValue">return parent.parent.diagramObjectId;</method></netparam> 
+        <netparam><method name="getValue">return parent.parent.typeOfObject;</method></netparam> 
+        <netparam><method name="getValue">return canvas.currentdomainObj.organisation_id;</method></netparam>
+        <handler name="ondata" args="value">
+            <![CDATA[
+                //if ($debug) Debug.write("checkForUniqueName: ",value);
+                if (value < 0){
+                    parent.newName.oninit.sendEvent();
+                } else {
+                    parent.refObj.sendNewName(parent.objectName);
+                    parent.close();
+                }
+            ]]>
+        </handler>
+    </netRemoteCallRPC>   
+    
+    <netRemoteCallRPC name="getErrorByCode" funcname="getErrorByCode" remotecontext="$once{  canvas.errorServiceRPC }" >      
+        <netparam><method name="getValue"> return canvas.sessionId; </method></netparam>
+        <netparam><method name="getValue"> return parent.parent.errorid; </method></netparam>
+        <netparam><method name="getValue"> return  canvas.userlang; </method></netparam>
+        <handler name="ondata" args="value">
+            Debug.write("getErrorByCode ",value);
+            //this.parent.destroy();
+            this.parent.setAttribute('errortext',value.errmessage);
+            this.parent.setAttribute('title',value.errortypeAsString);
+            parent._item.text = value.errmessage;
+            parent._item.oninit.sendEvent();
+        </handler>
+    </netRemoteCallRPC>     
+
+<!--
+    <view y="24" width="298" height="$once{ parent.height-60 }">
+        <text y="30" x="10" fontsize="10" fontstyle="bold" text="${ parent.parent.errortext }"
+            multiline="true" width="270" />
+    </view>
+ -->
+    <infoIconBox iconResourceName="messagebox_warning_rsc" name="_item"
+             text="${ parent.errortext }"
+             x="10" y="24" width="$once{ parent.width - 20 }" height="200" />
+                    
+    <labelText labelid="653" x="2" y="62" />
+    <customEdittext name="newName" y="60" x="120" width="170"
+                    text="$once{ parent.objectName }" >
+        <handler name="oninit">
+            lz.Focus.setFocus(this);
+        </handler>             
+    </customEdittext>
+    
+    <labelCheckbox x="10" y="$once{ parent.height-60 }"
+        name="_savelogindata" labelid="654" >
+        <handler name="onvalue" args="v">
+            if (v) {
+                parent.openItem.doStart();
+                parent.checkDiagramsByDiagramObjectId.doCall();
+            } else {
+                parent.closeItem.doStart();
+            }
+        </handler>
+    </labelCheckbox>     
+    
+    <!--
+    <simpleLabelButton name="_btn1" labelid="655" width="100" x="${ parent.width-105*2 }" 
+        y="${ parent.height-24 }" onclick="parent.doCallCanel();" /> 
+     -->
+      
+    <simpleLabelButton name="_btn1" labelid="1266" width="185" x="${ parent.width-295 }" 
+        y="${ parent.height-24 }" onclick="parent.deleteAndClose();">
+    	<labelTooltip labelid="1267" />
+    </simpleLabelButton> 
+                
+    <simpleLabelButton name="_btn2" labelid="333" width="100" x="${ parent.width-105 }" 
+        y="${ parent.height-24 }" onclick="parent.doCallBack();" >
+    	<labelTooltip labelid="1268" />
+    </simpleLabelButton>
+        
+       
+        
+   <netRemoteCallRPC name="checkDiagramsByDiagramObjectId" funcname="checkDiagramsByDiagramObjectId" 
+                      remotecontext="$once{  canvas.diagramServiceRPC }" >      
+        <netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+        <netparam><method name="getValue">return parent.parent.objectName;</method></netparam> 
+        <netparam><method name="getValue">return parent.parent.diagramObjectId;</method></netparam> 
+        <netparam><method name="getValue">return parent.parent.typeOfObject;</method></netparam> 
+        <netparam><method name="getValue">return canvas.currentdomainObj.organisation_id;</method></netparam>
+        <netparam><method name="getValue">return canvas.userlang;</method></netparam> 
+        <handler name="ondata" args="value">
+            <![CDATA[
+                //if ($debug) Debug.write("checkDiagramsByDiagramObjectId: ",value);
+                parent._innerlist._inn._inn.destroy();
+                new lz.innerList(parent._innerlist._inn,{name:'_inn'});
+                parent.doLoadList(value);
+            ]]>
+        </handler>
+    </netRemoteCallRPC> 
+    
+    <method name="doLoadList" args="loadList">
+        <![CDATA[
+            for (var i=0;i<loadList.length;i++) {
+                new lz.diagramListMiniItem(this._innerlist._inn._inn,{
+                    diagramObj:loadList[i],
+                    diagramNo:loadList[i].diagramNo,
+                    diagramrevisionId:loadList[i].diagramrevision.diagramrevisionId,
+                    diagramname:loadList[i].name,
+                    typelabel:loadList[i].diagramType.label.value,
+                    inserted:parseDateToStringTime(loadList[i].inserted)
+                });
+            }
+        ]]>
+    </method> 
+    
+    <handler name="onclickedItem" args="obj">
+        //if ($debug) Debug.write("obj",obj.diagramObj.diagramId);
+        this.currentDiagram = obj.diagramObj;
+        this.getDiagramObjectsById.diagramId = obj.diagramObj.diagramId;
+        this.getDiagramObjectsById.doCall();
+    </handler>        
+    
+    <netRemoteCallRPC name="getDiagramObjectsById" funcname="getDiagramObjectsById" 
+                      remotecontext="$once{  canvas.diagramServiceRPC }" >      
+        <attribute name="diagramId" value="" type="string" />
+        <netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+        <netparam><method name="getValue">return parent.diagramId;</method></netparam> 
+        <netparam><method name="getValue">return canvas.currentdomainObj.organisation_id;</method></netparam>
+        <handler name="ondata" args="value">
+            //if ($debug) Debug.write("getDiagramObjectsByNo: ",value);
+            parent.loadDiagram(value);
+        </handler>
+    </netRemoteCallRPC>         
+    
+    <method name="loadDiagram" args="value">
+        //if ($debug) Debug.write("loadDiagram: ",this.currentDiagram);
+        
+        canvas.currentDiagram = this.currentDiagram;
+        canvas.currentInstanceList = value;
+        
+        if (this.currentDiagram.diagramType.diagramTypeId == 1) {
+            quicklinkAct('processgroup');
+        } else if (this.currentDiagram.diagramType.diagramTypeId == 2) {
+            quicklinkAct('roleView');
+        } else if (this.currentDiagram.diagramType.diagramTypeId == 3) {
+            quicklinkAct('hierarchical');
+        }
+        
+        this.doCallCanel();
+    </method>
+        
+    <labelText name="_infoText" labelid="656" fontsize="10"  visibility="hidden"
+               fontstyle="italic" multiline="true" x="2" width="$once{ parent.width-4 }" 
+               fgcolor="0x666666" y="$once{ parent.height-40 }" />
+                       
+    <view name="_innerlist" height="196" bgcolor="0xEEEEEE"
+          width="${ parent.width-4 }" x="2" visibility="hidden"
+        y="$once{ parent.height }" clip="true" >
+        <view name="_inn" >
+            <innerList name="_inn" />
+        </view>
+        <vscrollbar name="_scrollbar" />
+        <hscrollbar />
+    </view>
+    
+    <animator name="openItem" start="false" attribute="height" 
+              onstop="parent._innerlist.setAttribute('visibility','visible');
+              parent._infoText.setAttribute('visibility','visible')" 
+              from="230" to="460" duration="750" />   
+    <animator name="closeItem" start="false" attribute="height" 
+              onstart="parent._innerlist.setAttribute('visibility','hidden');
+              parent._infoText.setAttribute('visibility','hidden')" 
+              from="460" to="230" duration="750" />   
+    
+</class>
+
+<class name="diagramListMiniItem" extends="view" layout="axis:x;spacing:0" 
+    bgcolor="0xFFFFFF" showhandcursor="false"
+    onmouseover="this.setAttribute('bgcolor',canvas.baseMouseOvercolorizer)" 
+    onmouseout="this.setAttribute('bgcolor',0xFFFFFF)" >
+    
+    <attribute name="obj" value="null" />
+
+    <attribute name="diagramObj" value="null" />
+    
+    <attribute name="diagramname" value="" type="string" />
+    <attribute name="typelabel" value="" type="string" />
+    <attribute name="inserted" value="" type="string" />
+    
+    <turnOverTextItem name="_diagramname" text="${ parent.diagramname }" width="280" />
+    
+    <handler name="ondblclick">
+        this.parent.parent.parent.parent.onclickedItem.sendEvent(this);
+    </handler>
+    
+    <labelTooltip>
+        <handler name="onInitText">
+            this.setAttribute('text','Last Update: '+parent.inserted+' by:'+parent.diagramObj.insertedby.login)
+        </handler>
+    </labelTooltip>
+    
+</class>
+   
+
+</library>

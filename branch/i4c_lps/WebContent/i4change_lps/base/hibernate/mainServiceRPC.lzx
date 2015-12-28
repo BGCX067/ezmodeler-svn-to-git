@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+	<security>
+        <allow>
+            <pattern>^org.i4change.app.http.javarpc\.MainServiceRPC</pattern>
+        </allow>
+    </security>
+    
+    <!-- See WEB-INF/classes/TypesExample.java for java source. -->
+    <javarpc name="mainServiceRPC" scope="webapp" secure="$once{ canvas.javaRPCSecure }" secureport="$once{ canvas.httpport }"
+    		 autoload="false" objectreturntype="javabean"
+    		 remoteclassname="org.i4change.app.http.javarpc.MainServiceRPC">
+
+        <handler name="onload">
+            // Set buttons visible only after JavaRPC object loads
+            if ($debug) Debug.write('onload:', this);
+            this.getsessiondata.invoke();
+        </handler>
+
+        <handler name="ondata" args="res">
+            //if ($debug) Debug.write('(types ondata) response is:', res);
+        </handler>
+
+        <handler name="onerror" args="errmsg">
+            if ($debug) Debug.write('(types onerror) error:', errmsg);
+            new lz.errorPopup(canvas,{error:errmsg});
+        </handler>
+        
+        <remotecall name="getsessiondata" funcname="getsessiondata">
+            <handler name="ondata" args="value">
+            	canvas.sessionObject = value;
+            	canvas.sessionId = value.session_id; 
+            	if ($debug) Debug.write("getsessiondata/ondata: ",value);
+                canvas.loaderVar.setProgress();
+            	applicationRPC.getPublicSID.invoke();
+            </handler>
+        </remotecall>
+        
+        <remotecall name="getStates" funcname="getStates">
+            <handler name="ondata" args="value">
+            	if ($debug) Debug.write("getStates/ondata: ",value);
+                canvas.statesInitValues = value;
+	            canvas.loaderVar.setProgress();
+	            userServiceRPC.getUserSalutations.invoke();
+            </handler>
+        </remotecall>
+        
+    </javarpc>
+
+</library>

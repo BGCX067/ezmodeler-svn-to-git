@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:lang="http://www.springframework.org/schema/lang"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+                           http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-2.0.xsd">
+    
+    
+    <bean id="diagramservice.service" parent="txProxyTemplate">
+        <property name="target" ref="txDiagramservice.service" />
+    </bean>
+    
+    <!-- Class for Methods which can be invoked by the client -->
+    <bean id="txDiagramservice.service" 
+        class="org.i4change.app.remote.DiagramService" >
+        <property name="application" ref="web.handler" />
+        <property name="sessionmanagement" ref="i4change.Sessionmanagement" />
+        <property name="userDaoImpl" ref="i4change.UserDaoImpl" />   
+        <property name="diagramDaoImpl" ref="i4change.DiagramDaoImpl" />
+        <property name="diagramObjectDaoImpl" ref="i4change.DiagramObjectDaoImpl" />
+        <property name="diagramObjectPropertyDaoImpl" ref="i4change.DiagramObjectPropertyDaoImpl" />
+        <property name="projectRelationDaoImpl" ref="i4change.ProjectRelationDaoImpl" />
+        <property name="roleDaoImpl" ref="i4change.RoleDaoImpl" />
+        <property name="diagramSummaryDaoImpl" ref="i4change.DiagramSummaryDaoImpl" />
+        <property name="projectDaoImpl" ref="i4change.ProjectDaoImpl" />
+        <property name="issueAssigneeDaoImpl" ref="i4change.IssueAssigneeDaoImpl" />
+        <property name="diagramInstanceObjectDaoImpl" ref="i4change.DiagramInstanceObjectDaoImpl" />
+        <property name="dataCarrierDiagramObjectDaoImpl" ref="i4change.DataCarrierDiagramObjectDaoImpl" />
+        <property name="searchQueryDaoImpl" ref="i4change.SearchQueryDaoImpl" />
+        <property name="fieldmanagment" ref="i4change.Fieldmanagment" />
+        <property name="mailmanagement" ref="i4change.Mailmanagement" />
+        <property name="diagramObjectOrganisationDaoImpl" ref="i4change.DiagramObjectOrganisationDaoImpl" />
+        <property name="configurationmanagement" ref="i4change.Configurationmanagement" />
+        <property name="diagramDocumentDaoImpl" ref="i4change.DiagramDocumentDaoImpl" />
+    </bean> 
+    
+    <bean id="i4change.DiagramObjectDaoImpl"
+        class="org.i4change.app.data.diagram.DiagramObjectDaoImpl">
+    	<property name="sessionFactory" ref="theSessionFactory"/>
+        <property name="assigneeDaoImpl" ref="i4change.AssigneeDaoImpl" />
+        <property name="dataCarrierDiagramObjectDaoImpl" ref="i4change.DataCarrierDiagramObjectDaoImpl" />
+        <property name="dataCarrierDiagramObjectHistoryDaoImpl" ref="i4change.DataCarrierDiagramObjectHistoryDaoImpl" />
+        <property name="diagramDaoImpl" ref="i4change.DiagramDaoImpl" />
+        <property name="diagramObjectPropertyDaoImpl" ref="i4change.DiagramObjectPropertyDaoImpl" />
+        <property name="diagramObjectPropertyHistoryDaoImpl" ref="i4change.DiagramObjectPropertyHistoryDaoImpl" />
+        <property name="mailmanagement" ref="i4change.Mailmanagement" />
+        <property name="diagramInstanceObjectDaoImpl" ref="i4change.DiagramInstanceObjectDaoImpl" />
+        <property name="organisationDaoImpl" ref="i4change.OrganisationDaoImpl" />
+        <property name="userDaoImpl" ref="i4change.UserDaoImpl"/>
+    </bean>    
+    
+    <bean id="i4change.AssigneeDaoImpl"
+        class="org.i4change.app.data.diagram.AssigneeDaoImpl">
+    	<property name="sessionFactory" ref="theSessionFactory"/>
+    	<property name="userDaoImpl" ref="i4change.UserDaoImpl"/>
+    </bean>  
+    
+    <bean id="i4change.IssueAssigneeDaoImpl"
+        class="org.i4change.app.data.diagram.IssueAssigneeDaoImpl">
+    	<property name="sessionFactory" ref="theSessionFactory"/>
+    	<property name="mailmanagement" ref="i4change.Mailmanagement" />
+    	<property name="diagramObjectDaoImpl" ref="i4change.DiagramObjectDaoImpl" />
+    	<property name="userDaoImpl" ref="i4change.UserDaoImpl"/>
+    </bean>  
+    
+    <bean id="i4change.DataCarrierDiagramObjectDaoImpl"
+        class="org.i4change.app.data.diagram.DataCarrierDiagramObjectDaoImpl">
+    	<property name="sessionFactory" ref="theSessionFactory"/>
+    </bean> 
+    
+    <bean id="i4change.DataCarrierDiagramObjectHistoryDaoImpl"
+        class="org.i4change.app.data.diagram.DataCarrierDiagramObjectHistoryDaoImpl">
+    	<property name="sessionFactory" ref="theSessionFactory"/>
+    </bean> 
+    
+    <bean id="i4change.DiagramDaoImpl"
+        class="org.i4change.app.data.diagram.DiagramDaoImpl">
+    	<property name="sessionFactory" ref="theSessionFactory"/>
+        <property name="diagramObjectDaoImpl" ref="i4change.DiagramObjectDaoImpl" />
+        <property name="diagramTypeDaoImpl" ref="i4change.DiagramTypeDaoImpl" />
+        <property name="organisationDaoImpl" ref="i4change.OrganisationDaoImpl" />
+        <property name="userDaoImpl" ref="i4change.UserDaoImpl"/>
+    </bean> 
+    
+    <bean id="i4change.DiagramObjectOrganisationDaoImpl"
+        class="org.i4change.app.data.diagram.DiagramObjectOrganisationDaoImpl">
+        <property name="sessionFactory" ref="theSessionFactory"/>
+        <property name="diagramObjectDaoImpl" ref="i4change.DiagramObjectDaoImpl" />
+        <property name="diagramInstanceObjectDaoImpl" ref="i4change.DiagramInstanceObjectDaoImpl" />
+    </bean>
+    
+    <bean id="i4change.DiagramTypeDaoImpl"
+        class="org.i4change.app.data.diagram.DiagramTypeDaoImpl">
+        <property name="sessionFactory" ref="theSessionFactory"/>
+    </bean> 
+    
+    <bean id="i4change.DiagramObjectPropertyDaoImpl"
+        class="org.i4change.app.data.diagram.DiagramObjectPropertyDaoImpl">
+    	<property name="sessionFactory" ref="theSessionFactory"/>
+    </bean> 
+    
+    <bean id="i4change.DiagramObjectPropertyHistoryDaoImpl"
+        class="org.i4change.app.data.diagram.DiagramObjectPropertyHistoryDaoImpl">
+    	<property name="diagramObjectPropertyDaoImpl" ref="i4change.DiagramObjectPropertyDaoImpl" />
+    	<property name="sessionFactory" ref="theSessionFactory"/>
+    </bean>
+    
+    <bean id="i4change.DiagramSummaryDaoImpl"
+        class="org.i4change.app.data.diagram.DiagramSummaryDaoImpl">
+    	<property name="sessionFactory" ref="theSessionFactory"/>
+    </bean> 
+    
+    <bean id="i4change.DiagramInstanceObjectDaoImpl"
+        class="org.i4change.app.data.diagram.DiagramInstanceObjectDaoImpl">
+    	<property name="sessionFactory" ref="theSessionFactory"/>
+    </bean>
+    
+    <bean id="i4change.SearchQueryDaoImpl"
+        class="org.i4change.app.data.diagram.SearchQueryDaoImpl">
+    	<property name="sessionFactory" ref="theSessionFactory"/>
+    </bean>
+    
+    <bean id="i4change.ObjectIdentifierDaoImpl"
+        class="org.i4change.app.data.basic.ObjectIdentifierDaoImpl">
+    	<property name="sessionFactory" ref="theSessionFactory"/>
+    </bean>
+    
+    <bean id="i4change.DiagramDocumentDaoImpl"
+        class="org.i4change.app.data.diagram.DiagramDocumentDaoImpl">
+        <property name="sessionFactory" ref="theSessionFactory"/>
+    </bean> 
+      
+</beans>

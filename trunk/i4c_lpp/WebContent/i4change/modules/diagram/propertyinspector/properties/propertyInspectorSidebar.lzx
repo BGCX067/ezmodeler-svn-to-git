@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<library>
+
+<!--- "System" panel on the dashboard -->
+<class name="propertyInspectorSidebar" extends="sideBarPod" labelid="657"
+       contentHeight="300" contentY="20">
+          
+    <attribute name="selectedObj" value="null" />
+    <attribute name="baseObject" value="null" />
+    
+    <attribute name="currentPropertyList" value="null" />
+    <attribute name="currentPropertyCategoryList" value="null" />
+    
+    <attribute name="indexItem" value="0" type="number" />
+    
+    <attribute name="currentDrawArea" value="null" />
+    
+    <attribute name="currentCategoryId" value="0" type="number" />
+    
+    <handler name="oninit">
+        //Add Help Item
+        canvas.addCurrentHelpId(20,this.__constructor__.classname);
+        //this.getPropertiesByOrganization.doCall();
+    </handler>  
+    
+    <method name="setObjectSelectedObj" args="objRef,baseObject,diagramObjectId">
+        <![CDATA[
+            if (this.currentDrawArea == null) {
+                this.currentDrawArea = canvas.currentDiagramRef._scrollcontent.dragArea.contentArea._currentBoard;
+            }
+            this.baseObject = baseObject;
+            this.selectedObj = objRef;
+            ////if ($debug) Debug.write("############ setObjectSelectedObj ",this,this.visibility);
+            //First check if content is already 
+            if (this.contentIsInited && this.content.visibility != "hidden") {
+                this.loadContentBySelection();
+            } 
+        ]]>
+    </method>
+    
+    <!--
+    <handler name="onvisible">
+        //if ($debug) Debug.warn("onvisible - Show Properties");
+        if (this.content.visibility != "hidden") {
+            this.loadContentBySelection();
+        }
+    </handler>
+     -->
+    
+    <method name="loadContentBySelection">
+        <![CDATA[
+            //Check content to be inited before loading items into it
+            
+            this.content.clearList();
+            
+            if ($debug) Debug.write("loadContentBySelection ",this.baseObject,this.selectedObj);
+            
+            if (this.baseObject == null) {
+            	
+                return;
+                
+            } else {
+                 
+                this.getDiagramObjectPropertyByObjectAndCat.objectTypeAppName = this.baseObject[0];
+                this.getDiagramObjectPropertyByObjectAndCat.diagramobjectId = this.baseObject[this.baseObject.length-7];
+                
+                if ($debug) Debug.write("objectTypeAppName,diagramobjectId ",
+                      this.getDiagramObjectPropertyByObjectAndCat.objectTypeAppName,
+                      this.getDiagramObjectPropertyByObjectAndCat.diagramobjectId);
+                
+                this.currentCategoryId = 0;
+                //this.currentCategoryId = 0;
+                this.getDiagramObjectPropertyByObjectAndCat.doCall();
+                this.calcIndex();
+            }       
+        ]]>
+    </method>
+    
+    <method name="loadContentByCategory" args="catId">
+    	this.currentCategoryId = catId;
+    	this.content.clearList();
+    	this.getDiagramObjectPropertyByObjectAndCat.doCall();
+    </method>
+    
+    <method name="loadProperties">
+        ////if ($debug) Debug.write("######## ********** 2 ",this.indexItem);
+        var popertyList = this.baseObject[this.baseObject.length-this.indexItem];
+        this.content.loadCategories(this.currentPropertyCategoryList,this.currentCategoryId);
+        this.content.loadPropertiesList(this.baseObject,this.currentPropertyList,popertyList,
+                        this.selectedObj.pending);
+    </method>
+    
+    <!--
+    public PropertyCatSidebar getDiagramObjectPropertyByObjectAndCat(String SID,
+            Long organisation_id, Long diagramObjectId, String objectTypeAppName, 
+            Long categoryId, Long languagesId)
+    -->
+    <netRemoteCallRPC name="getDiagramObjectPropertyByObjectAndCat" funcname="getDiagramObjectPropertyByObjectAndCat" 
+                      showLoading="false" remotecontext="$once{ canvas.propertyServiceRPC }" >   
+        <attribute name="diagramobjectId" type="number" value="0" />
+        <attribute name="objectTypeAppName" type="string" value="" />
+        <netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+        <netparam><method name="getValue">return canvas.currentdomainObj.organisation_id;</method></netparam>
+        <netparam><method name="getValue">return parent.diagramobjectId;</method></netparam>
+        <netparam><method name="getValue">return parent.objectTypeAppName;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.currentCategoryId;</method></netparam>
+        <param><method name="getValue">return canvas.userlang;</method></param> 
+        <handler name="ondata" args="value">
+            if ($debug) Debug.write("getDiagramObjectPropertyByObjectAndCat ",value,parent.currentCategoryId,this.objectTypeAppName);
+            parent.currentPropertyList = value.properties;
+            parent.currentPropertyCategoryList = value.propertyCategory;
+            parent.loadProperties();
+        </handler>
+    </netRemoteCallRPC>       
+    
+    <handler name="contentInit" >
+    	this.contentIsInited = true;
+        new lz.propertyInspectorSidebarContent(this,{name:'content'});
+        this.loadContentBySelection();
+    </handler>
+    
+    <method name="updatePropValue" args="propertyId,text">
+        <![CDATA[
+            //if ($debug) Debug.write("updatePropValue",propertyId,text);
+        
+            //if ($debug) Debug.write("updatePropValue objRef.propObj: ",objRef.propObj);
+            
+            var newName = this.baseObject[this.baseObject.length-1];
+            if (this.indexItem == 0) {
+                this.calcIndex();
+            }
+            ////if ($debug) Debug.write("######## ********** 2 ",this.indexItem);
+            var popertyList = this.baseObject[this.baseObject.length-this.indexItem];
+            //if ($debug) Debug.write("updatePropValue popertyList: ",popertyList,this.indexItem,this.baseObject.length,this.baseObject);
+            if (popertyList == null || popertyList == "null") {
+                popertyList = new Array();
+            }
+            var foundItem = false;
+            var doUpdate = true;
+            for (var i=0;i<popertyList.length;i++) {
+                if (popertyList[i].propertyId == propertyId) {
+                    if (popertyList[i].propertyVal == text) {
+                        //Do not udpate in case its the same like before
+                        doUpdate = false;
+                    } else {
+                        popertyList[i].propertyVal = text;
+                    }
+                    foundItem = true;
+                    break;
+                }
+            }
+            
+            if (!foundItem) {
+            	if (text == null || text.length == 0) {
+            		//Do not update in case its an empty entry and there was no previous value
+            		doUpdate = false;
+            	} else {
+            		popertyList.push({'propertyId':propertyId,'propertyVal':text});
+            	}
+            }
+            
+            //if ($debug) Debug.write("doUpdate: ",foundItem,doUpdate,text);
+            
+            if (doUpdate) {
+                //Update the Base Object
+                this.currentDrawArea.updateBaseactionobjectPropertyByNameAndIndex(newName,this.indexItem,popertyList);
+                //Turn on the save flag
+                this.currentDrawArea.turnOnSaveFlag();
+            }
+            
+        ]]>
+    </method>
+    
+    <method name="setNewAssigneeValue" args="value,text">
+        this.selectedObj._issueAssignee.lastAssigneeUser_id = Number(value);
+        this.selectedObj._issueAssignee.setAttribute('text',text);
+        this.currentDrawArea.updateIssueBaseObjectAssignee(
+            this.selectedObj.name,value,text);
+    </method>    
+    
+    <method name="setNewPendingAssigneeValue" args="value,text">
+        this.selectedObj._assignee.lastAssigneeUser_id = Number(value);
+        this.selectedObj._assignee.setAttribute('text',text);
+        this.currentDrawArea.setNewPendingAssigneeValue(
+            this.selectedObj.name,value,text);
+    </method>
+    
+    <method name="approveObject">
+        this.baseObject = this.currentDrawArea.getBaseObjectListItemByName(this.selectedObj.name);
+        this.currentDrawArea.deleteItemByName(this.selectedObj.name);
+        ////if ($debug) Debug.write("this.baseObject: ",this.baseObject);
+        this.baseObject[this.baseObject.length-9] = false;
+        
+        //Overwrite that cause remotely there are only Objects of Type *unitFixed* available
+        if (this.baseObject[0] == 'unit'){
+            this.baseObject[0] = 'unitFixed';
+        } else if (this.baseObject[0] == 'departement'){
+            this.baseObject[0] = 'departementFixed';
+        } else if (this.baseObject[0] == 'company'){
+            this.baseObject[0] = 'companyFixed';
+        }
+        this.currentDrawArea.sendWatchObject("draw",this.baseObject,false,null,null);
+    </method>
+    
+    <method name="removeObject">
+        //this.baseObject = currentDrawArea.getBaseObjectListItemByName(this.selectedObj.name);
+        this.currentDrawArea.deleteItemByName(this.selectedObj.name);
+    </method>
+    
+    <!--
+        Calculates the Index for the property value in the Base-Object
+     -->
+    <method name="calcIndex">
+        <![CDATA[
+        
+            var currentDrawArea = canvas.currentDiagramRef._scrollcontent.dragArea.contentArea._currentBoard;
+        
+            var objectTypeName = baseObject[0];
+            if (objectTypeName == "inputflow" || objectTypeName == "outputflow") {
+                objectTypeName = "flow";
+            }
+            
+            if (objectTypeName == "flow") {
+                this.indexItem = 11;
+            } else if (objectTypeName == "issueflow") {
+                this.indexItem = 11;
+            } else if (objectTypeName == "unit" || objectTypeName == "unitFixed"
+                    || objectTypeName == "departement" || objectTypeName == "departementFixed"
+                    || objectTypeName == "company" || objectTypeName == "companyFixed") {
+                if (currentDrawArea.diagramType == "2" || currentDrawArea.diagramType == "4") {
+                    this.indexItem = 13;
+                } else {
+                    this.indexItem = 10;
+                }
+            } else if (objectTypeName == "process" || objectTypeName == "processtree") {
+                if (currentDrawArea.diagramType == 2 || currentDrawArea.diagramType == 4) {
+                    this.indexItem = 11;
+                } else {
+                    this.indexItem = 10;
+                }
+            } else if (objectTypeName == "processgroup") {
+                this.indexItem = 10;
+            } else if (objectTypeName == "activity") {
+                this.indexItem = 11;
+            } else if (objectTypeName == "connector") {
+                this.indexItem = 10;
+            }
+            
+            ////if ($debug) Debug.write("******************** calcIndex: ",objectTypeName,this.indexItem);
+            
+        ]]>
+    </method>
+    
+</class>
+
+
+</library>

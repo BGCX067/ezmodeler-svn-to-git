@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+<class name="turnOverTextItem" extends="text" fontsize="11" resize="false">
+	<view height="${ parent.parent.height }" width="1" 
+        align="right" bgcolor="0x333333" />
+</class>
+
+<class name="turnOverTextItemLabeld" extends="labelText" fontsize="11" resize="false">
+    <view height="${ parent.parent.height }" width="1" 
+        align="right" bgcolor="0x333333" />
+</class>
+        
+</library>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+  <class table="transaction" lazy="false" name="org.i4change.app.hibernate.beans.user.TransactionPaypal">
+    <id column="transaction_id" name="transactionId">
+      <generator class="increment"/>
+    </id>
+    <property name="transActionPaypalId" type="string" column="transactionpaypalid"/>
+    <property name="amount" type="string" column="amount"/>
+    <property name="paidDate" type="java.util.Date" column="paiddate"/>
+    <property name="status" type="string" column="status"/>
+    <property name="inserted" type="java.util.Date" column="inserted"/>
+    <property name="updated" type="java.util.Date" column="updated"/>
+    <many-to-one outer-join="true" insert="true" column="user_id" lazy="false" update="true" name="users" class="org.i4change.app.hibernate.beans.user.Users"/>
+    <property name="isControlled" type="boolean" column="isControlled"/>
+    <many-to-one outer-join="true" insert="true" column="organisation_id" lazy="false" update="true" name="organisation" class="org.i4change.app.hibernate.beans.domain.Organisation"/>
+    <property name="numberOfLicenses" type="long" column="numberoflicenses"/>
+    <property name="amountStartTransaction" type="string" column="amountstarttransaction"/>
+    <property name="startTransaction" type="java.util.Date" column="starttransaction"/>
+    <property name="address_1" type="string" column="address_1"/>
+    <property name="address_2" type="string" column="address_2"/>
+    <property name="city" type="string" column="city"/>
+    <property name="countryCode" type="string" column="countryCode"/>
+    <property name="state" type="string" column="state"/>
+    <property name="zip" type="string" column="zip"/>
+    <property name="firstName" type="string" column="firstName"/>
+    <property name="lastName" type="string" column="lastName"/>
+    <property name="countryAsName" type="string" column="countryAsName"/>
+    <property name="firstNameBilling" type="string" column="firstNameBilling"/>
+    <property name="lastNameBilling" type="string" column="lastNameBilling"/>
+    <property name="invoiceId" type="long" column="invoice_id"/>
+  </class>
+</hibernate-mapping>

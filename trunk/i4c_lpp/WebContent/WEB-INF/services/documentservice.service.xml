@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:lang="http://www.springframework.org/schema/lang"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+                           http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-2.0.xsd">
+    
+    <bean id="i4change.ImpressDraw"
+        class="org.i4change.app.presenter.ImpressDraw">
+        <property name="presentationTemplateDaoImpl" ref="i4change.PresentationTemplateDaoImpl" />
+        <property name="generateOOSVG" ref="i4change.GenerateOOSVG" />
+        <property name="generateOOSVGFooter" ref="i4change.GenerateOOSVGFooter" />
+        <property name="drawTextSchemes" ref="i4change.DrawTextSchemes" />
+        <property name="drawColorSchemes" ref="i4change.DrawColorSchemes" />
+        <property name="generateOOSVGDetails" ref="i4change.GenerateOOSVGDetails" />
+        <property name="generatePDF" ref="i4change.GeneratePDF" />
+    </bean>
+    
+    <bean id="i4change.PresenterService"
+        class="org.i4change.app.presenter.PresenterService">
+        <property name="presentationTemplateDaoImpl" ref="i4change.PresentationTemplateDaoImpl" />
+        <property name="generateImage" ref="i4change.GenerateImage" />
+        <property name="generatePDF" ref="i4change.GeneratePDF" />
+    </bean> 
+    
+    <bean id="i4change.GenerateDocument"
+        class="org.i4change.app.documents.GenerateDocument">
+    </bean>
+    
+    <bean id="i4change.GenerateThumbs"
+        class="org.i4change.app.documents.GenerateThumbs">
+    	<property name="configurationmanagement" ref="i4change.Configurationmanagement" />
+    </bean>
+    
+    <bean id="i4change.XMLExport"
+        class="org.i4change.app.documents.XMLExport">
+        <property name="diagramObjectDaoImpl" ref="i4change.DiagramObjectDaoImpl" />
+        <property name="diagramDaoImpl" ref="i4change.DiagramDaoImpl" />
+        <property name="diagramObjectPropertyDaoImpl" ref="i4change.DiagramObjectPropertyDaoImpl" />
+    </bean> 
+    
+    <bean id="i4change.PresentationTemplateDaoImpl"
+        class="org.i4change.app.data.export.dao.PresentationTemplateDaoImpl">
+    	<property name="sessionFactory" ref="theSessionFactory"/>
+    </bean>  
+    
+    <bean id="i4change.GenerateOOSVG"
+        class="org.i4change.app.presenter.draw.GenerateOOSVG">
+    </bean>
+    
+    <bean id="i4change.GenerateImage" 
+        class="org.i4change.app.documents.GenerateImage">
+    	<property name="userDaoImpl" ref="i4change.UserDaoImpl"/>
+    	<property name="generateThumbs" ref="i4change.GenerateThumbs"/>
+    	<property name="configurationmanagement" ref="i4change.Configurationmanagement" />
+    </bean>  
+    
+    <bean id="i4change.GenerateOOSVGFooter"
+        class="org.i4change.app.presenter.draw.GenerateOOSVGFooter">
+        <property name="diagramDaoImpl" ref="i4change.DiagramDaoImpl" />
+    </bean> 
+    
+    <bean id="i4change.GenerateOOSVGDetails"
+        class="org.i4change.app.presenter.draw.GenerateOOSVGDetails">
+    </bean> 
+    
+    <bean id="i4change.DrawColorSchemes"
+        class="org.i4change.app.presenter.draw.DrawColorSchemes">
+    </bean> 
+    
+    <bean id="i4change.GeneratePDF"
+        class="org.i4change.app.documents.GeneratePDF">
+    </bean> 
+    
+    <bean id="i4change.DrawTextSchemes"
+        class="org.i4change.app.presenter.draw.DrawTextSchemes">
+    </bean>
+    
+</beans>

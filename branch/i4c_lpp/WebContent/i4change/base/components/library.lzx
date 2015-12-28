@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+	
+	<include href="incubator/gradientview.lzx" />
+    <include href="iconView.lzx" />
+    <include href="updatecheckbox.lzx" />
+    <include href="tableCombobox.lzx" />
+    <include href="tableListItem.lzx" />
+    <include href="labelRadioButton.lzx" />
+    <include href="labelTextListItem.lzx" />
+    
+    <include href="eventscrollbars/" />
+    <include href="text/" />
+    <include href="menu/" />
+    <include href="button/" />
+    <include href="clickbox/" />   
+    <include href="explorer/" />     
+    <include href="list/" />
+    <include href="omcombobox/" />
+    <include href="turnoverlist/" />
+    <include href="turnoverlistpaged/" />
+    <include href="calendar/" />
+    <include href="simplevaluelist/" />
+    <include href="presenter/" />
+    <include href="upload/" /> 
+    <include href="validbox/" />
+    <include href="inspector/" />
+    <include href="lps/" />
+    <include href="iconboxMapHeader.lzx" />
+    <include href="infoIconBox.lzx" />
+    <include href="infoIconToolTip.lzx" />
+    <include href="labelTabPane.lzx" />
+    <include href="iconButton.lzx" />
+
+</library>

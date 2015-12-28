@@ -1,0 +1,668 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<library>
+    
+<class name="baseRoleExplorerListItem" extends="basePagingListItem"> 
+
+    <attribute name="obj" value="null" />
+    
+    <attribute name="itemName" type="string" />
+    <attribute name="objectTypeNameLabel" type="string" />
+    <attribute name="inserted" type="string" />
+    <attribute name="itemRef" value="null" />
+    
+    <method name="setItemName" args="itemName">
+    	this.itemName = itemName;
+    	this._itemName.setAttribute("text",itemName)
+    </method>
+    <method name="setObjectTypeNameLabel" args="objectTypeNameLabel">
+    	this.objectTypeNameLabel = objectTypeNameLabel;
+    	this._objectTypeNameLabel.setAttribute("text",objectTypeNameLabel);
+    </method>
+    <method name="setInserted" args="inserted">
+    	this.inserted = inserted;
+    	this._inserted.setAttribute("text",inserted);
+    </method>
+    
+    <turnOverTextItem name="_itemName" width="160" />
+    <turnOverTextItem name="_objectTypeNameLabel" width="100" />
+    <turnOverTextItem name="_inserted" width="120" />
+    
+    <!--
+    <method name="setObj" args="obj">
+    	this.obj = obj;
+    	this.tooltip.listOfRoles = obj.roles;
+    	this.tooltip.userId = obj.insertedby.user_id;
+    	this.tooltip.text = canvas.getLabelName(802) + obj.insertedby.login;
+    </method>
+     -->
+    
+    <attribute name="_tempxValue" type="number" value="0" />
+    <attribute name="_tempyValue" type="number" value="0" />
+    
+    
+    <labelTooltip name="tooltip" dynamicLabelToolTipItem="roleListToolTip"
+    			  dynamicLabelToolTip="true" />
+    
+    <!--
+    <labelTooltip text="$once{ canvas.getLabelName(802) + parent.obj.insertedby.login }" />
+     -->
+
+</class>
+
+<class name="roleListToolTip" extends="xmlCrmMultiTooltipListOfImages">
+	
+	<handler name="oninit">
+		this.getDiagramObjectPureById.doCall();
+	</handler>
+	
+    <!--
+		getDiagramObjectPureById
+	 -->
+    <netRemoteCallRPC name="getDiagramObjectPureById" funcname="getDiagramObjectPureById" 
+                      remotecontext="$once{  canvas.diagramServiceRPC }" showLoading="false">   
+        <netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+        <netparam><method name="getValue">return parent.parent.refObj.parent.obj.diagramObjectId;</method></netparam>
+        <handler name="ondata" args="value">
+            <![CDATA[
+                //if ($debug) Debug.write("getDiagramObjectPureById ",value);
+                parent.initContent(value);
+            ]]>
+        </handler>
+    </netRemoteCallRPC>   
+    
+    <method name="initContent" args="obj">
+    	<![CDATA[
+    		var xVal = canvas.getMouse('x');
+	        var yVal = canvas.getMouse('y');
+	        
+    		if (obj.roles != null && obj.roles.length != 0) {
+    			
+    			var txtString = canvas.getLabelName(1253);
+    			
+    			for (var i=0;i<obj.roles.length;i++) {
+	                var downloadurl = canvas.httpprotocol+'://'+canvas.rtmphostlocal+':'+canvas.httpport
+	                    +'/'+canvas.webAppRootKey+'/DownloadHandler?fileName=CHAT'
+	                    +'&moduleName=chat&parentPath=&room_id='
+	                    +'&remoteUserid='+obj.roles[i].assignee.user_id
+	                    +'&sid='+canvas.sessionId; 	 
+	                    
+	                var thisText = txtString+" "+obj.roles[i].assignee.firstname
+	                                    +" "+obj.roles[i].assignee.lastname
+	                                    +" ["+obj.roles[i].assignee.login+"]";
+	        		this.addItem(thisText,downloadurl);
+    			}
+    			
+        		if (xVal<canvas.width/2){
+                    xVal += 0;
+                } else {
+                    xVal -= this.width-14;
+                }
+                if (yVal<canvas.height/1.2){
+                    yVal += 24;
+                } else {
+                    yVal -= (this.height + 40);
+                }
+                
+    		} else {
+    			
+    			var thisText = canvas.getLabelName(802) + obj.insertedby.login
+    			
+    			var downloadurl = canvas.httpprotocol+'://'+canvas.rtmphostlocal+':'+canvas.httpport
+                    +'/'+canvas.webAppRootKey+'/DownloadHandler?fileName=CHAT'
+                    +'&moduleName=chat&parentPath=&room_id='
+                    +'&remoteUserid='+obj.insertedby.user_id
+                    +'&sid='+canvas.sessionId;            
+                            
+                this.addItem(thisText,downloadurl);
+	        	
+	        	if (xVal<canvas.width/2){
+                    xVal += 0;
+                } else {
+                    xVal -= this.width-14;
+                }
+                if (yVal<canvas.height/1.2){
+                    yVal += 24;
+                } else {
+                    yVal -= (this.height + 40);
+                }
+                
+    		}
+    		
+    		this.setAttribute('x',xVal);
+        	this.setAttribute('y',yVal); 
+    	]]>
+    </method>
+    
+</class>
+
+
+<class name="roleExplorerListItem" extends="baseRoleExplorerListItem"> 
+
+    <handler name="onmousedown">
+        <![CDATA[
+	        var diagramRef = canvas.currentDiagramRef;
+	        if (this.obj.objectTypeName == "unitFixed") {
+	            if (diagramRef._scrollcontent.dragArea.contentArea._currentBoard.diagramType == 2 || 
+	                        diagramRef._scrollcontent.dragArea.contentArea._currentBoard.diagramType == 4) {
+		            var targetx = canvas.defaultRoleWidth/2;
+		            var targety = canvas.defaultRoleHeight/2;
+		            ////if ($debug) Debug.write("x,y: ",canvas.getMouse('x'),canvas.getMouse('y'));
+		            this.itemRef =  new lz.dragViewDiagramObjects(canvas,{
+                                        targetwidth:(canvas.defaultUnitWidth*4)+100,
+                                        targetheight:canvas.defaultUnitHeight+40,
+		                                width:0,height:0,
+		                                x:canvas.getMouse('x'),
+		                                y:canvas.getMouse('y'),
+		                                targetx:targetx,targety:targety,
+		                                strokeColor:0x3F65FC,fillColor:0xB4C4FE
+		                            });
+		            //if ($debug) Debug.write("itemRef: ",itemRef);
+	            } else if (diagramRef._scrollcontent.dragArea.contentArea._currentBoard.diagramType == 3){
+		            var targetx = canvas.defaultUnitWidth/2;
+		            var targety = canvas.defaultUnitHeight/2;
+		            this.itemRef =  new lz.dragViewDiagramObjects(canvas,{
+		                                targetwidth:canvas.defaultUnitWidth,
+		                                targetheight:canvas.defaultUnitHeight,
+		                                width:0,height:0,
+		                                x:canvas.getMouse('x'),
+		                                y:canvas.getMouse('y'),
+		                                targetx:targetx,targety:targety,
+		                                strokeColor:0x3F65FC,fillColor:0xB4C4FE
+		                            });
+		            //if ($debug) Debug.write("itemRef: ",itemRef);
+	            }
+	        } else if (this.obj.objectTypeName == "activity") {
+	            var targetx = canvas.defaultActicityWidth/2;
+	            var targety = canvas.defaultActicityHeight/2;
+	            ////if ($debug) Debug.write("x,y: ",x,y);
+	            this.itemRef =  new lz.dragViewDiagramObjects(canvas,{
+	                                targetwidth:canvas.defaultActicityWidth,
+	                                targetheight:canvas.defaultActicityHeight,
+	                                width:0,height:0,
+	                                x:canvas.getMouse('x'),
+	                                y:canvas.getMouse('y'),
+	                                targetx:targetx,targety:targety,
+	                                strokeColor:0xFF6600,fillColor:0xFFFFFF
+	                            });
+	        } else if (this.obj.objectTypeName == "processtree") {
+	            var targetx = canvas.defaultCompanyWidth/2;
+	            var targety = canvas.defaultCompanyHeight/2;
+	            ////if ($debug) Debug.write("x,y: ",x,y);
+	            this.itemRef =  new lz.dragViewDiagramObjects(canvas,{
+	                                targetwidth:canvas.defaultCompanyWidth,
+	                                targetheight:canvas.defaultCompanyHeight,
+	                                width:0,height:0,
+	                                x:canvas.getMouse('x'),
+	                                y:canvas.getMouse('y'),
+	                                targetx:targetx,targety:targety,
+	                                strokeColor:0xFFCC00,fillColor:0xFFFF00
+	                            });
+	        } else if (this.obj.objectTypeName == "processgroup") {
+	            var targetx = canvas.defaultProcessGroupWidth/2;
+	            var targety = canvas.defaultProcessGroupHeight/2;
+	            ////if ($debug) Debug.write("x,y: ",x,y);
+	            this.itemRef =  new lz.dragViewDiagramObjects(canvas,{
+	                                targetwidth:canvas.defaultProcessGroupWidth,
+	                                targetheight:canvas.defaultProcessGroupHeight,
+	                                width:0,height:0,
+	                                x:canvas.getMouse('x'),
+	                                y:canvas.getMouse('y'),
+	                                targetx:targetx,targety:targety,
+	                                strokeColor:0xFF6600,fillColor:0xFF9900
+	                            });
+	        } else if (this.obj.objectTypeName == "departementFixed") {
+                if (diagramRef._scrollcontent.dragArea.contentArea._currentBoard.diagramType == 2 || 
+                            diagramRef._scrollcontent.dragArea.contentArea._currentBoard.diagramType == 4) {
+                    var targetx = canvas.defaultDepartementWidth/2;
+                    var targety = canvas.defaultDepartementHeight/2;
+                    ////if ($debug) Debug.write("x,y: ",x,y);
+                    this.itemRef =  new lz.dragViewDiagramObjects(canvas,{
+                                        targetwidth:(canvas.defaultUnitWidth*4)+100,
+                                        targetheight:canvas.defaultUnitHeight+40,
+                                        width:0,height:0,
+                                        x:canvas.getMouse('x'),
+                                        y:canvas.getMouse('y'),
+                                        targetx:targetx,targety:targety,
+                                        strokeColor:0x2D56FD,fillColor:0x89A2FE
+                                    }); 
+                } else {
+	                var targetx = canvas.defaultDepartementWidth/2;
+	                var targety = canvas.defaultDepartementHeight/2;
+	                ////if ($debug) Debug.write("x,y: ",x,y);
+	                this.itemRef =  new lz.dragViewDiagramObjects(canvas,{
+	                                    targetwidth:canvas.defaultDepartementWidth,
+	                                    targetheight:canvas.defaultDepartementHeight,
+	                                    width:0,height:0,
+	                                    x:canvas.getMouse('x'),
+	                                    y:canvas.getMouse('y'),
+	                                    targetx:targetx,targety:targety,
+	                                    strokeColor:0x2D56FD,fillColor:0x89A2FE
+	                                }); 
+                }
+	        } else if (this.obj.objectTypeName == "companyFixed") {
+                if (diagramRef._scrollcontent.dragArea.contentArea._currentBoard.diagramType == 2 || 
+                            diagramRef._scrollcontent.dragArea.contentArea._currentBoard.diagramType == 4) {
+	                var targetx = canvas.defaultCompanyWidth/2;
+	                var targety = canvas.defaultCompanyHeight/2;
+	                ////if ($debug) Debug.write("x,y: ",x,y);
+	                this.itemRef =  new lz.dragViewDiagramObjects(canvas,{
+	                                    targetwidth:(canvas.defaultUnitWidth*4)+100,
+                                        targetheight:canvas.defaultUnitHeight+40,
+	                                    width:0,height:0,
+	                                    x:canvas.getMouse('x'),
+	                                    y:canvas.getMouse('y'),
+	                                    targetx:targetx,targety:targety,
+	                                    strokeColor:0x032FDA,fillColor:0x5073FC
+	                                });         
+                } else {
+	                var targetx = canvas.defaultCompanyWidth/2;
+	                var targety = canvas.defaultCompanyHeight/2;
+	                ////if ($debug) Debug.write("x,y: ",x,y);
+	                this.itemRef =  new lz.dragViewDiagramObjects(canvas,{
+	                                    targetwidth:canvas.defaultCompanyWidth,
+	                                    targetheight:canvas.defaultCompanyHeight,
+	                                    width:0,height:0,
+	                                    x:canvas.getMouse('x'),
+	                                    y:canvas.getMouse('y'),
+	                                    targetx:targetx,targety:targety,
+	                                    strokeColor:0x032FDA,fillColor:0x5073FC
+	                                });
+                }
+	        } else if (this.obj.objectTypeName == "flow") {
+	            var targetx = canvas.defaultCompanyWidth/2;
+	            var targety = canvas.defaultCompanyHeight/2;
+	            ////if ($debug) Debug.write("x,y: ",x,y);
+	            this.itemRef =  new lz.dragViewDiagramObjects(canvas,{
+	                                targetwidth:canvas.defaultCompanyWidth,
+	                                targetheight:canvas.defaultCompanyHeight,
+	                                width:0,height:0,
+	                                x:canvas.getMouse('x'),
+	                                y:canvas.getMouse('y'),
+	                                targetx:targetx,targety:targety,
+	                                objectType:'flow',
+	                                strokeColor:0x009900,fillColor:0x00FF33,
+	                                strokeColor2:0xCC0000,fillColor2:0xFF3300
+	                            });
+	        } else {
+	            //if ($debug) Debug.warn("Unkown objectTypeName: ",this.obj.objectTypeName);
+	        }
+        ]]>
+    </handler>
+    
+    <handler name="onmouseup2">
+        //if ($debug) Debug.write("onmouseup ",this.itemRef);
+    </handler>
+    
+    <handler name="onmouseup">
+        <![CDATA[
+            //if ($debug) Debug.write("onmouseup ",this);
+            ////if ($debug) Debug.write("onmouseup ",parent.parent.parent.parent.parent.parent.parent.parent);
+            var diagramRef = canvas.currentDiagramRef;        
+            if (this.itemRef != null) {
+                this.itemRef.close();
+                if (this.getMouse('x')>=this.x && this.getMouse('x')<=(this.x+this.width) && this.getMouse('y')>=0 && this.getMouse('y')<=(0+this.height)){
+                    //if ($debug) Debug.warn("Clicked Inside Item, use default Location");
+                    //asd
+                } else {
+                    if (this.obj.objectTypeName == "unitFixed") {
+                        ////if ($debug) Debug.write("this.obj ",this.obj);
+                        ////if ($debug) Debug.write("this.obj.name,this.obj.diagramObjectId: ",this.obj.name,this.obj.diagramObjectId)
+                        if (diagramRef._scrollcontent.dragArea.contentArea._currentBoard.diagramType == 2 || 
+                                    diagramRef._scrollcontent.dragArea.contentArea._currentBoard.diagramType == 4) {
+                            
+                                        //asd
+                            this._tempxValue = diagramRef._scrollcontent.dragArea.contentArea._currentBoard.getMouse('x')-(canvas.defaultRoleWidth/2);
+                            this._tempyValue = diagramRef._scrollcontent.dragArea.contentArea._currentBoard.getMouse('y')-(canvas.defaultRoleHeight/2);
+                         
+                        } else if (diagramRef._scrollcontent.dragArea.contentArea._currentBoard.diagramType == 3) {
+                           
+                            //asd
+                            this._tempxValue = diagramRef._scrollcontent.dragArea.contentArea._currentBoard.getMouse('x')-(canvas.defaultUnitWidth/2);
+                            this._tempyValue = diagramRef._scrollcontent.dragArea.contentArea._currentBoard.getMouse('y')-(canvas.defaultUnitHeight/2);
+  
+                        }
+                    } else if (this.obj.objectTypeName == "activity") {
+
+                        this._tempxValue = diagramRef._scrollcontent.dragArea.contentArea._currentBoard.getMouse('x')-(canvas.defaultActicityWidth/2);
+                        this._tempyValue = diagramRef._scrollcontent.dragArea.contentArea._currentBoard.getMouse('y')-(canvas.defaultActicityHeight/2);
+
+                    } else if (this.obj.objectTypeName == "processtree") {
+                        if (diagramRef._scrollcontent.dragArea.contentArea._currentBoard.diagramType == 2 || 
+                                    diagramRef._scrollcontent.dragArea.contentArea._currentBoard.diagramType == 4) {
+
+	                        this._tempxValue = diagramRef._scrollcontent.dragArea.contentArea._currentBoard.getMouse('x')-(canvas.defaultCompanyWidth/2);
+	                        this._tempyValue = diagramRef._scrollcontent.dragArea.contentArea._currentBoard.getMouse('y')-(canvas.defaultCompanyHeight/2);
+
+                        } else if (diagramRef._scrollcontent.dragArea.contentArea._currentBoard.diagramType == 1){
+
+                            this._tempxValue = diagramRef._scrollcontent.dragArea.contentArea._currentBoard.getMouse('x')-(canvas.defaultCompanyWidth/2);
+                            this._tempyValue = diagramRef._scrollcontent.dragArea.contentArea._currentBoard.getMouse('y')-(canvas.defaultCompanyHeight/2);
+
+                        }
+                    } else if (this.obj.objectTypeName == "processgroup") {
+
+                        this._tempxValue = diagramRef._scrollcontent.dragArea.contentArea._currentBoard.getMouse('x')-(canvas.defaultProcessGroupWidth/2);
+                        this._tempyValue = diagramRef._scrollcontent.dragArea.contentArea._currentBoard.getMouse('y')-(canvas.defaultProcessGroupHeight/2);
+
+                    } else if (this.obj.objectTypeName == "departementFixed") {
+                        if (diagramRef._scrollcontent.dragArea.contentArea._currentBoard.diagramType == 2 || 
+                                    diagramRef._scrollcontent.dragArea.contentArea._currentBoard.diagramType == 4) {
+
+                            this._tempxValue = diagramRef._scrollcontent.dragArea.contentArea._currentBoard.getMouse('x')-(canvas.defaultDepartementWidth/2);
+                            this._tempyValue = diagramRef._scrollcontent.dragArea.contentArea._currentBoard.getMouse('y')-(canvas.defaultDepartementHeight/2);
+
+                        } else {
+
+                            this._tempxValue = diagramRef._scrollcontent.dragArea.contentArea._currentBoard.getMouse('x')-(canvas.defaultDepartementWidth/2);
+                            this._tempyValue = diagramRef._scrollcontent.dragArea.contentArea._currentBoard.getMouse('y')-(canvas.defaultDepartementHeight/2);
+
+                        }
+                    } else if (this.obj.objectTypeName == "companyFixed") {
+                        if (diagramRef._scrollcontent.dragArea.contentArea._currentBoard.diagramType == 2 || 
+                                    diagramRef._scrollcontent.dragArea.contentArea._currentBoard.diagramType == 4) {
+
+                            this._tempxValue = diagramRef._scrollcontent.dragArea.contentArea._currentBoard.getMouse('x')-(canvas.defaultCompanyWidth/2);
+                            this._tempyValue = diagramRef._scrollcontent.dragArea.contentArea._currentBoard.getMouse('y')-(canvas.defaultCompanyHeight/2);
+
+                        } else {
+
+                            this._tempxValue = diagramRef._scrollcontent.dragArea.contentArea._currentBoard.getMouse('x')-(canvas.defaultCompanyWidth/2);
+                            this._tempyValue = diagramRef._scrollcontent.dragArea.contentArea._currentBoard.getMouse('y')-(canvas.defaultCompanyHeight/2);
+
+                        }
+                    } else if (this.obj.objectTypeName == "flow") {
+                        
+                        this._tempxValue = diagramRef._scrollcontent.dragArea.contentArea._currentBoard.getMouse('x')-(canvas.defaultCompanyWidth/2);
+                        this._tempyValue = diagramRef._scrollcontent.dragArea.contentArea._currentBoard.getMouse('y')-(canvas.defaultCompanyHeight/2);
+                        
+                    } else {
+                        //if ($debug) Debug.warn("Unkown ObjectTypeName");
+                        
+                    }
+                }
+            }
+            this.getDiagramObjectCompleteById.doCall();
+        ]]>
+    </handler>
+    
+    <!--
+		getDiagramObjectPureById
+	 -->
+    <netRemoteCallRPC name="getDiagramObjectCompleteById" funcname="getDiagramObjectCompleteById" 
+                      remotecontext="$once{  canvas.diagramServiceRPC }" >   
+        <netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+        <netparam><method name="getValue">return parent.parent.obj.diagramObjectId;</method></netparam>
+        <handler name="ondata" args="value">
+            <![CDATA[
+                //if ($debug) Debug.write("getDiagramObjectPureById ",value);
+                parent.obj = value;
+                parent.doAddItem(null);
+                //parent.getDiagramObjectPropertyByObject.doCall();
+            ]]>
+        </handler>
+    </netRemoteCallRPC>      
+    
+    <!--
+    getDiagramObjectPropertyByObject
+    <netRemoteCallRPC name="getDiagramObjectPropertyByObject" funcname="getDiagramObjectPropertyByObject" 
+                      remotecontext="$once{  canvas.propertyServiceRPC }" >   
+        <attribute name="diagramObjectId" type="number" value="0" />
+        <netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+        <netparam><method name="getValue">return parent.parent.obj.diagramObjectId;</method></netparam>
+        <handler name="ondata" args="value">
+            <![CDATA[
+                //if ($debug) Debug.write("getDiagramObjectPropertyByObject ",value);
+                var propertyMap = new Array();
+                for (var i=0;i<value.length;i++) {
+                    propertyMap.push({'propertyId':value[i].propertyId,'propertyVal':value[i].value});
+                }
+            ]]>
+        </handler>
+    </netRemoteCallRPC>  
+     -->
+    
+    
+    <method name="doAddItem" args="propertyMap">
+        <![CDATA[
+	        //if ($debug) Debug.write("onmouseup ",this);
+	        ////if ($debug) Debug.write("onmouseup ",parent.parent.parent.parent.parent.parent.parent.parent);
+	        var diagramRef = canvas.currentDiagramRef;
+	        if (this.itemRef != null) {
+	            this.itemRef.close();
+                    
+	            if ($debug) Debug.write(this.obj);
+	            
+	            //diagramDocuments
+	            
+	            if (this.obj.objectTypeName == "unitFixed") {
+	                ////if ($debug) Debug.write("this.obj ",this.obj);
+	                ////if ($debug) Debug.write("this.obj.name,this.obj.diagramObjectId: ",this.obj.name,this.obj.diagramObjectId)
+		            if (diagramRef._scrollcontent.dragArea.contentArea._currentBoard.diagramType == 2 || 
+                                diagramRef._scrollcontent.dragArea.contentArea._currentBoard.diagramType == 4) {
+                        diagramRef._scrollcontent.dragArea.contentArea._currentBoard.loadUnit(
+		                        this.obj.name,this.obj.diagramObjectId,
+		                        this._tempxValue,
+		                        this._tempyValue,
+		                        canvas.defaultRoleWidth,
+		                        canvas.defaultRoleHeight,
+		                        'unit'+diagramRef._scrollcontent.dragArea.contentArea._currentBoard.getCounter(),false,null,null,
+                                this.getDataCarrierList(),
+                                true,
+                                propertyMap
+		                    );//Do auto place this Object
+		                
+	                    //Add document Icons to shape
+		                diagramRef._scrollcontent.dragArea.contentArea._currentBoard.currentlayer.showDocuments(this.obj.diagramDocuments);    
+		                    
+                    } else if (diagramRef._scrollcontent.dragArea.contentArea._currentBoard.diagramType == 3){
+                        diagramRef._scrollcontent.dragArea.contentArea._currentBoard.loadFixedUnit(
+                                this.obj.name,this.obj.diagramObjectId,
+                                this._tempxValue,
+                                this._tempyValue,
+                                canvas.defaultUnitWidth,
+                                canvas.defaultUnitHeight,
+                                'unit'+diagramRef._scrollcontent.dragArea.contentArea._currentBoard.getCounter(),
+                                this.getDataCarrierList(),propertyMap
+                            );
+                        
+                        //Add document Icons to shape
+                        diagramRef._scrollcontent.dragArea.contentArea._currentBoard.currentlayer.showDocuments(this.obj.diagramDocuments);    
+                        
+                    }
+	            } else if (this.obj.objectTypeName == "activity") {
+                    diagramRef._scrollcontent.dragArea.contentArea._currentBoard.loadActivityDrag(
+                            this.obj.name,this.obj.diagramObjectId,
+                            this._tempxValue,
+                            this._tempyValue,
+                            canvas.defaultActicityWidth,
+                            canvas.defaultActicityHeight,
+                            'activity'+diagramRef._scrollcontent.dragArea.contentArea._currentBoard.getCounter(),
+                            this.getDataCarrierList(),propertyMap
+                        );
+                        
+                    //Add document Icons to shape
+                    diagramRef._scrollcontent.dragArea.contentArea._currentBoard.currentlayer.showDocuments(this.obj.diagramDocuments);    
+                        
+                } else if (this.obj.objectTypeName == "processtree") {
+                    if (diagramRef._scrollcontent.dragArea.contentArea._currentBoard.diagramType == 2 || 
+                                diagramRef._scrollcontent.dragArea.contentArea._currentBoard.diagramType == 4) {
+                        diagramRef._scrollcontent.dragArea.contentArea._currentBoard.loadProcessDrag(
+                                this.obj.name,this.obj.diagramObjectId,
+                                this._tempxValue,
+                                this._tempyValue,
+                                canvas.defaultCompanyWidth,
+                                canvas.defaultCompanyHeight,
+                                'process'+diagramRef._scrollcontent.dragArea.contentArea._currentBoard.getCounter(),
+                                this.getDataCarrierList(),propertyMap
+                            );
+                        
+                        //Add document Icons to shape
+                        diagramRef._scrollcontent.dragArea.contentArea._currentBoard.currentlayer.showDocuments(this.obj.diagramDocuments);    
+                    
+                    } else if (diagramRef._scrollcontent.dragArea.contentArea._currentBoard.diagramType == 1){
+                        diagramRef._scrollcontent.dragArea.contentArea._currentBoard.loadFixedProcessDrag(
+                                this.obj.name,this.obj.diagramObjectId,
+                                this._tempxValue,
+                                this._tempyValue,
+                                canvas.defaultCompanyWidth,
+                                canvas.defaultCompanyHeight,
+                                'processtree'+diagramRef._scrollcontent.dragArea.contentArea._currentBoard.getCounter(),
+                                this.getDataCarrierList(),propertyMap
+                            );
+                        //Add document Icons to shape
+                        diagramRef._scrollcontent.dragArea.contentArea._currentBoard.currentlayer.showDocuments(this.obj.diagramDocuments);    
+                    
+                    }
+                } else {
+                	
+                	this.doAddItem_SecondRound(propertyMap);
+                	
+                }
+	        }
+        ]]>
+    </method>
+    
+    <!--
+        stupid compiler does not allow big Methods
+     -->
+    <method name="doAddItem_SecondRound" args="propertyMap">
+        <![CDATA[
+            
+            var diagramRef = canvas.currentDiagramRef;
+            
+            if (this.obj.objectTypeName == "processgroup") {
+                diagramRef._scrollcontent.dragArea.contentArea._currentBoard.loadFixedProcessgroup_saveObjDrag(
+                        this.obj.name,this.obj.diagramObjectId,
+                        this._tempxValue,
+                        this._tempyValue,
+                        canvas.defaultProcessGroupWidth,
+                        canvas.defaultProcessGroupHeight,
+                        'processgroup'+diagramRef._scrollcontent.dragArea.contentArea._currentBoard.getCounter(),
+                        this.getDataCarrierList(),propertyMap
+                    );
+                 
+                //Add document Icons to shape
+                diagramRef._scrollcontent.dragArea.contentArea._currentBoard.currentlayer.showDocuments(this.obj.diagramDocuments);    
+                
+            } else if (this.obj.objectTypeName == "departementFixed") {
+                if (diagramRef._scrollcontent.dragArea.contentArea._currentBoard.diagramType == 2 || 
+                            diagramRef._scrollcontent.dragArea.contentArea._currentBoard.diagramType == 4) {
+                    diagramRef._scrollcontent.dragArea.contentArea._currentBoard.loadDepartementDragFlowDiagram(
+                            this.obj.name,this.obj.diagramObjectId,
+                            this._tempxValue,
+                            this._tempyValue,
+                            canvas.defaultDepartementWidth,
+                            canvas.defaultDepartementHeight,
+                            'departement'+diagramRef._scrollcontent.dragArea.contentArea._currentBoard.getCounter(),
+                            this.getDataCarrierList(),propertyMap
+                        );
+                    
+                    //Add document Icons to shape
+                    diagramRef._scrollcontent.dragArea.contentArea._currentBoard.currentlayer.showDocuments(this.obj.diagramDocuments);    
+                
+                } else {
+                    diagramRef._scrollcontent.dragArea.contentArea._currentBoard.loadFixedDepartement(
+                            this.obj.name,this.obj.diagramObjectId,
+                            this._tempxValue,
+                            this._tempyValue,
+                            canvas.defaultDepartementWidth,
+                            canvas.defaultDepartementHeight,
+                            'departement'+diagramRef._scrollcontent.dragArea.contentArea._currentBoard.getCounter(),
+                            this.getDataCarrierList(),propertyMap
+                        );
+                    
+                    //Add document Icons to shape
+                    diagramRef._scrollcontent.dragArea.contentArea._currentBoard.currentlayer.showDocuments(this.obj.diagramDocuments);    
+                
+                }
+            } else if (this.obj.objectTypeName == "companyFixed") {
+                if (diagramRef._scrollcontent.dragArea.contentArea._currentBoard.diagramType == 2 || 
+                            diagramRef._scrollcontent.dragArea.contentArea._currentBoard.diagramType == 4) {
+                    diagramRef._scrollcontent.dragArea.contentArea._currentBoard.loadCompanyDragFlowDiagram(
+                            this.obj.name,this.obj.diagramObjectId,
+                            this._tempxValue,
+                            this._tempyValue,
+                            canvas.defaultCompanyWidth,
+                            canvas.defaultCompanyHeight,
+                            'company'+diagramRef._scrollcontent.dragArea.contentArea._currentBoard.getCounter(),
+                            this.getDataCarrierList(),propertyMap
+                        );
+                        
+                    //Add document Icons to shape
+                    diagramRef._scrollcontent.dragArea.contentArea._currentBoard.currentlayer.showDocuments(this.obj.diagramDocuments);    
+                    
+                } else {
+                    diagramRef._scrollcontent.dragArea.contentArea._currentBoard.loadFixedCompany(
+                            this.obj.name,this.obj.diagramObjectId,
+                            this._tempxValue,
+                            this._tempyValue,
+                            canvas.defaultCompanyWidth,
+                            canvas.defaultCompanyHeight,
+                            'company'+diagramRef._scrollcontent.dragArea.contentArea._currentBoard.getCounter(),
+                            this.getDataCarrierList(),propertyMap
+                        );
+                    
+                    //Add document Icons to shape
+                    diagramRef._scrollcontent.dragArea.contentArea._currentBoard.currentlayer.showDocuments(this.obj.diagramDocuments);    
+                    
+                }
+            } else if (this.obj.objectTypeName == "flow") {
+                
+                new lz.chooseFlowType(canvas.main_content._content.inner,{refObj:this});
+                
+            } else {
+                //if ($debug) Debug.warn("Unkown ObjectTypeName");
+                
+            }
+        
+         ]]>
+    </method>
+    
+    <method name="getDataCarrierList">
+        <![CDATA[
+            var dataCarrierList = new Array();
+            for (var i=0;i<this.obj.dataCarrierDiagramObject.length;i++) {
+                var item = this.obj.dataCarrierDiagramObject[i];
+                //if ($debug) Debug.write("item: ",item);
+                dataCarrierList.push({
+                    diagramObjectId:item.dataCarrierObjectdiagramObjectId,
+                    dataCarrierName:item.dataCarrierObjectdiagramObject.name});
+            }
+            //if ($debug) Debug.write("dataCarrierList: ",dataCarrierList);
+            return dataCarrierList;
+        ]]>
+    </method>
+    
+    <method name="loadInputflow">
+        var diagramRef = canvas.currentDiagramRef;
+        diagramRef._scrollcontent.dragArea.contentArea._currentBoard.loadFixedInputflow(
+                this.obj.name, this.obj.diagramObjectId,
+                this._tempxValue, this._tempyValue,
+                canvas.defaultCompanyWidth, canvas.defaultCompanyHeight,
+                'inputflow'+diagramRef._scrollcontent.dragArea.contentArea._currentBoard.getCounter(),
+                this.getDataCarrierList()
+            );
+            
+        //Add document Icons to shape
+        diagramRef._scrollcontent.dragArea.contentArea._currentBoard.currentlayer.showDocuments(this.obj.diagramDocuments);    
+                        
+    </method>
+    
+    <method name="loadOutputflow">
+        var diagramRef = canvas.currentDiagramRef;
+        diagramRef._scrollcontent.dragArea.contentArea._currentBoard.loadFixedOutputflow(
+                this.obj.name, this.obj.diagramObjectId,
+                this._tempxValue, this._tempyValue,
+                canvas.defaultCompanyWidth, canvas.defaultCompanyHeight,
+                'outputflow'+diagramRef._scrollcontent.dragArea.contentArea._currentBoard.getCounter(),
+                this.getDataCarrierList()
+            );
+            
+        //Add document Icons to shape
+        diagramRef._scrollcontent.dragArea.contentArea._currentBoard.currentlayer.showDocuments(this.obj.diagramDocuments);    
+                        
+    </method>
+    
+</class>
+
+</library>

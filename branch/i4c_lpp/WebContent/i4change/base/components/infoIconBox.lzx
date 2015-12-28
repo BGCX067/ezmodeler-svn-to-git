@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+<class name="infoIconBox" extends="view" >
+    
+    <attribute name="iconResourceName" value="info_icon_rsc" type="string" />
+    <attribute name="iconResourceNameDynamic" value="" type="string" />
+    
+    <attribute name="labelid" type="number" />
+    <attribute name="text" type="string" value="" />
+    
+    <handler name="oninit">
+        if (this.text != "") {
+            this._cText.setAttribute('text',this.text);
+        }
+        if (this.iconResourceNameDynamic.length != 0) {
+            this._icon.setSource(canvas.getIconPathByName(this.iconResourceNameDynamic));
+        } else {
+            this._icon.setAttribute("resource",this.iconResourceName);
+        }
+        
+    </handler>
+    <!--
+    resource="$once{ parent }" 
+     -->
+    <view name="_icon" x="2" y="2" />
+    
+    <labelText name="_cText" labelid="${ parent.labelid }" 
+               multiline="true" fontstyle="italic"
+              x="26" width="$once{ parent.width - 26 }" />
+            
+</class>
+
+</library>

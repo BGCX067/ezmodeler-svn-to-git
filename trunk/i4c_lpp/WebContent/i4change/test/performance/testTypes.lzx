@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<canvas debug="true" width="100%" height="100%" >
+    <debug fontsize="12" oninit="Debug.showInternalProperties = true" />
+    
+    <attribute name="mousetracker_del" value="$once{ new LzDelegate(this, 'trackmouse' )}" />
+    
+    <class name="myTestDraw" extends="drawview">
+    	
+    	<handler name="oninit">
+    		this.lineWidth = 2;
+            this.strokeStyle = 0xFF3300;
+            this.fillStyle = 0x00FF33;
+            
+            this.beginPath();
+            this.moveTo(0,0);
+            this.lineTo(this.width,0);
+            this.lineTo(this.width,this.height);
+            this.lineTo(0,this.height);
+            this.lineTo (0,0);
+            this.closePath();
+            
+            
+            this.stroke();
+            this.fill();
+    	</handler>
+    	
+    </class>
+    
+    <method name="trackmouse" args="item">
+    	var x = canvas.getMouse("x");
+    	var y = canvas.getMouse("y");
+    	
+    	this._myTestDraw.destroy();
+    	new lz.myTestDraw(canvas,{name:'_myTestDraw',width:x,height:y});
+    	new lz.myTestDraw(this._myTestDraw,{width:x,height:y});
+    	new lz.myTestDraw(this._myTestDraw,{width:x,height:y});
+    	new lz.myTestDraw(this._myTestDraw,{width:x,height:y});
+    	new lz.myTestDraw(this._myTestDraw,{width:x,height:y});
+    	
+    </method>
+    
+    <button text="doInvoke">
+    	<handler name="onclick">
+    		canvas.mousetracker_del.register(lz.Idle,'onidle');
+    	</handler>
+    </button>
+    
+    <myTestDraw name="_myTestDraw"></myTestDraw>
+    
+</canvas>

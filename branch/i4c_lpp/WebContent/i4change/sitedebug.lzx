@@ -1,0 +1,549 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<canvas debug="false" width="100%" height="100%" >
+    <debug fontsize="12" oninit="Debug.showInternalProperties = true" />
+    
+<include href="incubator/roundrect.lzx"/>
+
+<resource name="main_bg" src="resources/testbg.png"></resource>
+   
+<handler name="oninit">
+    //this.setAttribute('framerate',12);
+    var cmenu = new LzContextMenu();
+    canvas.setDefaultContextMenu(cmenu);
+    cmenu.hideBuiltInItems();
+    var item1 = cmenu.makeMenuItem('i4Change', new LzDelegate(this,"openMeetingsMenuItemHandler"));
+    cmenu.addItem(item1);
+    //if($debug) Debug.write("sitedebug.lzx/oninit:",this);
+    // Add Custom Items:
+    //var item1 = cmenu.makeMenuItem('MedCast', new LzDelegate(this,"openMeetingsMenuItemHandler"));
+    //cmenu.addItem(item1);
+</handler>
+
+<class name="contentItem" extends="view" >
+	
+	<view width="$once{ parent.width }" height="150" bgcolor="0xFFFFFF" opacity="0.6">
+		
+		<!--
+	    <handler name="oninit">
+	    	//this.fadeDelegate = new LzDelegate( this, "setShadow" );
+	        this.setShadow();
+	    </handler>
+	
+	    <method name="setShadow">
+	        <![CDATA[
+	        
+	        //if ($debug) Debug.write("setShadow")
+	        if (this.isinited ){
+	            this.normalMC = this.getMCRef();
+	            
+	            
+	            this.bgSnap = new flash.display.BitmapData(this.width,this.height);
+	            duplicateMovieClip(this.normalMC,"bgMask",1);
+	            this.normalMC.setMask(this.bgSnap);
+	            
+	            //this.displacementMap = new flash.filters.DropShadowFilter();
+	            this.displacementMap = new flash.filters.BlurFilter(50,50,1);
+	            this.normalMC.filters = [this.displacementMap];
+	            
+	            this.bgSnap.draw(this.normalMC);
+	            this.normalMC.attachBitmap(this.bgSnap,1);
+	            
+     			//lz.Timer.addTimer( this.fadeDelegate, 500 );
+
+	        }
+	        ]]>              
+	    </method>	 
+	     -->
+	</view>
+	
+</class>
+
+
+<class name="blablaContent" extends="view" x="1" y="1" bgcolor="0xFFFFFF"
+	   width="${ parent.width -2 }" height="${ parent.height -2 }" clip="true">
+	<attribute name="isEndNode" value="$once{ parent.isEndNode }" type="boolean" />
+	<handler name="onmouseover">
+		setCurrentMouseWheelObject(this._scrollbar);
+	</handler>
+	<handler name="onmouseout">
+		disableCurrentMouseWheelObject();
+	</handler>
+	<handler name="onclick">
+		parent.doOpenItem();
+	</handler>
+	<view layout="axis:y;spacing:2" width="${ parent.width }">
+		<view width="100" height="40" bgcolor="$once{ genHex() }" />
+		<text fontsize="16" fontstyle="bold" multiline="true" width="${ parent.parent.width -16 }">
+			<handler name="oninit">
+				if (parent.parent.isEndNode){
+					this.setAttribute("text","END NODE NO Sub, show Just Text On CLick");
+				} else {
+					this.setAttribute("text","HAS Sub, CLick on it to open next stage");
+				}
+			</handler>
+		</text>
+		<text multiline="true" width="${ parent.parent.width -16 }">
+			#<br/>
+			Flash Effect Transition Components
+			 - [ Diese Seite übersetzen ]
+			Send us your suggestions for a new flash filter and if we produce it you win the flash-filter.net / Bundle v3.0 worth €99.99 ...
+			www.flash-filter.net/ - 14k - Im Cache - Ähnliche Seiten - Notieren
+			#<br/>
+			Flash Water Reflection Effect - Online Demo Sample
+			 - [ Diese Seite übersetzen ]
+			If you need an effect you can't find at flash-filter.net feel free to get in touch to get a quote for your individual filter. ...
+			www.flash-filter.net/water-reflection-effect-online-demo.phtml - 13k - Im Cache - Ähnliche Seiten - Notieren
+			Weitere Ergebnisse von www.flash-filter.net »
+		</text>
+		<view width="100" height="40" align="right"
+			  bgcolor="$once{ genHex() }" />
+		<text multiline="true" width="${ parent.parent.width -16 }">
+			#<br/>
+			kaourantin.net: Using Flash Player 8 filters for good
+			 - [ Diese Seite übersetzen ]
+			11 Sep 2005 ... But some of the filters can be used for much more important things which become critical when you try to deploy Flash applications to large ...
+			www.kaourantin.net/2005/09/using-flash-player-8-filters-for-good.html - 28k - Im Cache - Ähnliche Seiten - Notieren
+			#<br/>
+			flash.filters.BitmapFilterQuality (ActionScript 3.0)
+			 - [ Diese Seite übersetzen ]
+			13 Nov 2008 ... Sprite; import flash.filters.BevelFilter; import flash.filters.BitmapFilter; import flash.filters.BitmapFilterQuality; import flash.filters. ...
+			help.adobe.com/en_US/AS3LCR/Flash_10.0/flash/filters/BitmapFilterQuality.html - 28k - Im Cache - Ähnliche Seiten - Notieren
+			#
+		</text>
+	</view>
+	<vscrollbar name="_scrollbar" />
+</class>
+
+<class name="blablaContentCenter" extends="view" x="1" y="1" bgcolor="0xFFFFFF"
+	   width="${ parent.width -2 }" height="${ parent.height -2 }" clip="true">
+	<attribute name="isEndNode" value="false" type="boolean" />
+	<handler name="onmouseover">
+		setCurrentMouseWheelObject(this._scrollbar);
+	</handler>
+	<handler name="onmouseout">
+		disableCurrentMouseWheelObject();
+	</handler>
+	<handler name="onclick">
+		parent.doOpenItem();
+	</handler>
+	<view layout="axis:y;spacing:2" width="${ parent.width }">
+		<view width="300" height="300" bgcolor="$once{ genHex() }" />
+	</view>
+	<vscrollbar name="_scrollbar" />
+</class>
+
+<class name="contentResizeItem" extends="view" bgcolor="0x000000" opacity="0">
+	
+	<attribute name="isEndNode" value="false" type="boolean" />
+	
+	<attribute name="fadeDelegate" value="null" />
+	<attribute name="showNextDelegate" value="null" />
+	<attribute name="initTimeInMilliSeconds" value="500" type="number" />
+	
+	<attribute name="positionx" value="0" type="number" />
+	<attribute name="positiony" value="0" type="number" />
+	
+	
+	<attribute name="initWidth" value="0" type="number" />
+	<attribute name="initHeight" value="0" type="number" />
+	<attribute name="initX" value="0" type="number" />
+	<attribute name="initY" value="0" type="number" />
+	
+	<attribute name="focusTimeInSeconds" value="2" type="number" />
+	
+	<handler name="oninit">
+		this.fadeDelegate = new LzDelegate( this, "initItem" );
+		lz.Timer.addTimer( this.fadeDelegate, this.initTimeInMilliSeconds );
+		this.initWidth = this.width;
+		this.initHeight = this.height;
+		this.initX = this.x;
+		this.initY = this.y;
+		this.setShadow();
+	</handler>
+
+    <method name="setShadow">
+        <![CDATA[
+        if (this.isinited){
+            this.normalMC = this.getMCRef();
+            this.displacementMap = new flash.filters.DropShadowFilter();
+            this.normalMC.filters = [this.displacementMap];
+        }
+        ]]>              
+    </method>	  
+	
+	<method name="doFoxusItem">
+		<![CDATA[
+			//Do Not do Anything with center picture
+			if (this.positionx == 1 && this.positiony == 1){
+				parent.showNext();
+				return;
+			}
+			
+			//if ($debug) Debug.write("doFoxusItem",this,this.positionx,this.positiony);
+			this.showNextDelegate = new LzDelegate( this, "showItem" );
+			lz.Timer.addTimer( this.showNextDelegate, this.focusTimeInSeconds*1000 );
+			
+			this.bringToFront();
+			this.animatorWidth.setAttribute("to",this.initWidth+100);
+			this.animatorWidth.doStart();
+			this.animatorHeight.setAttribute("to",this.initHeight+100);
+			this.animatorHeight.doStart();
+				
+			if (this.positionx == 0 && this.positiony == 0){
+				
+			}
+			
+			if (this.positionx == 1 && this.positiony == 0){
+				this.animatorX.setAttribute("to",this.initX-50);
+				this.animatorX.doStart();
+			}
+			
+			if (this.positionx == 2 && this.positiony == 0){
+				this.animatorX.setAttribute("to",this.initX-100);
+				this.animatorX.doStart();
+			}
+			
+			if (this.positionx == 0 && this.positiony == 1){
+				this.animatorY.setAttribute("to",this.initY-50);
+				this.animatorY.doStart();
+			}
+			
+			if (this.positionx == 1 && this.positiony == 1){
+				this.animatorX.setAttribute("to",this.initX-50);
+				this.animatorX.doStart();
+				this.animatorY.setAttribute("to",this.initY-50);
+				this.animatorY.doStart();
+			}
+			
+			if (this.positionx == 2 && this.positiony == 1){
+				this.animatorX.setAttribute("to",this.initX-100);
+				this.animatorX.doStart();
+				this.animatorY.setAttribute("to",this.initY-50);
+				this.animatorY.doStart();
+			}
+			
+			if (this.positionx == 0 && this.positiony == 2){
+				this.animatorY.setAttribute("to",this.initY-100);
+				this.animatorY.doStart();
+			}
+			
+			if (this.positionx == 1 && this.positiony == 2){
+				this.animatorY.setAttribute("to",this.initY-100);
+				this.animatorY.doStart();
+				this.animatorX.setAttribute("to",this.initX-50);
+				this.animatorX.doStart();
+			}
+			
+			if (this.positionx == 2 && this.positiony == 2){
+				this.animatorY.setAttribute("to",this.initY-100);
+				this.animatorY.doStart();
+				this.animatorX.setAttribute("to",this.initX-100);
+				this.animatorX.doStart();
+			}
+		]]>
+	</method>
+	
+	<method name="resetAndRemoveValues">
+		if (this.showNextDelegate != null) lz.Timer.removeTimer(this.showNextDelegate);
+		this.resetValues();
+		this.animatorWidth.stop();
+		this.animatorHeight.stop();
+		this.animatorX.stop();
+		this.animatorY.stop();
+	</method>
+	
+	<method name="resetValues">
+		//if ($debug) Debug.write("resetValues:",this.initWidth,this.initHeight,this.initX,this.initY);
+		
+		this.animatorWidth.stop();
+		this.animatorHeight.stop();
+		this.animatorX.stop();
+		this.animatorY.stop();
+		
+		this.animatorWidth.setAttribute("to",this.initWidth);
+		this.animatorWidth.doStart();
+		this.animatorHeight.setAttribute("to",this.initHeight);
+		this.animatorHeight.doStart();
+		this.animatorX.setAttribute("to",this.initX);
+		this.animatorX.doStart();
+		this.animatorY.setAttribute("to",this.initY);
+		this.animatorY.doStart();
+	</method>
+	
+	<method name="showItem">
+		//if ($debug) Debug.write("showItem",this,this.positionx,this.positiony);
+		this.showNextDelegate = new LzDelegate( this, "disItem" );
+		lz.Timer.addTimer( this.showNextDelegate, this.focusTimeInSeconds*1000 );
+	</method>
+	
+	<method name="disItem">
+		parent.resetAll();
+		//if ($debug) Debug.write("disItem",this,this.positionx,this.positiony);
+		this.showNextDelegate = new LzDelegate( this, "showNext" );
+		lz.Timer.addTimer( this.showNextDelegate, this.focusTimeInSeconds*1000 );
+	</method>
+	
+	<method name="showNext">
+		parent.showNext();
+	</method>
+	
+	<method name="initItem">
+		this.initIt.doStart();
+	</method>
+	
+	<method name="doOpenItem">
+		//if ($debug) Debug.write("doOpenItem:",this);
+		parent.doOpenItem(this);
+	</method>
+	
+	<view x="1" y="1" name="inner" bgcolor="0xFFFFFF"
+		width="${ parent.width -2 }" height="${ parent.height -2 }">
+		
+		
+	</view>
+	
+	<animator name="initIt" start="false" 
+			  attribute="opacity" to="1" duration="750" />
+	
+	<animator name="animatorX" start="false" 
+			  attribute="x" to="0" duration="750" />
+	<animator name="animatorY" start="false" 
+			  attribute="y" to="0" duration="750" />
+	<animator name="animatorWidth" start="false" 
+			  attribute="width" to="0" duration="750" />
+	<animator name="animatorHeight" start="false" 
+			  attribute="height" to="0" duration="750" />	  		  
+</class>
+
+<script>
+	<![CDATA[
+		var currentMouseWheelObject = null;
+	    
+		function setCurrentMouseWheelObject(obj) {
+		    currentMouseWheelObject=obj;
+		}    
+		function getCurrentMouseWheelObject(obj) {
+		    return currentMouseWheelObject;
+		}  
+		function disableCurrentMouseWheelObject() {
+		    currentMouseWheelObject=null;
+		}  
+		function genHex(){
+			colors = new Array(14)
+			colors[0]="0"
+			colors[1]="1"
+			colors[2]="2"
+			colors[3]="3"
+			colors[4]="4"
+			colors[5]="5"
+			colors[5]="6"
+			colors[6]="7"
+			colors[7]="8"
+			colors[8]="9"
+			colors[9]="a"
+			colors[10]="b"
+			colors[11]="c"
+			colors[12]="d"
+			colors[13]="e"
+			colors[14]="f"
+			
+			digit = new Array(5)
+			color=""
+			for (i=0;i<6;i++){
+				digit[i]=colors[Math.round(Math.random()*14)]
+				color = color+digit[i]
+			}
+			
+			
+			return "0x"+color;
+		}
+	]]>
+</script>
+
+<handler name="onmousewheeldelta" reference="lz.Keys" args="d">
+    var obj = getCurrentMouseWheelObject();
+    ////Debug.write("onmousewheeldelta 12: ",d,obj);
+    <![CDATA[
+        if (obj!=null) {
+            obj.step(-d);
+        }
+    ]]>
+</handler>  
+
+<class name="panelInternalItems" extends="view">
+        	
+	<attribute name="doInitOneItemDeletegate" value="null" />
+	<attribute name="doInitStageDelayDeletegate" value="null" />
+	<attribute name="initItem" value="null" />
+	
+	<handler name="oninit">
+		this.doInitStageDelayDeletegate = new LzDelegate( this, "doInitStageDelay" );
+		lz.Timer.addTimer( this.doInitStageDelayDeletegate, 2000 );
+	</handler>
+	
+	<method name="doInitStageDelay">
+		this.subviews[0].doFoxusItem();
+	</method>
+	
+	<attribute name="currentitemIndex" value="0" type="number" />
+	<method name="showNext">
+		this.currentitemIndex += 1;
+		if (this.currentitemIndex == 9) {
+			this.currentitemIndex = 0;
+		}
+		//if ($debug) Debug.write("showNext: ",this.currentitemIndex);
+		this.subviews[this.currentitemIndex].doFoxusItem();
+	</method>
+	
+	<method name="getItemByXY" args="x,y">
+		<![CDATA[
+			for (var i=0;i<this.subviews.length;i++) {
+				if (this.subviews[i].positionx == x && this.subviews[i].positiony == y){
+					return this.subviews[i];
+				}
+			}
+			return null;
+		]]>
+	</method>
+	
+	<method name="resetAll">
+		<![CDATA[
+			for (var i=0;i<this.subviews.length;i++) {
+				this.subviews[i].resetValues();
+			}
+		]]>
+	</method>
+	
+	<method name="resetAndRemoveAll">
+		<![CDATA[
+			for (var i=0;i<this.subviews.length;i++) {
+				this.subviews[i].resetAndRemoveValues();
+			}
+		]]>
+	</method>
+	
+	<method name="doOpenItem" args="initItemRef">
+		this.resetAndRemoveAll();
+		this.initItem = initItemRef;
+		//this.doInitOneItemDeletegate = new LzDelegate( this, "doInitItem" );
+		//lz.Timer.addTimer( this.doInitOneItemDeletegate, 1400 );
+		this.doInitItem();
+	</method>
+	
+	<method name="doInitItem">
+		//if ($debug) Debug.write("doInitItem",this.initItem);
+		this.initItem.bringToFront();
+		this.initItem.animatorWidth.setAttribute("to",main_content.width);
+		this.initItem.animatorWidth.doStart();
+		this.initItem.animatorHeight.setAttribute("to",main_content.height);
+		this.initItem.animatorHeight.doStart();
+		this.initItem.animatorX.setAttribute("to",0);
+		this.initItem.animatorX.doStart();
+		this.initItem.animatorY.setAttribute("to",0);
+		this.initItem.animatorY.doStart();
+		
+		this.initItem._content.setAttribute("visibility","hidden");
+		new lz.panelInternalItems(this,{name:'_panelContent'});
+	</method>
+	
+	
+	<contentResizeItem x="$once{ main_content.width/3 }" 
+					   y="$once{ main_content.height/3 }" 
+					   positionx="1" positiony="1"
+					   width="$once{ main_content.width/3 }" 
+					   height="$once{ main_content.height/3 }">
+		<blablaContentCenter name="_content" />
+	</contentResizeItem>
+	
+	<contentResizeItem x="0" y="0"
+					   positionx="0" positiony="0"
+					   initTimeInMilliSeconds="500"
+					   width="$once{ main_content.width/3 }" 
+					   height="$once{ main_content.height/3 }">
+		<blablaContent name="_content" />
+	</contentResizeItem>
+	
+	<contentResizeItem x="$once{ main_content.width/3 }" y="0" 
+					   positionx="1" positiony="0" isEndNode="true"
+					   initTimeInMilliSeconds="1000"
+					   width="$once{ main_content.width/3 }" 
+					   height="$once{ main_content.height/3 }">
+		<blablaContent name="_content" />
+	</contentResizeItem>
+	
+	<contentResizeItem x="$once{ main_content.width/3*2 }" y="0" 
+					   positionx="2" positiony="0"
+					   initTimeInMilliSeconds="1500"
+					   width="$once{ main_content.width/3 }" 
+					   height="$once{ main_content.height/3 }">
+		<blablaContent name="_content" />
+	</contentResizeItem>
+	
+	<contentResizeItem x="$once{ main_content.width/3*2 }" 
+					   y="$once{ main_content.height/3 }"
+					   positionx="2" positiony="1" isEndNode="true"
+					   initTimeInMilliSeconds="2000"
+					   width="$once{ main_content.width/3 }" 
+					   height="$once{ main_content.height/3 }">
+		<blablaContent name="_content" />
+	</contentResizeItem>
+	
+	<contentResizeItem x="$once{ main_content.width/3*2 }" 
+					   y="$once{ main_content.height/3*2 }"
+					   positionx="2" positiony="2"
+					   initTimeInMilliSeconds="2500"
+					   width="$once{ main_content.width/3 }" 
+					   height="$once{ main_content.height/3 }">
+		<blablaContent name="_content" />
+	</contentResizeItem>
+	
+	<contentResizeItem x="$once{ main_content.width/3 }" 
+					   y="$once{ main_content.height/3*2 }"
+					   positionx="1" positiony="2"
+					   initTimeInMilliSeconds="3000"
+					   width="$once{ main_content.width/3 }" 
+					   height="$once{ main_content.height/3 }">
+		<blablaContent name="_content" />
+	</contentResizeItem>
+	
+	<contentResizeItem x="0" y="$once{ main_content.height/3*2 }" 
+					   positionx="0" positiony="2" isEndNode="true"
+					   initTimeInMilliSeconds="3500"
+					   width="$once{ main_content.width/3 }" 
+					   height="$once{ main_content.height/3 }">
+		<blablaContent name="_content" />
+	</contentResizeItem>
+	
+	<contentResizeItem x="0" y="$once{ main_content.height/3 }" 
+					   positionx="0" positiony="1"
+					   initTimeInMilliSeconds="4000"
+					   width="$once{ main_content.width/3 }" 
+					   height="$once{ main_content.height/3 }">
+		<blablaContent name="_content" />
+	</contentResizeItem>
+        	
+</class>
+
+
+<!-- View for Contents. All Windows will be loaded on this view. -->
+<view name="main_content" y="20" width="$once{ canvas.width }" 
+    height="$once{ canvas.height-20 }" >
+	
+    <view x="0" name="_content" layout="axis:y;spacing:2">
+        <panelInternalItems name="inner" />
+        <method name="clearAll">
+            <![CDATA[
+                //if($debug) Debug.write("main.lzx/main_content._content.inner.clearAll(): ",this.inner,this.inner.subviews.length);
+                var baseContent = this.inner.subviews[0].close();
+                for (var eg in this.inner.subviews) {
+                    //if($debug) Debug.write("main.lzx/main_content._content.inner.clearAll()-subviews: ",this.inner.subviews[eg]);
+                    if (eg!=0) this.inner.subviews[eg].close();               
+                }
+                return baseContent;
+            ]]>
+        </method>
+    </view>   
+     
+</view>  
+  
+</canvas>

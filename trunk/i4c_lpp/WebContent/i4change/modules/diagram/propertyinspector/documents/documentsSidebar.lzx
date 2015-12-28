@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<library>
+
+<!--- "System" panel on the dashboard -->
+<class name="documentsSidebar" extends="sideBarPod" labelid="1466"
+       iconName="icon_document_inspector" contentHeight="260" contentY="20">
+          
+    <attribute name="selectedObj" value="null" />
+    <attribute name="baseObject" value="null" />
+    
+    <attribute name="indexItem" value="0" type="number" />
+    
+    <attribute name="currentRemoteDiagram" value="null" />
+    <attribute name="currentDrawArea" value="null" />
+    
+    <attribute name="contentIsInited" value="false" type="boolean"/>
+    
+    <handler name="oninit">
+        //Add Help Item
+        canvas.addCurrentHelpId(16,this.__constructor__.classname);
+    </handler>
+    
+    <method name="refresh" args="diagram">
+        this.currentRemoteDiagram = diagram;
+        if (this.contentIsInited) {
+        	if (this.content.visibility == "visible") {
+                this.content.refresh();
+        	} else {
+        		//if ($debug) Debug.warn("CONTENT WAS NOT VISIBLE");
+        	}
+        }
+    </method>
+    
+    <method name="setObjectSelectedObj" args="objRef,baseObject,diagramObjectId">
+        <![CDATA[
+            if (this.currentDrawArea == null) {
+                this.currentDrawArea = canvas.currentDiagramRef._scrollcontent.dragArea.contentArea._currentBoard;
+            }
+            this.baseObject = baseObject;
+            this.selectedObj = objRef;
+            
+            //First check if content is already 
+            if (this.contentIsInited && this.content.visibility != "hidden") {
+                if ($debug) Debug.write("###### documentsSidebar ###### setObjectSelectedObj ",this,this.visibility);
+                this.loadContentBySelection();
+            } 
+        ]]>
+    </method>
+    
+    <method name="loadContentBySelection">
+    	<![CDATA[
+    	   
+            if (this.baseObject) {
+            	
+            	var diagramobjectId = this.baseObject[this.baseObject.length-7];
+            	
+            	if ($debug) Debug.write("getDiagramDocumentByObject diagramobjectId ",diagramobjectId);
+            	
+            	this.content.loadContentBySelection(diagramobjectId);
+            	
+            }
+    	
+    	]]>
+    </method>
+    
+    <method name="clearList">
+    	
+    </method>
+    
+    <handler name="contentInit" >
+        this.currentRemoteDiagram = canvas.currentDiagramRef._scrollcontent.dragArea.contentArea._currentBoard.currentDiagramObject;
+        this.contentIsInited = true;
+        new lz.documentsSidebarContent(this,{name:'content'});
+    </handler>
+</class> 
+
+<class name="documentsSidebarContent" extends="view" y="20" 
+       bgcolor="$once{ canvas.currentMenuLayoutBackGround }" 
+      x="16" width="${ parent.width-16 }" clip="true"
+      height="$once{ parent.height-21 }" >
+    
+    <attribute name="currentDiagram" value="null" />
+    
+    <attribute name="diagramobjectId" type="number" value="0" />
+    
+    <method name="refresh">
+    	
+    </method>
+    
+    <method name="loadContentBySelection" args="diagramobjectId">
+        <![CDATA[
+           
+            this.diagramobjectId = diagramobjectId;
+            
+            if ($debug) Debug.write("getDiagramDocumentByObject diagramobjectId ",this.diagramobjectId);
+            
+            this.getDiagramDocumentByObject.doCall();
+                
+        ]]>
+    </method>
+    
+     <!--
+        public List<DiagramDocument> getDiagramDocumentByObject(String SID, Long diagramObjectId)
+     -->
+    <netRemoteCallRPC name="getDiagramDocumentByObject" funcname="getDiagramDocumentByObject" 
+                      showLoading="false" remotecontext="$once{ canvas.diagramServiceRPC }" >   
+        <netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+        <netparam><method name="getValue">return parent.parent.diagramobjectId;</method></netparam>
+        <handler name="ondata" args="value">
+            if ($debug) Debug.write("getDiagramDocumentByObject ",value);
+            parent._inner.loadResult(value);
+        </handler>
+    </netRemoteCallRPC>   
+    
+    <simpleLabelButton name="_addbtn" x="2" labelid="1467" text_x="20" y="2">
+        <handler name="onclick">
+        	if (parent.diagramobjectId == 0) {
+            		new lz.errorPopupWithLabel(canvas,{
+                            labelerrorid:1479
+                        });
+                return;
+            }
+            parent._attachDocumentToShape.show();
+        </handler>
+        <iconViewPure iconSourceName="icon_document_inspector_add" width="18" height="18"
+        				 x="2" y="2" />
+        <labelTooltip labelid="1467" />
+    </simpleLabelButton>
+    
+    <view y="22" bgcolor="0x000000" />
+    	  width="$once{ parent.width }" name="border" height="2" />
+    
+    <view y="24" width="$once{ parent.width }" name="_inner"
+          height="$once{ parent.height-24 }" clip="true">
+    	
+    	<method name="loadResult" args="dValue">
+    		<![CDATA[
+    		
+    		    this.clearList();
+    		
+                for (var i=0;i<dValue.length;i++) {
+                	
+                	var item = dValue[i];
+                	
+                	if (!item.isInternal) {
+                		
+                		var tString = "<A HREF='"+item.url+"' TARGET='_BLANK'><FONT COLOR='#0033ff'><u>"+item.fileName+"</u></FONT></A>";
+                		
+                		new lz.documentsListItem(this._inner,{
+                			            refObj:item,url:item.url,
+                                        htmlText:tString,width:this.width-14
+                            		});
+                		
+                	} else {
+                		
+                		var url = canvas.httpprotocol+'://'+canvas.rtmphostlocal+':'+canvas.httpport
+                                            +'/'+canvas.webAppRootKey+'/DownloadHandler?fileName='+item.url
+                                            +'&downloadFileName='+item.fileName
+                                            +'&moduleName=document&parentPath=&room=&domain='
+                                            +'&sid='+canvas.sessionId;
+                		
+                        var tString = "<A HREF='"+url+"' TARGET='_BLANK'><FONT COLOR='#0033ff'><u>"+item.fileName+"</u></FONT></A>";
+                        
+                        new lz.documentsListItem(this._inner,{
+                                        refObj:item,url:item.url,
+                                        htmlText:tString,width:this.width-14
+                                    });
+                		
+                	}
+                	
+                }
+    		
+    		]]>
+    	</method>
+    	
+    	<method name="clearList">
+    		for (var eg in this._inner.subviews) {
+    			this._inner.subviews[eg].destroy();
+    		}
+    	</method>
+    	
+    	<method name="deleteItem" args="deleteObj">
+    		<![CDATA[
+                if ($debug) Debug.write("deleteItem ",deleteObj);
+                if ($debug) Debug.write("deleteItem ",deleteObj.diagramDocumentId);
+                this.deleteDiagramDocumentByObject.diagramDocumentId = deleteObj.diagramDocumentId;
+                
+                this.deleteDiagramDocumentByObject.doCall();
+    		]]>
+    	</method>
+    	
+    	<!--
+    	public Long deleteDiagramDocumentByObject(String SID, Long diagramDocumentId)
+    	 -->
+        <netRemoteCallRPC name="deleteDiagramDocumentByObject" funcname="deleteDiagramDocumentByObject" 
+                          showLoading="false" remotecontext="$once{ canvas.diagramServiceRPC }" > 
+            <attribute name="diagramDocumentId" value="0" type="number"/>  
+            <netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+            <netparam><method name="getValue">return parent.diagramDocumentId;</method></netparam>
+            <handler name="ondata" args="value">
+                if ($debug) Debug.write("getDiagramDocumentByObject ",value);
+                parent.parent.getDiagramDocumentByObject.doCall();
+            </handler>
+        </netRemoteCallRPC> 
+    
+    	<view name="_inner" layout="axis:y;spacing:2" />
+    	
+    	<vscrollbar />
+    	
+    </view>
+    
+    <attachDocumentToShape name="_attachDocumentToShape" />
+    
+</class>
+
+
+<class name="documentsListItem" extends="view" bgcolor="0xFFFFFF" onclick="">
+	
+    <attribute name="refObj" value="null" />
+    
+    <attribute name="htmlText" value="" type="string"/>
+    
+    <handler name="oninit">
+        this._icon.setSource(canvas.getIconPathByName(this.refObj.fileIconName));
+    </handler>
+    <view name="_icon" y="1" />
+    
+    <labelText name="content" width="$once{ parent.width - 38 }" resize="false" 
+    		   x="20" text="$once{ parent.htmlText }" />
+    
+    
+    <iconViewPure iconSourceName="icon_document_inspector_delete" width="18" height="18"
+                         x="$once{ parent.width - 18 }" y="1">
+    	<handler name="onclick">
+    		new lz.confirmDeleteWindowCustomLabel(canvas,{
+        		                  refObj:this,funcNameConfirm:'clearAllConfirm',
+        		                  messageLabelid:1481
+    		                  });
+    	</handler>
+    	<method name="clearAllConfirm">
+    		parent.parent.parent.deleteItem(this.parent.refObj);
+    	</method>
+	    <labelTooltip labelid="1480" />
+    </iconViewPure>
+    
+    <labelTooltip text="$once{ parent.url }" />
+	
+</class>
+
+</library>

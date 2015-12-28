@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+    
+<class name="firstStartWizzard" extends="guiPresenter" labelid="777"
+    docking="true" closable="true" width="744" resizeable="false"
+    x="$once{ canvas.width/2 - this.width/2 }" y="40" height="400">
+    
+    <attribute name="modelStyle" value="" type="string" />
+    
+    <handler name="oninit">
+        canvas._hideAll.setAttribute("visibility","visible");
+    </handler>   
+    
+    <handler name="onclose">
+        canvas._hideAll.setAttribute("visibility","hidden");
+    </handler>
+     
+    <method name="doClose">
+        canvas._hideAll.setAttribute("visibility","hidden");
+        //TODO: Fixe the First-Start Wizzard State
+        this.setNewUserProperty.doCall();
+        //this.close();
+    </method>
+    
+    <method name="setFirstItemInWizzard">
+    	this._next.setAttribute("visibility","visible");
+    </method>
+    
+    <method name="setSecondItemInWizzard">
+        this._pre.setAttribute("visibility","visible");
+    </method>
+    
+    <method name="setLastItemInWizzard">
+        this._next.setAttribute("visibility","hidden");
+    </method>
+    
+    <netRemoteCallRPC name="setNewUserProperty" funcname="setNewUserProperty" 
+    				  remotecontext="$once{  canvas.mainServiceRPC }" >      
+        <netparam><method name="getValue"> return canvas.sessionId; </method></netparam>  
+        <netparam><method name="getValue"> return "showFirstStartWizzard"; </method></netparam>  
+        <netparam><method name="getValue"> return !parent.parent._doNotShowAgain.getValue(); </method></netparam>  
+        <handler name="ondata" args="value">
+            //The onResult-Handler will be called be the rtmpconnection
+            //if ($debug) Debug.write("setNewUserProperty firstStartWizzard: ",value);
+            parent.close();
+        </handler>  
+    </netRemoteCallRPC>    
+    
+    <method name="doInitWizzardByType" args="typeName">
+    	if ($debug) Debug.write("doInitWizzardByType",typeName);
+    	if (typeName == "topDownApproach") {
+    		this._content.destroy();
+    		new lz.topDownApproach(this,{name:'_content'});
+    	}
+    	this.minimizeIt.sendToFront();
+    </method> 
+    
+    <!--  #####################################
+    Main Content
+     -->
+    
+    <initialInfoText name="_content" y="22"/>
+    
+    <!--  #####################################
+    Close Open Icons
+     -->
+    
+    <view name="_close_btn" width="16" height="80" resource="wizzard_minimize_rsc"
+            y="$once{ parent.height/2 - 40 }" x="$once{ parent.width - 17 }">
+    	<handler name="onclick">
+    		parent.maximizeIt.newX.setAttribute("to",parent.x);
+    		parent.maximizeIt.newY.setAttribute("to",parent.y);
+    		
+    		parent._content.setAttribute("visibility","hidden");
+            if (parent._pre.visibility == "visible") {
+                parent._pre.wasVisible = true;
+            } else {
+                parent._pre.wasVisible = false;
+            }
+            parent._pre.setAttribute("visibility","hidden");
+            
+            if (parent._next.visibility == "visible") {
+                parent._next.wasVisible = true;
+            } else {
+                parent._next.wasVisible = false;
+            }
+            parent._next.setAttribute("visibility","hidden");
+            
+            parent._cancel.setAttribute("visibility","hidden");
+            parent._doNotShowAgain.setAttribute("visibility","hidden");
+            
+            this.setAttribute("visibility","hidden");
+    		
+    		parent.minimizeIt.doStart();
+    	</handler>
+    	<labelTooltip labelid="1416" />
+    </view>
+    
+    <view name="_open_btn" width="80" height="16" y="22" 
+    	  x="20" resource="wizzard_maximize_rsc" visibility="hidden">
+        <handler name="onclick">
+        	this.setAttribute("visibility","hidden");
+            parent.maximizeIt.doStart();
+        </handler>
+        <labelTooltip labelid="1417" />
+    </view>
+    
+    <!--  #####################################
+    Buttons
+     -->
+    
+    <simpleLabelButton name="_pre" visibility="hidden" 
+            x="$once{ parent.width - 4 - (105*3) }" y="${ parent.height - 26 }" 
+            labelid="1234" width="100" height="20">
+   	    <attribute name="wasVisible" value="false" type="boolean" />
+        <handler name="onclick">
+            this.parent.doPre();
+        </handler>
+    </simpleLabelButton>
+    
+    <simpleLabelButton name="_next" visibility="hidden"
+            x="$once{ parent.width - 4 - (105*2) }" y="${ parent.height - 26 }" 
+            labelid="1235" width="100" height="20">
+    	<attribute name="wasVisible" value="false" type="boolean" />
+        <handler name="onclick">
+            this.parent._content.doNext();
+        </handler>
+    </simpleLabelButton>    
+            
+    <labelCheckbox x="20" y="${ parent.height - 26 }" fontsize="11"
+        name="_doNotShowAgain" labelid="786" />
+    
+	<simpleLabelButton name="_cancel" 
+            x="$once{ parent.width - 4 - (105*1) }" y="${ parent.height - 26 }" 
+			labelid="778" width="100" height="20">
+		<handler name="onclick">
+			this.parent.doClose();
+		</handler>
+	</simpleLabelButton>
+	
+	<!--  #####################################
+	Animators
+	 -->
+	
+    <animatorgroup name="minimizeIt" start="false" process="simoultanious">
+        <animator attribute="height" to="42" duration="1000" />
+        <animator attribute="width" to="120" duration="1000" />
+        <animator attribute="x" to="0" duration="1000" />
+        <animator attribute="y" to="60" duration="1000" />
+        <handler name="onstop">
+            if (parent.isinited) {
+                parent._open_btn.setAttribute("visibility","visible");
+            }
+        </handler>
+    </animatorgroup>
+    
+    <animatorgroup name="maximizeIt" start="false" process="simoultanious">
+        <animator attribute="height" to="400" duration="1000" />
+        <animator attribute="width" to="744" duration="1000" />
+        <animator name="newX" attribute="x" to="0" duration="1000" />
+        <animator name="newY" attribute="y" to="60" duration="1000" />
+        <handler name="onstop">
+            if (parent.isinited) {
+                
+                parent._content.setAttribute("visibility","visible");
+                
+                if (parent._pre.wasVisible) {
+                    parent._pre.setAttribute("visibility","visible");
+                }
+                
+                if (parent._next.wasVisible) {
+                    parent._next.setAttribute("visibility","visible");
+                }
+
+                parent._cancel.setAttribute("visibility","visible");
+                parent._doNotShowAgain.setAttribute("visibility","visible");
+                
+                parent._close_btn.setAttribute("visibility","visible");
+            
+            }
+        </handler>
+    </animatorgroup>
+
+</class>
+
+</library>

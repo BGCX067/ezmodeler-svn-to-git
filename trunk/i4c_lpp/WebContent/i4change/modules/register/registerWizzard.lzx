@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+    
+<class name="baseRegisterWizzardStep" extends="view">
+    
+    <attribute name="headerLabelId" value="1022" type="number" />
+    <attribute name="stepNo" value="1" type="number" />
+    
+    <handler name="oninit">
+        parent.parent.setStep(this);
+    </handler>
+    
+</class>
+
+<class name="registerWizzard" extends="labelExplorerBox" labelid="1016"
+    docking="true" resizeable="false" closable="false" width="500" x="400" y="20" height="490">
+    
+    <attribute name="refObj" value="null" />
+    <attribute name="regObject" value="null" />
+    
+    <attribute name="currentStep" value="0" type="number" />
+    
+    <handler name="oninit">
+        var pressEnter = new LzDelegate(this, "register");
+        lz.Keys.callOnKeyCombo(pressEnter, ["enter"]);
+        this.regObject = new Object();
+        this.next();
+    </handler>
+    
+    <handler name="onclose">
+    	this.refObj._register.setAttribute('visible',true);
+        lz.Keys.callOnKeyCombo(refObj.pressEnter, ["enter"]);
+    	this.refObj.doreset.doStart();
+    </handler>
+    
+    <!--
+    <method name="register">
+        <![CDATA[
+            
+        ]]>
+    </method>
+     -->
+     
+    <method name="next">
+        <![CDATA[
+	        if (this.currentStep < 4) {
+                if (this.content.clearContent()) {
+                    this.currentStep += 1;
+                    new lz["registerWizzardStep"+this.currentStep](this.content);
+                }
+	        }
+            this.setButtonStates();
+        ]]>
+    </method>
+    
+    <method name="pre">
+        <![CDATA[
+            if (this.currentStep > 0) {
+                if (this.content.clearContent()) {
+                    this.currentStep -= 1;
+                    new lz["registerWizzardStep"+this.currentStep](this.content);
+                }
+            }
+            this.setButtonStates();
+        ]]>
+    </method>
+    
+    <method name="finish">
+        //if ($debug) Debug.write("finish",this.regObject);
+        if (this.content.saveContent()) {
+            this.registerUserByObjectAdvanced.doCall();
+        } //else => read error message from validation
+    </method>
+    
+     <netRemoteCallRPC name="registerUserByObjectAdvanced" funcname="registerUserByObjectAdvanced" 
+        remotecontext="$once{  canvas.mainServiceRPC }" activeErrorHandler="true" >     
+        <netparam>
+            <method name="getValue"> 
+                return this.parent.parent.regObject; 
+            </method>
+        </netparam>           
+         <handler name="ondata" args="value">
+            <![CDATA[
+	            //The onResult-Handler will be called be the rtmpconnection
+	            //if ($debug) Debug.write("registerUserByObject: ",value);
+	            if (!(value<0)){
+	                //Debug.write("successfully registered");
+	                 new lz.rpcErrorDialog(canvas,{labelid:886,errorid:-18});
+	                 this.parent.refObj._inner._slidaArea._userValues.username.setAttribute("text",this.parent.regObject["personalData"]["Username"]);
+	                 this.parent.refObj._inner._slidaArea._userValues.userpass.setAttribute("text",this.parent.regObject["personalData"]["Userpass"]);
+	                 this.parent.close();
+	            }
+            ]]>
+         </handler>  
+     </netRemoteCallRPC>        
+    
+    <method name="setButtonStates">
+        if (this.currentStep == 1) {
+            this._pre.setAttribute("visibility","hidden");
+            this._next.setAttribute("visibility","visible");
+            this._finish.setAttribute("visibility","hidden");
+        } else if (this.currentStep == 2) {
+            this._pre.setAttribute("visibility","visible");
+            this._next.setAttribute("visibility","visible");
+            this._finish.setAttribute("visibility","hidden");
+        } else if (this.currentStep == 3) {
+            this._pre.setAttribute("visibility","visible");
+            this._next.setAttribute("visibility","visible");
+            this._finish.setAttribute("visibility","hidden");
+        } else if (this.currentStep == 4) {
+            this._pre.setAttribute("visibility","visible");
+            this._next.setAttribute("visibility","hidden");
+            this._finish.setAttribute("visibility","visible");
+        } 
+    </method>
+    
+    <method name="setStep" args="wInfo">
+        //if ($debug) Debug.write("setStep ",wInfo);
+        this._headerStep.setAttribute("labelid",wInfo.headerLabelId);
+        this._headerStepNo.setAttribute("text",canvas.getLabelName(1023) + " " 
+                + wInfo.stepNo + " " + canvas.getLabelName(1024) + " 5");
+    </method>
+    
+    <method name="saveStep" args="dArray,stepName">
+        //if ($debug) Debug.write("saveStep: ",dArray,stepName);
+        this.regObject[stepName] = dArray;
+    </method>
+    
+    <method name="getStep" args="stepName">
+        //if ($debug) Debug.write("getStep: ",this.regObject,stepName);
+        for (var eg in this.regObject) {
+            if (eg == stepName) {
+                return this.regObject[eg];
+            }
+        }
+        return null;
+    </method>
+    
+    <labelText name="_headerStep" labelid="1022" y="24" fontstyle="bold" fontsize="12" 
+               resize="true" x="2"/>
+               
+    <labelText name="_headerStepNo" labelid="0" y="24" fontstyle="bold" width="90" fontsize="12" 
+               resize="false" x="$once{ parent.width - 90 }" />
+    
+    <view name="content" y="50" >
+        <method name="saveContent">
+            for (var eg in this.subviews) {
+                if (this.subviews[eg].doSaveTemp()) {
+                    //continue;
+                } else {
+                    return false;
+                }
+            }
+            return true;
+        </method>
+        <method name="clearContent">
+            for (var eg in this.subviews) {
+                if (this.subviews[eg].doSaveTemp()) {
+                    this.subviews[eg].destroy();
+                } else {
+                    return false;
+                }
+            }
+            return true;
+        </method>
+    </view>
+    
+    <simpleLabelButton name="_pre" labelid="1019" width="100" x="$once{ parent.width - 330 }" 
+                       y="$once{ parent.height - 26 }">
+        <handler name="onclick">
+            this.parent.pre();
+        </handler>
+    </simpleLabelButton> 
+    
+    <simpleLabelButton name="_next" labelid="1018" width="100" x="$once{ parent.width - 220 }" 
+                       y="$once{ parent.height - 26 }">
+        <handler name="onclick">
+            this.parent.next();
+        </handler>
+    </simpleLabelButton> 
+    
+    <simpleLabelButton name="_finish" labelid="1020" width="100" x="$once{ parent.width - 220 }" 
+                       y="$once{ parent.height - 26 }" >
+        <handler name="onclick">
+            this.parent.finish();
+        </handler>
+    </simpleLabelButton> 
+    
+    <simpleLabelButton labelid="1017" width="100" x="$once{ parent.width - 110 }" 
+                       y="$once{ parent.height - 26 }">
+        <handler name="onclick">
+            this.parent.close();
+        </handler>
+    </simpleLabelButton>   
+	
+</class>
+
+</library>

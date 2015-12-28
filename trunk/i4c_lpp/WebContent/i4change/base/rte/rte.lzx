@@ -1,0 +1,65 @@
+<library>
+    
+<!-- include RTE dependencies -->
+<include href="incubator/rich-text/richtexteditor.lzx"/>
+
+<class name="rte" extends="view" width="420" height="400">
+    
+    <method name="getText">
+        return this.rte.getText();
+    </method>
+    <method name="setText" args="txt">
+        this.rte.setText(txt);
+    </method>
+    
+    <richtexteditor name="rte"/>
+    
+</class>
+
+<!--
+<class name="rte" extends="view" width="420" height="400">
+
+    <richtexttoolbar name="toolbar" id="gTB" editor="${grte}" height="30" width="${parent.width-5}" x="2" y="0" bgcolor="0xEEEEEE">
+
+        <formatbtn name="boldbtn" id="gBoldBtn" format="bold" iconname="bold" icony="4" y="${(parent.height-this.height)/2}" />    
+        <formatbtn name="underlinebtn" id="gUnderlineBtn" format="underline" iconname="underline" y="${(parent.height-this.height)/2}" />  
+        <formatbtn name="italicbtn" id="gItalicBtn" format="italic" iconname="italic" icony="4" y="${(parent.height-this.height)/2}" />
+        <formatfontface name="fontfacecb" id="gFontFaceCB" y="${(parent.height-this.height)/2}"/>
+        <formatfontcolor name="fontcolorcb" id="gFontColorCB" y="${(parent.height-this.height)/2}"/>
+        <formatfontsize name="fontsizecb" id="gFontSizeCB" y="${Math.round((parent.height-this.height)/2)}"/>
+        
+        <formatbtn name="linkbtn" id="linkbtn" format="link" iconname="link" icony="3" y="${(parent.height-this.height)/2}" >
+            link
+            <method name="doClick">
+                parent.parent.linkpanel.show();
+            </method>
+        </formatbtn>
+        
+    </richtexttoolbar>
+    
+    <linkdialog id="ldlg" name="linkpanel" />
+
+    <view width="400" y="35" height="$once{parent.height-70}" bgcolor="0xFFFFFF">
+        <richtexteditarea id="grte" name="txt" 
+            height="$once{parent.height}"
+            width="420"
+            defaultfontname="Verdana" 
+            defaultfontsize="11" 
+            defaultfontcolor="0x000000"
+            border="10"  text="">
+                <method name="init">
+                    super.init();
+                    gBoldBtn.setAttribute("editor", this); 
+                    gUnderlineBtn.setAttribute("editor", this); 
+                    gItalicBtn.setAttribute("editor", this); 
+                    gFontFaceCB.setAttribute("editor", this);                         
+                    gFontSizeCB.setAttribute("editor", this);                         
+                    gFontColorCB.setAttribute("editor", this);               
+                </method>           
+                
+        </richtexteditarea>
+    </view> 
+</class>
+ -->
+
+</library>

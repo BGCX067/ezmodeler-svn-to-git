@@ -1,0 +1,33 @@
+<canvas bgcolor="#D4D0C8" debug="true">
+  <dataset name="dset" src="http://127.0.0.1:8000/DBTest/getwin.jsp" request="true" type="http"/>
+  <!-- 1 -->
+  <dataset name="dsSendData" request="false" src="http://127.0.0.1:8000/DBTest/contactmgr.jsp" type="http"/>
+
+
+	<class name="test" extends="window" width="100" height="100">
+		
+
+	</class>
+  <view name="vw" datapath="new:/win">
+
+    <method name="sendData_new" args="action">
+      var d=canvas.datasets.dsSendData;                       // 3
+      var p=new LzParam();                                    // 3a
+      p.addValue("action", action, true);
+      d.setQueryString(p);                                   // 3c
+      d.doRequest();                                         // 3d
+    </method>
+
+    <simplelayout axis="y"/>
+	
+
+	<button> Show Win..
+        <handler name="onclick">
+		var b = new canvas.vw.test("test",{x:Number(this.datapath.xpathQuery('@x')), 
+                  y: Number(this.datapath.xpathQuery('@y')), visible: true});
+
+        </handler>
+	</button>
+
+  </view>
+</canvas>

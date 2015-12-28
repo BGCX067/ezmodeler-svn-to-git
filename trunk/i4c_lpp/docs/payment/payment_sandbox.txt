@@ -1,0 +1,11 @@
+Pass: 230631650
+
+
+For building custom shopping carts: Store the following credential information in a secure location with limited access.
+		
+Credential: 		
+API Signature
+API Username: 		seba.w_1230631102_biz_api1.gmail.com
+API Password: 		1230631114
+Signature: 		    A2S1fniRGsoquzRDbs4f5rc383f8AHKkARAftkNKMAhcGGbnJIIqRe4w
+Request Date: 		Dec. 30, 2008 02:08:10 PST

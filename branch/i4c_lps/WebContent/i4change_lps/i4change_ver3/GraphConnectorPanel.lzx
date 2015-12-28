@@ -1,0 +1,66 @@
+
+<library>
+  
+  <!-- this panel is used for showing options for connections -->
+  <class name="GraphConnectorPanel" extends="view" bgcolor="#000000" width="40" height="20">
+    
+    <method event="onmouseover">
+      LzTimer.removeTimer(this.delPopOut);
+    </method>
+    
+    <method event="onmouseout">
+      popOut(this.connector);
+    </method>
+    
+    <method name="popIn" args="con">
+      this.connector = con;
+      
+      if ( typeof this.delPopOut != "undefined" ) { 
+        LzTimer.removeTimer(this.delPopOut);
+      }
+      
+      setVisible(false);
+      setX(con.x + con.width + 4);
+      setY(con.y - this.height - 4);
+      setOpacity(1.0);
+      setVisible(true);
+      bringToFront();
+    </method>
+    
+    <method name="popOut" args="con">
+      if ( this.connector == con ) {
+        if ( typeof this.delPopOut == "undefined" ) { 
+          this.delPopOut = new LzDelegate( this, "doPopOut" );
+          LzTimer.addTimer( this.delPopOut, 2000 );
+        } 
+        else {
+          LzTimer.resetTimer( this.delPopOut, 2000 );
+        }      
+      }
+    </method>
+    
+    <method name="doPopOut">
+      setVisible(false);
+    </method>
+    
+    <view x="1" y="1" width="${parent.width - 2}" height="${parent.height - 2}" bgcolor="#d0d0d0">
+      <view>
+        <view name="btnDetails" x="1" y="1" resource="resources/zoom.png"/>
+        <view name="btnDelete" x="21" y="1" resource="resources/delete.png">
+          <method event="onclick">
+            classroot.doPopOut();
+            classroot.connector.remove();
+          </method>
+          <method event="onmouseover">
+            classroot.onmouseover.sendEvent();
+          </method>
+          <method event="onmouseout">
+            classroot.onmouseout.sendEvent();
+          </method>
+        </view>
+      </view>
+    </view>
+    
+  </class>
+  
+</library>

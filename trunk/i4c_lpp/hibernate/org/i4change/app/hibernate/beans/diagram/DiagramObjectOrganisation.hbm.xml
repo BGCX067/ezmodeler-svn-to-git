@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+  <class table="diagramobjectorganisation" lazy="false" name="org.i4change.app.hibernate.beans.diagram.DiagramObjectOrganisation">
+    <id column="diagramobjectorganisation_id" name="diagramobjectorganisationId">
+      <generator class="increment"/>
+    </id>
+    <many-to-one outer-join="true" insert="true" column="diagraminstanceobject_id" lazy="false" update="true" name="diagramInstanceObject" class="org.i4change.app.hibernate.beans.diagram.DiagramInstanceObject"/>
+    <many-to-one outer-join="true" insert="true" column="diagramobject_id" lazy="false" update="true" name="diagramObject" class="org.i4change.app.hibernate.beans.diagram.DiagramObject"/>
+    <property name="inserted" type="java.util.Date" column="inserted"/>
+    <property name="insertedby" type="long" column="insertedby"/>
+  </class>
+</hibernate-mapping>

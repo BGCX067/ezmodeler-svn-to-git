@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<icons>
+
+	<icon name="icon_property_inspector" path="icons/diagram/sidebar/form_blue_edit.png">
+        <description>Icon for the Diagram Sidebar Element *Properties*</description>
+	</icon>
+    <icon name="icon_history_inspector" path="icons/diagram/sidebar/floppy_disk_ok.png">
+        <description>Icon for the Diagram Sidebar Element *History*</description>
+    </icon>
+    <icon name="icon_document_inspector_add" path="icons/diagram/sidebar/add_small.png">
+        <description>Icon for the Diagram Sidebar Element *Documents And Links Add Button*</description>
+    </icon>
+    
+    <icon name="icon_document_attach" path="icons/diagram/documents/paperclip.png">
+        <description>Icon for the Diagram Sidebar Element *Documents And Links Add Button*</description>
+    </icon>
+    <icon name="icon_document_info" path="icons/diagram/documents/document_information.png">
+        <description>Icon for the Diagram Sidebar Element *Documents And Links Add Button*</description>
+    </icon>
+    <icon name="icon_document_form" path="icons/diagram/documents/document_notebook.png">
+        <description>Icon for the Diagram Sidebar Element *Documents And Links Add Button*</description>
+    </icon>
+    <icon name="icon_document_stop" path="icons/diagram/documents/sign_stop.png">
+        <description>Icon for the Diagram Sidebar Element *Documents And Links Add Button*</description>
+    </icon>
+    
+    <icon name="icon_document_inspector_delete" path="icons/diagram/sidebar/delete.png">
+        <description>Icon for the Diagram Sidebar Element *Documents And Links Delete Button*</description>
+    </icon>
+    <icon name="icon_document_inspector" path="icons/diagram/sidebar/folder_document.png">
+        <description>Icon for the Diagram Sidebar Element *Documents And Links*</description>
+    </icon>
+    <icon name="icon_diagram_inspector" path="icons/diagram/sidebar/document_ok.png">
+        <description>Icon for the Diagram Sidebar Element *Connected Diagrams*</description>
+    </icon>
+    <icon name="icon_connectedFlows_inspector" path="icons/diagram/sidebar/window_next.png">
+        <description>Icon for the Diagram Sidebar Element *Connected Flows and Activities*</description>
+    </icon>
+    <icon name="icon_organization_inspector" path="icons/diagram/sidebar/users4.png">
+        <description>Icon for the Diagram Sidebar Element *Organizations*</description>
+    </icon>
+    <icon name="icon_datacarriers_inspector" path="icons/diagram/sidebar/clipboard_add.png">
+        <description>Icon for the Diagram Sidebar Element *Data Carriers*</description>
+    </icon>
+    <icon name="isPendingOrgIcon" path="icons/role/changerole/check.png">
+        <description>Icon for Table with the Roles for the Roles who need approval</description>
+    </icon>
+    <icon name="icon_diagramloader_changeoradd_role_rsc" path="icons/diagram/loader/user_add.png">
+        <description>Icon for the Button in the Dashboard to change or add a Role</description>
+    </icon>
+    <icon name="icon_topbar_changeoradd_role_rsc" path="icons/diagram/loader/user_add_2424.png">
+        <description>Icon for the Button in the Topbar to change or add a Role</description>
+    </icon>
+    <icon name="icon_diagramloader_changeororg_rsc" path="icons/diagram/loader/users4_add.png">
+        <description>Icon for the Button in the Dashboard to change the current Organization</description>
+    </icon>
+    <icon name="icon_topbar_help_rsc" path="icons/topbar/help2.png">
+        <description>Icon for the Button in the Topbar to open the Help</description>
+    </icon>
+    <icon name="icon_tabbar_close_rsc" path="icons/tab/delete2.png">
+        <description>Icon to close a Tab in the Topbar</description>
+    </icon>
+    <icon name="icon_organization_rsc" path="icons/organization/users4.png">
+        <description>Icon for Organizations 24x24</description>
+    </icon>
+    <icon name="icon_organization_add_rsc" path="icons/organization/users4_add.png">
+        <description>Icon for Add/Edit Organizations 24x24</description>
+    </icon>
+    
+    <icon name="icon_role_for_general_rsc" path="icons/role/user.png">
+        <description>Icon for Role 24x24</description>
+    </icon>
+
+    <icon name="icon_turnoverlist_right_rsc" path="icons/turnoverlist/navigate_right.png">
+        <description>Icon for List Step to pre-item</description>
+    </icon>
+    <icon name="icon_turnoverlist_last_rsc" path="icons/turnoverlist/navigate_right2.png">
+        <description>Icon for List Step to last</description>
+    </icon>
+    <icon name="icon_turnoverlist_left_rsc" path="icons/turnoverlist/navigate_left.png">
+        <description>Icon for List Step to post-item</description>
+    </icon>
+    <icon name="icon_turnoverlist_first_rsc" path="icons/turnoverlist/navigate_left2.png">
+        <description>Icon for List Step to first</description>
+    </icon>
+    
+    <icon name="icon_settings_license_info_buy_rsc" path="icons/settings/arrow_right_green.png">
+        <description>Icon for Buy Buttons</description>
+    </icon>
+        
+        
+    <icon name="icon_addrole_add_small_rsc" path="icons/role/addrole/add_small.png">
+        <description>Icon for Add and Change Role</description>
+    </icon>
+    <icon name="icon_addrole_add_rsc" path="icons/role/addrole/add.png">
+        <description>Icon for Add and Change Role</description>
+    </icon>
+    <icon name="icon_addrole_close_rsc" path="icons/role/addrole/delete2.png">
+        <description>Icon for Add and Change Role</description>
+    </icon>
+    
+    <icon name="icon_add_user_license_rsc" path="icons/moderator/document_add.png">
+        <description>Icon for Add and Renew License</description>
+    </icon>
+    
+    <icon name="icon_add_item_website_rsc" path="icons/admin/website/add.png">
+        <description>Icon for Add new Website Item</description>
+    </icon>
+    
+    <icon name="icon_delete_item_website_rsc" path="icons/admin/website/delete.png">
+        <description>Icon for Delete new Website Item</description>
+    </icon>
+    
+    <icon name="icon_topbar_project_rsc" path="icons/topbar/box_add.png">
+        <description>Icon for Managing the Projects</description>
+    </icon>
+    
+    <icon name="drag_zone_connector_rsc" path="icons/connector/drag_zone_connector_up.png">
+        <description>Icon for the Drag Zone of the Connector</description>
+    </icon>
+    
+    <icon name="property_category_search_rsc" path="icons/propertyeditor/viewmag.png">
+        <description>Icon for the Search Icon in the Property Editor Property Category</description>
+    </icon>
+    
+    <icon name="property_category_add_rsc" path="icons/propertyeditor/edit_add.png">
+        <description>Icon for the Add Icon in the Property Editor Property Category</description>
+    </icon>
+    
+    <icon name="property_category_delete_rsc" path="icons/propertyeditor/cancel.png">
+        <description>Icon for the Delete Icon in the Property Editor Property Category</description>
+    </icon>
+    
+    <icon name="property_category_edit_rsc" path="icons/propertyeditor/edit.png">
+        <description>Icon for the Edit Icon in the Property Editor Property Category List</description>
+    </icon>
+    
+    <icon name="property_category_delete_list_rsc" path="icons/propertyeditor/delete.png">
+        <description>Icon for the Delete Icon in the Property Editor Property Category List</description>
+    </icon>
+    
+    <icon name="transaction_refresh_rsc" path="icons/license/refresh.png">
+        <description>Icon for the Refresh in the Transaction List</description>
+    </icon>
+    
+</icons>

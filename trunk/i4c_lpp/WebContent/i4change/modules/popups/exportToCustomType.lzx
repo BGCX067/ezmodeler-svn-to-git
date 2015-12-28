@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+	
+<dataset name="exportToTypes">
+	<!--
+    <item text="PPT" value="ppt" />
+     -->
+    <item text="PNG" value="png" />
+    <item text="JPG" value="jpg" />
+    <item text="PDF" value="pdf" />
+    <item text="SVG" value="svg" />
+    <item text="GIF" value="gif" />
+    <item text="DPX" value="dpx" />
+    <item text="EXR" value="exr" />
+    <item text="PCD" value="pcd" />
+    <item text="PCDS" value="pcds" />
+    <item text="PSD" value="psd" />
+    <item text="TIFF" value="tiff" />
+    <item text="XCD" value="xcf" />
+    <item text="WPG" value="wpg" />
+    <item text="BMP" value="bmp" />
+    <item text="TGA" value="tga" />
+    <item text="EPI" value="epi" />
+    <item text="EPS" value="eps" />
+</dataset>
+
+<class name="exportToCustomType" extends="guiPresenter" labelid="669"
+    docking="true" closable="true" width="300" resizeable="false" 
+    x="$once{ canvas.width/2 - this.width/2 }" y="100" height="150">
+    
+    <handler name="oninit">
+        //Add Help Item
+        canvas.addCurrentHelpId(11,this.__constructor__.classname);
+    </handler>
+    
+    <attribute name="refObj" value="null" />
+    
+    <handler name="oninit">
+    	lz.ModeManager.makeModal(this);
+    </handler>
+    
+    <handler name="onclose">
+    	lz.ModeManager.release(this);
+    </handler>
+           
+    <labelText labelid="670" y="22" x="10" resize="true" /> 
+    
+    <omComboBox name="imageTypes" width="170" y="22" x="120" editable="false">
+    	<textlistitem datapath="exportToTypes:/item/" text="$path{ '@text' }" value="$path{ '@value' }" />
+    	<!--
+        <textlistitem text="PNG" value="png" />
+        <textlistitem text="JPG" value="jpg" />
+        <textlistitem text="PDF" value="pdf" />
+        <textlistitem text="SVG" value="svg" />
+        <textlistitem text="GIF" value="gif" />
+        <textlistitem text="DPX" value="dpx" />
+        <textlistitem text="EXR" value="exr" />
+        <textlistitem text="PCD" value="pcd" />
+        <textlistitem text="PCDS" value="pcds" />
+        <textlistitem text="PSD" value="psd" />
+        <textlistitem text="TIFF" value="tiff" />
+        <textlistitem text="XCD" value="xcf" />
+        <textlistitem text="WPG" value="wpg" />
+        <textlistitem text="BMP" value="bmp" />
+        <textlistitem text="TGA" value="tga" />
+        <textlistitem text="EPI" value="epi" />
+        <textlistitem text="EPS" value="eps" />
+         -->
+        <handler name="oninit">
+            this.selectItemAt(0);
+        </handler>
+    </omComboBox>
+
+    <simpleLabelButton name="_do_not_save" x="$once{parent.width - 115*2 }" 
+        y="$once{parent.height - 26 }" labelid="672" width="110" height="20">
+        <handler name="onclick">
+            this.parent.close();
+        </handler>
+    </simpleLabelButton>      
+    
+    <simpleLabelButton name="_confirm_each" x="$once{parent.width - 115*1 }" 
+        y="$once{parent.height - 26 }" labelid="671" width="110" height="20">
+        <handler name="onclick">
+            this.parent.refObj.doExportByType(parent.imageTypes.getValue());
+            this.parent.close();
+        </handler>
+    </simpleLabelButton>        
+	
+</class>
+
+</library>

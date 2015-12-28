@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+    
+<class name="updateDiagramWindow" extends="baseSaveDiagramWindow" labelid="866">
+    
+    <attribute name="refObj" value="null" />
+    <attribute name="diagramName" value="" type="string" />
+    <attribute name="read" value="false" type="boolean" />
+    <attribute name="issueOnly" value="false" type="boolean" />
+    <attribute name="write" value="false" type="boolean" />
+    
+    <handler name="oninit">
+        //Add Help Item
+        canvas.addCurrentHelpId(15,this.__constructor__.classname);
+    </handler>
+                     
+	
+    <!--
+    <saveCheckBoxes name="_access" x="10" y="230" read="$once{ parent.read }" 
+                    issueOnly="$once{ parent.issueOnly }" write="$once{ parent.write }" />    
+     -->    
+	<simpleLabelButton name="_cancel" x="$once{ parent.width - 105*1 }" y="$once{ parent.height - 26 }" 
+			labelid="584" width="100" height="20">
+		<handler name="onclick">
+			this.parent.close();
+		</handler>
+	</simpleLabelButton>
+	
+	<simpleLabelButton name="_confirm" x="$once{ parent.width - 105*2 }" y="$once{ parent.height - 26 }" 
+			labelid="583" width="100" height="20">
+		<handler name="onclick">
+			this.parent.refObj.confirmUpdateAsObjectToDatabaseWithProperties(
+	            this.parent._savefileName1.getText(),
+	            this.parent.comment.getText(),
+                true,true,true,parent.projectId,
+                parent.currentSavePropertyList,
+                this.parent._savefileNameShort.getText());
+            this.parent.close();
+		</handler>
+	</simpleLabelButton>	
+</class>
+
+
+<class name="updateCloseDiagramWindow" extends="baseSaveDiagramWindow" labelid="866">
+    
+    <attribute name="refObj" value="null" />
+    <attribute name="diagramName" value="" type="string" />
+    <attribute name="read" value="false" type="boolean" />
+    <attribute name="issueOnly" value="false" type="boolean" />
+    <attribute name="write" value="false" type="boolean" />
+    
+    
+    <!--                         
+    <saveCheckBoxes name="_access" x="10" y="230" read="$once{ parent.read }" 
+                    issueOnly="$once{ parent.issueOnly }" write="$once{ parent.write }" />                        
+     -->
+     
+    <simpleLabelButton name="_cancel" x="$once{ parent.width - 105*1 }" y="$once{ parent.height - 26 }" 
+            labelid="584" width="100" height="20">
+        <handler name="onclick">
+            this.parent.close();
+        </handler>
+    </simpleLabelButton>
+    
+    <simpleLabelButton name="_abort" x="$once{ parent.width - 105*2 }" y="$once{ parent.height - 26 }" 
+            labelid="633" width="100" height="20">
+        <handler name="onclick">
+            this.parent.refObj.abortSaveProcess();
+            this.parent.close();
+        </handler>
+    </simpleLabelButton>
+    
+    <simpleLabelButton name="_confirm" x="$once{ parent.width - 105*3 }" y="$once{ parent.height - 26 }" 
+            labelid="583" width="100" height="20">
+        <handler name="onclick">
+            this.parent.refObj.confirmUpdateAsObjectToDatabaseWithProperties(
+	            this.parent._savefileName1.getText(),
+	            this.parent.comment.getText(),
+                true,true,true,parent.projectId,
+                parent.currentSavePropertyList,
+                this.parent._savefileNameShort.getText());
+            this.parent.close();
+        </handler>
+    </simpleLabelButton>    
+</class>
+
+</library>

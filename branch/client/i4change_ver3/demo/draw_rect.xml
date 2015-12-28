@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<rectangle>
+ <win name="win1">
+	<which id="10" x="10" y="20" width="100" height="50"></which>
+	<which id="20" x="100" y="20" width="100" height="50"></which>
+	<which id="30" x="200" y="20" width="100" height="50"></which>
+	<which id="30" x="200" y="120" width="100" height="50" name="Mamta"></which>
+	<which id="30" x="200" y="220" width="100" height="50" name="Abhi"></which>
+</win>
+</rectangle>

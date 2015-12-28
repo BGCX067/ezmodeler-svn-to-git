@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+<!--- configuration edit panel. -->
+<class name="objectTypeModValueForm" extends="baseContentSaveView">
+
+	<!-- recordContent-id -->
+	<attribute name="objectTypeId" value="0" type="number" />
+    <attribute name="obj" value="null" />
+	
+	<!--handlers -->
+    
+    <handler name="oninit">
+        this.getDiagramObjectTypes.doCall();
+    </handler>
+    
+    <!--
+    public List<ObjectTypeDTO> getDiagramObjectTypes(String SID) {
+     -->
+    <netRemoteCallRPC name="getDiagramObjectTypes" funcname="getDiagramObjectTypes" 
+                      dataobject="diagramObjectTypesDS" remotecontext="$once{ canvas.propertyServiceRPC }" >
+        <netparam><method name="getValue">return canvas.sessionId;</method></netparam>
+    </netRemoteCallRPC> 
+
+	<handler name="onsavecompleted" >
+		this.getObjectTypeById.doCall();
+	</handler>
+	
+	<handler name="onreload" >
+		if (this.objectTypeId!=0) this.getObjectTypeById.doCall();
+	</handler>	
+
+	<handler name="onnew">
+		this.objectTypeId=0;
+		this.oName.setAttribute('text',"");
+		this.labelName.setAttribute('text',"");
+        this.objectTypeName.selectItemAt(0);
+        this.isPublic.setValue(true);
+        this.isSidebarItem.setValue(false);
+        this.organisation.selectItem(canvas.getLabelName(996),"0");
+        this.comment.setAttribute('text',"");
+	</handler>
+	
+    <handler name="ondelete" >
+		if (this.objectTypeId!=0){
+			//this.deleteProperty.doCall();
+		}
+    </handler>
+	
+	<!-- methods -->
+
+    <method name="initValueFieldsByObject" args="obj">
+        if ($debug) Debug.write("initValueFieldsByObject: ",obj);
+		this.objectTypeId = obj.objectTypeId;
+		if (this.objectTypeId!=0){
+			this.getObjectTypeById.doCall();
+		}
+    </method>
+    
+    <method name="initFields" args="obj">
+    	<![CDATA[
+            if ($debug) Debug.write("initFields: ",obj);
+            this.obj = obj;
+            if (obj == null) {
+            	return;
+            }
+            
+            this.labelName.setAttribute('text',canvas.getLabelName(obj.labelid));
+			this.oName.setAttribute('text',obj.name);
+			
+			if (obj.objectTypeName == null) {
+				obj.objectTypeName = "";
+			}
+            this.objectTypeName.selectItem(obj.objectTypeName);
+            this.isPublic.setValue(obj.isPublic);
+            this.isSidebarItem.setValue(obj.isSidebarItem);
+            
+            if (obj.organisation != null) {
+                this.organisation.selectItem(obj.organisation.name,String(obj.organisation.organisation_id));
+            } else {
+                this.organisation.selectItem(canvas.getLabelName(996),"0");
+            }
+            
+            this.comment.setAttribute('text',obj.comment);
+        ]]>
+    </method>
+	
+	<!--
+	   public ObjectTypeDTO getObjectTypeById(String SID, Long objectTypeId)
+	 -->
+  	<netRemoteCallRPC name="getObjectTypeById" funcname="getObjectTypeById" 
+  		remotecontext="$once{  canvas.propertyServiceRPC }" > 
+  		<attribute name="doReload" value="false" type="boolean" />
+  		<netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+    	<netparam><method name="getValue">return parent.parent.objectTypeId;</method></netparam>
+    	<handler name="ondata" args="value">
+    		<![CDATA[
+	    		if ($debug) Debug.write("getObjectTypeById: ",value);
+	    		if (this.doReload) {
+	    			if (value == null && parent.objectTypeId > 0) {
+	    				this.doCall();
+	    			} else {
+		    			this.doReload = false;
+		    			parent.getLanguageByIdAndVectorLabeled.labels = new Array();
+		    			parent.getLanguageByIdAndVectorLabeled.labels.push(value.labelid);
+		    			parent.getLanguageByIdAndVectorLabeled.doCall();
+	    			}
+	    		} else {
+	    			parent.initFields(value);
+	    		}
+    		]]>
+    	</handler>
+  	</netRemoteCallRPC>
+  	
+  	<!-- Reload Labels cause you need them to display changes -->
+    <netRemoteCallRPC name="getLanguageByIdAndVectorLabeled" funcname="getLanguageByIdAndVectorLabeled" 
+                    remotecontext="$once{  canvas.languageServiceRPC }" >   
+        <attribute name="labels" value="null" />    
+        <netparam><method name="getValue">return canvas.userlang;</method></netparam>
+        <netparam><method name="getValue">return parent.labels;</method></netparam> 
+        <netparam><method name="getValue">return true;</method></netparam>
+        <handler name="ondata" args="value">
+            <![CDATA[
+                if($debug) Debug.write("hibRtmpConnection/getLanguageByIdAndVectorLabeled:[",value,"]");
+                for (var eg in value) {
+                	saveOrUpdaeLabelTagByObject(value[eg]);
+                }
+                parent.getObjectTypeById.doCall();
+                this.parent.parent._turnoverlist.oncallnext.sendEvent();
+            ]]>
+        </handler>  
+    </netRemoteCallRPC>    
+	
+	<!--
+	<netRemoteCallRPC name="deleteObjectType" funcname="deleteObjectType" 
+                      remotecontext="$once{  canvas.propertyServiceRPC }" >      
+  		<netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+    	<netparam><method name="getValue">return parent.parent.propertyId;</method></netparam>	
+        <handler name="ondata" args="value">
+			//if ($debug) Debug.write("deleteProperty ",value);
+			if (value>0){
+				this.parent.parent._turnoverlist.oncallnext.sendEvent();
+				this.parent.onnew.sendEvent();
+			}
+		</handler>
+	</netRemoteCallRPC>		
+	 -->
+
+  	<netRemoteCallRPC name="saveOrUpdateObjectType" funcname="saveOrUpdateObjectType" 
+  		remotecontext="$once{  canvas.propertyServiceRPC }" registerObject="true" >   
+		<attribute name="sendObject" value="null" />
+		<!-- 
+		    gets called by Observer
+            Long propertyId = Long.valueOf(values.get("propertyId").toString()).longValue();
+            String propertyName = values.get("propertyName").toString();
+            String tooltip = values.get("tooltip").toString();
+            Long languages_id = Long.valueOf(values.get("languages_id").toString()).longValue();
+            String comment = values.get("comment").toString();
+            Boolean isPublic = Boolean.valueOf(values.get("isPublic").toString()).booleanValue();
+            Long organisation_id = Long.valueOf(values.get("organisation_id").toString()).longValue();
+            String objectTypeName = values.get("objectTypeName").toString();
+         -->
+  		<method name="prepareCall">
+  			this.sendObject = new Object();
+            this.sendObject["objectTypeId"] = this.parent.objectTypeId;
+            this.sendObject["oName"] = this.parent.oName.getText();
+            this.sendObject["languages_id"] =  canvas.userlang;
+            this.sendObject["labelName"] = this.parent.labelName.getText();
+            this.sendObject["isPublic"] = false;
+            this.sendObject["isSidebarItem"] = this.parent.isSidebarItem.getValue();
+            this.sendObject["organisation_id"] = canvas.currentdomainObj.organisation_id;
+            this.sendObject["objectTypeName"] = this.parent.objectTypeName.getValue();
+            this.sendObject["comment"] = this.parent.comment.getText();
+            if ($debug) Debug.write("prepareCall: ",this.sendObject);
+  		</method>
+  		<netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+    	<netparam><method name="getValue">return parent.sendObject;</method></netparam>	  		
+    	<handler name="ondata" args="val">
+			<![CDATA[
+    		if ($debug) Debug.write("saveOrUpdateObjectType ",val);
+			if (val>0){
+				//Debug.write("updateConfByConfigurationId val greater 0: ",val);
+                parent.objectTypeId = val;
+                parent.getObjectTypeById.doReload = true;
+                parent.getObjectTypeById.doCall();
+                //parent.getLanguageByIdAndMax.start = 0;
+                //parent.getLanguageByIdAndMax.doCall();
+			}
+			]]>
+    	</handler>
+  	</netRemoteCallRPC>	
+    
+	<!-- content -->
+    
+    <labelText labelid="987" width="200" y="40" resize="false" fontstyle="bold" />
+    
+    <labelText labelid="1369" width="200" y="70" resize="false" x="2"/>
+        <customEdittext name="oName" y="70" x="120" width="270" text="" />
+     
+    <labelText labelid="1370" width="200" y="100" resize="false" x="2"/>
+        <customEdittext name="labelName" y="100" x="120" width="270" text="" />   
+    
+    <labelCheckbox name="isSidebarItem" labelid="1368" y="130" x="6">
+        <handler name="onvalue">
+            if (this.getValue()) {
+                parent._labelTypeName.setAttribute("fgcolor",0x000000);
+                parent.objectTypeName.setAttribute("opacity",1);
+            } else {
+            	parent._labelTypeName.setAttribute("fgcolor",0xCCCCCC);
+                parent.objectTypeName.setAttribute("opacity",0.3);
+            }
+        </handler>
+    </labelCheckbox>  
+    
+    <labelText name="_labelTypeName" labelid="990" width="200" y="160" resize="false" x="2"/>
+        <omComboBox name="objectTypeName" y="160" x="120" width="270" editable="false">
+            <handler name="oninit">
+                this.selectItemAt(0);
+            </handler>
+            <labelTextListItem datapath="diagramObjectTypesDS:/item/" 
+                               value="$path{'name/text()'}"
+                               labelid="$path{'labelid/text()'}" />
+        </omComboBox>    
+           
+    <labelText labelid="995" width="200" y="190" resize="false" x="2"/>
+        <customScrollEdittext name="comment" y="190" x="120" width="270" 
+            height="100" text="" />    
+         
+</class>
+
+</library>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+	<include href="fileUpload.lzx" />
+	<include href="importWindow.lzx" />
+    <include href="importDiagram.lzx" />
+	<include href="uploadWindow.lzx" />
+	<include href="documentUploadWindow.lzx" />
+
+</library>

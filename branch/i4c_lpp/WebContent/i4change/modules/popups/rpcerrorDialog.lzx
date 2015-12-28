@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+	
+<class name="baseErrorDialog" extends="guiPresenter" labelid="204" y="60"
+    docking="true" resizeable="false" closable="true" width="300" 
+	x="$once{ canvas.width/2-this.width/2 }" height="180">
+	
+    <attribute name="errortext" value="" type="string" />
+	<attribute name="errorid" value="0" type="number" />
+	
+	<handler name="oninit">
+		//if ($debug) Debug.write("baseErrorDialog",this);
+		if (canvas.previousErrorDialog != null) {
+			canvas.previousErrorDialog.close();
+		}
+		canvas.previousErrorDialog = this;
+	</handler>
+	
+	<handler name="onclose">
+		canvas.previousErrorDialog = null;
+	</handler>
+
+	<netRemoteCallRPC name="getErrorByCode" funcname="getErrorByCode" 
+					  remotecontext="$once{ canvas.errorServiceRPC }" >      
+		<param><method name="getValue"> return canvas.sessionId; </method></param>
+		<param><method name="getValue"> return parent.parent.errorid; </method></param>
+        <param><method name="getValue"> return  canvas.userlang; </method></param>
+		<handler name="ondata" args="value">
+			//if ($debug) Debug.write("getErrorByCode 1 ",this,this.parent);
+			//if ($debug) Debug.write("getErrorByCode 2 ",value,parent.errorid, canvas.userlang,canvas.sessionId);
+			//this.parent.destroy();
+            if ($debug) {
+			     this.parent.setAttribute('errortext',value.errmessage+ "["+value.errorlabelId+"]"+" [errorid: "+parent.errorid+"]");
+			     this.parent.setAttribute('title',value.errortypeAsString+" ["+value.errorTypeLabelId+"]");
+                 parent._item.text = value.errmessage+ "["+value.errorlabelId+"]"+" [errorid: "+parent.errorid+"]";
+            } else {
+                 this.parent.setAttribute('errortext',value.errmessage);
+                 this.parent.setAttribute('title',value.errortypeAsString);
+                 parent._item.text = value.errmessage;
+            }
+            parent._item.oninit.sendEvent();
+		</handler>
+	</netRemoteCallRPC>		
+
+    <infoIconBox iconResourceName="messagebox_warning_rsc" name="_item"
+                 text="Loading" 
+                 x="10" y="24" width="$once{ parent.width - 20 }" height="200" />
+
+</class>
+	
+<class name="errorDialog" extends="baseErrorDialog">
+
+	<handler name="oninit">
+		lz.ModeManager.makeModal(this);
+        //if ($debug) Debug.write("errorDialog: ",this,this.errorid);
+		this.getErrorByCode.doCall();
+	</handler>
+    <handler name="onclose">
+        lz.ModeManager.release(this);
+    </handler>
+	
+</class>
+	
+<class name="contentSaveWindow" extends="baseErrorDialog" errorid="-40" labelid="897" >
+	
+    <attribute name="saveObj" value="null" />
+    <attribute name="refObj" value="null" />
+    <attribute name="processNextIndex" value="0" type="number" />
+    <!--
+	<attribute name="errorid" value="40" type="number" />
+     -->
+    
+    <handler name="oninit">
+        lz.ModeManager.makeModal(this);
+        ////if ($debug) Debug.write("contentSaveWindow: ",errorid);
+        this.getErrorByCode.doCall();
+        this.startSave();
+    </handler>
+    
+    <handler name="onclose">
+        lz.ModeManager.release(this);
+    </handler>
+    
+    <method name="startSave">
+    	<![CDATA[
+    	for (var i=0;i<this.saveObj.length;i++){
+    		this.saveObj[i].prepareCall();
+    	}
+    	this.processNext();
+    	]]>
+    </method>
+	
+	<method name="errorByCode" args="eCode">
+		this.errorid = eCode;
+        //if ($debug) Debug.write("errorByCode ",this.errorid)
+		this.getErrorByCode.doCall();
+	</method>
+    
+    <method name="processNext">
+    	<![CDATA[
+    	//Debug.write("processNext: ",this.saveObj.length,this.processNextIndex);
+    	if (this.saveObj.length>this.processNextIndex){
+    		this.saveObj[this.processNextIndex].returnObj=this;
+    		this.saveObj[this.processNextIndex].doCall();
+    		this.processNextIndex++;
+    	} else {
+    		//Debug.write("update process complete");
+    		this.refObj.onsavecompleted.sendEvent();
+    		this.close();
+    	}
+    	]]>
+    </method>
+	
+	<method name="doCallBack">
+		this.close();
+	</method>
+	
+    <simpleLabelButton name="_btn" labelid="333" width="120" x="$once{ parent.width-122 }" 
+		y="$once{ parent.height-24 }" onclick="parent.doCallBack();" /> 
+	
+</class>
+	
+<class name="rpcErrorDialog" extends="errorDialog">
+	
+	<method name="doCallBack">
+		this.close();
+	</method>
+	
+    <simpleLabelButton name="_btn" labelid="333" width="120" x="$once{ parent.width-122 }" 
+		y="$once{ parent.height-24 }" onclick="parent.doCallBack();" /> 
+	
+</class>
+	
+<class name="callbackRpcErrorDialog" extends="errorDialog" closable="false">
+	
+	<attribute name="callBackObject" value="null" />
+	
+	<method name="doCallBack">
+		this.callBackObject.sendCallBack.sendEvent();
+		this.close();
+	</method>
+	
+    <simpleLabelButton name="_btn" labelid="333" width="120" x="$once{ parent.width-122 }" 
+		y="$once{ parent.height-24 }" onclick="parent.doCallBack();" /> 
+	
+</class>
+
+<class name="callbackRpcErrorDialogOverwrite" extends="errorDialog" closable="false">
+    
+    <attribute name="callBackObject" value="null" />
+    
+    <method name="doCallBack">
+        this.callBackObject.sendOverwrite.sendEvent();
+        this.close();
+    </method>
+    
+    <simpleLabelButton name="_btn_ok" labelid="775" width="100" x="$once{ parent.width-206 }" 
+        y="$once{ parent.height-24 }" onclick="parent.doCallBack();" /> 
+    
+    <simpleLabelButton name="_btn_cancel" labelid="776" width="100" x="$once{ parent.width-102 }" 
+        y="$once{ parent.height-24 }" onclick="parent.close();" /> 
+        
+</class>
+   
+
+</library>

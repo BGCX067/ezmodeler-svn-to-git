@@ -1,0 +1,618 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+    
+
+<class name="hibRtmpConnection" extends="rtmpConnection" debug="false"
+    src="$once{ this.protocollName+'://'+canvas.rtmphostlocal+':'+this.protocollPort+'/'+canvas.webAppRootKey+'/hibernate' }" >
+
+	<attribute name="protocollName" type="string" value="rtmp" />
+  	<attribute name="protocollPort" type="string" value="$once{ canvas.rtmpport }" />
+    <attribute name="counterror" type="number" value="0" />
+    
+    <attribute name="loaderVar" value="null" />
+    
+    <!-- reconnect after each conferenceView -->
+    <attribute name="reconnectAfterRoomleft" type="boolean" value="false" />
+    <attribute name="reconnectedRoomInstance" value="null" />
+    
+    <attribute name="reconnectionAction" value="false" type="boolean" />
+    <attribute name="reconnectObjRef" value="null" />
+         
+     <attribute name="userobject" value="null" />
+     
+     <!-- Holds a reference to the current Project you are working in -->
+     <attribute name="projectObj" value="null" />
+     <attribute name="currentProjectId" value="0" type="number" />
+     
+     <attribute name="currentRole" value="null" />
+     
+     <attribute name="refreshDelegate" value="null" />
+     
+     <attribute name="currentdomain" type="string" value="" />
+     <attribute name="currentdomainObj" value="null" />
+     <attribute name="currentdomainUserObj" value="null" />
+     
+     <!-- Attributes to indicate if the newly created Diagram is based on an existing Object -->
+     <attribute name="isTempNewlyCreated" value="false" type="boolean" />
+     <!-- we need two variables for one state cause we have two seperated initializations at the same time -->
+     <attribute name="isTempNewlyCreatedMainDiagram" value="false" type="boolean" />
+     <attribute name="tempNewlyCreatedBaseObject" value="null" />
+     <attribute name="tempParentDiagramObjectId" value="0" type="number" />
+     
+     <!-- default will be loaded on startup -->
+     <attribute name="userlang" value="1" type="number" />
+     
+     <!-- @keywords: deprecated -->
+     <attribute name="newUserLang" value="1" type="number" />
+     
+     <!-- The default Language will be loaded on init  -->
+     <attribute name="initlanguageLoaded" value="false" type="boolean" />  
+     
+     <attribute name="wasAlreadyConnected" value="false" type="boolean" /> 
+     
+     <attribute name="currentDiagram" value="null" />
+     
+     <!-- holding some of the Configuration Keys -->
+     <attribute name="defaultConfigObj" value="null" />
+     
+     <attribute name="webItemTypes" value="null" />
+         
+     <handler name="onconnect">
+		//if($debug) Debug.write("hibRtmpConnection/onconnect");
+		canvas.loaderVar.setProgress();
+        this.getsessiondata.doCall();     
+        this.refreshDelegate = new LzDelegate( this, "refreshSessionMeth" );
+        lz.Timer.addTimer( this.refreshDelegate, 30000 );
+        this.wasAlreadyConnected = true;
+    </handler>
+    
+    <method name="refreshSessionMeth">
+        this.refreshSession.doCall();
+    </method>
+    
+    <handler name="onerror" >
+        <![CDATA[
+  	 	    //if ($debug) Debug.write("error ",this.status,this.src,this.lastCalled);
+            if (this.wasAlreadyConnected){
+                this.wasAlreadyConnected = false;
+                new lz.errorPopupDisconnect(canvas,{error:canvas.getLabelName(789)});                
+            } else {
+	  	 	    if (this.reconnectionAction){
+	                this.connect();
+	  	 	    } else if (this.reconnectAfterRoomleft) {
+	                Debug.write("this.reconnectAfterRoomleft: ",this.reconnectAfterRoomleft);
+	                this.counterror=0;
+	                this.connect();
+	            } else {
+	  	 	        this.setAttribute('protocollName','rtmpt');
+	                this.setAttribute('protocollPort',canvas.rtmpTunnelport);
+	  	 	        var src = 'rtmpt://'+canvas.rtmphostlocal+':'+canvas.rtmpTunnelport+'/'+canvas.webAppRootKey+'/hibernate';
+	  	 	        this.setAttribute('src',src);
+	  	 	        //Debug.write("new src ",this.src);
+	                if (this.counterror<3){
+	                    this.counterror++;
+		  	 	        //Debug.write("try ",this.counterror,"one");
+	                    canvas.loaderVar.error.setAttribute("text","try "+this.counterror);
+		  	 	        this.connect();
+	                } else {
+	                    //Debug.write("connection failed");
+	                    canvas.loaderVar.error.setAttribute("text",this.status);
+	                    canvas.setAttribute('loadingmessage','connection failed to switch');
+                        canvas.rpcType = "http";
+                        this.onconnect.sendEvent();
+	                }
+	                canvas.loaderVar.src.setAttribute("text",src);
+	            }
+            }
+        ]]>
+    </handler>   
+    
+    <netRemoteCallRPC name="getsessiondata" funcname="xmlcrm.getsessiondata" >      
+        <handler name="ondata" args="value">
+            //The onResult-Handler will be called be the rtmpconnection
+            //if ($debug) Debug.write("hibRtmpConnection/getsessiondata [",value,"]");
+            canvas.sessionObject = value;
+            canvas.sessionId = value.session_id;     
+            canvas.loaderVar.setProgress();
+            parent.getPublicSID.doCall();
+        </handler>  
+    </netRemoteCallRPC>
+     
+    <netRemoteCallRPC name="getPublicSID" funcname="getPublicSID" >      
+        <handler name="ondata" args="value">
+            //The onResult-Handler will be called be the rtmpconnection
+            //if ($debug) Debug.write("hibRtmpConnection/getPublicSID [",value,"]");
+            canvas.publicSID = value;     
+            canvas.loaderVar.setProgress();
+            parent.getLanguages.doCall();
+        </handler>  
+    </netRemoteCallRPC>
+     
+    <!-- This Function is just for refreshing the Session -->
+    <netRemoteCallRPC name="refreshSession" funcname="userservice.refreshSession" showLoading="false" >    
+        <netparam><method name="getValue">return canvas.sessionId;</method></netparam>   
+        <handler name="ondata" args="value">
+            ////if ($debug) Debug.write("hibRtmpConnection/refreshSession [",value,"]");
+            lz.Timer.addTimer( parent.refreshDelegate, 30000 );
+        </handler>
+    </netRemoteCallRPC>
+        
+    
+    <netRemoteCallRPC name="getRolesBySelf" funcname="roleservice.getRolesBySelf" >    
+        <netparam><method name="getValue"> return canvas.sessionId; </method></netparam>   
+        <netparam><method name="getValue"> return canvas.currentdomainObj.organisation_id;</method></netparam> 
+        <handler name="ondata" args="value">
+            <![CDATA[
+	            //The onResult-Handler will be called be the rtmpconnection
+	            //if ($debug) Debug.write("hibRtmpConnection/getRolesBySelf [",value,"]");
+                if (value.length == 0) {
+                        
+                    canvas.initMainDialog();
+                    
+                } else if (value.length == 1) {
+                    
+	                parent.currentRole = value[0];
+                    canvas.initMainDialog();
+                    
+	            } else {
+                    
+                    var canCancel = false;
+                    if (canvas.userobject.userlevel.level_id > 1){
+                        canCancel = true;
+                    }
+                    
+                    canvas.initMainDialog();
+                    
+                }
+	            
+            ]]>
+        </handler>  
+    </netRemoteCallRPC>
+    
+     
+    <netRemoteCallRPC name="overwritePublicSID" funcname="overwritePublicSID" >     
+    	<netparam><method name="getValue"> return canvas.publicSID;</method></netparam>
+        <handler name="ondata" args="value">
+            //The onResult-Handler will be called be the rtmpconnection
+            //if ($debug) Debug.write("overwritePublicSID: ",value);
+        </handler>  
+    </netRemoteCallRPC>    
+    
+    <netRemoteCallRPC name="getLanguages" funcname="languageservice.getLanguages" 
+    				  dataobject="languagesSet" >      
+        <handler name="ondata" args="value">
+            //The onResult-Handler will be called be the rtmpconnection
+            //Debug.write("getLanguages: ",value);
+            canvas.loaderVar.setProgress();
+            parent.getDefaultLanguage.doCall();
+        </handler>  
+    </netRemoteCallRPC>    
+    
+    <netRemoteCallRPC name="logoutUser" funcname="xmlcrm.logoutUser"
+        remotecontext="$once{  canvas. }" activeErrorHandler="true" 
+        isCallBackHandler="true">
+        <netparam><method name="getValue"> return canvas.sessionId;</method></netparam>
+        <handler name="sendCallBack">
+            //The onResult-Handler will be called be the rtmpconnection
+            //if ($debug) Debug.write("sendCallBack logoutUser: ",value);    
+            parent.initlanguageLoaded = false;
+        	parent.getLanguageByIdAndMax.start = 0;
+        	parent.getLanguageByIdAndMax.doCall();
+        </handler>          
+    </netRemoteCallRPC>     
+    
+        <netRemoteCallRPC name="setUsernameReconnect" funcname="setUsername" remotecontext="$once{  canvas. }" >   
+            <netparam><method name="getValue">return canvas.user_id;</method></netparam>
+            <netparam><method name="getValue">return canvas.currentuser;</method></netparam>
+            <netparam><method name="getValue">return canvas.firstName;</method></netparam>
+            <netparam><method name="getValue">return canvas.lastName;</method></netparam>      
+            <netparam><method name="getValue">return parent.parent.currentdomain;</method></netparam>
+            <handler name="ondata" args="value">
+                //The onResult-Handler will be called be the rtmpconnection
+                //if ($debug) Debug.write("setUsername: ",value);                    
+            </handler>  
+        </netRemoteCallRPC>    
+        
+    <netRemoteCallRPC name="getDefaultLanguage" funcname="languageservice.getDefaultLanguage" >      
+        <handler name="ondata" args="value">
+            //The onResult-Handler will be called be the rtmpconnection
+            //if ($debug) Debug.write("getDefaultLanguage: ",value);
+            parent.userlang = value;
+            canvas.loaderVar.src.setAttribute("text","Loading Default Language");
+            parent.getWebItemTypes.doCall();
+            parent.getLanguageByIdAndMaxLabeled.doCall();
+        </handler>  
+    </netRemoteCallRPC>   
+    
+    <!--
+    public List<WebItemType> getWebItemTypes(String SID)
+     -->
+    <netRemoteCallRPC name="getWebItemTypes" funcname="websiteservice.getWebItemTypes" 
+        remotecontext="$once{  canvas. }" > 
+        <netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+        <handler name="ondata" args="value">
+            parent.webItemTypes = value;
+        </handler>
+    </netRemoteCallRPC>   
+  
+    <netRemoteCallRPC name="getLanguageByIdAndMax" funcname="languageservice.getLanguageByIdAndMax" >
+    	<attribute name="start" value="0" type="number" />
+    	<attribute name="step" value="100" type="number" /> 
+    	<attribute name="max" value="3000" type="number" />    
+        <netparam><method name="getValue">return parent.parent.userlang;</method></netparam> 
+        <netparam><method name="getValue">return parent.start;</method></netparam> 
+        <netparam><method name="getValue">return parent.step;</method></netparam> 
+        <handler name="ondata" args="value">
+        	<![CDATA[
+        		//if($debug) Debug.write("hibRtmpConnection/getLanguageByIdAndMax:[",value,"]");
+        		setLabelObjectByHundred(this.start,value);
+	            //The onResult-Handler will be called be the rtmpconnection
+	            if (this.start <= max){
+	            	this.start += this.step;
+					canvas.loaderVar.setProgress();
+					this.doCall();
+	            } else {
+		            if (parent.initlanguageLoaded){
+		            	canvas.initMainDialog();
+                        //parent.getUserByOrganization.doCall();
+		            } else {
+		            	parent.initlanguageLoaded=true;
+				    	canvas.loaderVar.setProgress();
+	            	    parent.getStates.doCall();
+
+		            }
+				}
+			]]>
+        </handler>  
+    </netRemoteCallRPC>
+    
+    <netRemoteCallRPC name="getLanguageByIdAndMaxLabeled" funcname="languageservice.getLanguageByIdAndMaxLabeled" >
+        <attribute name="start" value="0" type="number" />
+        <attribute name="step" value="100" type="number" /> 
+        <attribute name="max" value="3000" type="number" />    
+        <netparam><method name="getValue">return parent.parent.userlang;</method></netparam> 
+        <netparam><method name="getValue">return parent.start;</method></netparam> 
+        <netparam><method name="getValue">return parent.step;</method></netparam> 
+        <netparam><method name="getValue">return (($debug) ? true : false);</method></netparam> 
+        <handler name="ondata" args="value">
+            <![CDATA[
+                //if($debug) Debug.write("hibRtmpConnection/getLanguageByIdAndMax:[",value,"]",$debug);
+                setLabelObjectByHundred(this.start,value);
+                //The onResult-Handler will be called be the rtmpconnection
+                if (this.start <= max){
+                    this.start += this.step;
+                    canvas.loaderVar.setProgress();
+                    this.doCall();
+                } else {
+                    if (parent.initlanguageLoaded){
+                        canvas.initMainDialog();
+                        //parent.getUserByOrganization.doCall();
+                    } else {
+                        parent.initlanguageLoaded=true;
+                        canvas.loaderVar.setProgress();
+                        canvas.loaderVar.src.setAttribute("text","Loading Default Values");
+                        parent.getStates.doCall();
+
+                    }
+                }
+            ]]>
+        </handler>  
+    </netRemoteCallRPC>
+    
+    <netRemoteCallRPC name="getStates" funcname="xmlcrm.getStates" >
+        <handler name="ondata" args="value">
+            //The onResult-Handler will be called be the rtmpconnection
+            //Debug.write("getStates: ",value);
+            canvas.statesInitValues = value;
+            canvas.loaderVar.setProgress();
+            parent.getUserSalutations.doCall();
+        </handler>  
+    </netRemoteCallRPC>    
+    
+    <netRemoteCallRPC name="getUserSalutations" funcname="userservice.getUserSalutations" >
+		<netparam><method name="getValue">return canvas.sessionId;</method></netparam>
+		<netparam><method name="getValue"> return parent.parent.userlang; </method></netparam> 
+        <handler name="ondata" args="value">
+            //The onResult-Handler will be called be the rtmpconnection
+            //Debug.write("getUserSalutations ",value);
+            canvas.salutationsInitValues = value;
+			//check for password reset
+			if (canvas.isResetUsername){
+				canvas.loaderVar.close();
+				new lz.resetPassword(canvas.main_content._content.inner);
+			} else { 
+				canvas.loaderVar.close();
+				//do not show loggin-PopUp for the test-Application
+				//new lz.checkLoginData(canvas.main_content._content.inner);
+				canvas.showKaleidoscope();
+			}
+        </handler>  
+    </netRemoteCallRPC>  
+    
+     
+    <netRemoteCallRPC name="newMessageByOrganization" funcname="newMessageByOrganization"
+                      activeErrorHandler="true">
+        <netparam><method name="getValue">return canvas.sessionId;</method></netparam>
+        <netparam><method name="getValue">return canvas.currentdomainObj.organisation_id;</method></netparam>
+        <handler name="ondata" args="value">
+            <![CDATA[
+	            //The onResult-Handler will be called be the rtmpconnection
+	            //if ($debug) Debug.write("newMessageByOrganization ",value);
+	            if (value.type == "updateDiagram") {
+	                for (var i=0;i<canvas.currentDiagramList.length;i++) {
+                        canvas.currentDiagramList[i].updateDiagramRevision(value.diagram);
+                    }
+	            } else if (value.type == "addDiagram") {
+                    for (var i=0;i<canvas.currentDiagramList.length;i++) {
+                        //if ($debug) Debug.write("refresh: ",canvas.currentDiagramList[i]);
+                        canvas.currentDiagramList[i].refreshDiagramRevision();
+                    }
+                }
+            ]]>
+        </handler>  
+    </netRemoteCallRPC> 
+    
+    <!--
+    <netRemoteCallRPC name="checkOrganizationStatus" funcname="organisationservice.checkOrganizationStatus"
+                      activeErrorHandler="true">
+        <netparam><method name="getValue">return canvas.sessionId;</method></netparam>
+        <netparam><method name="getValue">return canvas.currentdomainObj.organisation_id;</method></netparam>
+        <handler name="ondata" args="value">
+            //The onResult-Handler will be called be the rtmpconnection
+            //if ($debug) Debug.write("checkOrganizationStatus ",value);
+            if (value > 0){
+                parent.getUserByOrganization.doCall();
+                parent.getPropertyValidationTypes.doCall();
+                //show an Info Dialog with the remaining Days in this Pending Organization
+            }
+        </handler>  
+    </netRemoteCallRPC> 
+     -->
+    
+    <netRemoteCallRPC name="getPropertyValidationTypes" funcname="propertyservice.getPropertyValidationTypes" 
+                      dataobject="propertyValidationTypes" >
+        <netparam><method name="getValue">return canvas.sessionId;</method></netparam>
+        <handler name="ondata" args="value">
+            //The onResult-Handler will be called be the rtmpconnection
+            //if ($debug) Debug.write("getPropertyValidationTypes ",value);
+        </handler>  
+    </netRemoteCallRPC> 
+    
+    <netRemoteCallRPC name="getUserByOrganization" funcname="userservice.getUserByOrganization">
+        <netparam><method name="getValue">return canvas.sessionId;</method></netparam>
+        <netparam><method name="getValue">return canvas.currentdomainObj.organisation_id;</method></netparam>
+        <handler name="ondata" args="value">
+            //The onResult-Handler will be called be the rtmpconnection
+            //if ($debug) Debug.write("getUserByOrganization ",value,canvas.currentdomainObj.organisation_id);
+            canvas.orgUserList = value;
+            //parent.getModeratorsByOrganization.doCall();
+            parent.getRolesBySelf.doCall();
+        </handler>  
+    </netRemoteCallRPC> 
+    
+    <netRemoteCallRPC name="getModeratorsByOrganization" funcname="organisationservice.getModeratorsByOrganization"
+                      remotecontext="$once{  canvas. }">
+        <netparam><method name="getValue">return canvas.sessionId;</method></netparam>
+        <netparam><method name="getValue">return canvas.currentdomainObj.organisation_id;</method></netparam>
+        <handler name="ondata" args="value">
+            //The onResult-Handler will be called be the rtmpconnection
+            //if ($debug) Debug.write("getUserByOrganization ",value,canvas.currentdomainObj.organisation_id);
+            canvas.orgModList = value;
+        </handler>  
+    </netRemoteCallRPC>     
+        
+    
+    <!--
+    <netRemoteCallRPC name="getNavi" funcname="xmlcrm.getNavi" dataobject="myresultnavi">      
+        <netparam><method name="getValue"> return canvas.sessionId; </method></netparam> 
+        <netparam><method name="getValue"> return parent.parent.userlang; </method></netparam> 
+        <handler name="ondata" args="value">
+            //The onResult-Handler will be called be the rtmpconnection
+            Debug.write("getNavi: ",value);
+            canvas.loaderVar.close();
+            new lz.mainNavi(canvas._mainbgcontentNavi,{name:'navi',naviObject:value});
+            new lz.helpAndBugs(canvas._mainbgcontentNavi,{name:'help'});
+            new lz.roleViewMenubar (canvas,{name:'_roleViewMenubar',visibility:'hidden'});
+            new lz.processgroupMenubar (canvas,{name:'_processgroupMenubar',visibility:'hidden'});
+            new lz.hierarchicalMenubar (canvas,{name:'_hierarchicalMenubar',visibility:'hidden'});
+            new lz.singleRoleMenubar (canvas,{name:'_singleRoleMenubar',visibility:'hidden'});
+            if (parent.currentRole != null) {
+	            _currentUserHeaderMenu.setAttribute('text',
+	                        canvas.userobject.login + '@' + canvas.currentdomainObj.name 
+	                        + " (" + canvas.getLabelName(709) + parent.currentRole.roleObject.name + ")");            
+            } else {
+                _currentUserHeaderMenu.setAttribute('text',
+                            canvas.userobject.login + '@' + canvas.currentdomainObj.name );            
+            }
+            if (canvas.userobject.userPropsAsObject != null) {
+                //if ($debug) Debug.write("canvas.userobject.userPropsAsObject.showFirstStartWizzard: ",canvas.userobject.userPropsAsObject.showFirstStartWizzard);
+                //if ($debug) Debug.write("canvas.userobject.userPropsAsObject.showFirstStartWizzard: ",typeof(canvas.userobject.userPropsAsObject.showFirstStartWizzard));
+                if (canvas.userobject.userPropsAsObject.showFirstStartWizzard != undefined) {
+                    if (canvas.userobject.userPropsAsObject.showFirstStartWizzard=="false") {
+                        //if ($debug) Debug.write("canvas.userobject.userPropsAsObject.showFirstStartWizzard: IS STRING");
+                    } else {
+                        new lz.firstStartWizzard(canvas);
+                    }
+                }
+            } else {
+                new lz.firstStartWizzard(canvas);
+            }
+        </handler>  
+    </netRemoteCallRPC>
+     -->
+    
+        <netRemoteCallRPC name="setId" funcname="setId">
+            <handler name="ondata" args="value">
+                //The onResult-Handler will be called be the rtmpconnection
+                //Debug.write("################ setId: ",value);
+                canvas.setAttribute('streamid',value);   
+            </handler>  
+        </netRemoteCallRPC> 
+   
+    <method name="loadLatestDiagramByIdAndObject" args="diagramId,diagram">
+        this.currentDiagram = diagram;
+        this.getLatestDiagramObjectsById.diagramId = diagramId;
+        this.getLatestDiagramObjectsById.doCall();
+    </method>
+    
+     <netRemoteCallRPC name="getLatestDiagramObjectsById" funcname="diagramservice.getLatestDiagramObjectsById" >      
+        <attribute name="diagramId" value="" type="string" />
+        <netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+        <netparam><method name="getValue">return parent.diagramId;</method></netparam> 
+        <netparam><method name="getValue">return canvas.currentdomainObj.organisation_id;</method></netparam>
+        <handler name="ondata" args="value">
+            //if ($debug) Debug.write("getDiagramObjectsByNo: ",value);
+            parent.loadDiagram(value);
+        </handler>
+    </netRemoteCallRPC>  
+     
+    <method name="loadDiagramByIdAndObject" args="diagramId,diagram">
+        this.currentDiagram = diagram;
+        this.getDiagramObjectsById.diagramId = diagramId;
+        this.getDiagramObjectsById.doCall();
+    </method>      
+
+        
+    <netRemoteCallRPC name="getDiagramObjectsById" funcname="diagramservice.getDiagramObjectsById" >      
+        <attribute name="diagramId" value="" type="string" />
+        <netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+        <netparam><method name="getValue">return parent.diagramId;</method></netparam> 
+        <netparam><method name="getValue">return canvas.currentdomainObj.organisation_id;</method></netparam>
+        <handler name="ondata" args="value">
+            //if ($debug) Debug.write("getDiagramObjectsByNo: ",value);
+            parent.loadDiagram(value);
+        </handler>
+    </netRemoteCallRPC>         
+    
+    <method name="loadDiagram" args="value">
+        //if ($debug) Debug.write("loadDiagram: ",this.currentDiagram);
+        
+        canvas.currentDiagram = this.currentDiagram;
+        canvas.currentInstanceList = value;
+        
+        if (this.currentDiagram.diagramType.diagramTypeId == 1) {
+            quicklinkAct('processgroup');
+        } else if (this.currentDiagram.diagramType.diagramTypeId == 2) {
+            quicklinkAct('roleView');
+        } else if (this.currentDiagram.diagramType.diagramTypeId == 3) {
+            quicklinkAct('hierarchical');
+        } else if (this.currentDiagram.diagramType.diagramTypeId == 4) {
+            quicklinkAct('singleRole');
+        }
+        this.onopen.sendEvent();
+    </method> 
+    
+    <netRemoteCallRPC name="getDiagramDrillDownByDiagramObjectIdAndType" 
+                      funcname="diagramservice.getDiagramDrillDownByDiagramObjectIdAndType" >
+        <attribute name="diagramObjectId" value="0" type="number" />
+        <!--
+        <attribute name="diagramTypeId" value="0" type="number" />
+         -->
+        <method name="checkAndLoadDiagram" args="dObject">
+            this.diagramObjectId = dObject;
+            //this.diagramTypeId = dType;
+            this.doCall();
+        </method>
+        <netparam><method name="getValue">return canvas.sessionId;</method></netparam>
+        <netparam><method name="getValue">return canvas.currentdomainObj.organisation_id;</method></netparam>
+        <netparam><method name="getValue">return parent.diagramObjectId;</method></netparam>
+        <!--
+        <netparam><method name="getValue">return parent.diagramTypeId;</method></netparam>
+         -->
+        <handler name="ondata" args="value">
+            <![CDATA[
+	            //The onResult-Handler will be called be the rtmpconnection
+	            //if ($debug) Debug.write("getDiagramDrillDownByDiagramObjectIdAndType: ",value);
+	            if (value == null){
+	                //Make new
+	                //if ($debug) Debug.write("Make new ",this.diagramObjectId);
+	                
+	                var baseObject =  canvas.tempNewlyCreatedBaseObject;
+	                if (baseObject[0] == "process" || baseObject[0] == "processtree") {
+	                    canvas.currentDrillDownType = "process";
+                        new lz.drillDownChooseBoxProcess(canvas,{
+                                    diagramObjectId:this.diagramObjectId,
+                                    x:canvas.getMouse('x'),y:canvas.getMouse('y')
+                                });
+	                } else if (baseObject[0] == "processgroup") {
+                        
+			            canvas.currentDiagram = null;
+			             canvas.isTempNewlyCreated = true;
+			             canvas.isTempNewlyCreatedMainDiagram = true;                        
+                        canvas.currentDrillDownType = "processgroup";
+			             canvas.tempParentDiagramObjectId = this.diagramObjectId;
+			            
+			            //if ($debug) Debug.write("Make new Process Diagram by " +
+			                            "currentDrillDownType ",canvas.currentDrillDownType);
+			                            
+			            //if ($debug) Debug.write("Make new Process Diagram");
+			            quicklinkAct('processgroup');
+                        
+                    } else if (baseObject[0] == "departement" || baseObject[0] == "departementFixed") {
+                        
+                        canvas.currentDiagram = null;
+                         canvas.isTempNewlyCreated = true;
+                         canvas.isTempNewlyCreatedMainDiagram = true;                        
+                        canvas.currentDrillDownType = "departement";
+                         canvas.tempParentDiagramObjectId = this.diagramObjectId;
+                        
+                        //if ($debug) Debug.write("Make new Org-Tree Diagram by " +
+                                        "currentDrillDownType ",canvas.currentDrillDownType);
+                                        
+                        //if ($debug) Debug.write("Make new Org-Tree Diagram");
+                        quicklinkAct('hierarchical');
+                        
+                    } else if (baseObject[0] == "company" || baseObject[0] == "companyFixed") {
+                        
+                        canvas.currentDiagram = null;
+                         canvas.isTempNewlyCreated = true;
+                         canvas.isTempNewlyCreatedMainDiagram = true;                        
+                        canvas.currentDrillDownType = "company";
+                         canvas.tempParentDiagramObjectId = this.diagramObjectId;
+                        
+                        //if ($debug) Debug.write("Make new Org-Tree Diagram by " +
+                                        "currentDrillDownType ",canvas.currentDrillDownType);
+                                        
+                        //if ($debug) Debug.write("Make new Org-Tree Diagram");
+                        quicklinkAct('hierarchical');
+                        
+                    } else {
+                        new lz.errorPopup(canvas,{error:"Unkown baseObject[0] typeOfObject: "+baseObject[0],closable:true});
+                    }
+	                
+	            } else {
+	                //Open existing
+	                //if ($debug) Debug.write("Open existing");
+                    parent.loadLatestDiagramByIdAndObject(value.diagramId,value);
+	            }
+            ]]>
+        </handler>  
+    </netRemoteCallRPC> 
+    
+    
+    <method name="getConfByKey" args="conf_key">
+        <![CDATA[
+            for (var i=0;i<this.defaultConfigObj.length;i++) {
+                if (this.defaultConfigObj[i].conf_key == conf_key) {
+                    return this.defaultConfigObj[i];
+                }
+            }
+            return null;
+        ]]>
+    </method>
+    
+    <netRemoteCallRPC name="getLicenseDefaultConfiguration" funcname="configservice.getLicenseDefaultConfiguration" > 
+        <netparam><method name="getValue"> return canvas.sessionId; </method></netparam>
+        <handler name="ondata" args="value">
+            <![CDATA[
+                //if ($debug) Debug.write("getLicenseDefaultConfiguration: ",value);
+                parent.defaultConfigObj = value;
+            ]]>
+        </handler>
+    </netRemoteCallRPC>           
+     
+</class>
+
+<hibRtmpConnection name="thishib" id="hib" />
+
+</library>

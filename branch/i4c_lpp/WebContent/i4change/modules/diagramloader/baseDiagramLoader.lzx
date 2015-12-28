@@ -1,0 +1,587 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<library>
+    
+<class name="dropdownInputtext" extends="inputtext">
+    
+    <attribute name="listOpen" value="false" type="boolean" />
+    <attribute name="listRef" value="null" />
+    <attribute name="diagramSearchComponent" value="diagramLoader" type="string" />
+    
+    <event name="doStartSearch" />
+    
+    <handler name="onkeydown" args="k">
+        ////if ($debug) Debug.write("onkeydown: ",k)
+        if (k == 13) {
+            this.doStartSearch.sendEvent();
+            if (this.listOpen) {
+                this.closeList();
+            }
+        } else {
+            //this.checkAndOpenList();
+        }
+    </handler>
+    
+    <handler name="onblur">
+        if (this.listOpen) {
+            this.closeList();
+        }
+    </handler>
+    
+    <method name="closeList">
+        if (this.listOpen) {
+            this.listRef.destroy();
+            this.listRef = null;
+            this.listOpen = false;
+        }
+    </method>
+    
+    <method name="checkAndOpenList">
+        <![CDATA[
+        
+            //var storedItems = canvas.getUserProperty("baseDiagramLoader");
+	        if (canvas.userobject.userPropsAsObject[this.diagramSearchComponent] != undefined){
+	            
+                var itemList = canvas.userobject.userPropsAsObject[this.diagramSearchComponent];
+                //if ($debug) Debug.write("checkAndOpenList itemList:",itemList);
+                
+                var resultList = new Array();
+                for (var i=0;i<itemList.length;i++) {
+                    resultList.push(itemList[i]);
+                }
+                
+                if (this.listOpen) {
+                    this.listRef.destroy();
+                    this.listRef = null;
+                    this.listOpen = false;
+                }
+                    
+                if (resultList.length != 0) {
+                    
+                    this.listOpen = true;
+                    this.listRef = new lz.dropDownList(canvas,{
+                            resultList:resultList,
+                            x:this.getAttributeRelative('x',canvas),
+                            y:this.getAttributeRelative('y',canvas)+this.height,
+                            width:this.getAttributeRelative('width',canvas)
+                        });
+                        
+                }
+                
+	        }
+        ]]>
+    </method>
+    
+    <!--
+        This is disabled for now as it produces too much data
+     -->
+    <method name="addToList" args="search">
+        <![CDATA[
+            //if ($debug) Debug.write("addToList search: ",search);
+            if (canvas.userobject.userPropsAsObject[this.diagramSearchComponent] == undefined){
+                canvas.userobject.userPropsAsObject[this.diagramSearchComponent] = new Array();
+            }
+	        if (canvas.userobject.userPropsAsObject[this.diagramSearchComponent] != undefined){
+	            var itemList = canvas.userobject.userPropsAsObject[this.diagramSearchComponent];
+	            //FIXME: Maybe for a later stage, remember all searches, but for now only the last one
+	            for (var i=0;i<itemList.length;i++) {
+	                if (itemList[i] == search) {
+                        //If already on list
+                        return;
+                    }
+	            }
+                itemList = search;
+                //if ($debug) Debug.write("addToList : ",itemList);
+                canvas.userobject.userPropsAsObject[this.diagramSearchComponent] = itemList;
+                this.setNewUserProperty.propValue = itemList;
+                this.setNewUserProperty.doCall();
+	        }
+        ]]>
+    </method>
+    
+    <netRemoteCallRPC name="setNewUserProperty" funcname="setNewUserProperty" 
+                          remotecontext="$once{  canvas.mainServiceRPC }" showLoading="false" >
+		<attribute name="propValue" value="null" />
+		<netparam><method name="getValue"> return canvas.sessionId; </method></netparam>  
+		<netparam><method name="getValue"> return parent.parent.diagramSearchComponent; </method></netparam>  
+		<netparam><method name="getValue"> return parent.propValue; </method></netparam>  
+		<handler name="ondata" args="value">
+		    //The onResult-Handler will be called be the rtmpconnection
+		    //if ($debug) Debug.write("setNewUserProperty : ",parent.diagramSearchComponent,this.propValue);
+		</handler>  
+    </netRemoteCallRPC>     
+    
+</class>
+
+<class name="dropDownList" extends="view" height="200" opacity="0.7">
+    <attribute name="resultList" value="null" />
+    <handler name="oninit">
+        <![CDATA[
+            for (var i=0;i<this.resultList.length;i++) {
+                this._list.addItem(this.resultList[i],this.resultList[i]);
+            }
+        ]]>
+    </handler>
+    <list x="1" y="1" name="_list"
+          width="$once{ parent.width-2 }" height="$once{ parent.height-2 }" />
+</class>
+
+<!--- "System" panel on the dashboard -->
+<class name="baseDiagramLoader" extends="view" bgcolor="white" clip="true" >
+		
+	<attribute name="currentDiagram" value="null" />
+    
+    <attribute name="additionalX" value="0" type="number" />
+    
+    <event name="onopen" />
+    
+    <method name="updateDiagramRevision" args="diagram">
+        <![CDATA[
+            //if ($debug) Debug.write("diagram.diagramNo: ",diagram,diagram.diagramNo);
+	        for (var i=0;i<this._turnoverlist._innerlist._inn._inn.subviews.length;i++) {
+                //if ($debug) Debug.write("this._turnoverlist._innerlist._inn._inn.subviews[i]: ",this._turnoverlist._innerlist._inn._inn.subviews[i]);
+                //if ($debug) Debug.write("diagram.diagramNo: ",diagram.diagramNo);
+	            if (this._turnoverlist._innerlist._inn._inn.subviews[i].diagramNo == diagram.diagramNo) {
+                    this._turnoverlist._innerlist._inn._inn.subviews[i].setAttribute("diagramObj",diagram);
+                    this._turnoverlist._innerlist._inn._inn.subviews[i].setAttribute("diagramNo",diagram.diagramNo);
+                    this._turnoverlist._innerlist._inn._inn.subviews[i].setAttribute("diagramrevisionId",diagram.diagramrevision.diagramrevisionId);
+                    this._turnoverlist._innerlist._inn._inn.subviews[i].setAttribute("diagramname",diagram.name);
+                    this._turnoverlist._innerlist._inn._inn.subviews[i].setAttribute("typelabelid",diagram.diagramType.fieldId);
+                    this._turnoverlist._innerlist._inn._inn.subviews[i].setAttribute("inserted",parseDateToStringTime(diagram.inserted));
+                    this._turnoverlist._innerlist._inn._inn.subviews[i]._toolTip.onInitText.sendEvent();
+                }
+	        }
+        ]]>
+    </method>
+    
+    <method name="refreshDiagramRevision">
+        <![CDATA[
+            this._turnoverlist.getDiagramSearchByProject.doCall();
+        ]]>
+    </method>
+    
+    <labelText x="2" labelid="592" y="2" fontstyle="bold" />
+    
+    <omComboBox name="_projectsFilter" editable="false" x="70" width="140">
+        <handler name="oninit">
+            this.addItem(canvas.getLabelName(1290),"0");
+            this.selectItemAt(0);
+        </handler>
+        <handler name="onisopen" args="isopen">
+            this.isopen = isopen;
+            if (isopen) {
+                this.reset();
+                this.getProjectsByUser.doCall();
+            }
+        </handler>
+        <handler name="onselect" args="sel">
+            if ($debug) Debug.write("onselect",sel);
+            parent._turnoverlist.getDiagramSearchByProject.projectId = Number(sel.value);
+            parent._turnoverlist.getDiagramSearchByProject.doCall();
+        </handler>
+        <netRemoteCallRPC name="getProjectsByUser" funcname="getProjectsByUser" 
+                          remotecontext="$once{  canvas.projectServiceRPC }" >      
+            <netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+            <netparam><method name="getValue">return canvas.currentdomainObj.organisation_id;</method></netparam>
+            <handler name="ondata" args="value">
+                <![CDATA[
+                    if ($debug) Debug.write("getProjectsByUser: ",value);
+                    parent.addItem(canvas.getLabelName(1290),"0");
+                    for (var i=0;i<value.length;i++) {
+                        parent.addItem(value[i].name,value[i].projectId);
+                    }
+                ]]>
+            </handler>
+        </netRemoteCallRPC>         
+    </omComboBox> 
+    
+    <labelText x="220" labelid="1393" y="2" fontstyle="bold" width="40" />   
+    
+    <customEdittext name="search" y="0" x="252" width="220" text="">
+    	<handler name="onkeyup" args="k">
+    		if (k == 13) {
+    			parent._turnoverlist.start = 0;
+                parent._turnoverlist.getDiagramSearchByProject.doCall();
+    		}
+    	</handler>
+    </customEdittext>
+    
+    <!--
+    <view y="0" height="20" width="182" x="99" bgcolor="0xD0D0D0" />
+    <dropdownInputtext name="search" x="100" width="260" bgcolor="0xFFFFFF"
+               height="20" fontsize="10" y="1" >
+        <handler name="doStartSearch">
+            parent._turnoverlist.start = 0;
+            parent._turnoverlist.getDiagramSearchByProject.doCall();
+        </handler>
+    </dropdownInputtext>
+     -->
+    
+    <simpleLabelButton y="0" x="476" width="120" height="22" labelid="771">
+        <view resource="search_help_item_rsc" y="2" x="2" />
+        <handler name="onclick">
+            parent._turnoverlist.start = 0;
+            parent._turnoverlist.getDiagramSearchByProject.doCall();
+        </handler> 
+    </simpleLabelButton>  
+    
+    <!--       
+    <view y="1" x="300" bgcolor="0xFFFFFF" width="18" height="18">
+        <view resource="_regress_issuelist_rsc" y="1" x="1" />
+        <handler name="onclick">
+            parent._turnoverlist.getDiagramSearchByProject.doCall();
+        </handler>
+        <labelTooltip labelid="955" />
+    </view>   
+     -->
+    
+    <turnOverListOrderedPaged name="_turnoverlist" y="26" width="${ parent.width }" 
+            height="${ parent.height-26 }" orderby="c.diagram.name" step="75" 
+            asc="true" listItemName="diagramListItem">
+        
+        <attribute name="fadeDelegate" value="null" />
+
+        <handler name="oninit">
+            <![CDATA[
+                //if ($debug) Debug.write("oninit userPropsAsObject ",canvas.userobject.userPropsAsObject);
+                var storedItems = canvas.getUserProperty("baseDiagramLoader");
+	            if (storedItems != null){
+		            this.start = storedItems.start;
+		            this.step = storedItems.step;
+	                this.languages.selectItem(String(this.step));
+		            this.orderby = storedItems.orderby;
+		            this.asc = storedItems.asc;
+		            parent.search.setAttribute("text",storedItems.search);
+	            }
+	            
+	            if (parent.additionalX == -1) {
+	            	//if ($debug) Debug.write("Do Calc New Width ",this,parent.width,parent.parent.width);
+ 	            	parent.additionalX = parent.width-44-44-44-191-85-70-20;
+ 	            	//if ($debug) Debug.write("Do Calc New Width ",parent.additionalX);
+	            } else {
+	            	parent.additionalX = parent.width-44-44-44-191-85-70-20;
+	            }
+	            
+	            this.addHeaderItemOrdered(591,44,"c.diagram.diagramNo",true,(( this.orderby == "c.diagram.diagramNo" ) ? true : false));
+	            this.addHeaderItemOrdered(589,44,"c.diagram.diagramrevision.diagramrevisionId",true,(( this.orderby == "c.diagram.diagramrevision.diagramrevisionId" ) ? true : false));
+                this.addHeaderItemOrdered(1392,44,"c.diagram.shortName",true,(( this.orderby == "c.diagram.shortName" ) ? true : false));
+                this.addHeaderItemOrdered(586,91+parent.additionalX,"c.diagram.name",true,(( this.orderby == "c.diagram.name" ) ? true : false));
+	            this.addHeaderItem(1291,100);
+	            this.addHeaderItemOrdered(793,85,"c.diagram.diagramType.diagramTypeId",true,(( this.orderby == "c.diagram.diagramType.diagramTypeId" ) ? true : false));
+	            this.addHeaderItem(634,70);
+	            this.fadeDelegate = new LzDelegate( this, "doInit" );
+	            lz.Timer.addTimer( this.fadeDelegate, 200 );
+            ]]>
+        </handler>
+        
+        <method name="doInit" args="item">
+            this.getDiagramSearchByProject.doCall();
+        </method> 
+        
+        <handler name="onUpdateOrder">
+            //if ($debug) Debug.write("onUpdateOrder");
+            this.getDiagramSearchByProject.doCall();
+        </handler>
+        
+        <handler name="oncallnext" >
+            this.getDiagramSearchByProject.doCall();
+        </handler>
+        
+        <handler name="oncallpre" >     
+            this.getDiagramSearchByProject.doCall();
+        </handler>
+        
+        <handler name="onclickedItem" args="obj">
+            //Debug.write("onclickedItem",obj,obj.obj);
+            //if ($debug) Debug.write("obj",obj.diagramObj.diagramId);
+            //hib.loadDiagramByIdAndObject(obj.diagramObj.diagramId,obj.diagramObj);
+            canvas.diagramServiceRPC.loadLatestDiagramByIdAndObject(obj.diagramObj.diagramId,obj.diagramObj);
+            parent.onopen.sendEvent();
+        </handler>
+                
+        <netRemoteCallRPC name="getDiagramSearchByProject" funcname="getDiagramSearchByProject" 
+                          remotecontext="$once{  canvas.diagramServiceRPC }" > 
+            <attribute name="projectId" value="0" type="number" />     
+            <netparam><method name="getValue">return canvas.sessionId;</method></netparam>
+            <netparam><method name="getValue">return parent.parent.start;</method></netparam>
+            <netparam><method name="getValue">return parent.parent.step;</method></netparam>
+            <netparam><method name="getValue">return parent.parent.orderby;</method></netparam>
+            <netparam><method name="getValue">return parent.parent.asc;</method></netparam>
+            <netparam><method name="getValue">return canvas.currentdomainObj.organisation_id;</method></netparam>
+            <netparam><method name="getValue">return parent.parent.parent.search.getText();</method></netparam>
+            <netparam><method name="getValue">return parent.projectId;</method></netparam> 
+            <handler name="ondata" args="value">
+                //if ($debug) Debug.write("getDiagramSearchByProject: ",value);
+                this.parent.initValues(value.records);
+                this.parent.renderContent(value.result);
+                //FIXME: Store default search
+                parent.setNewUserProperty.setPropertiesSearch();
+                //FIXME: Check how to realize a Remembering search list 
+                //parent.parent.search.addToList(parent.parent.search.getText());
+            </handler>
+        </netRemoteCallRPC>  
+        
+        <netRemoteCallRPC name="setNewUserProperty" funcname="setNewUserProperty" 
+                          remotecontext="$once{  canvas.mainServiceRPC }" showLoading="false" >
+            <attribute name="propKey" value="" type="string" />   
+            <attribute name="propValue" value="null" />
+            <method name="setPropertiesSearch">
+                this.propValue = new Object();
+                this.propValue["start"] = parent.start;
+                this.propValue["step"] = parent.step;
+                this.propValue["orderby"] = parent.orderby;
+                this.propValue["asc"] = parent.asc;
+                this.propValue["search"] = parent.parent.search.getText();
+                this.doCall();
+            </method>
+            <netparam><method name="getValue"> return canvas.sessionId; </method></netparam>  
+            <netparam><method name="getValue"> return "baseDiagramLoader"; </method></netparam>  
+            <netparam><method name="getValue"> return parent.propValue; </method></netparam>  
+            <handler name="ondata" args="value">
+                //The onResult-Handler will be called be the rtmpconnection
+                //if ($debug) Debug.write("setNewUserProperty: ",this.propValue);
+            </handler>  
+        </netRemoteCallRPC>                
+        
+          <!--
+            diagramObj:records[i],
+            diagramNo:records[i].diagramNo,
+            diagramrevisionId:records[i].diagramrevision.diagramrevisionId,
+            diagramname:records[i].name,
+            typelabelid:records[i].diagramType.fieldId,
+            inserted:parseDateToStringTime(records[i].inserted)
+                                    
+            <turnOverTextItem text="${ parent.diagramNo }" width="44" />
+            <turnOverTextItem text="${ parent.diagramrevisionId }" width="44" />
+            <turnOverTextItem name="_diagramname" text="${ parent.diagramname }" width="235" />
+            <turnOverTextItem text="${ canvas.getLabelName(parent.typelabelid) }" width="85" />
+           -->
+      
+        <method name="renderContent" args="records">
+            <![CDATA[
+                //this.clearList();
+                var list = this._innerlist._inn._inn;
+                this.renderList = records;
+                
+                this._innerlist._inn.setAttribute("y",0);
+                this._innerlist._inn._inn.setAttribute("height",records.length*20);
+                
+                this._innerlist._inn.resetItems();
+                
+                for (var i=0;i<list.subviews.length;i++){
+                    if (records.length > i) {
+                        list.subviews[i].setAttribute("clickable",true);
+                        list.subviews[i].setAttribute("diagramObj",records[i]);
+                        list.subviews[i].setAttribute("diagramNo",records[i].diagramNo);
+                        list.subviews[i].setAttribute("diagramrevisionId",records[i].diagramrevision.diagramrevisionId);
+                        list.subviews[i].setAttribute("diagramname",records[i].name);
+                        list.subviews[i].setAttribute("typelabelid",records[i].diagramType.fieldId);
+                        list.subviews[i].setAttribute("inserted",parseDateToStringTime(records[i].inserted));
+                        list.subviews[i].setAttribute("user_id",records[i].insertedby.user_id);
+                        list.subviews[i].setAttribute("projectName",records[i].project.name);
+                        list.subviews[i].setAttribute("shortName",records[i].shortName);
+                        
+                    } else {
+                        list.subviews[i].setAttribute("diagramObj",null);
+                        list.subviews[i].setAttribute("diagramNo","");
+                        list.subviews[i].setAttribute("diagramrevisionId","");
+                        list.subviews[i].setAttribute("diagramname","");
+                        list.subviews[i].setAttribute("typelabelid",0);
+                        list.subviews[i].setAttribute("user_id",0);
+                        list.subviews[i].setAttribute("projectName","");
+                        list.subviews[i].setAttribute("inserted","");
+                        list.subviews[i].setAttribute("shortName","");
+                        list.subviews[i].setAttribute("clickable",false);
+                    }
+                }
+                
+            ]]>
+        </method>
+        
+        <handler name="onScrollItem" args="item">
+            <![CDATA[
+                if (this.renderList.length > item.itemId) {
+                    item.setAttribute("clickable",true);
+                    item.setAttribute("diagramObj",this.renderList[item.itemId]);
+                    item.setAttribute("diagramNo",this.renderList[item.itemId].diagramNo);
+                    item.setAttribute("diagramrevisionId",this.renderList[item.itemId].diagramrevision.diagramrevisionId);
+                    item.setAttribute("diagramname",this.renderList[item.itemId].name);
+                    item.setAttribute("shortName",this.renderList[item.itemId].shortName);
+                    item.setAttribute("typelabelid",this.renderList[item.itemId].diagramType.fieldId);
+                    item.setAttribute("inserted",parseDateToStringTime(this.renderList[item.itemId].inserted));
+                    item.setAttribute("user_id",this.renderList[item.itemId].insertedby.user_id);
+                    item.setAttribute("projectName",this.renderList[item.itemId].project.name);
+                } else {
+                    item.setAttribute("diagramObj",null);
+                    item.setAttribute("diagramNo","");
+                    item.setAttribute("diagramrevisionId","");
+                    item.setAttribute("diagramname","");
+                    item.setAttribute("shortName","");
+                    item.setAttribute("typelabelid",0);
+                    item.setAttribute("inserted","");
+                    item.setAttribute("user_id",0);
+                    item.setAttribute("projectName","");
+                    item.setAttribute("clickable",false);
+                }
+            ]]>
+        </handler>        
+        
+      
+        <!--
+        <method name="renderContent" args="records">
+            <![CDATA[
+                this.clearList();
+                for (var i=0;i<records.length;i++){
+                    ////if ($debug) Debug.write("records[i].diagramNo: ",records[i].diagramNo);
+                    new lz.diagramListItem(this._innerlist._inn._inn,{
+                                diagramObj:records[i],
+                                diagramNo:records[i].diagramNo,
+                                diagramrevisionId:records[i].diagramrevision.diagramrevisionId,
+                                diagramname:records[i].name,
+                                typelabelid:records[i].diagramType.fieldId,
+                                inserted:parseDateToStringTime(records[i].inserted)
+                            });
+                }
+                this.sendInitialWidthUpdate();
+            ]]>
+        </method>
+         -->
+
+    </turnOverListOrderedPaged>
+        
+</class> 
+
+<class name="diagramEditName" extends="edittext">
+    <attribute name="refObj" value="null" />
+    <handler name="oninit">
+        lz.Focus.setFocus(this);
+    </handler>
+    <handler name="onblur">
+        this.refObj.sendUpdate(this.getText());
+        this.destroy();
+    </handler>
+    <handler name="onkeyup" args="k">
+        <![CDATA[
+	        //if ($debug) Debug.write("k: ",k);
+	        if (k==27 || k==13) {
+                lz.Focus.clearFocus();
+            }
+        ]]>
+    </handler>
+</class>
+
+<class name="diagramListItem" extends="basePagingListItem" >
+    
+    <attribute name="obj" value="null" />
+
+	<attribute name="diagramObj" value="null" />
+    
+	<attribute name="diagramNo" value="0" type="number" />
+	<attribute name="diagramrevisionId" value="0" type="number" />
+	<attribute name="shortName" value="" type="string" />
+	<attribute name="diagramname" value="" type="string" />
+	<attribute name="projectName" value="" type="string" />
+    <attribute name="previousDiagramName" value="" type="string" />
+	<attribute name="typelabelid" value="0" type="number" />
+	<attribute name="inserted" value="" type="string" />
+	<attribute name="user_id" value="0" type="number" />
+	
+	<turnOverTextItem text="${ parent.diagramNo }" width="44" />
+	<turnOverTextItem text="${ parent.diagramrevisionId }" width="44" />
+	<turnOverTextItem text="${ parent.shortName }" width="44" />
+	<turnOverTextItem name="_diagramname" text="${ parent.diagramname }" width="135" />
+    <turnOverTextItem text="${ parent.projectName }" width="100" />
+    <turnOverTextItem text="${ canvas.getLabelName(parent.typelabelid) }" width="85" />
+    <view width="70" clip="true" visible="${ parent.clickable }">
+        <simplelayout axis="x" spacing="0" />
+        <iconboxMapHeader resourcenameAttr="diagram_list_rename_rsc" labelid="635">
+            <handler name="onclick">
+                parent.parent.editName();
+            </handler>
+        </iconboxMapHeader>
+        <iconboxMapHeader resourcenameAttr="diagram_list_copy_rsc" labelid="636">
+            <handler name="onclick">
+                //if ($debug) Debug.write("FIXME diagram_list_copy_rsc");
+            </handler>
+        </iconboxMapHeader>
+        <iconboxMapHeader resourcenameAttr="diagram_list_history_rsc" labelid="638">
+            <handler name="onclick">
+                //if ($debug) Debug.write("FIXME diagram_list_history_rsc");
+            </handler>
+        </iconboxMapHeader>
+        <iconboxMapHeader resourcenameAttr="diagram_list_delete_rsc" labelid="637">
+            <handler name="onclick">
+                parent.parent.deleteDiagramByNo.doCall();
+            </handler>
+        </iconboxMapHeader>
+        <view height="18" width="1" bgcolor="0xFFFFFF" />
+    </view>
+    
+    <method name="sendUpdate" args="newText">
+        this.previousDiagramName = this.diagramname;
+        this.setAttribute('diagramname',newText);
+        this.updateDiagramNameById.doCall();
+    </method>
+    
+    <method name="resetText">
+        this.setAttribute('diagramname',this.previousDiagramName);
+    </method>
+    
+    <netRemoteCallRPC name="updateDiagramNameById" funcname="updateDiagramNameById" 
+                      remotecontext="$once{  canvas.diagramServiceRPC }" activeErrorHandler="true"
+                      isCallBackHandler="true" >      
+        <handler name="sendCallBack" >
+            parent.resetText();
+        </handler>
+        <netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+        <netparam><method name="getValue">return parent.parent.diagramObj.diagramId;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.diagramname;</method></netparam> 
+        <netparam><method name="getValue">return canvas.currentdomainObj.organisation_id;</method></netparam>
+        <handler name="ondata" args="value">
+            //if ($debug) Debug.write("updateDiagramNameById: ",value);
+        </handler>
+    </netRemoteCallRPC>  
+    
+    <netRemoteCallRPC name="deleteDiagramByNo" funcname="deleteDiagramByNo" 
+                      remotecontext="$once{  canvas.diagramServiceRPC }" activeErrorHandler="true"
+                      isCallBackHandler="true" >      
+        <handler name="sendCallBack" >
+            parent.resetText();
+        </handler>
+        <netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+        <netparam><method name="getValue">return parent.parent.diagramNo;</method></netparam>
+        <netparam><method name="getValue">return canvas.currentdomainObj.organisation_id;</method></netparam>
+        <handler name="ondata" args="value">
+            //if ($debug) Debug.write("updateDiagramNameById: ",value);
+            if (value > 0){
+                //parent.destroy();
+                //if ($debug) Debug.write("Root List ",parent.parent.parent.parent.parent)
+                parent.parent.parent.parent.parent.onUpdateOrder.sendEvent();
+            }
+        </handler>
+    </netRemoteCallRPC>       
+     
+    <method name="editName">
+        new lz.diagramEditName(parent.parent,{text:this._diagramname.text,
+	            x:this._diagramname.getAttributeRelative('x',parent.parent),
+	            y:this._diagramname.getAttributeRelative('y',parent.parent),
+	            width:this._diagramname.getAttributeRelative('width',parent.parent)-4,
+	            height:this._diagramname.getAttributeRelative('height',parent.parent),
+                refObj:this
+            });
+    </method>
+    
+    <!--
+    <handler name="onclick">
+        this.parent.parent.parent.parent.onclickedItem.sendEvent(this);
+    </handler>
+     -->
+     
+    <labelTooltip name="_toolTip" userId="${ parent.user_id }">
+        <handler name="onInitText">
+            this.setAttribute('text',canvas.getLabelName(803)+' '+parent.inserted+' '+canvas.getLabelName(803)+' '+parent.diagramObj.insertedby.login)
+        </handler>
+    </labelTooltip>
+    
+</class>
+
+</library>

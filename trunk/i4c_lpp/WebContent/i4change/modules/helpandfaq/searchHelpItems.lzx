@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+	
+<class name="helpTreeSearchContent" extends="view" layout="axis:y" />
+
+<class name="helpTreeSearchContentItem" extends="view" width="200">
+	
+	<attribute name="refBaseObj" value="null" />
+	<attribute name="webItem" value="null" />
+	
+	<attribute name="open" value="false" type="boolean" />
+	<attribute name="contentLoaded" value="false" type="boolean" />
+	<attribute name="contentEmpty" value="false" type="boolean" />
+	
+	<handler name="oninit">
+		<![CDATA[
+		
+		   if (this.webItem.childItems != null && this.webItem.childItems.length > 0) {
+           
+		   	   this._plusIcon.setAttribute("frame",3);
+		   	   this.open = true;
+		   	   
+               for (var i=0;i<this.webItem.childItems.length;i++) {
+                  new lz.helpTreeSearchContentItem(this._content,{
+                           webItem:this.webItem.childItems[i],
+                           refBaseObj:this.refBaseObj,
+                           contentEmpty:!this.webItem.childItems[i].hasChildItems
+                      });
+               }
+               
+		   }
+		   
+       ]]>
+	</handler>
+	
+	<handler name="onclick">
+		
+		if (this.contentEmpty) {
+			this.refBaseObj.select(this);
+			return;
+		}
+		
+		if (!this.open) {
+		     if (!this.contentLoaded) {
+		     	 this.contentLoaded = true;
+		         this.getTreeHelpItemsByParent.doCall();
+		     }
+		     this._plusIcon.setAttribute("frame",3);
+		     this._content.setAttribute("visibility","visible");
+		     this.open = true;
+		     //this.refBaseObj.select(this);
+		} else {
+			this.open = false;
+			this._plusIcon.setAttribute("frame",2);
+			this._content.setAttribute("visibility","hidden");
+		}
+		this.refBaseObj.select(this);
+	</handler>
+	
+	<netRemoteCallRPC name="getTreeHelpItemsByParent" funcname="getTreeHelpItemsByParent" 
+                      remotecontext="$once{  canvas.websiteServiceRPC }" > 
+        <netparam><method name="getValue">return canvas.sessionId;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.webItem.webItemId;</method></netparam>
+        <handler name="ondata" args="value">
+            if ($debug) Debug.write("getTreeHelpItemsByParent: ",value);
+            parent._content.clearContent();
+            parent.initItems(value);
+        </handler>
+    </netRemoteCallRPC>
+    
+    <method name="initItems" args="vList">
+       <![CDATA[
+           if (vList.length == 0) {
+               this.contentEmpty = true;
+               this._plusIcon.setAttribute("frame",1);
+           }
+           
+           for (var i=0;i<vList.length;i++) {
+              new lz.helpTreeSearchContentItem(this._content,{
+                       webItem:vList[i],
+                       refBaseObj:this.refBaseObj,
+                       contentEmpty:!vList[i].hasChildItems
+                  });
+           }
+       ]]>
+   </method>
+	
+	<handler name="onmouseover">
+		this._txt.setAttribute("fgcolor",0x666666);
+		this.setAttribute("opacity",0.7);
+	</handler>
+	
+	<handler name="onmouseout">
+        this._txt.setAttribute("fgcolor",0x000000);
+        this.setAttribute("opacity",1);
+    </handler>
+	
+	<view name="_plusIcon" x="-2" y="1" resource="help_tree_plusminus_rsc" 
+		  frame="$once{ (parent.contentEmpty) ? 1 : 2 }" />
+	
+	<text name="_txt" fontsize="12" x="12" resize="true" fgcolor="0x000000"
+		  text="$once{ parent.webItem.webItemName }" />
+	
+	<labelTooltip text="$once{ parent.webItem.webItemName }" />
+	
+	<view name="_content" x="4" y="20" layout="axis:y">
+		<method name="clearContent">
+			for (var eg in this.subviews) {
+				this.subviews[eg].destroy();
+			}
+		</method>
+	</view>
+	
+</class>
+ 
+<class name="searchHelpItems" extends="view" width="200">
+	
+	<event name="onselect" />
+	
+	<handler name="oninit">
+		this.getHelpRootItems.doCall();
+	</handler>
+	
+    <netRemoteCallRPC name="getHelpRootItems" funcname="getHelpRootItems" 
+                      remotecontext="$once{  canvas.websiteServiceRPC }" > 
+        <netparam><method name="getValue">return canvas.sessionId;</method></netparam>
+        <handler name="ondata" args="value">
+            if ($debug) Debug.write("getHelpRootItems: ",value);
+            parent._treeContent._treeScrollContent.initItems(value);
+        </handler>
+    </netRemoteCallRPC>
+    
+    <method name="startSearch">
+    	this.getSearchHelpItems.search = this.search.getText();
+    	this.getSearchHelpItems.doCall();
+    </method>
+    
+    <!--
+    public List<WebItemListDTO> getSearchHelpItems(String SID, String search)
+     -->
+    <netRemoteCallRPC name="getSearchHelpItems" funcname="getSearchHelpItems" 
+                      remotecontext="$once{  canvas.websiteServiceRPC }" > 
+        <attribute name="search" value="" type="string" />
+        <netparam><method name="getValue">return canvas.sessionId;</method></netparam>
+        <netparam><method name="getValue">return parent.search;</method></netparam>
+        <handler name="ondata" args="value">
+            if ($debug) Debug.write("getSearchHelpItems: ",value);
+            parent._treeContent._treeScrollContent.initItems(value);
+        </handler>
+    </netRemoteCallRPC>
+	
+    <customEdittext name="search" y="0" x="0" width="176" text="">
+        <handler name="onkeyup" args="k">
+            if (k == 13) {
+                parent.startSearch();
+            }
+        </handler>
+    </customEdittext>
+    
+    <simpleLabelButton y="0" x="178" width="22" height="22">
+        <view resource="search_help_item_rsc" y="2" x="2" />
+        <handler name="onclick">
+            parent.startSearch();
+        </handler> 
+    </simpleLabelButton> 
+    
+    <view name="_border" width="200" y="24" 
+    	  bgcolor="$once{ canvas.baseMousecolorizer }"  height="2" />
+    
+    <view name="_treeContent" width="200" y="26" clip="true" 
+    	  height="${ parent.height - 26 }">
+    	<view name="_treeScrollContent">
+    	   <method name="clearContent">
+    	   	   this._content.destroy();
+    	   	   new lz.helpTreeSearchContent(this,{name:'_content'});
+    	   </method>
+    	   <method name="initItems" args="vList">
+    	       <![CDATA[
+    	           this.clearContent();
+    	           
+    	           for (var i=0;i<vList.length;i++) {
+    	           	  new lz.helpTreeSearchContentItem(this._content,{
+        	           	       webItem:vList[i],
+        	           	       refBaseObj:this,
+        	           	       contentEmpty:!vList[i].hasChildItems
+        	           	  });
+    	           }
+    	       ]]>
+    	   </method>
+    	   <method name="select" args="itemObj">
+    	   	   //if ($debug) Debug.write("select: ",itemObj);
+    	   	   parent.parent.onselect.sendEvent(itemObj);
+    	   </method>
+    	   <helpTreeSearchContent name="_content" />
+    	</view>
+    	<vscrollbar />
+    </view>
+    
+</class>
+
+</library>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+  <class table="project_relation" name="org.i4change.app.hibernate.beans.project.ProjectRelation">
+    <id column="project_relation_id" name="projectRelationId">
+      <generator class="increment"/>
+    </id>
+    <many-to-one outer-join="true" insert="true" column="project_id" lazy="false" update="true" name="project" class="org.i4change.app.hibernate.beans.project.Project"/>
+    <many-to-one outer-join="true" insert="true" column="diagramobject_id" lazy="false" update="true" name="diagramObject" class="org.i4change.app.hibernate.beans.diagram.DiagramObject"/>
+    <property name="diagramNo" type="long" column="diagramNo"/>
+  </class>
+</hibernate-mapping>

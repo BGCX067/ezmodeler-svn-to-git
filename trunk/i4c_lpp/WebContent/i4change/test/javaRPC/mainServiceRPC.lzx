@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<canvas debug="true" width="100%" height="100%" >
+    <debug fontsize="12" oninit="Debug.showInternalProperties = true" />
+    
+	<security>
+        <allow>
+            <pattern>^org.i4change.app.http.javarpc\.MainServiceRPC</pattern>
+        </allow>
+    </security>
+    
+    <!-- See WEB-INF/classes/TypesExample.java for java source. -->
+    <javarpc name="mainServiceRPC" scope="webapp" autoload="false" objectreturntype="javabean"
+    		 remoteclassname="org.i4change.app.http.javarpc.MainServiceRPC">
+
+        <handler name="onload">
+            // Set buttons visible only after JavaRPC object loads
+            //if ($debug) Debug.write('onload:', this);
+            
+        </handler>
+
+        <handler name="ondata" args="res">
+            ////if ($debug) Debug.write('(types ondata) response is:', res);
+        </handler>
+
+        <handler name="onerror" args="errmsg">
+            //if ($debug) Debug.write('(types onerror) error:', errmsg);
+        </handler>
+        
+        <netRemoteCallRPC name="getsessiondata" funcname="getsessiondata">
+            <handler name="ondata" args="value">
+            	//if ($debug) Debug.write("getsessiondata/ondata: ",value);
+            </handler>
+        </netRemoteCallRPC>
+        
+        <netRemoteCallRPC name="doTestMethod" funcname="doTestMethod">
+        	<param><method name="getValue">return 1</method></param>
+            <handler name="ondata" args="value">
+            	//if ($debug) Debug.write("doTestMethod/ondata: ",value);
+            </handler>
+        </netRemoteCallRPC>
+        
+        <netRemoteCallRPC name="passClientObject" funcname="passClientObject">
+        	<param><method name="getValue">return canvas.myObject</method></param>
+            <handler name="ondata" args="value">
+            	//if ($debug) Debug.write("passClientObject/ondata: ",value);
+            </handler>
+        </netRemoteCallRPC>
+        
+        <netRemoteCallRPC name="passClientMap" funcname="passClientMap">
+        	<param><method name="getValue">return canvas.myObject</method></param>
+            <handler name="ondata" args="value">
+            	//if ($debug) Debug.write("passClientMap/ondata: ",value);
+            </handler>
+        </netRemoteCallRPC>
+        
+    </javarpc>
+    
+    <simplelayout axis="y" spacing="2" />
+    
+    <button text="doLoad">
+    	<handler name="onclick">
+    		mainServiceRPC.load();
+    	</handler>
+    </button>
+    
+    <button text="doInvoke">
+    	<handler name="onclick">
+    		mainServiceRPC.doTestMethod.invoke();
+    	</handler>
+    </button>
+    
+    <button text="doInvoke simple object">
+    	<handler name="onclick">
+    		canvas.myObject = { a: 1, b: 3.14159, c: 'a string value', d: true};
+    		mainServiceRPC.passClientObject.invoke();
+    	</handler>
+    </button>
+    
+    <button text="doInvoke nested object with table">
+    	<handler name="onclick">
+    		canvas.myObject = new Object();
+    		canvas.myObject["hans"] = new Object();
+    		canvas.myObject["hans"]["maurerer"] = "karl";
+    		canvas.myObject["karl"] = new Object();
+    		canvas.myObject["karl"][0] = 123;
+    		canvas.myObject["karl"][1] = null;
+    		canvas.myObject["karl"][3] = "hans";
+    		canvas.myObject["karl"][4] = true;
+    		
+    		mainServiceRPC.passClientObject.invoke();
+    	</handler>
+    </button>
+    
+    <button text="doInvoke nested object with Map">
+    	<handler name="onclick">
+    		canvas.myObject = new Object();
+    		canvas.myObject["hans"] = new Object();
+    		canvas.myObject["hans"]["maurerer"] = "karl";
+    		canvas.myObject["karl"] = new Object();
+    		canvas.myObject["karl"][0] = 123;
+    		canvas.myObject["karl"][1] = null;
+    		canvas.myObject["karl"][3] = "hans";
+    		canvas.myObject["karl"][4] = true;
+    		
+    		mainServiceRPC.passClientMap.invoke();
+    	</handler>
+    </button>
+    
+
+</canvas>

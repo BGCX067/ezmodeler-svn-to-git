@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+	
+<class name="wizzardNavigationStep" extends="view" x="2" width="238" >
+	
+	<attribute name="labelid" value="0" type="number" />
+	<attribute name="isSelected" value="false" type="boolean" />
+	<attribute name="stepName" value="" type="string" />
+	<attribute name="stepNo" value="0" type="number"/>
+	
+    <method name="select">
+        this.isSelected=true;
+        this.setAttribute('bgcolor',canvas.baseMouseOvercolorizer)
+    </method>
+    
+    <method name="deselect">
+        this.isSelected=false;
+        this.setAttribute('bgcolor',0xFFFFFF)
+    </method>
+	
+	<handler name="onmouseover">
+        this.setAttribute('bgcolor',canvas.baseMouseOvercolorizer);
+    </handler>
+    
+    <handler name="onmouseout">
+        if (!this.isSelected) this.setAttribute('bgcolor',0xFFFFFF);
+    </handler>
+    
+    <handler name="onclick">
+        this.setAttribute('bgcolor',0xFFFFFF);
+        this.parent.onclickedItem.sendEvent(this);
+    </handler>
+	
+	<labelText labelid="$once{ parent.labelid }" width="238" multiline="true"/>
+	
+	
+</class>
+    
+<class name="topDownApproach" extends="view" y="22">
+    
+    <event name="onComplete" />
+    
+    <labelText labelid="1415" fontstyle="bold" y="2" x="2" />
+    
+    <method name="doNext">
+    	this._content._content._content.doNext();
+    </method>
+    
+    <view name="_navigation" layout="axis:y;spacing:2" y="22" width="240">
+    	
+    	<attribute name="_selected" value="null"/>
+    	<attribute name="currentIndexSelected" value="0" type="boolean"/>
+        
+        <handler name="onclickedItem" args="itemRef">
+        	if ($debug) Debug.write("onclickedItem ",itemRef.stepName);
+        	if (this._selected != null) {
+        		this._selected.deselect();
+        	}
+        	this._selected = itemRef;
+        	this._selected.select();
+        	this.currentIndexSelected = itemRef.stepNo;
+        	parent._content.setContentByName(itemRef.stepName);
+        </handler>
+        
+        <handler name="oninit">
+        	this.subviews[this.currentIndexSelected].onclick.sendEvent();
+        </handler>
+        
+        <method name="selectNextItem">
+        	this.currentIndexSelected+=1;
+        	this.subviews[this.currentIndexSelected].onclick.sendEvent();
+        </method>
+        
+        <wizzardNavigationStep labelid="1409" stepName="createProject" stepNo="0" />
+        <wizzardNavigationStep labelid="1410" stepName="createOrgTree" stepNo="1" />
+        <wizzardNavigationStep labelid="1411" stepName="createProcessTree" stepNo="2" />
+        <wizzardNavigationStep labelid="1412" stepName="createFlow" stepNo="3" />
+        
+    </view>
+    
+    <view height="$once{ parent.parent.height - 52 }" y="0" x="240" 
+          width="2" bgcolor="0x3F5B9E" />
+          
+    <view name="_content" x="242" width="$once{ parent.parent.width - 262 }" 
+    	  height="$once{ parent.parent.height - 52 }" clip="true">
+    	
+    	<attribute name="currentStepName" value="" type="string"/>
+        
+        <method name="setContentByName" args="contentName">
+        	this.currentStepName = "createProject";
+        	this._content._content.destroy();
+        	if (contentName == "createProject") {
+        		parent.parent.setFirstItemInWizzard();
+        		new lz.addNewProjectWizzard(this._content,{name:'_content'});
+        	} else if (contentName == "createOrgTree") {
+        		new lz.addHierarchyOrganization(this._content,{name:'_content'});
+        	}
+        </method>
+        
+        <view name="_content">
+        	<handler name="onComplete">
+        		parent.parent._navigation.selectNextItem();
+        	</handler>
+        	<view name="_content" />
+        </view>
+        
+        <vscrollbar />
+        
+    </view>
+    
+</class>
+
+</library>

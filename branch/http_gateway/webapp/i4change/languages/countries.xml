@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+	This list is complete and up-to-date as of 18 February 2007. 
+	from United Nations
+	United Nations Statistics Division- Standard Country and Area Codes Classifications (M49)
+	http://unstats.un.org/unsd/methods/m49/m49alpha.htm
+	
+	28.07.2007 add Taiwan, Republic of China country code 157, short ROC
+	 -->
+<countries>
+	<country code="004" name="Afghanistan" short="AFG" paypal="" />
+	<country code="248" short="ALA" name="Åland Islands" paypal="" />
+	<country code="008" short="ALB" name="Albania" paypal="AL" />
+	<country code="012" short="DZA" name="Algeria" paypal="DZ" />
+	<country code="016" short="ASM" name="American Samoa" paypal="AS" />
+	<country code="020" short="AND" name="Andorra" paypal="AD" />
+	<country code="024" short="AGO" name="Angola" paypal="" />
+	<country code="660" short="AIA" name="Anguilla" paypal="AI" />
+	<country code="028" short="ATG" name="Antigua and Barbuda" paypal="AG" />
+	<country code="032" short="ARG" name="Argentina" paypal="AR" />
+	<country code="051" short="ARM" name="Armenia" paypal="AM" />
+	<country code="533" short="ABW" name="Aruba" paypal="" />
+	<country code="036" short="AUS" name="Australia" paypal="AU" />
+	<country code="040" short="AUT" name="Austria" paypal="AT" />
+	<country code="031" short="AZE" name="Azerbaijan" paypal="AZ" />
+	<country code="044" short="BHS" name="Bahamas" paypal="BS" />
+	<country code="048" short="BHR" name="Bahrain" paypal="BH" />
+	<country code="050" short="BGD" name="Bangladesh" paypal="BD" />
+	<country code="052" short="BRB" name="Barbados" paypal="BB" />
+	<country code="112" short="BLR" name="Belarus" paypal="BY" />
+	<country code="056" short="BEL" name="Belgium" paypal="BE" />
+	<country code="084" short="BLZ" name="Belize" paypal="BZ" />
+	<country code="204" short="BEN" name="Benin" paypal="BJ" />
+	<country code="060" short="BMU" name="Bermuda" paypal="BM" />
+	<country code="064" short="BTN" name="Bhutan" paypal="" />
+	<country code="068" short="BOL" name="Bolivia" paypal="BO" />
+	<country code="070" short="BIH" name="Bosnia and Herzegovina" paypal="BA" />
+	<country code="072" short="BWA" name="Botswana" paypal="BW" />
+	<country code="076" short="BRA" name="Brazil" paypal="BR" />
+	<country code="092" short="VGB" name="British Virgin Islands" paypal="VG" />
+	<country code="096" short="BRN" name="Brunei Darussalam" paypal="BN" />
+	<country code="100" short="BGR" name="Bulgaria" paypal="BG" />
+	<country code="854" short="BFA" name="Burkina Faso" paypal="BF" />
+	<country code="108" short="BDI" name="Burundi" paypal="" />
+	<country code="116" short="KHM" name="Cambodia" paypal="KH" />
+	<country code="120" short="CMR" name="Cameroon" paypal="CM" />
+	<country code="124" short="CAN" name="Canada" paypal="CA" />
+	<country code="132" short="CPV" name="Cape Verde" paypal="CV" />
+	<country code="136" short="CYM" name="Cayman Islands" paypal="KY" />
+	<country code="140" short="CAF" name="Central African Republic" paypal="" />
+	<country code="148" short="TCD" name="Chad" paypal="" />
+	<country code="830" short="" name="Channel Islands" paypal="" />
+	<country code="152" short="CHL" name="Chile" paypal="CL" />
+	<country code="156" short="CHN" name="China" paypal="CN" />
+	<country code="344" short="HKG" name="Hong Kong Special Administrative Region of China"/>
+	<country code="446" short="MAC" name="Macao Special Administrative Region of China"/>
+	<country code="170" short="COL" name="Colombia" paypal="CO" />
+	<country code="174" short="COM" name="Comoros" paypal="" />
+	<country code="178" short="COG" name="Congo" paypal="" />
+	<country code="184" short="COK" name="Cook Islands" paypal="CK" />
+	<country code="188" short="CRI" name="Costa Rica" paypal="" />
+	<country code="384" short="CIV" name="Côte d'Ivoire" paypal="" />
+	<country code="191" short="HRV" name="Croatia" paypal="HR" />
+	<country code="192" short="CUB" name="Cuba" paypal="" />
+	<country code="196" short="CYP" name="Cyprus" paypal="CY" />
+	<country code="203" short="CZE" name="Czech Republic" paypal="CZ" />
+	<country code="408" short="PRK" name="Democratic People's Republic of Korea" paypal="" />
+	<country code="180" short="COD" name="Democratic Republic of the Congo" paypal="" />
+	<country code="208" short="DNK" name="Denmark" paypal="DK" />
+	<country code="262" short="DJI" name="Djibouti" paypal="DJ" />
+	<country code="212" short="DMA" name="Dominica" paypal="DM" />
+	<country code="214" short="DOM" name="Dominican Republic" paypal="DO" />
+	<country code="218" short="ECU" name="Ecuador" paypal="" />
+	<country code="818" short="EGY" name="Egypt" paypal="EG" />
+	<country code="222" short="SLV" name="El Salvador" paypal="SV" />
+	<country code="226" short="GNQ" name="Equatorial Guinea" paypal="" />
+	<country code="232" short="ERI" name="Eritrea" paypal="" />
+	<country code="233" short="EST" name="Estonia" paypal="EE" />
+	<country code="231" short="ETH" name="Ethiopia" paypal="" />
+	<country code="234" short="FRO" name="Faeroe Islands" paypal="" />
+	<country code="238" short="FLK" name="Falkland Islands (Malvinas)" paypal="" />
+	<country code="242" short="FJI" name="Fiji" paypal="FJ" />
+	<country code="246" short="FIN" name="Finland" paypal="FI" />
+	<country code="250" short="FRA" name="France" paypal="FR" />
+	<country code="254" short="GUF" name="French Guiana" paypal="GF" />
+	<country code="258" short="PYF" name="French Polynesia" paypal="PF" />
+	<country code="266" short="GAB" name="Gabon" paypal="GA" />
+	<country code="270" short="GMB" name="Gambia" paypal="" />
+	<country code="268" short="GEO" name="Georgia" paypal="GE" />
+	<country code="276" short="DEU" name="Germany" paypal="DE" />
+	<country code="288" short="GHA" name="Ghana" paypal="GH" />
+	<country code="292" short="GIB" name="Gibraltar" paypal="GI" />
+	<country code="300" short="GRC" name="Greece" paypal="GR" />
+	<country code="304" short="GRL" name="Greenland" paypal="" />
+	<country code="308" short="GRD" name="Grenada" paypal="GD" />
+	<country code="312" short="GLP" name="Guadeloupe" paypal="GP" />
+	<country code="316" short="GUM" name="Guam" paypal="GU" />
+	<country code="320" short="GTM" name="Guatemala" paypal="GT" />
+	<country code="831" short="CGY" name="Guernsey" paypal="" />
+	<country code="324" short="GIN" name="Guinea" paypal="GN" />
+	<country code="624" short="GNB" name="Guinea-Bissau" paypal="" />
+	<country code="328" short="GUY" name="Guyana" paypal="GY" />
+	<country code="332" short="HTI" name="Haiti" paypal="HT" />
+	<country code="336" short="VAT" name="Holy See" paypal="" />
+	<country code="340" short="HND" name="Honduras" paypal="HN" />
+	<country code="348" short="HUN" name="Hungary" paypal="HU" />
+	<country code="352" short="ISL" name="Iceland" paypal="IS" />
+	<country code="356" short="IND" name="India" paypal="IN" />
+	<country code="360" short="IDN" name="Indonesia" paypal="ID" />
+	<country code="364" short="IRN" name="Iran, Islamic Republic of" paypal="" />
+	<country code="368" short="IRQ" name="Iraq" paypal="" />
+	<country code="372" short="IRL" name="Ireland" paypal="IE" />
+	<country code="833" short="IMN" name="Isle of Man" paypal="" />
+	<country code="376" short="ISR" name="Israel" paypal="IL" />
+	<country code="380" short="ITA" name="Italy" paypal="IT" />
+	<country code="388" short="JAM" name="Jamaica" paypal="JM" />
+	<country code="392" short="JPN" name="Japan" paypal="JP" />
+	<country code="832" short="JEY" name="Jersey" paypal="" />
+	<country code="400" short="JOR" name="Jordan" paypal="JO" />
+	<country code="398" short="KAZ" name="Kazakhstan" paypal="KZ" />
+	<country code="404" short="KEN" name="Kenya" paypal="KE" />
+	<country code="296" short="KIR" name="Kiribati" paypal="" />
+	<country code="414" short="KWT" name="Kuwait" paypal="KW" />
+	<country code="417" short="KGZ" name="Kyrgyzstan" paypal="" />
+	<country code="418" short="LAO" name="Lao People's Democratic Republic" paypal="LA" />
+	<country code="428" short="LVA" name="Latvia" paypal="LV" />
+	<country code="422" short="LBN" name="Lebanon" paypal="LB" />
+	<country code="426" short="LSO" name="Lesotho" paypal="LS" />
+	<country code="430" short="LBR" name="Liberia" paypal="" />
+	<country code="434" short="LBY" name="Libyan Arab Jamahiriya" paypal="" />
+	<country code="438" short="LIE" name="Liechtenstein" paypal="" />
+	<country code="440" short="LTU" name="Lithuania" paypal="LT" />
+	<country code="442" short="LUX" name="Luxembourg" paypal="LU" />
+	<country code="450" short="MDG" name="Madagascar" paypal="MG" />
+	<country code="454" short="MWI" name="Malawi" paypal="" />
+	<country code="458" short="MYS" name="Malaysia" paypal="MY" />
+	<country code="462" short="MDV" name="Maldives" paypal="MV" />
+	<country code="466" short="MLI" name="Mali" paypal="ML" />
+	<country code="470" short="MLT" name="Malta" paypal="MT" />
+	<country code="584" short="MHL" name="Marshall Islands" paypal="MH" />
+	<country code="474" short="MTQ" name="Martinique" paypal="MQ" />
+	<country code="478" short="MRT" name="Mauritania" paypal="" />
+	<country code="480" short="MUS" name="Mauritius" paypal="MU" />
+	<country code="175" short="MYT" name="Mayotte" paypal="" />
+	<country code="484" short="MEX" name="Mexico" paypal="MX" />
+	<country code="583" short="FSM" name="Micronesia, Federated States of" paypal="FM" />
+	<country code="492" short="MCO" name="Monaco" paypal="" />
+	<country code="496" short="MNG" name="Mongolia" paypal="MN" />
+	<country code="499" short="MNE" name="Montenegro" paypal="" />
+	<country code="500" short="MSR" name="Montserrat" paypal="MS" />
+	<country code="504" short="MAR" name="Morocco" paypal="MA" />
+	<country code="508" short="MOZ" name="Mozambique" paypal="MZ" />
+	<country code="104" short="MMR" name="Myanmar" paypal="" />
+	<country code="516" short="NAM" name="Namibia" paypal="NA" />
+	<country code="520" short="NRU" name="Nauru" paypal="" />
+	<country code="524" short="NPL" name="Nepal" paypal="NP" />
+	<country code="528" short="NLD" name="Netherlands" paypal="NL" />
+	<country code="530" short="ANT" name="Netherlands Antilles" paypal="AN" />
+	<country code="540" short="NCL" name="New Caledonia" paypal="" />
+	<country code="554" short="NZL" name="New Zealand" paypal="NZ" />
+	<country code="558" short="NIC" name="Nicaragua" paypal="NI" />
+	<country code="562" short="NER" name="Niger" paypal="" />
+	<country code="566" short="NGA" name="Nigeria" paypal="" />
+	<country code="570" short="NIU" name="Niue" paypal="" />
+	<country code="574" short="NFK" name="Norfolk Island" paypal="" />
+	<country code="580" short="MNP" name="Northern Mariana Islands" paypal="MP" />
+	<country code="578" short="NOR" name="Norway" paypal="NO" />
+	<country code="275" short="PSE" name="Occupied Palestinian Territory" paypal="" />
+	<country code="512" short="OMN" name="Oman" paypal="OM" />
+	<country code="586" short="PAK" name="Pakistan" paypal="PK" />
+	<country code="585" short="PLW" name="Palau" paypal="PW" />
+	<country code="591" short="PAN" name="Panama" paypal="PA" />
+	<country code="598" short="PNG" name="Papua New Guinea" paypal="PG" />
+	<country code="600" short="PRY" name="Paraguay" paypal="PY" />
+	<country code="604" short="PER" name="Peru" paypal="PE" />
+	<country code="608" short="PHL" name="Philippines" paypal="PH" />
+	<country code="612" short="PCN" name="Pitcairn" paypal="" />
+	<country code="616" short="POL" name="Poland" paypal="PL" />
+	<country code="620" short="PRT" name="Portugal" paypal="PT" />
+	<country code="630" short="PRI" name="Puerto Rico" paypal="PR" />
+	<country code="634" short="QAT" name="Qatar" paypal="QA" />
+	<country code="410" short="KOR" name="Republic of Korea" paypal="" />
+	<country code="498" short="MDA" name="Republic of Moldova" paypal="" />
+	<country code="638" short="REU" name="Réunion" paypal="" />
+	<country code="642" short="ROU" name="Romania" paypal="RO" />
+	<country code="643" short="RUS" name="Russian Federation" paypal="RU" />
+	<country code="646" short="RWA" name="Rwanda" paypal="RW" />
+	<country code="654" short="SHN" name="Saint Helena" paypal="" />
+	<country code="659" short="KNA" name="Saint Kitts and Nevis" paypal="KN" />
+	<country code="662" short="LCA" name="Saint Lucia" paypal="LC" />
+	<country code="666" short="SPM" name="Saint Pierre and Miquelon" paypal="" />
+	<country code="670" short="VCT" name="Saint Vincent and the Grenadines" paypal="VC" />
+	<country code="882" short="WSM" name="Samoa" paypal="WS" />
+	<country code="674" short="SMR" name="San Marino" paypal="" />
+	<country code="678" short="STP" name="Sao Tome and Principe" paypal="" />
+	<country code="682" short="SAU" name="Saudi Arabia" paypal="SA" />
+	<country code="686" short="SEN" name="Senegal" paypal="" />
+	<country code="688" short="SRB" name="Serbia" paypal="CS" />
+	<country code="690" short="SYC" name="Seychelles" paypal="SC" />
+	<country code="694" short="SLE" name="Sierra Leone" paypal="" />
+	<country code="702" short="SGP" name="Singapore" paypal="SG" />
+	<country code="703" short="SVK" name="Slovakia" paypal="SK" />
+	<country code="705" short="SVN" name="Slovenia" paypal="SI" />
+	<country code="090" short="SLB" name="Solomon Islands" paypal="SB" />
+	<country code="706" short="SOM" name="Somalia" paypal="" />
+	<country code="710" short="ZAF" name="South Africa" paypal="ZA" />
+	<country code="724" short="ESP" name="Spain" paypal="ES" />
+	<country code="144" short="LKA" name="Sri Lanka" paypal="LK" />
+	<country code="736" short="SDN" name="Sudan" paypal="" />
+	<country code="740" short="SUR" name="Suriname" paypal="" />
+	<country code="744" short="SJM" name="Svalbard and Jan Mayen Islands" paypal="" />
+	<country code="748" short="SWZ" name="Swaziland" paypal="SZ" />
+	<country code="752" short="SWE" name="Sweden" paypal="SE" />
+	<country code="756" short="CHE" name="Switzerland" paypal="CH" />
+	<country code="760" short="SYR" name="Syrian Arab Republic" paypal="" />
+	<country code="157" short="ROC" name="Taiwan, Republic of China" paypal="TW" />
+	<country code="762" short="TJK" name="Tajikistan" paypal="" />
+	<country code="764" short="THA" name="Thailand" paypal="TH" />
+	<country code="807" short="MKD" name="The former Yugoslav Republic of Macedonia" paypal="" />
+	<country code="626" short="TLS" name="Timor-Leste" paypal="" />
+	<country code="768" short="TGO" name="Togo" paypal="TG" />
+	<country code="772" short="TKL" name="Tokelau" paypal="" />
+	<country code="776" short="TON" name="Tonga" paypal="TO" />
+	<country code="780" short="TTO" name="Trinidad and Tobago" paypal="TT" />
+	<country code="788" short="TUN" name="Tunisia" paypal="TN" />
+	<country code="792" short="TUR" name="Turkey" paypal="TR" />
+	<country code="795" short="TKM" name="Turkmenistan" paypal="TM" />
+	<country code="796" short="TCA" name="Turks and Caicos Islands" paypal="TC" />
+	<country code="798" short="TUV" name="Tuvalu" paypal="" />
+	<country code="800" short="UGA" name="Uganda" paypal="UG" />
+	<country code="804" short="UKR" name="Ukraine" paypal="UA" />
+	<country code="784" short="ARE" name="United Arab Emirates" paypal="AE" />
+	<country code="826" short="GBR" name="United Kingdom of Great Britain and Northern Ireland" paypal="" />
+	<country code="834" short="TZA" name="United Republic of Tanzania" paypal="" />
+	<country code="840" short="USA" name="United States of America" paypal="US" />
+	<country code="850" short="VIR" name="United States Virgin Islands" paypal="" />
+	<country code="858" short="URY" name="Uruguay" paypal="UY" />
+	<country code="860" short="UZB" name="Uzbekistan" paypal="UZ" />
+	<country code="548" short="VUT" name="Vanuatu" paypal="VU" />
+	<country code="862" short="VEN" name="Venezuela (Bolivarian Republic of)" paypal="VE" />
+	<country code="704" short="VNM" name="Viet Nam" paypal="VN" />
+	<country code="876" short="WLF" name="Wallis and Futuna Islands" paypal="" />
+	<country code="732" short="ESH" name="Western Sahara" paypal="" />
+	<country code="887" short="YEM" name="Yemen" paypal="YE" />
+	<country code="894" short="ZMB" name="Zambia" paypal="ZM" />
+	<country code="716" short="ZWE" name="Zimbabwe" paypal="" />
+</countries>

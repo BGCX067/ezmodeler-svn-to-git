@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:lang="http://www.springframework.org/schema/lang"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+                           http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-2.0.xsd">
+    
+    
+    <bean id="i4change.ValidierungsUtil" 
+        class="org.i4change.app.utils.math.ValidierungsUtil">
+        <property name="validatorMap">
+            <props>
+                <prop key="user.login"><![CDATA[[a-zA-Z\d_\.]{4,20}]]></prop>
+                <prop key="user.password"><![CDATA[[a-zA-Z\d_\.#$!]{4,20}]]></prop>
+            </props>
+        </property>
+        <property name="errorMessageMap">
+            <props>
+                <prop key="user.login">-52</prop><!-- Username at least 5 to 20 characters, characters, numbers and . or _ -->
+                <prop key="user.password">-53</prop><!-- The password must be at least 8 characters long and start and end with a letter. -->
+            </props>
+        </property>
+    </bean>
+    
+    
+</beans>

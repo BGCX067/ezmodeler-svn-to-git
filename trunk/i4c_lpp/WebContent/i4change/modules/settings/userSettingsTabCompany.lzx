@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+<!--- User Profile Setting Panel -->
+<class name="userSettingsTabCompany" extends="view">  
+       
+	<!-- content -->	
+    
+    <method name="initFields" args="obj">
+        <![CDATA[
+        
+            if (obj.companyAddress != null) {
+	            this.email.setAttribute("text",obj.companyAddress.email);
+	            this.street.setAttribute("text",obj.companyAddress.street);
+	            this.house.setAttribute("text",obj.companyAddress.additionalname);
+	            this.zip.setAttribute("text",obj.companyAddress.zip);
+	            this.town.setAttribute("text",obj.companyAddress.town);
+	            this.state.addAndSelectItem(obj.companyAddress.states.name,String(obj.companyAddress.states.country_id));
+	            this.adress_comment.setAttribute("text",obj.companyAddress.comment);
+	            this.phone.setAttribute("text",obj.companyAddress.phone);
+	            this.mobile.setAttribute("text",obj.companyAddress.mobile);
+            } else {
+                this.email.setAttribute("text","");
+                this.street.setAttribute("text","");
+                this.house.setAttribute("text","");
+                this.zip.setAttribute("text","");
+                this.town.setAttribute("text","");
+                var defaultstate = canvas.getCountryRecord(146);
+                this.state.addAndSelectItem(defaultstate.name,defaultstate.country_id);  
+                this.adress_comment.setAttribute("text","");
+                this.phone.setAttribute("text","");
+                this.mobile.setAttribute("text","");
+            }
+
+        ]]>
+    </method>
+    
+    <method name="doSaveTemp">
+	    //if ($debug) Debug.write("Save Temp Company Values");
+        if (this.parent.parent.userObj.companyAddress != null) {
+	        this.parent.parent.userObj.companyAddress.emails = this.email.getText();
+	        this.parent.parent.userObj.companyAddress.mobile = this.mobile.getText();
+	        this.parent.parent.userObj.companyAddress.phone = this.phone.getText();
+	        this.parent.parent.userObj.companyAddress.street = this.street.getText();
+	        this.parent.parent.userObj.companyAddress.additionalname = this.house.getText();
+	        this.parent.parent.userObj.companyAddress.zip = this.zip.getText();
+	        this.parent.parent.userObj.companyAddress.town = this.town.getText();
+            this.parent.parent.userObj.companyAddress.state_id = Number(this.state.getValue());
+	        this.parent.parent.userObj.companyAddress.states.country_id = Number(this.state.getValue());
+	        this.parent.parent.userObj.companyAddress.comment = this.adress_comment.getText();
+        } else {
+            this.parent.parent.userObj.companyAddress = new Object();
+            this.parent.parent.userObj.companyAddress.adresses_id = 0;
+            this.parent.parent.userObj.companyAddress.mobile = this.mobile.getText();
+            this.parent.parent.userObj.companyAddress.phone = this.phone.getText();
+            this.parent.parent.userObj.companyAddress.street = this.street.getText();
+            this.parent.parent.userObj.companyAddress.additionalname = this.house.getText();
+            this.parent.parent.userObj.companyAddress.zip = this.zip.getText();
+            this.parent.parent.userObj.companyAddress.town = this.town.getText();
+            this.parent.parent.userObj.companyAddress.state_id = Number(this.state.getValue());
+            this.parent.parent.userObj.companyAddress.states = new Object();
+            this.parent.parent.userObj.companyAddress.states.country_id = this.state.getValue();
+            this.parent.parent.userObj.companyAddress.comment = this.adress_comment.getText();
+            //A additional case, need to check that on server side!
+            this.parent.parent.userObj.companyAddress.email = this.email.getText();
+            this.parent.parent.userObj.companyAddress.emails = new Array();
+            this.parent.parent.userObj.companyAddress.emails[0] = new Object();
+            this.parent.parent.userObj.companyAddress.emails[0].mail = new Object();
+            this.parent.parent.userObj.companyAddress.emails[0].mail.email = this.email.getText();
+        }
+	</method>
+    
+    <!-- 143:userdata -->
+    <labelText labelid="1103" width="200" y="0" resize="false" fontstyle="bold" />            
+
+    <!-- 137:Mail -->
+    <labelText labelid="137" width="200" y="30" resize="false" x="2"/>
+        <customEdittext name="email" y="30" x="120" width="270" text="" regexpType="email" />
+        
+    <!-- 137:Phone -->
+    <labelText labelid="1100" width="200" y="60" resize="false" x="2"/>
+        <customEdittext name="phone" y="60" x="120" width="270" text="" />
+        
+    <!-- 137:Mobile -->
+    <labelText labelid="1101" width="200" y="90" resize="false" x="2"/>
+        <customEdittext name="mobile" y="90" x="120" width="270" text="" />
+        
+    <!-- 139:Street/No -->
+    <labelText labelid="139" width="200" y="120" resize="false" x="2"/>
+        <customEdittext name="street" y="120" x="120" width="220" text="" />
+        <customEdittext name="house" y="120" x="350" width="40" text="" />
+        
+    <!-- 140:ZIP/Town -->
+    <labelText labelid="140" width="280" y="150" resize="false" x="2"/>
+        <customEdittext name="zip" y="150" x="120" width="70" text="" />   
+        <customEdittext name="town" y="150" x="200" width="190" text="" />                        
+         
+    <!-- 141:Country -->
+    <labelText labelid="141" width="200" y="180" resize="false" x="2"/>  
+		<validText name="state" width="270" y="180" x="120" fontsize="12" 
+            shownitems="7" validate_method="$once{ canvas.validateCountry }" 
+            resultId="country_id" resultName="name" />
+			
+    <!-- 142:Adress-Info -->
+    <labelText labelid="142" width="200" y="210" resize="false" x="2"/>
+        <customEdittext name="adress_comment" y="210" x="120" width="270" 
+            height="100" text="" multiline="true"/>
+       
+</class>
+
+</library>

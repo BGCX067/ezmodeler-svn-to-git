@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+<!--- Configuration module for ADMIN -->
+<class name="modProperty"  extends="baseContentTabbedView" labelid="997"> 
+        
+    <handler name="oninit">
+        //Add Help Item
+        canvas.addCurrentHelpId(40,this.__constructor__.classname);
+    </handler> 
+    
+	<view>
+        
+        <labelText labelid="998" width="400" y="4" multiline="true"
+                   resize="false" fontstyle="italic" />
+	
+	    <turnOverList name="_turnoverlist" width="540" height="500" x="2" y="100" 
+			orderby="c.propertyId" step="50" asc="true">
+	
+			<handler name="oninit">
+				this.addHeaderItem(984,80);
+				this.addHeaderItem(985,166);
+                this.addHeaderItem(986,140);
+                this.addHeaderItem(990,140);
+				this.getPropertiesByOrganization.doCall();
+			</handler>
+			
+			<handler name="oncallnext" >
+				this.getPropertiesByOrganization.doCall();
+			</handler>
+			
+			<handler name="oncallpre" >		
+				this.getPropertiesByOrganization.doCall();
+			</handler>
+			
+			<handler name="onclickedItem" args="obj">
+				Debug.write("onclickedItem",obj,obj.obj);
+				parent._modpropertyvalueform.initValueFieldsByObject(obj.obj);
+			</handler>
+			
+			<netRemoteCallRPC name="getPropertiesByOrganization" funcname="getPropertiesByOrganization" 
+                              remotecontext="$once{  canvas.propertyServiceRPC }" >      
+				<netparam><method name="getValue"> return canvas.sessionId; </method></netparam>
+                <netparam><method name="getValue"> return canvas.currentdomainObj.organisation_id;</method></netparam>
+				<netparam><method name="getValue"> return parent.parent.start; </method></netparam>
+				<netparam><method name="getValue"> return parent.parent.step; </method></netparam>
+				<netparam><method name="getValue"> return parent.parent.orderby; </method></netparam>
+				<netparam><method name="getValue"> return parent.parent.asc; </method></netparam>
+		    	<handler name="ondata" args="value">
+		    		//if ($debug) Debug.write("getPropertiesByOrganization: ",value);
+		    		//this.parent.destroy();
+		    		this.parent.initValues(value.records);
+		    		this.parent.renderContent(value.result);
+		    	</handler>
+		    </netRemoteCallRPC>	
+		    
+		    <method name="renderContent" args="records">
+		    	<![CDATA[
+		    	this.clearList();
+		    	for (var i=0;i<records.length;i++){
+		    		new lz.propertyAdminListItem(this._innerlist._inn._inn,{
+                        obj:records[i],
+                        propertyId:records[i].propertyId,
+                        propertyName:canvas.getLabelName(records[i].labelid),
+                        objectTypeName:records[i].objectTypeName,
+                        organisation:((records[i].organisation != null) ? records[i].organisation.name : canvas.getLabelName(996))});
+		    	}
+		    	]]>
+		    </method>
+	
+		</turnOverList>
+	    
+	    <modPropertyValueForm name="_modpropertyvalueform" x="550" />
+    
+    </view>
+    
+    <vscrollbar name="_scrollbar" />
+        
+</class>
+
+</library>

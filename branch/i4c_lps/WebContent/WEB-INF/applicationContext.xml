@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+    "http://www.springframework.org/dtd/spring-beans.dtd"> 
+<beans> 
+
+
+	<bean id="testJavaRPC" 
+	    class="org.i4change.test.javarpc.TestJavaRPC">
+		<property name="testService" ref="testService" />
+	</bean>
+
+    <bean id="testService" 
+	    class="org.i4change.test.javarpc.TestService" />
+
+	<!-- Class for the Streaming Handlers -->
+	<bean id="web.handler" 
+	    class="org.i4change.app.remote.Application"
+		singleton="true" />
+		
+    <bean id="i4change.InvoiceDaoImpl"
+        class="org.i4change.app.data.user.daos.InvoiceDaoImpl">
+    </bean> 
+		
+	<!-- Class for Methods which can be invoked by the client -->
+    <bean id="configservice.service" 
+	    class="org.i4change.app.remote.ConfigurationService" 
+		singleton="true" />	
+		
+	<!-- Class for Methods which can be invoked by the client -->
+    <bean id="errorservice.service" 
+	    class="org.i4change.app.remote.ErrorService" 
+		singleton="true" />			
+
+	<!-- Class for Methods which can be invoked by the client -->
+    <bean id="mainService.service" 
+	    class="org.i4change.app.remote.MainService" 
+		singleton="true" >
+    	<property name="usermanagement" ref="i4change.Usermanagement" />
+    </bean>
+	
+	<!-- Class for Methods which can be invoked by the client -->
+    <bean id="languageservice.service" 
+	    class="org.i4change.app.remote.LanguageService" 
+		singleton="true" />	
+	
+    <!-- Class for Methods which can be invoked by the client -->
+    <bean id="helpservice.service" 
+        class="org.i4change.app.remote.HelpService" 
+        singleton="true" />     
+    
+    <import resource="services/roleservice.service.xml" />
+    <import resource="services/userservice.service.xml" />    
+    <import resource="services/diagramservice.service.xml" />
+    <import resource="services/propertyservice.service.xml" />	
+    <import resource="services/organizationservice.service.xml" /> 
+    <import resource="services/downloadservice.service.xml" /> 
+    <import resource="services/websiteservice.service.xml" /> 
+    <import resource="services/projectservice.service.xml" /> 
+    <import resource="services/reportservice.service.xml" /> 
+    <import resource="services/schedulerJobs.service.xml" /> 
+    
+</beans>

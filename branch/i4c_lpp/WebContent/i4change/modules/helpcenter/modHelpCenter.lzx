@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<library>
+    
+<class name="modHelpCenter" extends="guiPresenter" resizeable="false"
+       x="$once{ canvas.width-this.width-16 }"
+       y="20" width="700" height="360" closable="true" labelid="751">
+    
+    
+    <helpAndFaq name="_helpAndFaq" x="2"  
+                    y="22" height="${ parent.height - 52 }" width="$once{ parent.width-4 }"/>
+    
+    <simpleLabelButton labelid="858" width="100" x="$once{ parent.width-105*1 }" 
+                       y="$once{ parent.height-24 }">
+        <handler name="onclick">
+            this.parent.close();
+        </handler>
+    </simpleLabelButton>  
+    
+</class> 
+
+</library>

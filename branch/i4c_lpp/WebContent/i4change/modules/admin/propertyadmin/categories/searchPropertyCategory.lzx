@@ -1,0 +1,335 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+	
+<class name="propertyCategoryListItem" extends="basePagingListItem" >
+	
+	<attribute name="obj" value="null" />
+	
+	<attribute name="propertyCategoryId" value="" type="string" />
+	<attribute name="categoryName" value="" type="string" />
+	
+	<method name="editCategory">
+		this.parent.parent.parent.parent.editCategory(this.propertyCategoryId);
+		//this.getPropertyCategoryById.doCall();
+	</method>
+	
+	<method name="deleteCategory">
+		this.parent.parent.parent.parent.deleteCategory(this.propertyCategoryId);
+	</method>
+	
+	<turnOverTextItem text="${ parent.propertyCategoryId }" width="30" />
+	<turnOverTextItem text="${ parent.categoryName }" width="144" />
+	<view name="_icons" width="40" layout="axis:x;spacing:0" visible="${ parent.clickable }">
+		<iconViewToolTip iconSourceName="property_category_edit_rsc" 
+                         width="18" height="18" labelid="1341">
+            <handler name="onclick">
+                parent.parent.editCategory();
+            </handler>
+        </iconViewToolTip>
+        <iconViewToolTip iconSourceName="property_category_delete_list_rsc" 
+                         width="18" height="18" labelid="1341">
+            <handler name="onclick">
+                parent.parent.deleteCategory();
+            </handler>
+        </iconViewToolTip>
+		<view height="20" width="1" bgcolor="$once{ canvas.basebgcolorizer }" />
+	</view>
+</class>
+
+<class name="searchPropertyCategory" extends="view" width="270" 
+	   height="240" bgcolor="$once{ canvas.basebgcolorizer }">
+    
+    <attribute name="refObj" value="null" />
+    
+    <attribute name="search" value="" type="string" />
+    
+    <!-- Only Administrators can delete a Public Category -->
+    <attribute name="isAdministrationPanel" value="true" type="boolean" />
+    
+    <handler name="oninit">
+        //lz.ModeManager.makeModal(this);
+        this.propertyCategory.setAttribute("text",this.search);
+        this._turnoverlist.reload();
+        this.setShadow();
+    </handler>
+    
+    <method name="setShadow">
+        <![CDATA[
+        if (this.isinited){
+            this.normalMC = this.getMCRef();
+            this.displacementMap = new flash.filters.DropShadowFilter();
+            this.normalMC.filters = [this.displacementMap];
+        }
+        ]]>              
+    </method>
+    
+    <method name="close">
+    	this.onclose.sendEvent();
+    	this.destroy();
+    </method>
+    
+    <handler name="onclose">
+    	//lz.ModeManager.release(this);
+    </handler>
+    
+    <view x="1" y="1" bgcolor="0xFFFFFF" height="$once{ parent.height-2 }" 
+    	  width="$once{ parent.width-2 }" />
+    
+    <customEdittext name="propertyCategory" y="2" x="2" width="$once{ parent.width - 54 }" text="">
+        <attribute name="propertyCategoryId" value="0" type="number" />
+        <handler name="onkeyup" args="k">
+            <![CDATA[
+                if (k==13) {
+                    this.search();
+                }
+            ]]>
+        </handler>
+        <method name="search">
+            if ($debug) Debug.write("Search Start");
+            parent._turnoverlist.reload();
+        </method>
+    </customEdittext>
+    
+    <view y="2" x="$once{ parent.width-50 }" layout="axis:x;spacing:0">
+        <iconViewToolTip iconSourceName="property_category_search_rsc" 
+                         width="20" height="20" labelid="1323">
+            <handler name="onclick">
+                parent.parent.propertyCategory.search();
+            </handler>
+        </iconViewToolTip> 
+        <!--
+        <iconViewToolTip iconSourceName="property_category_delete_rsc" 
+                         width="20" height="20" labelid="1329">
+            <handler name="onclick">
+                parent.parent.close();
+            </handler>
+        </iconViewToolTip>
+         -->
+        <view height="20" width="1" bgcolor="$once{ canvas.basebgcolorizer }" />
+    </view>
+    
+    <view name="_close" x="252" y="2" 
+        resource="btn_presenter_close"
+        onmouseover="this.setAttribute('frame',2)"
+        onmouseout="this.setAttribute('frame',1)"
+        onmousedown="this.setAttribute('frame',3)"
+        onmouseup="this.setAttribute('frame',1)" >
+        <handler name="onclick">
+            this.setAttribute('frame',2);
+            this.parent.close();
+        </handler>
+        <labelTooltip labelid="430" />
+    </view>  
+
+    <!--
+        public SearchResult getPropertyCategories(String SID, int start ,int max, String orderby, 
+                        boolean asc, String search)
+    -->
+    <turnOverListOrderedPaged name="_turnoverlist" y="24" width="${ parent.width-4 }" x="2"
+            height="${ parent.height-28 }" orderby="c.propertyCategoryId" step="75" 
+            asc="true" listItemName="propertyCategoryListItem">
+    	
+    	<handler name="oninit">
+    		this.addHeaderItemOrdered(1338,30,"c.propertyCategoryId",true,true);
+    		this.addHeaderItemOrdered(1339,184,"c.categoryName",true,false);
+    	    this.addHeaderItem(1340,34);
+    	</handler>
+    	
+    	<handler name="onUpdateOrder">
+            //if ($debug) Debug.write("onUpdateOrder");
+            this.reload();
+        </handler>
+        
+        <handler name="oncallnext" >
+            this.reload();
+        </handler>
+        
+        <handler name="oncallpre" >     
+            this.reload();
+        </handler>
+        
+        <handler name="onclickedItem" args="obj">
+        	if ($debug) Debug.write("onclickedItem ",obj);
+        	parent.refObj.setPropertyCategory(obj.categoryName,obj.propertyCategoryId);
+        	parent.close();
+        </handler>
+        
+        <method name="editCategory" args="idNo">
+        	this.getPropertyCategoryById.propertyCategoryId = idNo;
+        	this.getPropertyCategoryById.doCall();
+        </method>
+        
+        <method name="deleteCategory" args="idNo">
+        	if ($debug) Debug.write("deleteCategory ",idNo);
+        	this.getPropertyCategoryById.propertyCategoryId = idNo;
+        	this.deletePropertyCategory.propertyCategoryId = idNo;
+        	this.getPropertyCategoryById.isDeleteAction = true;
+            this.getPropertyCategoryById.doCall();
+        </method>
+        
+        <method name="clearAndReload">
+        	parent.propertyCategory.setAttribute("text","");
+        	this.reload();
+        </method>
+        
+        <method name="reload">
+        	if (parent.isAdministrationPanel) {
+        	    this.getPropertyCategories.doCall();
+        	} else {
+        		this.getPropertyCategoriesByOrganization.doCall();
+        	}
+        </method>
+        
+        <method name="deleteCategoryConfirm" >
+        	this.deletePropertyCategory.doCall();
+        </method>
+        
+        <netRemoteCallRPC name="getPropertyCategoriesByOrganization" funcname="getPropertyCategoriesByOrganization" 
+                          remotecontext="$once{  canvas.propertyServiceRPC }" >   
+            <netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+            <netparam><method name="getValue">return canvas.currentdomainObj.organisation_id;</method></netparam>
+            <netparam><method name="getValue">return parent.parent.start; </method></netparam>
+            <netparam><method name="getValue">return parent.parent.step; </method></netparam>
+            <netparam><method name="getValue">return parent.parent.orderby; </method></netparam>
+            <netparam><method name="getValue">return parent.parent.asc; </method></netparam>
+            <netparam><method name="getValue">return parent.parent.parent.propertyCategory.getText();</method></netparam>         
+            <handler name="ondata" args="value">
+                <![CDATA[
+                    if ($debug) Debug.write("getPropertyCategories ",value);
+                    this.parent.initValues(value.records);
+                    this.parent.renderContent(value.result);
+                ]]>
+            </handler>
+        </netRemoteCallRPC> 
+        
+        <netRemoteCallRPC name="getPropertyCategories" funcname="getPropertyCategories" 
+                          remotecontext="$once{  canvas.propertyServiceRPC }" >   
+            <netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+            <netparam><method name="getValue">return parent.parent.start; </method></netparam>
+            <netparam><method name="getValue">return parent.parent.step; </method></netparam>
+            <netparam><method name="getValue">return parent.parent.orderby; </method></netparam>
+            <netparam><method name="getValue">return parent.parent.asc; </method></netparam>
+            <netparam><method name="getValue">return parent.parent.parent.propertyCategory.getText();</method></netparam>         
+            <handler name="ondata" args="value">
+                <![CDATA[
+                    if ($debug) Debug.write("getPropertyCategories ",value);
+                    this.parent.initValues(value.records);
+                    this.parent.renderContent(value.result);
+                ]]>
+            </handler>
+        </netRemoteCallRPC> 
+        
+        <!--
+            public Long deleteProperty(String SID, Long propertyId) 
+         -->
+        <netRemoteCallRPC name="deletePropertyCategory" funcname="deletePropertyCategory" 
+                      remotecontext="$once{  canvas.propertyServiceRPC }" >
+            <attribute name="propertyCategoryId" value="0" type="number" />  
+            <netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+            <netparam><method name="getValue">return parent.propertyCategoryId;</method></netparam> 
+            <handler name="ondata" args="val">
+                <![CDATA[
+                    if ($debug) Debug.write("deletePropertyCategory ",val);
+                    parent.reload();
+                ]]>
+            </handler>
+        </netRemoteCallRPC>
+            
+        <netRemoteCallRPC name="getPropertyCategoryById" funcname="getPropertyCategoryById" 
+                      remotecontext="$once{  canvas.propertyServiceRPC }" >
+        	<attribute name="propertyCategoryId" value="0" type="number" />  
+        	<attribute name="isDeleteAction" value="false" type="boolean"/> 
+            <netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+            <netparam><method name="getValue">return parent.propertyCategoryId;</method></netparam>         
+            <handler name="ondata" args="val">
+                <![CDATA[
+                    if ($debug) Debug.write("getPropertyCategoryById ",val);
+                    if (this.isDeleteAction) {
+                    	this.isDeleteAction = false;
+                    	if (val.isPublic) {
+                    		if (!parent.parent.isAdministrationPanel) {
+                    			new lz.errorPopupWithLabel(canvas,{labelerrorid:1335});
+                    			return;
+                    		}
+                    	}
+                    	new lz.confirmDeleteWindowCustomLabel(canvas.main_content._content.inner,{refObj:parent,
+                                funcNameConfirm:'deleteCategoryConfirm',messageLabelid:1334});
+                    } else {
+                    	if (val.isPublic) {
+                            if (!parent.parent.isAdministrationPanel) {
+                                new lz.errorPopupWithLabel(canvas,{labelerrorid:1336});
+                                return;
+                            }
+                        }
+                        var tWindow = null;
+                        if (parent.parent.isAdministrationPanel) {
+                        	tWindow = new lz.adminSaveOrUpdatePropertyCategory(canvas.main_content._content.inner,{
+                                                refObj:parent,propertyCategoryId:this.propertyCategoryId,
+                                                x:parent.parent.getAttributeRelative("x",canvas),
+                                                y:parent.parent.getAttributeRelative("y",canvas)
+                                            });
+                        } else {
+                            tWindow = new lz.modSaveOrUpdatePropertyCategory(canvas.main_content._content.inner,{
+                                                refObj:parent,propertyCategoryId:this.propertyCategoryId,
+                                                x:parent.parent.getAttributeRelative("x",canvas),
+                                                y:parent.parent.getAttributeRelative("y",canvas)
+                                            });
+                        }
+                        
+                        if ($debug) Debug.write("tWindow ",tWindow,parent.parent.isAdministrationPanel);
+                        
+                        tWindow.setProperty(val);
+                    }
+                ]]>
+            </handler>
+        </netRemoteCallRPC>
+        
+        <method name="renderContent" args="records">
+            <![CDATA[
+                //this.clearList();
+                var list = this._innerlist._inn._inn;
+                this.renderList = records;
+                
+                this._innerlist._inn.setAttribute("y",0);
+                this._innerlist._inn._inn.setAttribute("height",records.length*20);
+                
+                this._innerlist._inn.resetItems();
+                
+                for (var i=0;i<list.subviews.length;i++){
+                    if (records.length > i) {
+                        list.subviews[i].setAttribute("clickable",true);
+                        list.subviews[i].setAttribute("obj",records[i]);
+                        list.subviews[i].setAttribute("propertyCategoryId",records[i].propertyCategoryId);
+                        list.subviews[i].setAttribute("categoryName",records[i].categoryName);
+                    } else {
+                    	list.subviews[i].setAttribute("obj","null");
+                        list.subviews[i].setAttribute("propertyCategoryId","");
+                        list.subviews[i].setAttribute("categoryName","");
+                        list.subviews[i].setAttribute("clickable",false);
+                    }
+                }
+                
+            ]]>
+        </method>
+        
+        <handler name="onScrollItem" args="item">
+            <![CDATA[
+                if (this.renderList.length > item.itemId) {
+                    item.setAttribute("clickable",true);
+                    item.setAttribute("obj",this.renderList[item.itemId]);
+                    item.setAttribute("propertyCategoryId",this.renderList[item.itemId].propertyCategoryId);
+                    item.setAttribute("categoryName",this.renderList[item.itemId].categoryName);
+                } else {
+                    item.setAttribute("obj",null);
+                    item.setAttribute("propertyCategoryId","");
+                    item.setAttribute("categoryName","");
+                    item.setAttribute("clickable",false);
+                }
+            ]]>
+        </handler>   
+    
+    </turnOverListOrderedPaged>
+ 
+</class>
+	
+</library>

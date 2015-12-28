@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<library>
+
+<!--- "System" panel on the dashboard -->
+<class name="checkRoleData" extends="guiPresenter" resizeable="false"
+       x="$once{ canvas.width/2 - this.width/2 }" y="100" width="400" 
+       height="140" closable="false" labelid="707" >
+    
+    <attribute name="refObj" value="null" />   
+    <attribute name="rolesList" value="null" />
+    
+    <attribute name="canCancel" type="boolean" value="true" />
+    
+    <handler name="oninit">
+        <![CDATA[
+            lz.ModeManager.makeModal(this);
+            for (var i=0;i<this.rolesList.length;i++) {
+                this.roles.addItem(
+                        this.rolesList[i].roleObject.name,
+                        this.rolesList[i].rolesId
+                    )
+            }
+            this.roles.loadDefault();
+        ]]>
+    </handler>
+    
+    <handler name="onclose">
+        lz.ModeManager.release(this);
+    </handler>
+    
+    <method name="saveAndLoad" args="doChooseRole">
+        <![CDATA[
+            //if ($debug) Debug.write("saveAndLoadDiagramObject ",doChooseRole);
+            if (doChooseRole){
+	            var rolesObject = null;
+	            for (var i=0;i<this.rolesList.length;i++) {
+	                //if ($debug) Debug.write("this.rolesList: ",this.rolesList[i]);
+	                if (this.rolesList[i].rolesId == Number(this.roles.getValue())) {
+	                    rolesObject = this.rolesList[i];
+	                    break;
+	                }
+	            }
+	            if (rolesObject != null) {
+	                canvas.currentRole = rolesObject;
+	                canvas.getLanguageByIdAndMax.start = 0;
+	                canvas.getLanguageByIdAndMax.doCall();
+	                this.close();
+	            }
+            } else {
+                canvas.getLanguageByIdAndMax.start = 0;
+                canvas.getLanguageByIdAndMax.doCall();
+                this.close();
+            }
+        ]]>
+    </method>
+
+    <infoIconBox y="22" labelid="708" width="$once{ parent.width - 20 }" x="10" />
+
+    <labelText name="n4" labelid="710" width="200" y="84" resize="false" x="10" />     
+    <omComboBox name="roles" width="170" y="84" x="120" editable="false" >
+        <method name="loadDefault">
+            <![CDATA[
+            var t = new lz.sharedObject();
+            t.getLocal('userdata');
+            var g = t.getData('userdata');
+            //if($debug) Debug.write("checkLoginData loadDefault4: ",g);
+            if(g!=null) {
+                //if($debug) Debug.write("lastRole : ",g["lastRole"]);
+                if (g["lastRole"] != null && g["lastRole"] != undefined) {
+                    var tItem = this.getItem(g["lastRole"]);
+                    //if($debug) Debug.write("lastCustomer tItem: ",tItem,tItem.text);
+                    if (tItem != null) {
+                        this.selectItem(g["lastRole"]);
+                    } else {
+                        //if($debug) Debug.write("lastCustomer selectItemAt 0 ");
+                        this.selectItemAt(0);
+                    }
+                } else {
+	                //if($debug) Debug.write("lastCustomer selectItemAt 0 ");
+	                this.selectItemAt(0);
+	            }
+            } else {
+                //if($debug) Debug.write("lastCustomer selectItemAt 0 ");
+                this.selectItemAt(0);
+            }
+            ]]>
+        </method>  
+    </omComboBox>
+                  
+    <simpleLabelButton labelid="712" width="100" x="$once{ parent.width-105*2 }" 
+                       y="$once{ parent.height-24 }">
+        <handler name="onclick">
+            this.parent.saveAndLoad(true);
+        </handler>
+    </simpleLabelButton>  
+    <simpleLabelButton labelid="702" width="100" x="$once{ parent.width-105*1 }" 
+                       enabled="$once{ parent.canCancel }"
+                       y="$once{ parent.height-24 }">
+        <handler name="onclick">
+            this.parent.saveAndLoad(false);
+        </handler>
+        <infoIconToolTip align="right" iconResourceName="info_icon_small_rsc" labelid="723"
+                         visibility="$once{ (parent.parent.canCancel) ? 'hidden' : 'visible' }" />
+        <labelTooltip labelid="724" />
+    </simpleLabelButton>       
+</class> 
+
+</library>

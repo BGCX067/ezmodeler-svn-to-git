@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+  <class table="property_validation_type" lazy="false" name="org.i4change.app.hibernate.beans.diagram.PropertyValidationType">
+    <id column="property_validation_type_id" name="propertyValidationTypeId">
+      <generator class="increment"/>
+    </id>
+    <property name="labelId" type="long" column="labelid"/>
+    <property name="validationValue" type="string" column="validation_value"/>
+    <property name="inserted" type="java.util.Date" column="inserted"/>
+    <property name="insertedBy" type="long" column="insertedby"/>
+    <property name="height" type="int" column="height"/>
+  </class>
+</hibernate-mapping>

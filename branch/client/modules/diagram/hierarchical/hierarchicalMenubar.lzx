@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+    
+    <class name="hierarchicalMenubar" extends="menubar" height="28" showhandcursor="false">
+        <handler name="oninit">
+            //Add Help Item
+            canvas.addCurrentHelpId(35,this.__constructor__.classname);
+        </handler>          
+        <!-- save menu -->
+        <_labelMenu labelid="615" width="250">
+            <_labelMenuItem labelid="616" command="cmd_new" />
+            <_labelMenuItem labelid="617" command="cmd_open" />
+            <_labelMenuItem labelid="618" command="cmd_save" />
+            <_labelMenuItem labelid="619" command="cmd_save_as" />
+            <menuseparator />  
+            <_labelMenuItem labelid="621" >
+                <_labelMenu width="250">
+                    <_labelMenuItem labelid="665" command="cmd_exportPNG" />
+                    <_labelMenuItem labelid="666" command="cmd_exportJPG" />
+                    <_labelMenuItem labelid="667" command="cmd_exportPDF" />
+                    <_labelMenuItem labelid="668" command="cmd_exportXML" />
+                    <_labelMenuItem labelid="664" command="cmd_exportSVG" />
+                    <_labelMenuItem labelid="669" command="cmd_exportCustom" />
+                </_labelMenu>
+            </_labelMenuItem>
+            <_labelMenuItem labelid="622" command="cmd_import" />
+            <menuseparator />
+            <_labelMenuItem labelid="629" command="cmd_close" />
+            <!--
+            <menuseparator />
+            <_labelMenuItem labelid="623" command="cmd_quit" />
+             -->
+        </_labelMenu>
+        <!-- file menu
+        <_labelMenu labelid="624" width="250">
+            <_labelMenuItemView labelid="628" command="cmd_showHierarchicalExplorer"
+                                id="menu_showHierarchicalExplorer" />
+            <_labelMenuItemView labelid="626" command="cmd_showRevisionHistoryHierarchical"
+                                id="menu_showRevisionHistoryHierarchical" />
+            <_labelMenuItemView labelid="657" command="cmd_showPropertyInspectorProcessHierarchical" 
+                                id="menu_showPropertyInspectorHierarchical" />
+        </_labelMenu> 
+         -->
+    </class>
+	<class name="hierarchicalMenubarAdmin" extends="hierarchicalMenubar" >
+        <_labelMenu labelid="689" width="250">
+            <_labelMenuItem labelid="966" >
+                <handler name="onclick">
+                    quicklinkAct("modUserDomains");
+                </handler>
+            </_labelMenuItem> 
+            <_labelMenuItem labelid="956" >
+                <handler name="onclick">
+                    quicklinkAct("modUserRoles");
+                </handler>
+            </_labelMenuItem> 
+            <_labelMenuItem labelid="690" >
+                <handler name="onclick">
+                    quicklinkAct("modRoles");
+                </handler>
+            </_labelMenuItem> 
+            <_labelMenuItem labelid="997" >
+                <handler name="onclick">
+                    quicklinkAct("modProperty");
+                </handler>
+            </_labelMenuItem>   
+        </_labelMenu>    
+        <_labelMenu labelid="6" width="250">
+            <_labelMenuItem labelid="125" >
+                <handler name="onclick">
+                    quicklinkAct("userAdmin");
+                </handler>
+            </_labelMenuItem>  
+            <_labelMenuItem labelid="127" >
+                <handler name="onclick">
+                    quicklinkAct("orgAdmin");
+                </handler>
+            </_labelMenuItem>  
+            <_labelMenuItem labelid="263" >
+                <handler name="onclick">
+                    quicklinkAct("confAdmin");
+                </handler>
+            </_labelMenuItem>        
+            <_labelMenuItem labelid="983" >
+                <handler name="onclick">
+                    quicklinkAct("propertyAdmin");
+                </handler>
+            </_labelMenuItem>   
+            <_labelMenuItem labelid="348" >
+                <handler name="onclick">
+                    quicklinkAct("languagesEditor");
+                </handler>
+            </_labelMenuItem>     
+            <_labelMenuItem labelid="1198" >
+                <handler name="onclick">
+                    quicklinkAct("webSiteAdmin");
+                </handler>
+            </_labelMenuItem>         
+            <_labelMenuItem labelid="367" >
+                <handler name="onclick">
+                    quicklinkAct("backupContent");
+                </handler>
+            </_labelMenuItem>                                                                                          
+        </_labelMenu>  
+        <_labelMenu labelid="808" width="250">
+            <_labelMenuItem labelid="751" width="250">
+                <handler name="onclick">
+                    if (hib.userobject.userlevel.level_id == 1){
+                        new helpCenter(canvas);
+                    } else {
+                        new modHelpCenter(canvas);
+                    }
+                </handler>
+            </_labelMenuItem> 
+            <_labelMenuItem labelid="5" width="250">
+                <handler name="onclick">
+                    quicklinkAct("userSettings");
+                </handler>
+            </_labelMenuItem>  
+            <_labelMenuItem labelid="310" width="250">
+                <handler name="onclick">
+                    quicklinkAct('logout');
+                </handler>
+            </_labelMenuItem>  
+            <_labelMenuItem labelid="284" width="250">
+                <handler name="onclick">
+                    LzBrowser.loadURL(canvas.currentappnamebugurl,"_blank");
+                </handler>
+            </_labelMenuItem>            
+        </_labelMenu>
+	</class>    
+    
+    <class name="hierarchicalMenubarMod" extends="hierarchicalMenubar">
+        <_labelMenu labelid="689" width="250">
+            <_labelMenuItem labelid="966" >
+                <handler name="onclick">
+                    quicklinkAct("modUserDomains");
+                </handler>
+            </_labelMenuItem> 
+            <_labelMenuItem labelid="956" >
+                <handler name="onclick">
+                    quicklinkAct("modUserRoles");
+                </handler>
+            </_labelMenuItem> 
+            <_labelMenuItem labelid="690" >
+                <handler name="onclick">
+                    quicklinkAct("modRoles");
+                </handler>
+            </_labelMenuItem> 
+            <_labelMenuItem labelid="997" >
+                <handler name="onclick">
+                    quicklinkAct("modProperty");
+                </handler>
+            </_labelMenuItem> 
+        </_labelMenu>    
+        <_labelMenu labelid="808" width="250">
+            <_labelMenuItem labelid="751" width="250">
+                <handler name="onclick">
+                    if (hib.userobject.userlevel.level_id == 1){
+                        new helpCenter(canvas);
+                    } else {
+                        new modHelpCenter(canvas);
+                    }
+                </handler>
+            </_labelMenuItem> 
+            <_labelMenuItem labelid="5" width="250">
+                <handler name="onclick">
+                    quicklinkAct("userSettings");
+                </handler>
+            </_labelMenuItem>  
+            <_labelMenuItem labelid="310" width="250">
+                <handler name="onclick">
+                    quicklinkAct('logout');
+                </handler>
+            </_labelMenuItem>  
+            <_labelMenuItem labelid="284" width="250">
+                <handler name="onclick">
+                    LzBrowser.loadURL(canvas.currentappnamebugurl,"_blank");
+                </handler>
+            </_labelMenuItem>            
+        </_labelMenu>
+    </class>  
+    
+    <class name="hierarchicalMenubarUser" extends="hierarchicalMenubar" >
+        <_labelMenu labelid="808" width="250">
+            <_labelMenuItem labelid="751" width="250">
+                <handler name="onclick">
+                    if (hib.userobject.userlevel.level_id == 1){
+                        new helpCenter(canvas);
+                    } else {
+                        new modHelpCenter(canvas);
+                    }
+                </handler>
+            </_labelMenuItem> 
+            <_labelMenuItem labelid="5" width="250">
+                <handler name="onclick">
+                    quicklinkAct("userSettings");
+                </handler>
+            </_labelMenuItem>  
+            <_labelMenuItem labelid="310" width="250">
+                <handler name="onclick">
+                    quicklinkAct('logout');
+                </handler>
+            </_labelMenuItem>  
+            <_labelMenuItem labelid="284" width="250">
+                <handler name="onclick">
+                    LzBrowser.loadURL(canvas.currentappnamebugurl,"_blank");
+                </handler>
+            </_labelMenuItem>            
+        </_labelMenu>
+    </class>  
+    
+</library>

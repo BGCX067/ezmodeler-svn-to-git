@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<library>
+
+<!--- "System" panel on the dashboard -->
+<class name="revisionhistorySidebar" extends="sideBarPod" labelid="601"
+       iconName="icon_history_inspector" contentHeight="260" contentY="20">
+    
+    <attribute name="currentRemoteDiagram" value="null" />
+    
+    <handler name="oninit">
+        //Add Help Item
+        canvas.addCurrentHelpId(16,this.__constructor__.classname);
+    </handler>
+    
+    <method name="refresh" args="diagram">
+        this.currentRemoteDiagram = diagram;
+        if (this.contentIsInited) {
+        	if (this.content.visibility == "visible") {
+                this.content._inner.getDiagramHistoryByNo.doCall();
+        	} else {
+        		//if ($debug) Debug.warn("CONTENT WAS NOT VISIBLE");
+        	}
+        }
+    </method>
+    
+    <handler name="contentInit" >
+        this.currentRemoteDiagram = canvas.currentDiagramRef._scrollcontent.dragArea.contentArea._currentBoard.currentDiagramObject;
+        new lz.revisionhistorySidebarContent(this,{name:'content'});
+    </handler>
+</class> 
+
+<class name="revisionhistorySidebarContent" extends="view" y="20" 
+       bgcolor="$once{ canvas.currentMenuLayoutBackGround }" 
+      x="16" width="${ parent.width-16 }" 
+      height="$once{ parent.height-21 }" >
+    
+    <attribute name="currentDiagram" value="null" />
+    
+    <netRemoteCallRPC name="getDiagramObjectsById" funcname="getDiagramObjectsById" 
+                      remotecontext="$once{  canvas.diagramServiceRPC }" >      
+        <attribute name="diagramId" value="" type="string" />
+        <netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+        <netparam><method name="getValue">return parent.diagramId;</method></netparam> 
+        <netparam><method name="getValue">return canvas.currentdomainObj.organisation_id;</method></netparam>
+        <handler name="ondata" args="value">
+            //if ($debug) Debug.write("getDiagramObjectsByNo: ",value);
+            parent.loadDiagram(value);
+        </handler>
+    </netRemoteCallRPC>         
+    
+    <method name="loadDiagram" args="value">
+        ////if ($debug) Debug.write("loadDiagram: ",this.currentDiagram);
+        
+        canvas.currentDiagram = this.currentDiagram;
+        canvas.currentInstanceList = value;
+        
+        if (this.currentDiagram.diagramType.diagramTypeId == 1) {
+            quicklinkAct('processgroup');
+        } else if (this.currentDiagram.diagramType.diagramTypeId == 2) {
+            quicklinkAct('roleView');
+        } else if (this.currentDiagram.diagramType.diagramTypeId == 3) {
+            quicklinkAct('hierarchical');
+        }
+    </method>
+
+    <baseturnOverListPaged width="$once{ parent.width }" name="_inner"
+          height="$once{ parent.height }" asc="true" listItemName="historyListItem" step="500">
+        
+        <handler name="onclickedItem" args="obj">
+            if ($debug) Debug.write("obj",obj.diagramObj);
+            //parent.currentDiagram = obj.diagramObj;
+            //parent.getDiagramObjectsById.diagramId = obj.diagramObj.diagramId;
+            //parent.getDiagramObjectsById.doCall();
+            canvas.diagramServiceRPC.getDiagramObjectsByDiagram(obj.diagramObj.diagramId,obj.diagramObj);
+        </handler>
+    
+        <handler name="oninit">
+            this.addHeaderItem(589,40);
+            this.addHeaderItem(588,112);
+            this.addHeaderItem(602,70);
+            this.addHeaderItem(603,160);
+            
+            ////if($debug) Debug.write("this.getDiagramHistoryByNo: ",parent.parent.currentRemoteDiagram);
+            this.getDiagramHistoryByNo.doCall();
+        </handler>  
+        
+        <netRemoteCallRPC name="getDiagramHistoryByNo" funcname="getDiagramHistoryByNo" 
+                          remotecontext="$once{  canvas.diagramServiceRPC }" >      
+            <netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+            <netparam><method name="getValue">return canvas.currentdomainObj.organisation_id;</method></netparam>
+            <netparam><method name="getValue">return parent.parent.parent.parent.currentRemoteDiagram.diagramNo;</method></netparam>
+            <netparam><method name="getValue">return canvas.userlang;</method></netparam> 
+            <handler name="ondata" args="value">
+                if ($debug) Debug.write("getDiagramHistoryByNo: ",value);
+                this.parent.initValues(value.records);
+                this.parent.renderContent(value.result);
+            </handler>
+        </netRemoteCallRPC> 
+        
+        <!--
+        <method name="doLoadList" args="loadList">
+            <![CDATA[
+                this.clearList();
+                for (var i=0;i<loadList.length;i++) {
+                    
+                    ////if ($debug) Debug.write("loadList[i]: ",loadList[i]);
+                    
+                    new lz.historyListItem(this._innerlist._inn._inn,{
+                        diagramObj:loadList[i],
+                        diagramNo:loadList[i].diagramNo,
+                        diagramrevisionId:loadList[i].diagramrevision.diagramrevisionId,
+                        diagramname:loadList[i].name,
+                        insertedby:loadList[i].insertedby.login,
+                        comment:loadList[i].diagramrevision.comment,
+                        typelabel:loadList[i].diagramType.label.value,
+                        inserted:parseDateToStringTime(loadList[i].inserted)
+                    });
+                    
+                }
+            ]]>
+        </method> 
+        
+        diagramrevisionId
+        inserted
+        insertedby
+        comment
+        user_id
+         -->
+         
+        <method name="renderContent" args="records">
+            <![CDATA[
+                //this.clearList();
+                var list = this._innerlist._inn._inn;
+                this.renderList = records;
+                
+                this._innerlist._inn.setAttribute("y",0);
+                this._innerlist._inn._inn.setAttribute("height",records.length*20);
+                
+                this._innerlist._inn.resetItems();
+                
+                for (var i=0;i<list.subviews.length;i++){
+                    if (records.length > i) {
+                        list.subviews[i].setAttribute("clickable",true);
+                        list.subviews[i].diagramObj = records[i];
+                        list.subviews[i].setAttribute("diagramrevisionId",records[i].diagramrevision.diagramrevisionId);
+                        list.subviews[i].setAttribute("insertedby",records[i].insertedby.login);
+                        list.subviews[i].setAttribute("inserted",parseDateToStringTime(records[i].inserted));
+                        list.subviews[i].setAttribute("comment",records[i].comment);
+                        list.subviews[i].setAttribute("user_id",records[i].insertedby.user_id);
+                    } else {
+                        list.subviews[i].diagramObj = null;
+                        list.subviews[i].setAttribute("diagramrevisionId","");
+                        list.subviews[i].setAttribute("insertedby","");
+                        list.subviews[i].setAttribute("inserted","");
+                        list.subviews[i].setAttribute("comment","");
+                        list.subviews[i].setAttribute("user_id",0);
+                    }
+                }
+                
+            ]]>
+        </method> 
+        
+        <handler name="onScrollItem" args="item">
+            <![CDATA[
+                if (this.renderList.length > item.itemId) {
+                    item.setAttribute("clickable",true);
+                    item.diagramObj = this.renderList[item.itemId];
+                    item.setAttribute("diagramrevisionId",this.renderList[item.itemId].diagramrevision.diagramrevisionId);
+                    item.setAttribute("insertedby",this.renderList[item.itemId].insertedby.login);
+                    item.setAttribute("inserted",parseDateToStringTime(this.renderList[item.itemId].inserted));
+                    item.setAttribute("comment",this.renderList[item.itemId].comment);
+                    item.setAttribute("user_id",this.renderList[item.itemId].insertedby.user_id);
+                } else {
+                    item.diagramObj = null;
+                    item.setAttribute("diagramrevisionId","");
+                    item.setAttribute("insertedby","");
+                    item.setAttribute("inserted","");
+                    item.setAttribute("comment","");
+                    item.setAttribute("user_id",0);
+                    item.setAttribute("clickable",false);
+                }
+            ]]>
+        </handler> 
+        
+    </baseturnOverListPaged>
+
+</class>
+    
+<class name="historyListItem" extends="basePagingListItem" >
+	
+	<attribute name="diagramObj" value="null" />
+    
+	<attribute name="diagramNo" value="0" type="number" />
+	<attribute name="diagramrevisionId" value="0" type="number" />
+	<attribute name="diagramname" value="" type="string" />
+	<attribute name="typelabel" value="" type="string" />
+	<attribute name="inserted" value="" type="string" />
+	<attribute name="insertedby" value="" type="string" />
+	<attribute name="comment" value="" type="string" />	
+	<attribute name="user_id" value="0" type="number" />
+
+	<turnOverTextItem text="${ parent.diagramrevisionId }" width="40" />
+	<turnOverTextItem text="${ parent.inserted }" width="112" />
+	<turnOverTextItem text="${ parent.insertedby }" width="70" />
+	<turnOverTextItem text="${ parent.comment }" width="160" />
+    
+    
+    <labelTooltip userId="${ parent.user_id }" multiline="true">
+        <handler name="onInitText">
+            this.setAttribute('text','Comment: '+parent.comment)
+        </handler>
+    </labelTooltip>
+    
+</class>
+
+</library>

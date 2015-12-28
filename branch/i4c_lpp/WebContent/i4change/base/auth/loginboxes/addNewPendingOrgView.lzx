@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+    
+<class name="pendingOrgForm" extends="view">
+    <labelText labelid="170" width="200" y="40" resize="false" fontstyle="bold" />  
+    
+    <labelText labelid="171" width="200" y="70" resize="false" x="2"/>
+        <customEdittext name="orgname" y="70" x="120" width="400" text="" />    
+    
+    <labelText labelid="273" width="200" y="100" resize="false" x="2" fontstyle="bold" />     
+    
+    <labelText labelid="891" width="200" y="140" resize="false" x="2" fontstyle="bold" />   
+    
+    <labelText labelid="893" width="200" y="170" resize="false" x="2" />   
+    
+    <list name="_orgPatternlist" y="170" x="120" width="400" height="100" >
+        <method name="clearList">
+            <![CDATA[
+                var currentCount = this.getNumItems();
+                for (var i = 0; i < currentCount; i++) {
+                    this.removeItemAt(0);
+                }
+            ]]>
+        </method>
+        <method name="getValuesForUpdate">
+            <![CDATA[
+                var itemList = new Array();
+                var currentCount = this.getNumItems();
+                for (var i = 0; i < currentCount; i++) {
+                    var item = this.getItemAt(i);
+                    var v = item.getValue();
+                    itemList.push(v);
+                }
+                return itemList;
+            ]]>
+        </method>
+        <method name="addItemDelete" args="txt,val">
+            new lz.textListItemToDelete(this,{
+                    text:txt,value:val
+                });
+        </method>
+    </list>
+    
+    <baseChooseIcon resourceN="edit_add_rsc" labelid="890" y="140" x="496" 
+        width="24" height="24" onclick="this.parent.addNewPattern()" />        
+    <method name="addNewPattern">
+        new lz.addOrgProperties(this,{
+                x:120,y:100,refObj:this
+            });
+    </method>
+    <method name="addDomainToList" args="newDomainName">
+        this._orgPatternlist.addItemDelete(newDomainName,newDomainName);
+    </method> 
+</class>
+
+<class name="addNewPendingOrgView" extends="view" >
+    
+    <attribute name="refObj" value="null" />
+    <attribute name="newOrgId" value="0" type="number" />
+    <attribute name="regObject" value="null" />
+    
+    
+    <handler name="onclose">
+    	this.refObj._addOrgButton.setAttribute('visible',true);
+    	this.refObj.doreset.doStart();
+    </handler>
+    
+    <infoIconBox y="24" x="10" width="$once{ parent.width - 20 }"
+                 labelid="907" />    
+                 
+    <pendingOrgForm name="_orgItems" y="100" />                
+
+    <method name="register">
+        //this.registerB.onclick.sendEvent();
+        this.addPendingOrganization.orgName = this._orgItems.orgname.getText();
+        this.addPendingOrganization.orgPatternMap = this._orgItems._orgPatternlist.getValuesForUpdate();
+        this.addPendingOrganization.doCall();
+    </method>
+    
+    <simpleLabelButton name="_back" labelid="1109" width="120" x="280" y="490">
+    	<handler name="onclick">
+            <![CDATA[
+                this.parent.parent.parent.parent.backToOrgChoose();
+            ]]>
+    	</handler>
+    </simpleLabelButton>  
+
+    <simpleLabelButton name="_registerBtn" labelid="909" width="120" x="410" y="490">
+    	<handler name="onclick">
+            <![CDATA[
+                this.parent.register();
+            ]]>
+    	</handler>
+    </simpleLabelButton>   
+	
+     <netRemoteCallRPC name="addPendingOrganization" funcname="addPendingOrganization" 
+     	remotecontext="$once{ canvas.organisationServiceRPC }" activeErrorHandler="true" >
+        <attribute name="orgPatternMap" value="null" />
+        <attribute name="orgName" value="null" />         
+        <netparam><method name="getValue">return canvas.sessionId;</method></netparam>
+        <netparam><method name="getValue">return parent.orgName;</method></netparam>
+        <netparam><method name="getValue">return parent.orgPatternMap;</method></netparam>     
+         <handler name="ondata" args="value">
+         	<![CDATA[
+	            //The onResult-Handler will be called be the rtmpconnection
+	            //if ($debug) Debug.write("addPendingOrganization: ",value);
+                if (value > 0) {
+                    parent.newOrgId = value;
+                    parent.getOrganisationsByUser.doCall();
+                }
+			]]>
+         </handler>  
+     </netRemoteCallRPC>	
+     
+    <netRemoteCallRPC name="getOrganisationsByUser" funcname="getOrganisationsByUser" 
+                      remotecontext="$once{ canvas.organisationServiceRPC }" >      
+        <netparam><method name="getValue"> return canvas.sessionId; </method></netparam> 
+        <handler name="ondata" args="value">
+            <![CDATA[
+                //The onResult-Handler will be called be the rtmpconnection
+                //if ($debug) Debug.write("getOrganisationsByUser: ",value);
+                parent.parent._orgLoginValues.organisation.reset();
+                canvas.userobject.organisation_users = value;
+                for (var i=0;i<value.length;i++){
+                   parent.parent._orgLoginValues.organisation.addItemWithObject(value[i].organisation.name,
+                        value[i].organisation.organisation_id,value[i].organisation,value[i]);
+                }
+                parent.parent._orgLoginValues.organisation.selectItem(""+parent.newOrgId);
+                parent.parent.parent.parent.backToOrgChoose();
+            ]]>
+        </handler>  
+    </netRemoteCallRPC>         
+	
+</class>
+
+</library>

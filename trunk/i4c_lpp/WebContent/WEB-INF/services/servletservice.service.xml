@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:lang="http://www.springframework.org/schema/lang"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+                           http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-2.0.xsd">
+    
+    
+    <bean id="activateUserService.service" parent="txProxyTemplate">
+        <property name="target" ref="txActivateUserService.service" />
+    </bean>
+    
+    <!-- Class for Methods which can be invoked by the servlet -->
+    <bean id="txActivateUserService.service" 
+        class="org.i4change.app.servlets.services.ActivateUserService">
+        <property name="fieldmanagment" ref="i4change.Fieldmanagment"/>
+        <property name="userDaoImpl" ref="i4change.UserDaoImpl"/>
+        <property name="configurationmanagement" ref="i4change.Configurationmanagement" />
+        <property name="mailItemServiceDaoImpl" ref="i4change.MailItemServiceDaoImpl" />
+    </bean>
+    
+    
+    <bean id="downloadHandlerService.service" parent="txProxyTemplate">
+        <property name="target" ref="txDownloadHandlerService.service" />
+    </bean>
+    
+    <!-- Class for Methods which can be invoked by the servlet -->
+    <bean id="txDownloadHandlerService.service" 
+        class="org.i4change.app.servlets.services.DownloadHandlerService">
+    	<property name="userDaoImpl" ref="i4change.UserDaoImpl"/>
+        <property name="sessionmanagement" ref="i4change.Sessionmanagement"/>
+    </bean>
+    
+    
+    <bean id="downloadHashHandlerService.service" parent="txProxyTemplate">
+        <property name="target" ref="txDownloadHashHandlerService.service" />
+    </bean>
+    
+    <!-- Class for Methods which can be invoked by the servlet -->
+    <bean id="txDownloadHashHandlerService.service" 
+        class="org.i4change.app.servlets.services.DownloadHashHandlerService">
+        <property name="userDaoImpl" ref="i4change.UserDaoImpl"/>
+        <property name="sessionmanagement" ref="i4change.Sessionmanagement"/>
+        <property name="downloadHashDaoImpl" ref="i4change.DownloadHashDaoImpl"/>
+    </bean>
+    
+    
+    <bean id="exportService.service" parent="txProxyTemplate">
+        <property name="target" ref="txExportService.service" />
+    </bean>
+    
+    <!-- Class for Methods which can be invoked by the servlet -->
+    <bean id="txExportService.service" 
+        class="org.i4change.app.servlets.services.ExportService">
+        <property name="userDaoImpl" ref="i4change.UserDaoImpl"/>
+        <property name="sessionmanagement" ref="i4change.Sessionmanagement"/>
+        <property name="organisationDaoImpl" ref="i4change.OrganisationDaoImpl"/>
+        <property name="organisationUserDaoImpl" ref="i4change.OrganisationUserDaoImpl"/>
+    </bean>
+    
+    
+    <bean id="exportDiagramService.service" parent="txProxyTemplate">
+        <property name="target" ref="txExportDiagramService.service" />
+    </bean>
+    
+    <!-- Class for Methods which can be invoked by the servlet -->
+    <bean id="txExportDiagramService.service" 
+        class="org.i4change.app.servlets.services.ExportDiagramService">
+        <property name="userDaoImpl" ref="i4change.UserDaoImpl"/>
+        <property name="sessionmanagement" ref="i4change.Sessionmanagement"/>
+        <property name="generatePreview" ref="i4change.GeneratePreview"/>
+        <property name="generateImage" ref="i4change.GenerateImage"/>
+        <property name="impressDraw" ref="i4change.ImpressDraw"/>
+        <property name="xmlExport" ref="i4change.XMLExport"/>
+    </bean>
+    
+    
+    <bean id="langExportService.service" parent="txProxyTemplate">
+        <property name="target" ref="txLangExportService.service" />
+    </bean>
+    
+    <!-- Class for Methods which can be invoked by the servlet -->
+    <bean id="txLangExportService.service" 
+        class="org.i4change.app.servlets.services.LangExportService">
+        <property name="userDaoImpl" ref="i4change.UserDaoImpl"/>
+        <property name="sessionmanagement" ref="i4change.Sessionmanagement"/>
+        <property name="fieldmanagment" ref="i4change.Fieldmanagment"/>
+        <property name="languagemanagement" ref="i4change.Languagemanagement"/>
+    </bean>
+    
+    
+    <bean id="unregisterService.service" parent="txProxyTemplate">
+        <property name="target" ref="txUnregisterService.service" />
+    </bean>
+    
+    <!-- Class for Methods which can be invoked by the servlet -->
+    <bean id="txUnregisterService.service" 
+        class="org.i4change.app.servlets.services.UnregisterService">
+        <property name="userDaoImpl" ref="i4change.UserDaoImpl"/>
+        <property name="fieldmanagment" ref="i4change.Fieldmanagment"/>
+        <property name="configurationmanagement" ref="i4change.Configurationmanagement" />
+    </bean>
+    
+    
+    <bean id="uploadHandlerService.service" parent="txProxyTemplate">
+        <property name="target" ref="txUploadHandlerService.service" />
+    </bean>
+    
+    <!-- Class for Methods which can be invoked by the servlet -->
+    <bean id="txUploadHandlerService.service" 
+        class="org.i4change.app.servlets.services.UploadHandlerService">
+        <property name="userDaoImpl" ref="i4change.UserDaoImpl"/>
+        <property name="sessionmanagement" ref="i4change.Sessionmanagement"/>
+        <property name="generateImage" ref="i4change.GenerateImage" />
+        <property name="generateThumbs" ref="i4change.GenerateThumbs" />
+    </bean>
+    
+        
+    <bean id="documentUploadHandlerService.service" parent="txProxyTemplate">
+        <property name="target" ref="txDocumentUploadHandlerService.service" />
+    </bean>
+    
+    <!-- Class for Methods which can be invoked by the servlet -->
+    <bean id="txDocumentUploadHandlerService.service" 
+        class="org.i4change.app.servlets.services.DocumentUploadHandlerService">
+        <property name="userDaoImpl" ref="i4change.UserDaoImpl"/>
+        <property name="sessionmanagement" ref="i4change.Sessionmanagement"/>
+    </bean>    
+    
+</beans>

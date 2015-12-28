@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+    
+    <resource name="diagram_list_rename_rsc" src="resources/rename.png" />
+    <resource name="diagram_list_copy_rsc" src="resources/copy.png" />
+    <resource name="diagram_list_history_rsc" src="resources/gear_find.png" />
+    <resource name="diagram_list_delete_rsc" src="resources/delete2.png" />
+	
+    <include href="baseDiagramLoader.lzx" />
+	<include href="diagramLoader.lzx" />
+    <include href="diagramLoaderWin.lzx" />
+    <include href="diagramName.lzx" />
+
+</library>

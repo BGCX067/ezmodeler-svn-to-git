@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<library>
+    
+<class name="sideBarDraggingPod" extends="view" width="10" height="10">
+    <handler name="onx">
+        this.refObj.setNewX(this);
+    </handler>
+    <attribute name="refObj" value="null" />
+    <dragstate name="dragger" drag_axis="x" drag_min_x="100"  
+                />
+</class>    
+
+</library>

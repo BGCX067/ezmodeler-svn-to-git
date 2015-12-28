@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+  <class table="mailitem" name="org.i4change.app.hibernate.beans.mail.MailItem">
+    <id column="mailitem_id" name="mailItemId">
+      <generator class="increment"/>
+    </id>
+    <property name="inserted" type="java.util.Date" column="inserted"/>
+    <property name="updated" type="java.util.Date" column="updated"/>
+    <property name="insertedby" type="long" column="insertedby"/>
+    <property name="updatedby" type="long" column="updatedby"/>
+    <property name="sender" type="string" column="sender"/>
+    <property name="receipent" type="string" column="receipent"/>
+    <property name="subject" type="string" column="subject"/>
+    <property name="content" type="text" column="content"/>
+    <property name="send" type="boolean" column="send"/>
+    <property name="deliverStatus" type="string" column="deliverstatus"/>
+    <property name="filePath" type="string" column="filePath"/>
+  </class>
+</hibernate-mapping>

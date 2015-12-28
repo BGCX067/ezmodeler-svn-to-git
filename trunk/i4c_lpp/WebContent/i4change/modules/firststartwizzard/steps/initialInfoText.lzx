@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+    
+<class name="initialInfoText" extends="view" >
+    
+    <event name="onComplete" />
+    
+    <view name="_infoText" layout="axis:y;spacing:2" y="2">
+        <view  layout="axis:y;spacing:2">
+            <handler name="oninit">
+                <![CDATA[
+                    var dtString = canvas.getLabelName(779);
+                    dtString += '<A HREF="asfunction:_root.clickedItem,1"><FONT COLOR="#6633FF"><U>'+ canvas.getLabelName(780) +'</U></FONT></A><BR />';
+                    dtString += canvas.getLabelName(781);
+                    dtString += '<A HREF="asfunction:_root.clickedItem,2"><FONT COLOR="#6633FF"><U>'+ canvas.getLabelName(782) +'</U></FONT></A>';
+                    dtString += canvas.getLabelName(783);
+                    this._mainText.setAttribute('text',dtString);
+                ]]>
+            </handler>
+            <labelText name="_mainText" y="22" x="2" width="240" multiline="true" text="" />
+                            
+            <labelText name="_mainTextHeader" y="82" x="2" labelid="784" fontstyle="bold" />
+            <labelText name="_mainText_help" y="112" x="2" labelid="785" 
+                       width="240" multiline="true"/>
+            
+        </view>
+    </view>
+    
+    <view height="$once{ parent.parent.height - 52 }" y="0" x="240" 
+          width="2" bgcolor="0x3F5B9E" />
+          
+    <view x="242" width="$once{ parent.parent.width - 243 }">
+        
+        <labelText name="_mainText_header" x="2" labelid="1230" fontsize="12"
+                       fontstyle="bold" width="240" multiline="true"/>
+        
+        <labelText name="_mainText_help" y="30" x="2" labelid="1413" 
+                       fontstyle="bold" width="$once{ parent.width -4 }" multiline="true"/>
+                       
+        <view name="_chooseType" y="60" 
+              height="$once{ parent.parent.parent.height - 60 }"
+              width="$once{ parent.width }" >
+            
+            <view valign="middle" align="center" layout="axis:y;spacing:4">
+                
+                <simpleLabelButton labelid="1414" width="260" height="48">
+                    <handler name="onclick">
+                        parent.parent.parent.parent.parent.doInitWizzardByType("topDownApproach");
+                    </handler>
+                </simpleLabelButton>
+                
+                <!--
+                <simpleLabelButton labelid="1233" width="260" height="48">
+                    
+                </simpleLabelButton>
+                 -->
+                
+            </view>
+            
+        </view>
+        
+    </view>
+    
+</class>
+
+</library>

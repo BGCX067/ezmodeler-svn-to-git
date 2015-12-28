@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<canvas debug="true" width="100%" height="100%" >
+    <debug fontsize="12" oninit="Debug.showInternalProperties = true" />
+    
+	<security>
+        <allow>
+            <pattern>^org.i4change.app.http.javarpc\.MainServiceRPC</pattern>
+        </allow>
+    </security>
+    
+    <attribute name="sessionId" value="" type="string"/>
+    <attribute name="password" value="67810" type="string"/>
+    
+    <!-- See WEB-INF/classes/TypesExample.java for java source. -->
+    <javarpc name="mainServiceRPC" scope="webapp" autoload="false" objectreturntype="javabean"
+    		 remoteclassname="org.i4change.app.http.javarpc.MainServiceRPC">
+    
+        <handler name="onload">
+            // Set buttons visible only after JavaRPC object loads
+            if ($debug) Debug.write('onload:', this);
+        </handler>
+
+        <handler name="ondata" args="res">
+            if ($debug) Debug.write('(types ondata) response is:', res);
+        </handler>
+
+        <handler name="onerror" args="errmsg">
+            if ($debug) Debug.write('(types onerror) error:', errmsg);
+        </handler>
+        
+    </javarpc>
+    
+    <simplelayout axis="y" spacing="2" />
+    
+    <button text="doLoad">
+        <handler name="onclick">
+            mainServiceRPC.load();
+        </handler>
+    </button>
+    
+    
+    <remotecall name="loginUser" funcname="loginUser"
+		remotecontext="$once{ canvas.mainServiceRPC }" >
+    	<attribute name="newUserLang" value="0" type="number" />      
+        <param><method name="getValue"> return canvas.sessionId; </method></param>  
+        <param><method name="getValue"> return "seba.wagner";</method></param>  
+        <param><method name="getValue"> return canvas.password;</method></param>  
+        <param><method name="getValue"> return 1;</method></param>  
+        <handler name="ondata" args="value">
+			<![CDATA[
+	            //The onResult-Handler will be called be the rtmpconnection
+	            if ($debug) Debug.write("loginUser ondata: ",value);
+            ]]>
+        </handler>  
+    </remotecall>   
+    
+    <remotecall name="getsessiondata" funcname="getsessiondata"
+        remotecontext="$once{ canvas.mainServiceRPC }" >
+        <handler name="ondata" args="value">
+            <![CDATA[
+                //The onResult-Handler will be called be the rtmpconnection
+                if ($debug) Debug.write("getsessiondata ondata: ",value);
+            ]]>
+        </handler>  
+    </remotecall> 
+    
+    <button text="loginUser">
+    	<handler name="onclick">
+    		parent.loginUser.invoke();
+    	</handler>
+    </button>
+    
+    <remotecall name="fail" funcname="fail"
+        remotecontext="$once{ canvas.mainServiceRPC }" >
+        <handler name="ondata" args="value">
+            <![CDATA[
+                //The onResult-Handler will be called be the rtmpconnection
+                if ($debug) Debug.write("fail ondata: ",value);
+            ]]>
+        </handler>  
+    </remotecall>
+    
+    <button text="fail">
+    	<handler name="onclick">
+    		parent.fail.invoke();
+    	</handler>
+    </button>
+    
+    <button text="getsessiondata">
+        <handler name="onclick">
+            parent.getsessiondata.invoke();
+        </handler>
+    </button>
+    
+    
+</canvas>

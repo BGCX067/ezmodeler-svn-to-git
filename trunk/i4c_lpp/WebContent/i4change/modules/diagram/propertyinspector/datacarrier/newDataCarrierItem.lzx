@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<library>
+    
+<class name="newDataCarrierItem" extends="view" height="0" y="50" clip="true" 
+	   width="$once{ parent.width }" bgcolor="0xFFFFFF" 
+	   clickable="true" showhandcursor="true" >
+	
+	<attribute name="isStandAlone" value="false" type="boolean"/>
+	
+	<attribute name="diagramobjectId" value="0" type="number" />
+    <attribute name="objectTypeAppName" value="datacarrier" type="string"/>
+    <attribute name="currentCategoryId" value="0" type="number" />
+    
+    <method name="setObjectTypes" args="oTypes">
+    	<![CDATA[
+    	    this.scrollpart._inner._objectType.reset();
+    	    for (var i=0;i<oTypes.length;i++){
+    	    	this.scrollpart._inner._objectType.addItem(canvas.getLabelName(oTypes[i].labelid),oTypes[i].name);
+    	    }
+    	    this.scrollpart._inner._objectType.selectItemAt(0);
+    	]]>
+    </method>
+    
+    <method name="setDiagramObject" args="dObject">
+    	this.scrollpart._inner._objectType.selectItem(dObject.objectTypeName);
+    	this.scrollpart._inner._dataCarrierName.setAttribute("text",dObject.name);
+    	this.scrollpart._inner._rte.setText(dObject.comment);
+    	this.scrollpart._inner.getDiagramObjectPropertyByObjectAndCat.doCall();
+    	this.scrollpart._inner.initContentProperty();
+    </method>
+    
+    <animatorgroup name="_doShow" start="false" duration="750">
+         <animator attribute="height" to="450" />
+         <handler name="onstop">
+            parent.scrollpart._inner.initContentProperty();
+         </handler>
+     </animatorgroup>
+     <animatorgroup name="_doClose" start="false" duration="750">
+        <animator attribute="height" to="0" />
+    </animatorgroup>
+    
+    <view height="1" width="$once{ parent.width }" bgcolor="0xD0D0D0" />
+    <view name="scrollpart" y="1" width="$once{ parent.width }" height="${ parent.height }">
+    	<view name="_inner" >
+    		
+            <attribute name="currentPropertyList" value="null" />
+            <attribute name="currentPropertyCategoryList" value="null" />
+            
+            <attribute name="currentSavePropertyList" value="null" />
+            
+            <attribute name="isLoaded" value="false" type="boolean"/>
+            
+            <method name="initContentProperty">
+            	this.currentSavePropertyList = new Array();
+                this.getDiagramObjectPropertyByObjectAndCat.doCall();
+                if (parent.parent.diagramobjectId == 0) {
+                	this._rte.setText('');
+                }
+                this.isLoaded = true;
+            </method>
+            
+            <method name="reloadContentProperty">
+            	if (this.isLoaded) {
+            		this.currentSavePropertyList = new Array();
+            		this.getDiagramObjectPropertyByObjectAndCat.doCall();
+            	}
+            </method>
+            
+            <method name="updatePropValue" args="propertyId,text">
+                <![CDATA[
+                    if ($debug) Debug.write("updatePropValue :: ",propertyId,text,this.currentSavePropertyList);
+                    
+                    var foundItem = false;
+                    var doUpdate = true;
+            
+                    for (var i=0;i<this.currentSavePropertyList.length;i++) {
+                        if (this.currentSavePropertyList[i].propertyId == propertyId) {
+                            if (this.currentSavePropertyList[i].propertyVal == text) {
+                                //Do not udpate in case its the same like before
+                                doUpdate = false;
+                            } else {
+                                this.currentSavePropertyList[i].propertyVal = text;
+                            }
+                            foundItem = true;
+                            break;
+                        }
+                    }
+                    
+                    if (!foundItem) {
+                        if (text == null || text.length == 0) {
+                            //Do not update in case its an empty entry and there was no previous value
+                            doUpdate = false;
+                        } else {
+                            this.currentSavePropertyList.push({'propertyId':propertyId,'propertyVal':text});
+                        }
+                    }
+                    
+                ]]>
+            </method>
+            
+            <method name="loadContentByCategory" args="catId">
+                parent.parent.currentCategoryId = catId;
+                this.content.clearList();
+                this.getDiagramObjectPropertyByObjectAndCat.doCall();
+            </method>
+                
+            <netRemoteCallRPC name="getDiagramObjectPropertyByObjectAndCat" funcname="getDiagramObjectPropertyByObjectAndCat" 
+                                  showLoading="false" remotecontext="$once{ canvas.propertyServiceRPC }" >   
+                <attribute name="diagramobjectId" type="number" value="0" />
+                <attribute name="objectTypeAppName" type="string" value="" />
+                <netparam><method name="getValue">return canvas.sessionId;</method></netparam>
+                <netparam><method name="getValue">return canvas.currentdomainObj.organisation_id;</method></netparam>
+                <netparam><method name="getValue">return parent.parent.parent.parent.diagramobjectId;</method></netparam>
+                <netparam><method name="getValue">return parent.parent.parent.parent.objectTypeAppName;</method></netparam>
+                <netparam><method name="getValue">return parent.parent.parent.parent.currentCategoryId;</method></netparam>
+                <netparam><method name="getValue">return canvas.userlang;</method></netparam> 
+                <handler name="ondata" args="value">
+                    if ($debug) Debug.write("getDiagramObjectPropertyByObjectAndCat ",value,parent.parent.parent.currentCategoryId,parent.parent.parent.objectTypeAppName);
+                    parent.currentPropertyList = value.properties;
+                    parent.currentPropertyCategoryList = value.propertyCategory;
+                    parent.loadProperties();
+                </handler>
+            </netRemoteCallRPC>
+
+            <method name="loadProperties">
+                ////if ($debug) Debug.write("######## ********** 2 ",this.indexItem);
+                this.content.clearList();
+                this.content.loadCategories(this.currentPropertyCategoryList,parent.parent.currentCategoryId);
+                this.content.loadPropertiesList(null,this.currentPropertyList,this.currentSavePropertyList,false);
+            </method>
+            
+            <labelText labelid="821" y="4" fontstyle="bold" />
+            
+            <labelText labelid="825" y="24" />
+                <customEdittext name="_dataCarrierName" y="24" x="120" width="496" text="" />
+        
+            <labelText labelid="1375" y="50" />
+                <omComboBox name="_objectType" editable="false" x="120" 
+                			y="50" width="496">
+                	<handler name="onselect" args="sel">
+                		parent.parent.parent.objectTypeAppName = sel.value;
+                		parent.reloadContentProperty();
+                	</handler>
+                </omComboBox>
+            
+            <labelText labelid="1395" y="80" />
+            <view width="1" height="170" x="120" y="80" bgcolor="0xCCCCCC" />
+            <rte y="80" x="121" name="_rte" height="170" width="495"/>
+            
+            <!--
+            <view height="1" y="240" width="$once{ parent.width }" bgcolor="0xD0D0D0" />
+             -->
+             
+            <labelText labelid="1396" y="224" />
+            <view width="1" height="200" x="120" y="224" bgcolor="0xCCCCCC" />
+            <propertyInspectorSidebarContent y="224" name="content" x="121" 
+                width="$once{ parent.parent.parent.width-121 }" height="200">
+                        
+            </propertyInspectorSidebarContent>
+    	</view>
+    	
+    	<!--
+    	<vscrollbar />
+    	<hscrollbar />
+    	 -->
+    </view>
+    
+    
+    <simpleLabelButton labelid="823" name="_register1" width="100" 
+                       x="$once{ parent.width - this.width-102 }" y="428">
+        <handler name="onclick">
+            if (parent.scrollpart._inner._dataCarrierName.getText().length != 0){
+            	if (parent.diagramobjectId == 0) {
+                    parent.addNonVisualObject.doCall();
+            	} else {
+                    parent.updateNonVisualObject.doCall();
+            	}
+            } else {
+            	new lz.warningPopup(canvas,{error:canvas.getLabelName(1363),closable:true});
+            }
+        </handler>
+    </simpleLabelButton>  
+    
+    <simpleLabelButton labelid="824" name="_register2" width="100" 
+                       x="$once{ parent.width - this.width }" y="428">
+        <handler name="onclick">
+            parent._doClose.doStart();
+        </handler>
+    </simpleLabelButton> 
+    
+    <!--
+        public Long addNonVisualObject(String SID, 
+            String name, Long organisation_id, 
+            String type, String comment, Vector properties)
+     -->
+    <netRemoteCallRPC name="addNonVisualObject" funcname="addNonVisualObject" 
+                      remotecontext="$once{  canvas.diagramServiceRPC }" >      
+        <netparam><method name="getValue">return canvas.sessionId;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.scrollpart._inner._dataCarrierName.getText();</method></netparam>
+        <netparam><method name="getValue">return canvas.currentdomainObj.organisation_id;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.objectTypeAppName;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.scrollpart._inner._rte.getText();</method></netparam>
+        <netparam><method name="getValue">return parent.parent.scrollpart._inner.currentSavePropertyList;</method></netparam>
+        <handler name="ondata" args="value">
+            //The onResult-Handler will be called be the rtmpconnection
+            if ($debug) Debug.write("addNonVisualObject: ",value);
+            if ($debug) Debug.write("currentSavePropertyList: ",parent.scrollpart._inner.currentSavePropertyList);
+            parent._doClose.doStart();
+            parent.parent._innerTableProcess.start = 0;
+            parent.parent._innerTableProcess.onUpdateOrder.sendEvent();
+        </handler>  
+    </netRemoteCallRPC> 
+    
+    <netRemoteCallRPC name="updateNonVisualObject" funcname="updateNonVisualObject" 
+                      remotecontext="$once{  canvas.diagramServiceRPC }" >      
+        <netparam><method name="getValue">return canvas.sessionId;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.diagramobjectId;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.scrollpart._inner._dataCarrierName.getText();</method></netparam>
+        <netparam><method name="getValue">return canvas.currentdomainObj.organisation_id;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.objectTypeAppName;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.scrollpart._inner._rte.getText();</method></netparam>
+        <netparam><method name="getValue">return parent.parent.scrollpart._inner.currentSavePropertyList;</method></netparam>
+        <handler name="ondata" args="value">
+            //The onResult-Handler will be called be the rtmpconnection
+            if ($debug) Debug.write("updateNonVisualObject: ",value);
+            if ($debug) Debug.write("currentSavePropertyList: ",parent.scrollpart._inner.currentSavePropertyList);
+            if (parent.isStandAlone) {
+                parent._doClose.doStart();
+                parent.parent._innerTableProcess.start = 0;
+                parent.parent._innerTableProcess.onUpdateOrder.sendEvent();
+            } else {
+            	parent.parent.parent.parent.refreshItemByName(parent.scrollpart._inner._dataCarrierName.getText());
+            }
+        </handler>  
+    </netRemoteCallRPC> 
+    
+</class>
+
+</library>

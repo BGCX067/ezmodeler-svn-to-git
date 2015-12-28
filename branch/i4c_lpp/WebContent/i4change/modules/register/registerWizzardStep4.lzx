@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+<class name="registerWizzardStep4" extends="baseRegisterWizzardStep" headerLabelId="1049" stepNo="5" >
+    
+    <handler name="oninit">
+        var dValues = parent.parent.getStep("roleData");
+        //if ($debug) Debug.write("dValues: ",dValues);
+        
+        if (dValues != null) {
+            var itemArray = new Array();
+            for (var eg in dValues["job_area"]) {
+                itemArray.push(this.job_area.getItem(dValues["job_area"][eg]));
+            }
+            
+            this.job_name.setAttribute("text",dValues["job_name"]);
+            this.job_area.clearSelection();
+            this.job_area.select(itemArray);
+            this.job_type.clearSelection();
+            this.job_type.selectItem(dValues["job_type"]);
+            this.buyersupplier.selectItem(dValues["buyersupplier"]);
+            this.receive_newsletter.setValue(dValues["receive_newsletter"]);
+            
+        }
+    </handler>
+    
+    <!--
+    <method name="doSaveTemp">
+        <![CDATA[
+            var dValues = new Array();
+	        
+            dValues["job_name"] = this.job_name.getText();
+            //if ($debug) Debug.write("dValues[job_name]: ",dValues["job_name"]);
+            
+            dValues["job_type"] = this.job_type.getValue();
+            //if ($debug) Debug.write("dValues[job_type]: ",dValues["job_type"]);
+            
+            dValues["job_area"] = this.job_area.getValue();
+            //if ($debug) Debug.write("dValues[job_area]: ",dValues["job_area"]);
+            
+            dValues["buyersupplier"] = this.buyersupplier.getValue();
+            //if ($debug) Debug.write("dValues[buyersupplier]: ",dValues["buyersupplier"]);
+            
+            dValues["receive_newsletter"] = this.receive_newsletter.getValue();
+            //if ($debug) Debug.write("dValues[receive_newsletter]: ",dValues["receive_newsletter"]);
+            
+            if (dValues["job_name"].length < 3) {
+                new lz.errorPopupWithLabel(canvas,{labelerrorid:1075});
+            } else if (dValues["job_type"] == null) {
+                new lz.errorPopupWithLabel(canvas,{labelerrorid:1076});
+            } else if (dValues["job_area"] == null || dValues["job_area"].length == 0) {
+                new lz.errorPopupWithLabel(canvas,{labelerrorid:1077});
+            } else {
+                parent.parent.saveStep(dValues,"roleData");
+                return true;
+            }
+            
+	        return false;
+        ]]>
+    </method>
+     -->
+    
+    <method name="doSaveTemp">
+        <![CDATA[
+            //no mandatory Fields
+            
+            var dValues = new Object();
+            
+            dValues["job_name"] = this.job_name.getText();
+            //if ($debug) Debug.write("dValues[job_name]: ",dValues["job_name"]);
+            
+            dValues["job_type"] = this.job_type.getValue();
+            //if ($debug) Debug.write("dValues[job_type]: ",dValues["job_type"]);
+            
+            dValues["job_area"] = this.job_area.getValue();
+            //if ($debug) Debug.write("dValues[job_area]: ",dValues["job_area"]);
+            
+            dValues["buyersupplier"] = this.buyersupplier.getValue();
+            //if ($debug) Debug.write("dValues[buyersupplier]: ",dValues["buyersupplier"]);
+            
+            dValues["receive_newsletter"] = this.receive_newsletter.getValue();
+            //if ($debug) Debug.write("dValues[receive_newsletter]: ",dValues["receive_newsletter"]);
+            
+            parent.parent.saveStep(dValues,"roleData");
+            return true;
+        ]]>
+    </method>
+    
+    <labelText labelid="1050" width="200" y="0" resize="false" x="2"/>
+    <customEdittext name="job_name" y="0" x="150" width="340" text="" />
+        
+    <labelText labelid="1051" width="350" y="30" resize="false" x="2"/>
+    <list name="job_type" y="50" x="150" width="340" height="60" style="noStyle" >
+        <labelTextListItem labelid="1052" value="1" />
+        <labelTextListItem labelid="1053" value="2" />
+        <labelTextListItem labelid="1054" value="3" />
+        <labelTextListItem labelid="1055" value="4" />
+        <labelTextListItem labelid="1056" value="5" />
+    </list> 
+    
+    <labelText labelid="1057" width="490" y="120" resize="false" x="2"/> 
+    <list name="job_area" x="150" y="140" width="340" height="100" multiselect="true" style="noStyle" >
+        <labelTextListItem labelid="1058" value="1" />
+        <labelTextListItem labelid="1059" value="2" />
+        <labelTextListItem labelid="1060" value="3" />
+        <labelTextListItem labelid="1061" value="4" />
+        <labelTextListItem labelid="1062" value="5" />
+        <labelTextListItem labelid="1063" value="6" />
+        <labelTextListItem labelid="1064" value="7" />
+    </list> 
+    
+    <labelText labelid="1065" width="390" y="250" resize="false" x="2"/> 
+    <radiogroup name="buyersupplier" x="150" y="270" width="340" layout="class:simplelayout; axis:x">>
+        <labelRadioButton labelid="1066" value="1" selected="true" />
+        <labelRadioButton labelid="1067" value="2" />
+    </radiogroup>
+    
+    <checkbox name="receive_newsletter" y="293" x="4" style="noStyle" /> 
+    <labelText labelid="1068" width="382" y="290" resize="false" x="18" 
+               onclick="parent.receive_newsletter.onclick.sendEvent()" multiline="true"/>  
+    
+    <labelText labelid="1069" width="488" y="330" 
+           multiline="true" resize="false" x="2"/>
+               
+</class>
+
+</library>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+<class name="chooseFlowType" extends="guiPresenter" labelid="647"
+    docking="true" resizeable="false" closable="true" width="360" 
+    y="$once{ parent.getMouse('y')-this.height/2  }"
+    x="$once{ parent.getMouse('x')-this.width/2 }" height="100">
+    
+    <handler name="oninit">
+        //Add Help Item
+        canvas.addCurrentHelpId(10,this.__constructor__.classname);
+    </handler>
+    
+    <attribute name="refObj" value="null" />
+    
+    <infoIconBox y="22" labelid="648" width="$once{ parent.width - 20 }" x="10" />
+                 
+    <simpleLabelButton labelid="651" width="100" x="$once{ parent.width-105*3 }" 
+                       y="$once{ parent.height-24 }">
+    	<handler name="onclick">
+    		this.parent.close();
+    	</handler>
+    </simpleLabelButton>  
+    <simpleLabelButton labelid="649" width="100" x="$once{ parent.width-105*2 }" 
+                       y="$once{ parent.height-24 }">
+        <handler name="onclick">
+            this.parent.refObj.loadInputflow();
+            this.parent.close();
+        </handler>
+    </simpleLabelButton>  
+    <simpleLabelButton labelid="650" width="100" x="$once{ parent.width-105*1 }" 
+                       y="$once{ parent.height-24 }">
+        <handler name="onclick">
+            this.parent.refObj.loadOutputflow();
+            this.parent.close();
+        </handler>
+    </simpleLabelButton>    
+ 
+</class>
+	
+</library>

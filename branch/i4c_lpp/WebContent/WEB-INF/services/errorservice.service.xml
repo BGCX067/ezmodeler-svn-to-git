@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:lang="http://www.springframework.org/schema/lang"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+                           http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-2.0.xsd">
+    
+    <bean id="errorservice.service" parent="txProxyTemplate">
+        <property name="target" ref="txErrorservice.service" />
+    </bean>
+    
+    <!-- Class for Methods which can be invoked by the client -->
+    <bean id="txErrorservice.service"
+        class="org.i4change.app.remote.ErrorService">
+        <property name="fieldmanagment" ref="i4change.Fieldmanagment" />
+        <property name="errorManagement" ref="i4change.ErrorManagement" />
+    </bean> 
+    
+    <bean id="i4change.ErrorManagement"
+        class="org.i4change.app.data.basic.ErrorManagement">
+        <property name="sessionFactory" ref="theSessionFactory"/>
+    </bean>
+    
+</beans>

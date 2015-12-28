@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library> 
+
+<class name="infoIconToolTip" extends="view" width="24"
+       onmouseover="Debug.write(this)" onmouseout="" >
+    
+    <attribute name="iconResourceName" value="info_icon_rsc" type="string" />
+    
+    <attribute name="labelid" type="number" />
+    <attribute name="text" type="string" value="" />
+    
+    <handler name="oninit">
+        if (this.text != "") {
+            this._cText.setAttribute('text',this.text);
+        }
+    </handler>
+    
+    <view resource="$once{ parent.iconResourceName }" x="2" y="2" />
+    
+    <labelTooltip labelid="$once{ parent.labelid }" multiline="true" />
+            
+</class>
+
+</library>

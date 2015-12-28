@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+	
+
+<class name="confirmDeleteWindowCustomLabel" extends="labelExplorerBox" labelid="703"
+    docking="true" width="264" x="${ parent.width/2 - this.width/2 }" y="100" height="200">
+    
+    <attribute name="refObj" value="null" />
+    <attribute name="messageLabelid" type="number" value="704" />
+    <attribute name="funcNameConfirm" value="confirmDelete" type="string" />
+    
+    <handler name="oninit">
+        lz.ModeManager.makeModal(this);
+    </handler>
+    
+    <handler name="onclose">
+        lz.ModeManager.release(this);
+    </handler>
+    
+    <infoIconBox iconResourceName="messagebox_warning_rsc"
+                 labelid="$once{ parent.messageLabelid }"
+                 width="$once{ parent.width-10 }" y="22" x="10" />
+                 <!--
+    <labelText labelid="$once{ parent.messageLabelid }" x="10" multiline="true"
+    		   width="$once{ parent.width-10 }" y="22" />
+                -->
+    
+    <simpleLabelButton labelid="705" width="100" x="40" y="170">
+    	<handler name="onclick">
+            //if ($debug) Debug.write("confirm",this.parent.refObj,this.parent.refObj[parent.funcNameConfirm]);
+            this.parent.refObj[parent.funcNameConfirm]();
+    		this.parent.close();
+    	</handler>
+    </simpleLabelButton>
+    
+    <simpleLabelButton labelid="706" width="100" x="150" y="170">
+    	<handler name="onclick">
+    		//Debug.write("cancel");
+    		this.parent.close();
+    	</handler>
+    </simpleLabelButton> 
+    
+</class>	
+
+<class name="confirmDeleteWindow" extends="labelExplorerBox" labelid="703"
+    docking="true" width="264" x="${ parent.width/2 - this.width/2 }" y="100" height="200">
+    
+    <attribute name="refObj" value="null" />
+    
+    <handler name="oninit">
+        lz.ModeManager.makeModal(this);
+    </handler>
+    
+    <handler name="onclose">
+        lz.ModeManager.release(this);
+    </handler>
+    
+    <infoIconBox iconResourceName="messagebox_warning_rsc" labelid="704"
+                 width="$once{ parent.width-10 }" y="22" x="10" />
+    
+    <simpleLabelButton labelid="705" width="100" x="40" y="170">
+    	<handler name="onclick">
+    		//Debug.write("confirm");
+            this.parent.refObj.confirmDelete();
+            this.parent.close();
+    	</handler>
+    </simpleLabelButton>
+    
+    <simpleLabelButton labelid="706" width="100" x="150" y="170">
+    	<handler name="onclick">
+    		//Debug.write("cancel");
+    		this.parent.close();
+    	</handler>
+    </simpleLabelButton>
+    
+</class>
+
+</library>

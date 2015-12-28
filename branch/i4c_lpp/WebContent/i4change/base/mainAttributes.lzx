@@ -1,0 +1,376 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!-- all attributes for main.lzx -->
+
+<library>
+    
+    
+<font name="Times Roman">
+    <face src="timmonsr.ttf"/>
+    <face src="timmonsb.ttf"  style="bold"/>
+    <face src="timmonsi.ttf"  style="italic"/>
+    <face src="timmonsbi.ttf" style="bold italic"/>
+</font>
+
+<silverstyle name="defaultstyle" isdefault="true" 
+             basecolor="${ canvas.basebgcolorizer }" 
+             canvascolor="white" />
+ 
+<silverstyle name="buyButtonStyle" textcolor="0xFFFFFF"
+             basecolor="${ canvas.basebgcolorizer }" />
+                      
+<silverstyle name="componentStyle" basecolor="0x3F5B9E" textcolor="0xFFFFFF" />
+
+<whitestyle name="noStyle" />
+    
+<!-- 
+##########################################################
+these properties will be overwritten by config.xml -->  
+    
+<attribute name="rtmphostlocal" value="" type="string" />
+ 
+<!---  
+	Port to use for the Server
+	To this port the default server lookup is done
+	
+	You can find all this configuraiton in your red5-Config in: $RED5_HOME/conf/red5.properties
+ -->
+
+<attribute name="httpprotocol" value="https" type="string" />
+
+<attribute name="httpUploadPort" value="8080" type="number"/>
+<attribute name="httpUploadprotocol" value="http" type="string"/>
+
+<attribute name="javaRPCSecure" value="false" type="boolean"/>
+
+<attribute name="httpport" value="8443" type="number" />
+	
+<!---
+	These colors are the main colors and style the hole application
+ -->
+<attribute name="basebgcolorizer" value="0x3F5B9E" type="string" />	
+<attribute name="baseMousecolorizer" value="0xC4D5E6" type="string" />	
+<attribute name="baseMouseOvercolorizer" value="0xC4D5E6" type="string" /> 
+<attribute name="connectorPointColor" value="0xFF3300" type="string" /> 
+
+<attribute name="currentappversion" value="" type="string" />
+
+<attribute name="webAppRootKey" value="" type="string" />
+
+<!--- Name of the Application -->
+<attribute name="currentappname" value="OpenMeetings" type="string" />   
+<attribute name="currentappnameurl" value="OpenMeetings" type="string" />   
+<attribute name="currentappnamebugurl" value="OpenMeetings" type="string" /> 
+
+<!--- Video Settings -->
+<attribute name="loudnessAcitviation" value="10" type="number" />
+<attribute name="showWindowEffect" value="y" type="string" /> 
+
+<!--- Calendar Settings -->
+<attribute name="firstdayinweek" value="1" type="number" />
+
+<attribute name="defaultOptionmenuKeyNumber" value="0" type="number" />
+<attribute name="continousCreationKey" value="0" type="number" />
+
+<!-- END OF config.xml attributes
+##########################################################
+ -->
+
+<attribute name="mainSnapSize" value="20" type="number" />
+
+
+<attribute name="userHistory" value="null" />
+<attribute name="browserTabHistory" value="null" />
+
+<!-- For Debugging RPC -->
+<attribute name="callHistory" value="null" />
+
+
+<!--- URL/IP to use for the Server -->
+<attribute name="rtmphost" value="" type="string" />
+
+<!--- Username/Nickname -->
+<attribute name="currentuser" value="" type="string" />
+
+<!--- Roomname internaly Scope -->
+<attribute name="currentcourse" value="" type="string" />
+
+<!--- Roomname/Coursename -->
+<attribute name="currentcourseName" value="" type="string" />
+
+<attribute name="autoSaveTime" value="300" type="number" />
+
+<!--- 
+    The Reference for a Streaming Object
+    This should be removed later when the OpenLaszlo API handles
+    the broadcast better
+    -swagner
+ -->
+<attribute name="_nc" value="null" />
+	
+<attribute name="vaquality" value="best" type="string" />
+	
+<attribute name="moderatorStreamID" value="" type="string" />
+<attribute name="moderatorationObject" value="" type="string" />
+<attribute name="moderatorName" type="string" setter="this.setModeratorName(moderatorName)" />
+
+<attribute name="ismoderator" value="false" type="boolean" />
+
+<attribute name="loadingmessage" value="" type="string" />
+<!--- 
+	The state of the Application
+	At the beginning you should choose how many users are allowed to
+	login simultaniously
+ -->
+<attribute name="islogedin" value="false" type="boolean" />
+   
+<attribute name="htmlframeisloaded" value="false" type="boolean" />
+<attribute name="createIFrameDone_attr" value="false" type="boolean" />
+
+
+<attribute name="uploadmoduleppt" value="videoconf1ppt" type="string" />
+<attribute name="uploadmoduleimg" value="videoconf1" type="string" />
+<attribute name="foldersequence" value="null" />
+<attribute name="uploadmoduleimgfolder" value="" type="string" />
+<!---
+	Can be either 2 or 4
+	But theoretically there is no limit
+ -->
+<attribute name="numberofallowedpartners" value="0" type="number" />
+
+<!--- Number of currently connected Users -->
+<attribute name="numberofpartners" value="0" type="number" />
+
+<!--- unique ID of this Stream -->
+<attribute name="streamid" value="0" type="string" />
+
+<!--- id of the current Mod in this room -->
+<attribute name="currentmodid" value="0" type="string" />
+
+<attribute name="currentlanguage" value="english" type="string" />
+
+<attribute name="objWhiteboard" value="null" />
+<attribute name="objMessage" value="null" />
+<attribute name="VarsModeratorGeneral" value="null" />
+
+<attribute name="isConference" value="false" type="boolean" />
+
+<attribute name="statesInitValues" value="null" />
+<attribute name="salutationsInitValues" value="null" />
+<attribute name="roomTypesInitValues" value="null" />
+
+<!--- Audio-Video Quality Settings
+	overwritten by values from the config.xml 
+ -->
+<attribute name="framesPerSecond" value="30" type="number" />
+<attribute name="bandwidthNeededNormal" value="16384" type="number" />
+<attribute name="bandwidthNeededBest" value="32768" type="number" />
+<attribute name="camQualityNormal" value="75" type="number" />
+<attribute name="camQualityBest" value="75" type="number" />
+<attribute name="microphoneRateNormal" value="22" type="number" /> 
+<attribute name="microphoneRateBest" value="44" type="number" /> 
+		
+
+<!--- Username of current user -->
+<attribute name="currentusename" value="defaultname" type="string" />
+<attribute name="user_id" value="0" type="number" />
+<attribute name="firstName" value="" type="string" />
+<attribute name="lastName" value="" type="string" />
+<attribute name="mail" value="" type="string" />
+<attribute name="lastLogin" value="" type="string" />
+<attribute name="official_code" value="" type="string" />
+<attribute name="picture_uri" value="" type="string" />
+<attribute name="language" value="" type="string" />
+
+<!--- User porperties -->
+<attribute name="currentusercolor" value="0" type="number" />
+<attribute name="currentuserpos" value="0" type="number" />
+	
+<attribute name="currentModApply" value="null" />	
+
+<attribute name="sessionObject" value="null" />
+<attribute name="sessionId" value="" type="string" />
+
+<attribute name="publicSID" value="" type="string" />
+
+<!--- attributes for direct room access -->
+<attribute name="initroomid" value="0" type="number" />
+<attribute name="initroomStr" value="" type="string" />
+<attribute name="initroomtype" value="" type="string" />
+<attribute name="initdomainid" value="" type="string" />
+<attribute name="initlangid" value="1" type="number" />
+<attribute name="isinitRoomDirect" value="false" type="boolean" />
+<attribute name="isinitRoomObject" value="null" /> 
+
+<attribute name="isResetUsername" value="false" type="boolean" />
+<attribute name="resetHash" value="" type="string" />
+    
+<attribute name="naviHeight" value="28" type="number" />    
+<attribute name="naviHeightDelta" value="28" type="number" />  
+
+<attribute name="currentrecorder_id" value="0" type="number" /> 
+
+<!--- 
+Holds a refernce to the current VideoCOntainer Object
+containing the VideoViews
+and some more references to temp-objects
+ -->
+<attribute name="_videocontainer" value="null" />
+<attribute name="_mymod" value="null" />
+
+<attribute name="isrtl" value="false" type="boolean" />    
+
+<attribute name="currentDiagramRef" value="null" />
+
+<!-- indicates if alreday a Diagram is Open -->
+<attribute name="diagramObjectIsOpen" value="false" type="boolean" />
+<!-- reference to the current barmenu for the reference to all Diagrams -->
+<attribute name="currentbarmenu" value="null" />
+
+
+<!-- default Object sizes -->
+<attribute name="defaultProcessGroupWidth" value="140" type="number" />
+<attribute name="defaultProcessGroupHeight" value="80" type="number" />
+
+<attribute name="defaultProcessWidth" value="140" type="number" />
+<attribute name="defaultProcessHeight" value="80" type="number" />
+
+<attribute name="defaultActicityWidth" value="140" type="number" />
+<attribute name="defaultActicityHeight" value="80" type="number" />
+
+<attribute name="defaultCompanyWidth" value="140" type="number" />
+<attribute name="defaultCompanyHeight" value="80" type="number" />
+
+<attribute name="defaultDepartementWidth" value="140" type="number" />
+<attribute name="defaultDepartementHeight" value="80" type="number" />
+
+<attribute name="defaultUnitWidth" value="140" type="number" />
+<attribute name="defaultUnitHeight" value="80" type="number" />
+
+<attribute name="defaultRoleWidth" value="140" type="number" />
+<attribute name="defaultRoleHeight" value="80" type="number" />
+
+<attribute name="defaultInputFlowWidth" value="140" type="number" />
+<attribute name="defaultInputFlowHeight" value="80" type="number" />
+
+<attribute name="defaultOutFlowWidth" value="140" type="number" />
+<attribute name="defaultOutFlowHeight" value="80" type="number" />
+
+<attribute name="gridFixedFactor" value="1.4" type="number" />
+
+
+
+<attribute name="initObjectDiagram" value="null" />
+
+
+
+
+<attribute name="defaultDiagramHeight" value="1600" type="number" />
+<attribute name="defaultDiagramWidth" value="2400" type="number" />
+
+
+<attribute name="currentConnectorStroke" value="0x666666" type="number" />  
+
+
+<attribute name="snapWidth" value="160" type="number" />
+<attribute name="snapHeight" value="80" type="number" />
+
+<attribute name="snapWidthGridX" value="10" type="number" />
+<attribute name="snapHeightGridY" value="10" type="number" />
+
+<!--
+<attribute name="defaultRoleWidth" value="10" type="number" />
+<attribute name="defaultRoleHeight" value="10" type="number" />
+ -->
+ 
+<attribute name="currentDiagram" value="null" />
+<attribute name="currentDrillDownType" value="" type="string" />
+<attribute name="currentInstanceList" value="null" />
+
+
+<attribute name="currentMenuLayoutBackGround" value="0xF0F0F0" type="string" />  
+
+<attribute name="currentHelpArray" value="null" />
+
+<attribute name="currentDiagramList" value="null" />
+
+
+<attribute name="toGeneratedProject" value="0" type="number" />
+
+<!-- default will be loaded on startup -->
+<attribute name="userlang" value="0" type="number" />
+
+<attribute name="webItemTypes" value="null" />
+
+<!-- The default Language will be loaded on init  -->
+<attribute name="initlanguageLoaded" value="false" type="boolean" />
+
+<!-- holding some of the Configuration Keys -->
+<attribute name="defaultConfigObj" value="null" />
+ 
+<!-- holds a reference to the loading screen -->
+<attribute name="loaderVar" value="null" />
+
+<dataset name="myresultnavi" />
+<attribute name="orgUserList" value="null" />
+
+<attribute name="orgModList" value="null" /> 
+
+<attribute name="currentdomain" value="null" />
+<attribute name="currentdomainObj" value="null" /> 
+<attribute name="currentdomainUserObj" value="null" />
+<attribute name="currentRole" value="null" />
+
+<!-- Holds a reference to the current Project you are working in -->
+ <attribute name="projectObj" value="null" />
+ <attribute name="currentProjectId" value="0" type="number" />
+ 
+ <!-- Attributes to indicate if the newly created Diagram is based on an existing Object -->
+ <attribute name="isTempNewlyCreated" value="false" type="boolean" />
+ <!-- we need two variables for one state cause we have two seperated initializations at the same time -->
+ <attribute name="isTempNewlyCreatedMainDiagram" value="false" type="boolean" />
+ <!-- see also drill-down of objects -->
+ <attribute name="tempNewlyCreatedBaseObject" value="null" />
+ <attribute name="tempParentDiagramObjectId" value="0" type="number" />
+ 
+ <!-- Reference to the current dragging object to remove it in case not needed anymore 
+    (warning or error message during auto-save as use-case)
+ -->
+<attribute name="currentDragObject" value="null" />
+
+<!--
+    Previous rpcErrorDialog
+ -->
+<attribute name="previousErrorDialog" value="null" />
+
+<!--
+	Reference to the current currentWarningPopUp
+ -->
+<attribute name="currentWarningPopUp" value="null" />
+
+<!--
+	Holds the current user-hash for autologin
+ -->
+<attribute name="userStoredHash" value="" type="string" />
+<attribute name="userAutoLoggedIn" value="false" type="boolean" />
+<attribute name="userAutoLoggedObj" value="null" />
+
+<!--    
+    the hash in case its transfered via Get-URL-Param
+ -->
+<attribute name="autologin" value="" type="string" />
+
+
+<!-- Usage in 
+ -->
+<attribute name="diagramObject_id" value="0" type="number" />
+ 
+ 
+<attribute name="currentSearchTerm" value="" type="string" />
+
+
+
+<attribute name="rpcCounter" value="0" type="number" />
+
+
+</library>

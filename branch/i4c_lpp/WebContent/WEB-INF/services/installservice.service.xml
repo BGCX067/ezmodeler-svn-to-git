@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:lang="http://www.springframework.org/schema/lang"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+                           http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-2.0.xsd">
+    
+    <bean id="i4change.ImportInitvalues" parent="txProxyTemplate">
+        <property name="target" ref="i4change.txImportInitvalues" />
+    </bean>
+    
+    <bean id="i4change.txImportInitvalues"
+        class="org.i4change.app.installation.ImportInitvalues">
+        <property name="fieldmanagment" ref="i4change.Fieldmanagment" />
+        <property name="userDaoImpl" ref="i4change.UserDaoImpl" />
+        <property name="navimanagement" ref="i4change.Navimanagement" />
+        <property name="helpTopicServiceDaoImpl" ref="i4change.HelpTopicServiceDaoImpl" />
+        <property name="languagemanagement" ref="i4change.Languagemanagement" />
+        <property name="salutationmanagement" ref="i4change.Salutationmanagement" />
+        <property name="usermanagement" ref="i4change.Usermanagement" />
+        <property name="configurationmanagement" ref="i4change.Configurationmanagement" />
+        <property name="diagramTypeDaoImpl" ref="i4change.DiagramTypeDaoImpl" />
+        <property name="webItemTypeDaoImpl" ref="i4change.WebItemTypeDaoImpl" />
+        <property name="propertyValidationTypeDaoImpl" ref="i4change.PropertyValidationTypeDaoImpl" />
+        <property name="reportTypesDaoImpl" ref="i4change.ReportTypesDaoImpl" />
+        <property name="objectTypeDaoImpl" ref="i4change.ObjectTypeDaoImpl" />
+        <property name="organisationDaoImpl" ref="i4change.OrganisationDaoImpl" />
+        <property name="countryDaoImpl" ref="i4change.CountryDaoImpl" />
+        <property name="errorManagement" ref="i4change.ErrorManagement" />
+    </bean>
+    
+    
+</beans>

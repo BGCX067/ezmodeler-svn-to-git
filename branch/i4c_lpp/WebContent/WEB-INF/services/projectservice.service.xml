@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:lang="http://www.springframework.org/schema/lang"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+                           http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-2.0.xsd">
+    
+    <bean id="projectservice.service" parent="txProxyTemplate">
+        <property name="target" ref="txProjectservice.service" />
+    </bean>
+    
+    <!-- Class for Methods which can be invoked by the client -->
+    <bean id="txProjectservice.service" 
+        class="org.i4change.app.remote.ProjectService">
+        <property name="application" ref="web.handler" />
+        <property name="projectDaoImpl" ref="i4change.ProjectDaoImpl" />
+        <property name="projectRelationDaoImpl" ref="i4change.ProjectRelationDaoImpl" />
+        <property name="organisationDaoImpl" ref="i4change.OrganisationDaoImpl" />
+        <property name="projectUserDaoImpl" ref="i4change.ProjectUserDaoImpl" />
+        <property name="userDaoImpl" ref="i4change.UserDaoImpl" />
+        <property name="sessionmanagement" ref="i4change.Sessionmanagement" />
+    </bean> 
+    
+    <bean id="i4change.ProjectDaoImpl"
+        class="org.i4change.app.data.project.daos.ProjectDaoImpl">
+    	<property name="sessionFactory" ref="theSessionFactory"/>
+    	<property name="userDaoImpl" ref="i4change.UserDaoImpl"/>
+    </bean> 
+    
+    <bean id="i4change.ProjectRelationDaoImpl"
+        class="org.i4change.app.data.project.daos.ProjectRelationDaoImpl">
+    	<property name="projectDaoImpl" ref="i4change.ProjectDaoImpl" />
+    	<property name="sessionFactory" ref="theSessionFactory"/>
+    </bean> 
+    
+    <bean id="i4change.ProjectUserDaoImpl"
+        class="org.i4change.app.data.project.daos.ProjectUserDaoImpl">
+    	<property name="sessionFactory" ref="theSessionFactory"/>
+    </bean>
+    
+</beans>

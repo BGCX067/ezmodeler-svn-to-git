@@ -1,0 +1,387 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+    
+<class name="firstStartWizzard" extends="guiPresenter" labelid="777"
+    docking="true" closable="true" width="744" resizeable="false"
+    x="$once{ canvas.width/2 - this.width/2 }" y="40" height="400">
+    
+    <attribute name="modelStyle" value="" type="string" />
+    
+    <handler name="oninit">
+        canvas._hideAll.setAttribute("visibility","visible");
+    </handler>   
+    
+    <handler name="onclose">
+        canvas._hideAll.setAttribute("visibility","hidden");
+    </handler>
+     
+    <method name="doClose">
+        canvas._hideAll.setAttribute("visibility","hidden");
+        //TODO: Fixe the First-Start Wizzard State
+        this.setNewUserProperty.doCall();
+        //this.close();
+    </method>
+    
+    <netRemoteCallRPC name="setNewUserProperty" funcname="setNewUserProperty" 
+    				  remotecontext="$once{  canvas.mainServiceRPC }" >      
+        <netparam><method name="getValue"> return canvas.sessionId; </method></netparam>  
+        <netparam><method name="getValue"> return "showFirstStartWizzard"; </method></netparam>  
+        <netparam><method name="getValue"> return !parent.parent._doNotShowAgain.getValue(); </method></netparam>  
+        <handler name="ondata" args="value">
+            //The onResult-Handler will be called be the rtmpconnection
+            //if ($debug) Debug.write("setNewUserProperty firstStartWizzard: ",value);
+            parent.close();
+        </handler>  
+    </netRemoteCallRPC>     
+    
+    <view name="_content" y="22" width="${ parent.width }" height="$once{ parent.height }" clip="true">
+    
+	    <view name="_scrollContent" >
+            
+            <attribute name="stepNo" value="0" type="number" />
+            
+		    <view name="_infoText" layout="axis:y;spacing:2" y="2">
+		        
+		        <view>
+		            
+		            
+		        </view>
+		        
+		        <view  layout="axis:y;spacing:2">
+				    <handler name="oninit">
+				        <![CDATA[
+				            var dtString = canvas.getLabelName(779);
+				            dtString += '<A HREF="asfunction:_root.clickedItem,1"><FONT COLOR="#6633FF"><U>'+ canvas.getLabelName(780) +'</U></FONT></A><BR />';
+				            dtString += canvas.getLabelName(781);
+				            dtString += '<A HREF="asfunction:_root.clickedItem,2"><FONT COLOR="#6633FF"><U>'+ canvas.getLabelName(782) +'</U></FONT></A>';
+				            dtString += canvas.getLabelName(783);
+				            this._mainText.setAttribute('text',dtString);
+				        ]]>
+				    </handler>
+				    <labelText name="_mainText" y="22" x="2" width="240" multiline="true" text="" />
+				                    
+				    <labelText name="_mainTextHeader" y="82" x="2" labelid="784" fontstyle="bold" />
+				    <labelText name="_mainText_help" y="112" x="2" labelid="785" 
+				               width="240" multiline="true"/>
+		            
+		        </view>
+		    </view>
+		    
+		    <view height="$once{ parent.parent.height - 52 }" y="0" x="240" 
+		          width="2" bgcolor="0x3F5B9E" />
+		          
+		    <view x="242" width="$once{ parent.parent.width - 243 }">
+		        
+		        <labelText name="_mainText_header" x="2" labelid="1230" fontsize="12"
+		                       fontstyle="bold" width="240" multiline="true"/>
+		        
+		        <labelText name="_mainText_help" y="30" x="2" labelid="1231" 
+		                       fontstyle="bold" width="$once{ parent.width -4 }" multiline="true"/>
+		                       
+		        <view name="_chooseOrCreateOrganization" y="60" 
+                      height="$once{ parent.parent.parent.height - 60 }"
+                      width="$once{ parent.width }" >
+		            
+		            <view valign="middle" align="center" layout="axis:y;spacing:4">
+                        
+                        <simpleLabelButton labelid="1232" width="260" height="48">
+                            <handler name="onclick">
+                                parent.parent.parent.parent.doStep(1,
+                                    -parent.parent.parent.parent.parent.width);
+                            </handler>
+                        </simpleLabelButton>
+                        
+                        <simpleLabelButton labelid="1233" width="260" height="48">
+                            
+                        </simpleLabelButton>
+                        
+                    </view>
+		            
+		        </view>
+                
+		    </view>
+              
+            <addOrganizationWizzard name="_addOrganizationWizzard" x="$once{ parent.parent.width + 4 }">
+                <handler name="onComplete">
+                    parent.parent.parent.doNextCompletedOrg();
+                </handler>
+            </addOrganizationWizzard>
+
+            <addNewProjectWizzard name="_addNewProjectWizzard" x="$once{ (parent.parent.width*2) + 4 }" 
+                                    width="$once{ parent.parent.width }">
+                <handler name="onComplete">
+                    parent.parent.parent.doNextCompletedProject();
+                </handler>
+            </addNewProjectWizzard>
+            
+            <view name="_chooseModelTyp" x="$once{ (parent.parent.width*3) + 4 }" width="$once{ parent.parent.width }" >
+                
+                <infoIconBox y="0" x="10" width="$once{ parent.width - 20 }"
+                             labelid="1239" /> 
+                
+                <view name="_modelTypes" y="40" layout="axis:y;spacing:2">
+                    
+                    <view name="option1">
+                        
+                        <handler name="onclick">
+                            parent.parent.parent.parent.parent.modelStyle = "topdown";
+                            parent.parent.parent.parent.parent.saveAndDoNextByModelTypeChoice();
+                        </handler>
+                        
+                        <handler name="onmouseover">
+				            this.setAttribute('bgcolor',canvas.baseMouseOvercolorizer);
+					    </handler>
+					    <handler name="onmouseout">
+				            this.setAttribute('bgcolor',0xFFFFFF);
+					    </handler>
+                        
+                        <labelText labelid="1241" width="500" fontstyle="bold" resize="false" x="2"/>
+                        
+                        <labelText labelid="1240" width="500" multiline="true"
+                                   y="30" resize="false" x="2"/>
+                        
+                    </view>
+                    
+                    <view name="option2">
+                        
+                        <handler name="onclick">
+                            //if ($debug) Debug.write("option2");
+                        </handler>
+                        
+                         <handler name="onmouseover">
+                            this.setAttribute('bgcolor',canvas.baseMouseOvercolorizer);
+                        </handler>
+                        <handler name="onmouseout">
+                            this.setAttribute('bgcolor',0xFFFFFF);
+                        </handler>
+                        
+                        <labelText text="_placeholder" width="500" fontstyle="bold" resize="false" x="2"/>
+                        
+                        <labelText text="_placeholder" width="500" 
+                                   y="30" resize="false" x="2"/>
+                        
+                    </view>
+                        
+                </view>
+                
+            </view>
+            
+            <view name="_createOrgDiagram" x="$once{ (parent.parent.width*4) + 4 }"
+                      width="$once{ parent.parent.width }">
+                    
+                <labelText labelid="1243" width="290" fontstyle="bold" resize="false" x="2"/>
+                    
+                    <labelText labelid="1244" width="290" multiline="true"
+                               y="26" resize="false" x="2"/>
+                
+            </view>
+            
+            <view name="_createOrgRoleDiagram" x="$once{ (parent.parent.width*5) + 4 }"
+                      width="$once{ parent.parent.width }">
+                    
+                <labelText labelid="1245" width="290" fontstyle="bold" resize="false" x="2"/>
+                    
+                    <labelText labelid="1246" width="290" multiline="true"
+                               y="26" resize="false" x="2"/>
+                
+            </view>
+            
+            <view name="_createProcessDiagram" x="$once{ (parent.parent.width*6) + 4 }"
+                      width="$once{ parent.parent.width }">
+                    
+                <labelText labelid="1247" width="290" fontstyle="bold" resize="false" x="2"/>
+                    
+                    <labelText labelid="1248" width="290" multiline="true"
+                               y="26" resize="false" x="2"/>
+                
+            </view>
+            
+            <view name="_connectProcessDiagram" x="$once{ (parent.parent.width*7) + 4 }"
+                      width="$once{ parent.parent.width }">
+                    
+                <labelText labelid="1249" width="290" fontstyle="bold" resize="false" x="2"/>
+                    
+                    <labelText labelid="1250" width="290" multiline="true"
+                               y="26" resize="false" x="2"/>
+                
+            </view>
+            
+            <method name="doStep" args="stepNo,to">
+                this._doStepRight.setAttribute("to",to);
+                this.stepNo = stepNo;
+                if (stepNo == 0) {
+                    parent.parent._pre.setAttribute("visibility","hidden");
+                    parent.parent._next.setAttribute("visibility","hidden");
+                } else if (stepNo == 1) {
+                    parent.parent._pre.setAttribute("x", 540 - 4 - (105*3));
+                    parent.parent._next.setAttribute("x", 540 - 4 - (105*2));
+                    parent.parent._cancel.setAttribute("x", 540 - 4 - (105*1));
+                    parent.parent._pre.setAttribute("visibility","hidden");
+                    parent.parent._next.setAttribute("visibility","visible");
+                    parent.parent._doStepWidth.setAttribute("to",540);
+                    parent.parent._doStepWidth.doStart();
+                }
+                
+                this._doStepRight.doStart();
+            </method>
+            
+            <animator name="_doStepRight" attribute="x" duration="1000" start="false" /> 
+        </view>
+    </view>       
+    
+    
+    
+    
+    <animator name="_doStepRight" attribute="x" duration="1000" to="0" start="false" /> 
+    <animator name="_doStepMiddleDown" attribute="y" duration="1000" to="300" start="false" /> 
+    <animator name="_doStepHeight" attribute="height" duration="1000" to="300" start="false" /> 
+    <animator name="_doStepWidth" attribute="width" duration="1000" to="300" start="false" /> 
+     
+            <!--   
+    <view y="126" x="230" resource="info_help_rsc" >  
+        <handler name="onclick">
+            //if ($debug) Debug.write("info_help_rsc: ",this);
+            if (canvas.userobject.userlevel.level_id == 1){
+                new lz.helpCenter(canvas);
+            } else {
+                new lz.modHelpCenter(canvas);
+            }
+        </handler>
+        <labelTooltip labelid="750" inittwice="true" />
+    </view>   
+            -->
+    
+    <method name="doPre">
+        if (this._content._scrollContent.stepNo == 1) {
+            this._content._scrollContent.doStep(0,0);
+        } else if (this._content._scrollContent.stepNo == 2) {
+            this._content._scrollContent.doStep(1,-this._content.width);
+        }
+    </method>
+    
+    <method name="doPreCompletedOrg">
+        //stepNo 1
+        this._content._scrollContent.doStep(2,-(744*2));
+    </method>
+    
+    <method name="doNextCompletedOrg">
+        //stepNo 1
+        this._content._scrollContent.doStep(2,-(744*2));
+    </method>
+    
+    <method name="doNextCompletedProject">
+        //stepNo 2
+        this._content._scrollContent.doStep(3,-(744*3));
+        this._next.setAttribute("visibility","hidden");
+    </method>
+    
+    <method name="saveAndDoNextByModelTypeChoice">
+        //if ($debug) Debug.write("modelStyle: "+this.modelStyle);
+        this.updateProjectWizzard.doCall();
+    </method>
+    
+    <!--
+    public Long updateProjectWizzard(String SID, Long projectId, 
+            String wizzardType, Integer wizzardStep) 
+     -->
+     
+    <netRemoteCallRPC name="updateProjectWizzard" funcname="updateProjectWizzard" 
+        remotecontext="$once{  canvas.projectServiceRPC }" activeErrorHandler="true" >
+        <attribute name="projectId" value="" type="string" />         
+        <netparam><method name="getValue">return canvas.sessionId;</method></netparam>
+        <netparam><method name="getValue">return canvas.projectObj.projectId;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.modelStyle;</method></netparam>
+        <netparam><method name="getValue">return parent.parent._content._scrollContent.stepNo+1;</method></netparam>
+        <handler name="ondata" args="value">
+            <![CDATA[
+                //The onResult-Handler will be called be the rtmpconnection
+                //if ($debug) Debug.write("updateProjectWizzard: ",value);
+                if (value > 0) {
+                    parent.doNextAfterUpdate();
+                }
+            ]]>
+        </handler>  
+    </netRemoteCallRPC> 
+    
+    <method name="doNextAfterUpdate">
+    	//if ($debug) Debug.write("doNext Step:",this._content._scrollContent.stepNo);
+        if (this._content._scrollContent.stepNo == 3) {
+            this._doNotShowAgain.setAttribute("visibility","hidden");
+            this._cancel.setAttribute("visibility","hidden");
+            this._pre.setAttribute("visibility","visible");
+            this._pre.setAttribute("x", 300 - 4 - (105*2));
+            this._next.setAttribute("x", 300 - 4 - (105*1));
+            this._next.setAttribute("visibility","visible");
+            this._doStepWidth.setAttribute("to",300);
+            this._doStepMiddleDown.doStart();
+            this._doStepRight.doStart();
+            this._doStepWidth.doStart();
+            this._doStepHeight.doStart();
+            this._content._scrollContent.doStep(4,-(744*4));
+            canvas._hideAll.setAttribute("visibility","hidden");
+            canvas.currentDiagram = null; 
+            quicklinkAct("hierarchical");  
+        } else if (this._content._scrollContent.stepNo == 4) {
+            this._content._scrollContent.doStep(5,-(744*5));
+        } else if (this._content._scrollContent.stepNo == 5) {
+        	canvas.currentDiagram = null; 
+            quicklinkAct("processgroup");  
+            this._content._scrollContent.doStep(6,-(744*6));
+        } else if (this._content._scrollContent.stepNo == 6) {
+            this._content._scrollContent.doStep(7,-(744*7));
+        } else if (this._content._scrollContent.stepNo == 7) {
+        	canvas.toGeneratedProject = canvas.projectObj.projectId;
+        	quicklinkAct("projectOverview");
+            this._content._scrollContent.doStep(8,-(744*8));
+        }
+    </method>
+    
+    <method name="doNext">
+    	//if ($debug) Debug.write("doNext Step:",this._content._scrollContent.stepNo);
+        if (this._content._scrollContent.stepNo == 1) {
+            this._content._scrollContent._addOrganizationWizzard.register();
+        } else if (this._content._scrollContent.stepNo == 2) {
+            this._content._scrollContent._addNewProjectWizzard.register();
+        } else if (this._content._scrollContent.stepNo == 3) {
+            //Is never called as the Step Next Button is not available int this item 
+        } else if (this._content._scrollContent.stepNo == 4) {
+            this.updateProjectWizzard.doCall();
+        } else if (this._content._scrollContent.stepNo == 5) {
+            this.updateProjectWizzard.doCall();
+        } else if (this._content._scrollContent.stepNo == 6) {
+        	this.updateProjectWizzard.doCall();
+        } else if (this._content._scrollContent.stepNo == 7) {
+            this.updateProjectWizzard.doCall();
+        }
+    </method>
+       
+   <simpleLabelButton name="_pre" visibility="hidden" 
+            x="$once{ parent.width - 4 - (105*3) }" y="${ parent.height - 26 }" 
+            labelid="1234" width="100" height="20">
+        <handler name="onclick">
+            this.parent.doPre();
+        </handler>
+    </simpleLabelButton>
+    
+    <simpleLabelButton name="_next" visibility="hidden"
+            x="$once{ parent.width - 4 - (105*2) }" y="${ parent.height - 26 }" 
+            labelid="1235" width="100" height="20">
+        <handler name="onclick">
+            this.parent.doNext();
+        </handler>
+    </simpleLabelButton>    
+            
+    <labelCheckbox x="20" y="${ parent.height - 26 }" fontsize="11"
+        name="_doNotShowAgain" labelid="786" />
+    
+	<simpleLabelButton name="_cancel" 
+            x="$once{ parent.width - 4 - (105*1) }" y="${ parent.height - 26 }" 
+			labelid="778" width="100" height="20">
+		<handler name="onclick">
+			this.parent.doClose();
+		</handler>
+	</simpleLabelButton>
+
+</class>
+
+</library>

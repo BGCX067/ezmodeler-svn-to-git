@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<library>
+
+<class name="issueFlowDetails" extends="view">
+    
+    <labelText x="2" labelid="660" />  
+    <attribute name="sendUpdateEvent" value="true" type="number" />
+     
+    <omComboBox name="users" x="80" width="220" editable="false" >
+        <handler name="onselect">
+            if (this.getValue()=="0"){
+                new lz.errorPopupWithLabel(canvas,{labelerrorid:945});
+            } else if (parent.sendUpdateEvent){
+                //if ($debug) Debug.write("USER_SELECTED: ",this,parent.parent.parent.parent.parent);
+                parent.parent.parent.parent.parent.setNewAssigneeValue(this.value,this.text);
+            }
+        </handler>              
+    </omComboBox>
+    
+</class>
+
+</library>

@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<library>
+    
+<!--- "System" panel on the dashboard -->
+<class name="datacarrierExplorer" extends="libraryExplorer" height="520" width="620"  
+       x="$once{ canvas.width - this.width - 100 }" y="100" labelid="817">
+    
+    <attribute name="refObj" value="null" />
+    
+    <attribute name="targetObjectName" value="" type="string" />
+    <attribute name="objectTypesByType" value="null" />
+    
+    <method name="refresh">
+        this._inner._processes._innerTableProcess.getDiagramObjects.doCall();
+    </method>
+    
+    <handler name="oninit">
+        //Add Help Item
+        canvas.addCurrentHelpId(33,this.__constructor__.classname);
+        canvas._hideAll.setAttribute("visibility", "visible");
+        this.getObjectTypesByType.doCall();
+    </handler> 
+    
+    <!--
+    public List<ObjectTypeDTO> getObjectTypesByType(String SID, String objectTypeName, 
+            Long organisation_id, Boolean isSidebarItem)
+     -->
+    <netRemoteCallRPC name="getObjectTypesByType" funcname="getObjectTypesByType" 
+                      remotecontext="$once{  canvas.propertyServiceRPC }" >      
+        <netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+        <netparam><method name="getValue">return parent.parent.targetObjectName;</method></netparam>
+        <netparam><method name="getValue">return canvas.currentdomainObj.organisation_id;</method></netparam>
+        <netparam><method name="getValue">return true;</method></netparam>
+        <handler name="ondata" args="value">
+            if ($debug) Debug.write("getDiagramObjectTypesPublicAndOrg: ",value);
+            //this.parent.destroy();
+            parent.parent.objectTypesByType = value;
+            parent._inner._processes.addNewItem.setObjectTypes(value);
+            parent._inner._processes._innerTableProcess.setObjectTypes(value);
+        </handler>
+    </netRemoteCallRPC> 
+    
+    <handler name="onclose">
+    	canvas._hideAll.setAttribute("visibility", "hidden");
+    </handler>
+        
+	<view y="20" bgcolor="white" name="_inner" x="1" width="$once{ parent.width-2 }" 
+		  height="$once{ parent.height-21 }" clip="true" >
+        
+        <view name="_processes" y="0" width="$once{ parent.width }" 
+              height="$once{ parent.height }" bgcolor="white" >  
+              
+            <labelText x="2" labelid="592" />
+		    
+		    <view y="1" height="20" width="282" x="99" bgcolor="0xD0D0D0" />
+		    <inputtext name="search" x="100" width="280" bgcolor="0xFFFFFF"
+		               height="18" fontsize="10" y="2">
+		        <handler name="onkeydown" args="k">
+		            ////if ($debug) Debug.write("onkeydown: ",k)
+		            if (k == 13) {
+                        parent._innerTableProcess.start = 0;
+		                parent._innerTableProcess.getDiagramObjects.doCall();
+		            }
+		        </handler>
+		    </inputtext>
+            
+		    <view y="1" x="382" bgcolor="0xFFFFFF" width="18" height="18">
+		        <view resource="search_help_item_rsc" y="1" x="1" />
+		        <handler name="onclick">
+                    parent._innerTableProcess.start = 0;
+		            parent._innerTableProcess.getDiagramObjects.doCall();
+		        </handler>
+		        <labelTooltip labelid="771" />
+		    </view> 
+            
+            <!--
+            <view y="1" x="302" bgcolor="0xFFFFFF" width="18" height="18">
+                <view resource="edit_add_rsc" y="1" x="1" />
+                <handler name="onclick">
+                    parent.addNewItem._doShow.doStart();
+                </handler>
+                <labelTooltip labelid="820" />
+            </view>  
+             -->  
+            
+            <simpleLabelButton y="1" x="402" width="216" height="21" labelid="820">
+                <view resource="edit_add_rsc" y="2" x="2" />
+                <handler name="onclick">
+                    parent.addNewItem._doShow.doStart();
+                </handler> 
+            </simpleLabelButton> 
+            
+            <labelText labelid="1361" fontsize="10" fontstyle="italic" multiline="true"
+                   x="2" width="$once{ parent.width-4 }" fgcolor="0x666666" y="24" />               
+           
+            <turnOverListOrderedPaged name="_innerTableProcess" y="60"
+                width="$once{ parent.width }" height="$once{ parent.height-90 }" 
+                orderby="c.name" step="50" asc="true" listItemName="baseRoleExplorerListItem">  
+                
+                <attribute name="currentObjects" value="null" />
+                
+                <method name="setObjectTypes" args="values">
+                	<![CDATA[
+                    	this.currentObjects = new Array();
+                    	if (values == null || values.length == 0) {
+                    		parent.parent.parent.close();
+                    		new lz.warningPopup(canvas,{error:canvas.getLabelName(1373),
+                    		          closable:true});
+                    	} else {
+                    		
+                    		for (var i=0;i<values.length;i++) {
+                    		  this.currentObjects.push(values[i].name);
+                    		}
+                    		
+                            this.getDiagramObjects.doCall();
+                    	}
+                	
+                	]]>
+                </method>
+                  
+                <handler name="oninit">
+                    this.addHeaderItemOrdered(605,360,"c.name",true,true);
+                    this.addHeaderItemOrdered(794,120,"c.objectTypeName",true,false);
+                    this.addHeaderItemOrdered(606,120,"c.inserted",true,false);
+                    //this.getDiagramObjects.doCall();
+                </handler>  
+                
+                <handler name="onUpdateOrder">
+		            //if ($debug) Debug.write("onUpdateOrder");
+		            this.getDiagramObjects.doCall();
+		        </handler>
+                
+                <handler name="onclickedItem" args="obj">
+                    //if ($debug) Debug.write("obj",obj);
+                </handler>
+                
+                <handler name="oncallnext" >
+                	//if ($debug) Debug.write("oncallnext");
+                    this.getDiagramObjects.doCall();
+                </handler>
+                
+                <handler name="oncallpre" >  
+                    //if ($debug) Debug.write("oncallpre");
+                    this.getDiagramObjects.doCall();
+                </handler>
+                
+                <handler name="onclickedItem" args="obj">
+                    //if ($debug) Debug.write("onclickedItem",obj,obj.obj);
+                    parent.parent.parent.refObj.addAndUpdate(obj.obj.diagramObjectId,obj.obj.name);
+                    parent.parent.parent.close();
+                </handler>
+                
+                <netRemoteCallRPC name="getDiagramObjects" funcname="getDiagramObjects" 
+                                  remotecontext="$once{  canvas.diagramServiceRPC }" >      
+                    <netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+                    <netparam><method name="getValue">return canvas.currentdomainObj.organisation_id;</method></netparam>
+                    <netparam><method name="getValue">return parent.parent.start; </method></netparam>
+                    <netparam><method name="getValue">return parent.parent.step; </method></netparam>
+                    <netparam><method name="getValue">return parent.parent.currentObjects;</method></netparam>
+                    <netparam><method name="getValue">return parent.parent.orderby;</method></netparam>
+                    <netparam><method name="getValue">return parent.parent.asc;</method></netparam>
+                    <netparam><method name="getValue">return parent.parent.parent.search.getText();</method></netparam>
+                    <handler name="ondata" args="value">
+                        if ($debug) Debug.write("getDiagramObjects: ",value);
+                        //this.parent.destroy();
+                        this.parent.initValues(value.records);
+                        this.parent.renderContent(value.result);
+                    </handler>
+                </netRemoteCallRPC> 
+                
+                <method name="renderContent" args="records">
+                    <![CDATA[
+                        //this.clearList();
+                        var list = this._innerlist._inn._inn;
+                        this.renderList = records;
+                        
+                        this._innerlist._inn.setAttribute("y",0);
+                        this._innerlist._inn._inn.setAttribute("height",records.length*20);
+                        
+                        this._innerlist._inn.resetItems();
+                        
+                        for (var i=0;i<list.subviews.length;i++){
+                            if (records.length > i) {
+                                list.subviews[i].setAttribute("clickable",true);
+                                list.subviews[i].obj = records[i];
+                                list.subviews[i].setItemName(records[i].name);
+                                list.subviews[i].setObjectTypeNameLabel(records[i].objectTypeName);
+                                list.subviews[i].setInserted(parseDateToStringTime(records[i].inserted));
+                            } else {
+                                list.subviews[i].obj = null;
+                                list.subviews[i].setItemName("");
+                                list.subviews[i].setObjectTypeNameLabel("");
+                                list.subviews[i].setInserted("");
+                                list.subviews[i].setAttribute("clickable",false);
+                            }
+                        }
+                        
+                    ]]>
+                </method>
+                
+                <handler name="onScrollItem" args="item">
+                    <![CDATA[
+                        if (this.renderList.length > item.itemId) {
+                            item.setAttribute("clickable",true);
+                            item.obj = this.renderList[item.itemId];
+                            item.setItemName(this.renderList[item.itemId].name);
+                            item.setObjectTypeNameLabel(this.renderList[item.itemId].objectTypeName);
+                            item.setInserted(parseDateToStringTime(this.renderList[item.itemId].inserted));
+                        } else {
+                            item.obj = null;
+                            item.setItemName("");
+                            item.setObjectTypeNameLabel("");
+                            item.setInserted("");
+                            item.setAttribute("clickable",false);
+                        }
+                    ]]>
+                </handler>                
+                
+            </turnOverListOrderedPaged> 
+            
+            <simpleLabelButton labelid="824" name="_register2" width="100" 
+                               x="$once{ parent.width - this.width }" 
+                               y="$once{ parent.height - 22 }">
+                <handler name="onclick">
+                    parent.parent.parent.close();
+                </handler>
+            </simpleLabelButton>      
+            
+            <newDataCarrierItem name="addNewItem" />
+            
+        </view>
+        
+	</view>
+</class> 
+
+</library>

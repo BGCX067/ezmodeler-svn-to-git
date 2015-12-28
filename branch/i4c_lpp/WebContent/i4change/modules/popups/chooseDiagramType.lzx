@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+<class name="chooseDiagramType" extends="guiPresenter" labelid="688"
+    docking="true" resizeable="false" closable="true" width="400" y="100"
+    x="$once{ canvas.width/2-200 }" height="320">
+    
+    <handler name="oninit">
+        //lz.ModeManager.makeModal(this);
+        //Add Help Item
+        canvas.addCurrentHelpId(9,this.__constructor__.classname);
+    </handler>
+    
+    <handler name="onclose">
+        //lz.ModeManager.release(this);
+    </handler>
+    
+    <newDiagramButtons name="_newDiagramButtons" y="22" isDialog="true"/>
+    
+    <simpleLabelButton labelid="858" width="100" x="$once{ parent.width-105*1 }" 
+                       y="$once{ parent.height-24 }">
+        <handler name="onclick">
+            this.parent.close();
+        </handler>
+    </simpleLabelButton>   
+    
+</class>
+	
+</library>

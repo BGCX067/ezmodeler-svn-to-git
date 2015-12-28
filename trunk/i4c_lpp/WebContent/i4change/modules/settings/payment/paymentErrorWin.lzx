@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+	
+<class name="paymentErrorWin" extends="guiPresenter" labelid="841"
+    docking="true" resizeable="false" closable="true" y="200"
+    width="400" x="$once{ canvas.width/2 - this.width/2 }" height="240">
+    
+    <attribute name="paypalResponse" value="null"/>
+    
+    <handler name="oninit">
+        <![CDATA[
+            //if ($debug) Debug.write("oninit: ",this.paypalResponse);
+        
+            var infoText = canvas.getLabelName(1308)+"<br/><br/>";
+           
+            for (var i=0;i<this.paypalResponse.errors.length;i++) {
+                var sm = this.paypalResponse.errors[i].shortMessage + ": "
+                        + this.paypalResponse.errors[i].longMessage + " [" 
+                        + this.paypalResponse.errors[i].errorCode.m_value + "]<br/><br/>";
+                infoText += sm;     
+            }
+            
+            this._content._message.setAttribute("text",infoText);
+        ]]>
+    </handler>
+    
+    <view x="10" y="24">
+        <view name="_icon" x="2" y="2" resource="messagebox_warning_rsc" />
+    </view>
+    
+    <view name="_content" x="40" width="$once{ parent.width - 44 }" clip="true"
+        y="24" height="$once{ parent.height-48 }">
+        <labelText name="_message" text="" width="$once{ parent.width - 14 }"
+            y="22" multiline="true" resize="false"/>
+        <vscrollbar name="_scrollbar" />
+    </view>
+    
+    <simpleLabelButton labelid="842" width="106" x="290" y="$once{ parent.height-22 }" 
+        onclick="this.parent.close();" />
+        
+</class>
+
+<class name="paymentSuccessWin" extends="guiPresenter" labelid="1310"
+    docking="true" resizeable="false" closable="true" y="200"
+    width="400" x="$once{ canvas.width/2 - this.width/2 }" height="240">
+	
+	<handler name="oninit">
+		this.showTransactionsAndClose();
+	</handler>
+	
+	<attribute name="refObj" value="null" />
+	
+	<method name="showTransactionsAndClose">
+		if ($debug) Debug.write("this.refObj.parent.parent",this.refObj.parent.parent.parent);
+		if ($debug) Debug.write("this.refObj.parent.parent",this.refObj.parent.parent.parent._licenseSettingsTab);
+ 		this.refObj.parent.parent.parent._licenseSettingsTab.headBtn.onclick.sendEvent();
+ 		this.refObj.parent.parent.parent._licenseSettingsTab._content._userSettingsTabLicense.loadItems();
+	</method>
+	
+	<method name="doClose">
+		this.close();
+	</method>
+    
+    <infoIconBox x="10" y="24" labelid="1309"
+    			 width="$once{ parent.width - 20 }" height="100" />
+    
+    <!--
+    <simpleLabelButton labelid="1312" width="106" x="180" y="$once{ parent.height-22 }" 
+        onclick="this.parent.showTransactionsAndClose();" />
+     -->
+        
+    <simpleLabelButton labelid="1311" width="106" x="290" y="$once{ parent.height-22 }" 
+        onclick="this.parent.doClose();" />
+        
+</class>
+
+</library>

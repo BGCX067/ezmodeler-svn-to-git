@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+<!--- Configuration module for ADMIN -->
+<class name="webSiteAdmin"  extends="baseContentTabbedView" labelid="1198"> 
+        
+    <handler name="oninit">
+        //Add Help Item
+        canvas.addCurrentHelpId(50,this.__constructor__.classname);
+    </handler> 
+    
+	<view>
+	
+	    <turnOverList name="_turnoverlist" width="460" height="600" x="2" y="0" 
+			orderby="webItemId" step="50" asc="true">
+	
+			<handler name="oninit">
+				this.addHeaderItem(1211,80);
+				this.addHeaderItem(1212,166);
+                this.addHeaderItem(1213,200);
+				this.getWebItemList.doCall();
+			</handler>
+			
+			<handler name="oncallnext" >
+				this.getWebItemList.doCall();
+			</handler>
+			
+			<handler name="oncallpre" >		
+				this.getWebItemList.doCall();
+			</handler>
+			
+			<handler name="onclickedItem" args="obj">
+				if ($debug) Debug.write("onclickedItem",obj,obj.obj);
+				parent._webSiteAdminValueForm.initValueFieldsByObject(obj.obj);
+			</handler>
+			
+			<netRemoteCallRPC name="getWebItemList" funcname="getWebItemList" 
+                              remotecontext="$once{  canvas.websiteServiceRPC }" >      
+				<netparam><method name="getValue"> return canvas.sessionId; </method></netparam>
+				<netparam><method name="getValue"> return parent.parent.start; </method></netparam>
+				<netparam><method name="getValue"> return parent.parent.step; </method></netparam>
+				<netparam><method name="getValue"> return parent.parent.orderby; </method></netparam>
+				<netparam><method name="getValue"> return parent.parent.asc; </method></netparam>
+		    	<handler name="ondata" args="value">
+		    		if ($debug) Debug.write("getWebItemList ",value);
+		    		//this.parent.destroy();
+		    		this.parent.initValues(value.records);
+		    		this.parent.renderContent(value.result);
+		    	</handler>
+		    </netRemoteCallRPC>	
+		    
+		    <method name="renderContent" args="records">
+		    	<![CDATA[
+		    	this.clearList();
+		    	for (var i=0;i<records.length;i++){
+		    		new webSiteAdminListItem(this._innerlist._inn._inn,{
+	                            obj:records[i],
+                                webItemName:records[i].webItemName,
+                                webItemId:records[i].webItemId,
+	                            typeName:records[i].webItemType.typeName
+                            });
+		    	}
+		    	]]>
+		    </method>
+	
+		</turnOverList>
+	    
+	    <webSiteAdminValueForm name="_webSiteAdminValueForm" x="480" />
+    
+    </view>
+    
+    <vscrollbar name="_scrollbar" />
+        
+</class>
+
+</library>

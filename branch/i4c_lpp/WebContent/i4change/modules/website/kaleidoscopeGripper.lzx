@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+	
+	<!-- bgcolor="0xFF3300" -->
+<class name="kaleidoscopeGripper" extends="view" width="20" height="20" >
+	<attribute name="handlerUpdate" value="false" type="boolean" />
+    <attribute name="cell_x" value="0" type="number" />
+    <attribute name="cell_y" value="0" type="number" />
+    <handler name="onmousedown">
+        this._drager.apply();
+    </handler>
+    <handler name="onmouseup">
+        this._drager.remove();
+    </handler>
+    <handler name="onx" args="x">
+    	if (this.handlerUpdate) {
+            var new_x = x+10;
+            if (this.cell_x == 0) {
+            	
+                parent._row1.subviews[0].setAttribute("width",new_x);
+                parent._row2.subviews[0].setAttribute("width",new_x);
+                parent._row3.subviews[0].setAttribute("width",new_x);
+            
+                parent._row1.subviews[1].setAttribute("x",new_x);
+                parent._row2.subviews[1].setAttribute("x",new_x);
+                parent._row3.subviews[1].setAttribute("x",new_x);
+                
+                parent._row1.subviews[1].setAttribute("width",(parent.grip2.x+10)-new_x);
+                parent._row2.subviews[1].setAttribute("width",(parent.grip2.x+10)-new_x);
+                parent._row3.subviews[1].setAttribute("width",(parent.grip2.x+10)-new_x);
+                
+                if (this.cell_y == 0) {
+                	parent.grip3.handlerUpdate = false;
+                	parent.grip3.setAttribute("x",this.x);
+                	parent.grip3.handlerUpdate = true;
+                } else if (this.cell_y == 1) {
+                    parent.grip1.handlerUpdate = false;
+                    parent.grip1.setAttribute("x",this.x);
+                    parent.grip1.handlerUpdate = true;
+                }
+                
+            } else if (this.cell_x == 1) {
+            	
+            	parent._row1.subviews[1].setAttribute("width",new_x-(parent.grip1.x+10));
+                parent._row2.subviews[1].setAttribute("width",new_x-(parent.grip1.x+10));
+                parent._row3.subviews[1].setAttribute("width",new_x-(parent.grip1.x+10));
+                
+                parent._row1.subviews[2].setAttribute("x",new_x);
+                parent._row2.subviews[2].setAttribute("x",new_x);
+                parent._row3.subviews[2].setAttribute("x",new_x);
+                
+                parent._row1.subviews[2].setAttribute("width",parent.width-new_x);
+                parent._row2.subviews[2].setAttribute("width",parent.width-new_x);
+                parent._row3.subviews[2].setAttribute("width",parent.width-new_x);
+            	
+                if (this.cell_y == 0) {
+                    parent.grip4.handlerUpdate = false;
+                    parent.grip4.setAttribute("x",this.x);
+                    parent.grip4.handlerUpdate = true;
+                } else if (this.cell_y == 1) {
+                    parent.grip2.handlerUpdate = false;
+                    parent.grip2.setAttribute("x",this.x);
+                    parent.grip2.handlerUpdate = true;
+                }
+            }
+    	}
+    </handler>
+    <handler name="ony" args="y">
+    	if (this.handlerUpdate) {
+            var new_y = y+10;
+            if (this.cell_y == 0) {
+                parent.subviews[0].setAttribute("height",new_y);
+                parent.subviews[1].setAttribute("y",new_y);
+                parent.subviews[1].setAttribute("height",(parent.grip3.y+10)-new_y);
+                
+                if (this.cell_x == 0) {
+                    parent.grip2.handlerUpdate = false;
+                    parent.grip2.setAttribute("y",this.y);
+                    parent.grip2.handlerUpdate = true;
+                } else if (this.cell_x == 1) {
+                    parent.grip1.handlerUpdate = false;
+                    parent.grip1.setAttribute("y",this.y);
+                    parent.grip1.handlerUpdate = true;
+                }
+                
+            } else if (this.cell_y == 1) {
+                parent.subviews[1].setAttribute("height",new_y-(parent.grip1.y+10));
+                parent.subviews[2].setAttribute("y",new_y);
+                parent.subviews[2].setAttribute("height",parent.height-new_y);
+                
+                if (this.cell_x == 0) {
+                    parent.grip4.handlerUpdate = false;
+                    parent.grip4.setAttribute("y",this.y);
+                    parent.grip4.handlerUpdate = true;
+                } else if (this.cell_x == 1) {
+                    parent.grip3.handlerUpdate = false;
+                    parent.grip3.setAttribute("y",this.y);
+                    parent.grip3.handlerUpdate = true;
+                }
+                
+            }
+    	}
+    </handler>
+    <dragstate name="_drager" />
+    
+    <animator name="_animated_x" start="false" duration="750" attribute="x">
+    	<handler name="onstop">
+    		parent.parent.parent.doFinishAnimation();
+    	</handler>
+    </animator>
+    <animator name="_animated_y" start="false" duration="750" attribute="y" >
+        <handler name="onstop">
+            parent.parent.parent.doFinishAnimation();
+        </handler>
+    </animator>
+    
+</class>
+
+
+</library>

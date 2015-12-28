@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+	
+<!--- common TurnOverList view class. -->
+<class name="listPagedContent" extends="view" clip="true" >
+	
+	<attribute name="itemHeight" value="20" type="number"/>
+	
+    <view name="_inn" >
+        
+        <!-- calculates the additional items -->
+        <attribute name="itemsToShow" value="0" type="number" />
+        <attribute name="totalItemsInList" value="0" type="number" />
+        
+        <attribute name="currentLastItemInList" value="0" type="number" />
+        
+        <attribute name="itemHeight" value="$once{ parent.itemHeight }" type="number"/>
+        
+		<method name="initItems" args="itemName">
+	        <![CDATA[
+	            this.totalItemsInList = Math.round(parent.height/this.itemHeight);
+	            for (var i=0;i<this.totalItemsInList;i++){
+	                this.currentLastItemInList = i;
+	                new lz[itemName](this._inn,{y:i*this.itemHeight,itemId:i});
+	            }
+	        ]]>
+	    </method>	        
+        
+        <method name="resetItems">
+            <![CDATA[
+                for (var i=0;i<this._inn.subviews.length;i++) {
+                    this._inn.subviews[i].itemId = i;
+                    this.currentLastItemInList = i;
+                    this._inn.subviews[i].setAttribute("y",i*this.itemHeight);
+                }
+            ]]>
+        </method>
+        
+        <handler name="ony" args="y">
+            <![CDATA[
+                //if ($debug) Debug.write("ony ",y);
+                var items = Math.round(y/this.itemHeight);
+                //if ($debug) Debug.write("items ",items);
+                if (this.itemsToShow != items) {
+                    var deltaItem = itemsToShow - items;
+                    //if ($debug) Debug.write("deltaItem ",deltaItem);
+                    
+                    if (deltaItem > 0) {
+                        //Add new Items to the end
+                        for (var i=0;i<deltaItem;i++) {
+                            var item = this._inn.getUpmostItemInList();
+                            this.shiftToLast(item);
+                        }
+                    } else {
+                        //Add new Items to the beginning
+                        for (var i=0;i>deltaItem;i--) {
+                            var item = this._inn.getLastItemInList();
+                            this.shiftToFirst(item);
+                        }
+                    }
+                    
+                    this.itemsToShow = items;
+                }
+            ]]>
+        </handler>
+        
+        <method name="shiftToLast" args="item">
+            <![CDATA[
+                //if ($debug) Debug.write("shiftToLast ",item.itemId);
+                this.currentLastItemInList++;
+                item.setAttribute("y",this.currentLastItemInList*this.itemHeight);
+                //if ($debug) Debug.write("shiftToLast -1- ",item.y,this.currentLastItemInList);
+                item.itemId = this.currentLastItemInList;
+                parent.parent.onScrollItem.sendEvent(item);
+            ]]>
+        </method>
+        
+        <method name="shiftToFirst" args="item">
+            <![CDATA[
+                //if ($debug) Debug.write("shiftToFirst 1 ",item.itemId);
+                //if ($debug) Debug.write("shiftToFirst 2 ",item.y);
+                var newItem = this.currentLastItemInList-this.totalItemsInList;
+                //if ($debug) Debug.write("shiftToFirst 3 ",newItem);
+                item.setAttribute("y",newItem*this.itemHeight);
+                //if ($debug) Debug.write("shiftToFirst 4 ",item.y);
+                item.itemId = newItem;
+                //if ($debug) Debug.write("shiftToFirst 5 ",item.itemId);
+                this.currentLastItemInList--;
+                parent.parent.onScrollItem.sendEvent(item);
+            ]]>
+        </method>
+            
+        <view name="_inn">
+            
+        
+            <method name="getItemByPosition" args="yPos">
+                <![CDATA[
+                    for (var i=0;i<this.subviews.length;i++) {
+                        if (this.subviews[i].y == yPos){
+                            return this.subviews[i];
+                        }
+                    }
+                ]]>
+            </method>
+            <method name="getUpmostItemInList">
+                <![CDATA[
+                    var item = this.subviews[0];
+                    for (var i=0;i<this.subviews.length;i++) {
+                        if (this.subviews[i].itemId < item.itemId){
+                            item = this.subviews[i];
+                        }
+                    }
+                    return item;
+                ]]>
+            </method>
+            <method name="getLastItemInList">
+                <![CDATA[
+                    var item = this.subviews[0];
+                    for (var i=0;i<this.subviews.length;i++) {
+                        if (this.subviews[i].itemId > item.itemId){
+                            item = this.subviews[i];
+                        }
+                    }
+                    return item;
+                ]]>
+            </method>
+        </view>
+    </view>
+    <vscrollbar name="_scrollbar" stepsize="$once{ parent.itemHeight }" />
+    <hscrollbar />
+
+</class>
+
+</library>

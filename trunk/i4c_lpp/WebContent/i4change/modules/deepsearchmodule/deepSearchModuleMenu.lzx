@@ -1,0 +1,475 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+	
+	
+<class name="searchTermEditorViewSecond" extends="view">
+    
+    <attribute name="andOrComperator" value="AND" type="string" />
+    
+    <omComboBox name="andOrComperatorBox" width="60" y="0" x="2" editable="false" >
+        <labelTextListItem text="AND" value="AND" />
+        <labelTextListItem text="OR" value="OR" />
+        <handler name="oninit">
+            this.selectItemAt(0);
+        </handler> 
+        <handler name="onselect" args="sel">
+            parent.andOrComperator = this.getValue();
+        </handler>            
+    </omComboBox>
+    
+    <view width="22" x="181" y="0">
+            <iconboxMapHeader resourcenameAttr="diagram_list_delete_rsc" labelid="1457">
+            <handler name="onclick">
+                parent.parent.destroy();
+            </handler>
+        </iconboxMapHeader>
+        <view height="18" width="1" bgcolor="0xFFFFFF" />
+    </view>
+    
+    <customEdittext name="search" x="2" width="196" text="" y="22" >
+        <handler name="onkeyup" args="k">
+            if (k == 13) {
+                parent.parent.parent.parent.startNewSearch();
+            }
+        </handler>
+    </customEdittext>
+    
+</class>
+    
+<class name="propertyEditorView" extends="view">
+	
+	<attribute name="andOrComperator" value="not" type="string" />
+	
+    <omComboBox name="property" width="178" y="0" x="2" editable="false" >
+        <labelTextListItem datapath="diagramPropertiesDS:/item" labelid="$path{ 'labelid/text()' }" 
+                value="$path{ 'propertyId/text()' }" />
+        <handler name="oninit">
+            this.selectItemAt(0);
+        </handler>  
+    </omComboBox>
+    
+    <view name="_deleteBox" width="20" x="181">
+            <iconboxMapHeader resourcenameAttr="diagram_list_delete_rsc" labelid="1423">
+            <handler name="onclick">
+                parent.parent.destroy();
+                parent.parent.parent.parent.doSetAndOrByList()
+                parent.parent.parent.parent.doSendUpdate();
+            </handler>
+        </iconboxMapHeader>
+        <view height="18" width="1" bgcolor="0xFFFFFF" />
+    </view>
+    
+    <omComboBox name="comperator" width="68" y="22" x="2" editable="false" shownitems="8">
+        <labelTextListItemAdv datapath="searchDSComperator:/item" text="$path{ 'text/text()' }" 
+                value="$path{ 'value/text()' }" labelTextId="$path{ 'labelid/text()' }" />
+        <handler name="oninit">
+            this.selectItemAt(0);
+        </handler>             
+    </omComboBox>
+    
+    <customEdittext name="search" x="71" y="22" width="127" text="">
+        <handler name="onkeyup" args="k">
+            if (k == 13) {
+                parent.parent.doSendUpdate();
+            }
+        </handler>
+    </customEdittext>
+
+</class>
+
+<class name="propertyEditorViewSecond" extends="view">
+    
+    <attribute name="andOrComperator" value="AND" type="string" />
+    
+    <omComboBox name="andOrComperatorBox" width="60" y="0" x="2" editable="false" >
+        <labelTextListItem text="AND" value="AND" />
+        <labelTextListItem text="OR" value="OR" />
+        <handler name="oninit">
+            this.selectItemAt(0);
+        </handler> 
+        <handler name="onselect" args="sel">
+        	parent.andOrComperator = this.getValue();
+        </handler>            
+    </omComboBox>
+    
+    <omComboBox name="property" width="178" y="22" x="2" editable="false" >
+        <labelTextListItem datapath="diagramPropertiesDS:/item" labelid="$path{ 'labelid/text()' }" 
+                value="$path{ 'propertyId/text()' }" />
+        <handler name="oninit">
+            this.selectItemAt(0);
+        </handler>  
+    </omComboBox>
+    
+    <view name="_deleteBox" width="22" x="181" y="20">
+            <iconboxMapHeader resourcenameAttr="diagram_list_delete_rsc" labelid="1423">
+            <handler name="onclick">
+                parent.parent.destroy();
+                parent.parent.parent.parent.doSetAndOrByList();
+                parent.parent.parent.parent.doSendUpdate();
+            </handler>
+        </iconboxMapHeader>
+        <view height="18" width="1" bgcolor="0xFFFFFF" />
+    </view>
+    
+    <omComboBox name="comperator" width="68" y="44" x="2" editable="false" 
+    			itemclassname="labelTextListItemAdv" shownitems="8">
+        <labelTextListItemAdv datapath="searchDSComperator:/item" text="$path{ 'text/text()' }" 
+                value="$path{ 'value/text()' }" labelTextId="$path{ 'labelid/text()' }" />
+        <handler name="oninit">
+            this.selectItemAt(0);
+        </handler>             
+    </omComboBox>
+    
+    <customEdittext name="search" x="71" y="44" width="127" text="">
+        <handler name="onkeyup" args="k">
+            if (k == 13) {
+                parent.parent.doSendUpdate();
+            }
+        </handler>
+    </customEdittext>
+
+</class>
+
+<class name="separaterSearchMenu" width="200" 
+	   height="1" bgcolor="$once{ canvas.basebgcolorizer }" />
+	   
+<class name="headModuleMenu" extends="view" bgcolor="0xEEEEEE" width="200">
+	
+	<attribute name="labelid" value="592" type="number" />
+	<attribute name="open" value="true" type="boolean" />
+	
+	<handler name="onclick">
+		this.setAttribute("open",!this.open);
+		if (this.open == 1) {
+			this.icon.setAttribute("frame",1);
+		} else {
+			this.icon.setAttribute("frame",2);
+		}
+	</handler>
+	
+	<view name="icon" resource="open_close_icon_rsc" y="2" 
+		  frame="$once{ (parent.open) ? 1 : 2 }" />
+	
+	<labelText x="14" y="0" labelid="$once{ parent.labelid }" fontstyle="bold" />
+	
+</class>
+    
+<!---  modules:dashboard -->
+<class name="deepSearchModuleMenu" extends="view" height="$once{ parent.height }" layout="axis:y;spacing:4">
+	
+	   <event name="onNewSearch"/>
+	   <event name="onSaveFilter"/>
+	   
+	   <method name="startNewSearch">
+	   	   this.onNewSearch.sendEvent();
+	   </method>
+    	
+    	<handler name="oninit">
+    		this.getDiagramObjectTypes.doCall();
+    		this.getPropertiesListAllByOrganiation.doCall();
+    	</handler>
+    	
+	    <netRemoteCallRPC name="getDiagramObjectTypes" funcname="getDiagramObjectTypes" 
+                      dataobject="diagramObjectTypesDS" remotecontext="$once{ canvas.propertyServiceRPC }" >
+            <netparam><method name="getValue">return canvas.sessionId;</method></netparam>
+        </netRemoteCallRPC> 
+        
+        <!--
+            public List<Property> getPropertiesListAllByOrganiation(String SID, Long organization_id) 
+         -->
+        <netRemoteCallRPC name="getPropertiesListAllByOrganiation" funcname="getPropertiesListAllByOrganiation" 
+                      dataobject="diagramPropertiesDS" remotecontext="$once{ canvas.propertyServiceRPC }" >
+            <netparam><method name="getValue">return canvas.sessionId;</method></netparam>
+            <netparam><method name="getValue">return canvas.currentdomainObj.organisation_id;</method></netparam>
+            <handler name="ondata" args="value">
+                //The onResult-Handler will be called be the rtmpconnection
+                parent.getComperators.doCall();
+                //if ($debug) Debug.write("propertyValidationTypes: ",propertyValidationTypes);
+            </handler>
+        </netRemoteCallRPC> 
+        
+        <netRemoteCallRPC name="getComperators" funcname="getComperators" 
+                          dataobject="searchDSComperator" remotecontext="$once{ canvas.propertyServiceRPC }" >
+            <handler name="ondata" args="value">
+                //The onResult-Handler will be called be the rtmpconnection
+                if ($debug) Debug.write("getComperators ",value);
+                //if ($debug) Debug.write("propertyValidationTypes: ",propertyValidationTypes);
+            </handler>  
+        </netRemoteCallRPC> 
+        
+        <!--
+        <headModuleMenu labelid="1460" fontstyle="bold">
+            <handler name="onopen" args="o">
+                if (o) {
+                    parent.savedFilter.setAttribute("visibility","visible");
+                } else {
+                    parent.savedFilter.setAttribute("visibility","hidden");
+                }
+            </handler>
+        </headModuleMenu>
+        
+        <view name="savedFilter" layout="axis:y;spacing:2">
+        	
+        	<method name="loadSavedFilter">
+        		
+        	</method>
+        	
+        	<method name="saveFilter">
+                parent.onSaveFilter.sendEvent();
+            </method>
+        	
+            <simpleLabelButton x="2" width="140" height="22" labelid="1462" >
+                <handler name="onclick">
+                    parent.loadSavedFilter();
+                </handler> 
+            </simpleLabelButton> 
+            
+            <view name="_details" height="0" clip="true" layout="axis:y;spacing:2">
+            	
+            	<attribute name="isOpen" value="false" type="boolean" />
+            	
+            	<labelText x="2" labelid="1463" />
+            	
+            	<customEdittext name="_name" x="2" width="196" />
+            	
+            	<labelText x="2" labelid="1464" />
+            	
+            	<customScrollEdittext name="_descr" width="196" x="2" height="60" />
+            	
+            	<simpleLabelButton x="78" width="120" height="22" labelid="1465" >
+                    <handler name="onclick">
+                        parent.parent.saveFilter();
+                        parent.closeItem.doStart();
+                        parent.parent._doSaveButton.setAttribute("visibility","visible");
+                    </handler> 
+                </simpleLabelButton> 
+            	
+            	<animator name="openItem" start="false" to="146" duration="750" attribute="height">
+            		<handler name="onstop">
+            			parent.isOpen = true;
+            		</handler>
+            	</animator>
+            	<animator name="closeItem" start="false" to="0" duration="750" attribute="height">
+            		<handler name="onstop">
+            			parent.isOpen = false;
+            		</handler>
+            	</animator>
+            </view>
+            
+             <simpleLabelButton name="_doSaveButton" x="2" width="140" height="22" labelid="1461" >
+                <handler name="onclick">
+                	this.setAttribute("visibility","hidden");
+            		parent._details._name.setAttribute("text","");
+            		parent._details._descr.setAttribute("text","");
+            		parent._details.openItem.doStart();
+                </handler> 
+            </simpleLabelButton> 
+            
+        </view>  
+         -->   
+    	
+    	<headModuleMenu labelid="592" fontstyle="bold">
+            <handler name="onopen" args="o">
+                if (o) {
+                    parent.search.setAttribute("visibility","visible");
+                } else {
+                    parent.search.setAttribute("visibility","hidden");
+                }
+            </handler>
+        </headModuleMenu>
+        
+        <view name="search" layout="axis:y;spacing:2">
+        	
+        	<method name="doAddEvent">
+        		new lz.searchTermEditorViewSecond(this._list);
+        	</method>
+        	
+        	<method name="getValues">
+        		<![CDATA[
+        		    var tArray = new Array();
+        		  
+                    for (var i=0;i<this._list.subviews.length;i++) {
+        		  	    var tObject = new Object();
+        		  	    
+        		  	    if (i == 0) {
+        		  	        tObject["comperator"] = "not";
+        		  	        tObject["search"] = this._list.subviews[0].getText();
+        		  	    } else {
+        		  	        tObject["comperator"] = this._list.subviews[i].andOrComperator;
+                            tObject["search"] = this._list.subviews[i].search.getText();
+        		  	    }
+        		  	    
+        		  	    tArray.push(tObject);
+        		    }
+        		    
+        		    return tArray;
+        		]]>
+        	</method>
+        	
+        	<view name="_list" layout="axis:y;spacing:2">
+        		<customEdittext x="2" width="196" text="$once{ canvas.currentSearchTerm }">
+                    <handler name="onkeyup" args="k">
+                        if (k == 13) {
+                            parent.parent.parent.startNewSearch();
+                        }
+                    </handler>
+                    <handler name="oninit">
+                    	lz.Focus.setFocus(this,true);
+                    </handler>
+                </customEdittext>
+        	</view>
+            
+            <simpleLabelButton x="78" width="120" height="22" labelid="1421">
+                <view resource="edit_add_rsc" y="2" x="2" />
+                <handler name="onclick">
+                    parent.doAddEvent();
+                </handler> 
+            </simpleLabelButton> 
+            
+        </view>
+        
+    
+        <headModuleMenu labelid="1419" fontstyle="bold">
+        	<handler name="onopen" args="o">
+        		if (o) {
+        			parent.objectTypes.setAttribute("visibility","visible");
+        		} else {
+        			parent.objectTypes.setAttribute("visibility","hidden");
+        		}
+        	</handler>
+        </headModuleMenu>
+        
+        <view name="objectTypes" layout="axis:y;spacing:2">
+        	
+            <infoIconBox width="192" x="4" labelid="1425" />
+            
+            <list name="objectTypes" width="196" height="100" multiselect="true" 
+            	  itemclassname="labelTextListItem" x="2">
+            	<method name="getValues">
+            		<![CDATA[
+            		    //if ($debug) Debug.write("onselect",this.getSelection());
+                        var sel = this.getSelection();
+                        var tResultArray = new Array();
+                        for (var t=0;t<sel.length;t++) {
+                        	if (sel[t].value == '') {
+                        		tResultArray = new Array();
+                        		break;
+                        	} else {
+                        	   tResultArray.push(sel[t].value);
+                        	}
+                        }
+                        return tResultArray;
+            		]]>
+            	</method>
+                <labelTextListItem datapath="diagramObjectTypesDS:/item/" 
+                       value="$path{'name/text()'}"
+                       labelid="$path{'labelid/text()'}" />
+            </list>
+        </view>
+        
+        <headModuleMenu labelid="1420" fontstyle="bold">
+            <handler name="onopen" args="o">
+                if (o) {
+                    parent._propertiesList.setAttribute("visibility","visible");
+                } else {
+                    parent._propertiesList.setAttribute("visibility","hidden");
+                }
+            </handler>
+        </headModuleMenu>
+        
+        <view name="_propertiesList" layout="axis:y;spacing:2">
+        	
+        	<method name="doSendUpdate">
+        		if ($debug) Debug.write("doSendUpdate");
+        	</method>
+        	
+        	<method name="doAddEvent">
+        		if (this._list.subviews.length != 0) {
+        			new lz.propertyEditorViewSecond(this._list);
+        		} else {
+        		    new lz.propertyEditorView(this._list);
+        		}
+        	</method>
+        	
+        	<method name="getValues">
+        		<![CDATA[
+        		    var tArray = new Array();
+        		    for (var i=0;i<this._list.subviews.length;i++) {
+        		    	var tProperty = new Object();
+        		    	var item = this._list.subviews[i];
+        		    	tProperty["property_id"] = item.property.getValue();
+        		    	tProperty["comperator"] = item.comperator.getValue();
+        		    	tProperty["value"] = item.search.getText();
+        		    	tProperty["andOrComperator"] = item.andOrComperator;
+        		    	tArray.push(tProperty);
+        		    }
+        		    
+        		    if ($debug) Debug.write("tProperty",tProperty);
+        		    return tArray;
+        		]]>
+        	</method>
+        	
+        	<method name="doSetAndOrByList">
+        		<![CDATA[
+            		if (this._list.subviews.length > 0 && this._list.subviews[0].andOrComperator != 'not') {
+            		    this._list.subviews[0].andOrComperator = "not";
+            		    this._list.subviews[0].andOrComperatorBox.destroy();
+            		    this._list.subviews[0].property.setAttribute("y",0);
+            		    this._list.subviews[0]._deleteBox.setAttribute("y",0);
+            		    this._list.subviews[0].comperator.setAttribute("y",22);
+            		    this._list.subviews[0].search.setAttribute("y",22);
+            		}
+        		]]>
+        	</method>
+        	
+        	<infoIconBox width="192" x="4" labelid="1424" />
+        	
+        	<view name="_list" layout="axis:y;spacing:2" />
+            
+            <simpleLabelButton x="78" width="120" height="22" labelid="1421">
+                <view resource="edit_add_rsc" y="2" x="2" />
+                <handler name="onclick">
+                    parent.doAddEvent();
+                </handler> 
+            </simpleLabelButton> 
+        	
+        </view>
+        
+        <headModuleMenu labelid="1437" fontstyle="bold">
+            <handler name="onopen" args="o">
+                if (o) {
+                    parent._customSettings.setAttribute("visibility","visible");
+                } else {
+                    parent._customSettings.setAttribute("visibility","hidden");
+                }
+            </handler>
+        </headModuleMenu>
+        
+        <view name="_customSettings">
+        	
+    	    <omComboBox name="itemStatus" width="196" y="0" x="2" editable="false" >
+                <labelTextListItem labelid="1428" value="1" />
+                <labelTextListItem labelid="1429" value="0" />
+                <labelTextListItem labelid="1439" value="2" />
+                <handler name="oninit">
+                    this.selectItemAt(0);
+                </handler>             
+            </omComboBox>
+            
+        </view>
+        
+        <view  bgcolor="0xEEEEEE" width="200" height="26">
+        	
+        	<simpleLabelButton x="78" width="120" height="22" labelid="771" y="2">
+                <view resource="search_help_item_rsc" y="2" x="2" />
+                <handler name="onclick">
+                    parent.parent.startNewSearch();
+                </handler> 
+            </simpleLabelButton> 
+        
+        </view>
+        
+        
+</class>
+   
+</library>

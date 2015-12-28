@@ -1,0 +1,99 @@
+<library>
+  
+  <class name="BoxPoolManager">
+      <attribute name="pools"/>
+      <!-- return a views pool -->
+      <method name="getPool" args="parent, className">            
+          if(this['pools'] == null)
+          {   
+              this.pools = new Object();             
+              parent["_pools"] = this.pools;
+          }
+          
+          var pool = this.pools[className];
+          if(!pool)
+          {
+              pool =  new BoxPool(parent); 
+              pool.parentview = parent;  
+              pool.viewclass = className;
+              this.pools[className] = pool;                                                                                
+          }
+          return pool;           
+      </method>
+     
+      <!-- put are the view back to the pools -->         
+      <method name="reclaimAll">
+      <![CDATA[             
+           if(this['pools'] != null) {
+               for( var k in this.pools)
+               {                
+                  this.pools[k].reclaimAll();
+               }
+           }
+      ]]>
+      </method>        
+  </class>
+  
+  <class name="BoxPool" extends="node">             
+      <attribute name="unused" value="$once{[]}"/>
+      <attribute name="used" value="$once{[]}"/>
+      <attribute name="parentview" value="$once{null}"/>
+      <attribute name="viewclass" type="string" value="$once{null}"/>
+      
+      <!-- get a view the pool -->
+      <method name="getView" args="args">
+          var marker = null;
+          if(this.unused.length > 0)
+          {
+              marker = this.unused.pop();                 
+          }
+          else
+          {
+              marker =  new global[viewclass](parentview, args);                               
+          }
+          this.used.push(marker);
+          marker.setVisible(true);
+          return marker;            
+      </method>
+    
+      <method name="reclaim" args="view">
+      <![CDATA[
+        var toDelete = null;
+        for (var i = 0; i < this.used.length; i++) {
+          if ( this.used[i] == view ) {
+            if ( i < this.used.length - 1 ) {
+              toDelete = this.used[i];
+              this.used[i] = this.used.pop();
+            } 
+            else {
+              toDelete = this.used.pop();
+            }
+          }
+        }
+        toDelete.setVisible(false);
+        if ( toDelete["clear"] != null ) {
+          toDelete.clear();
+        }
+        this.unused.push(toDelete);
+      ]]>  
+      </method>
+      
+      <!-- return all the view to the pool -->
+      <method name="reclaimAll">
+      <![CDATA[
+           for(var i = 0; i < this.used.length; i++)
+           {
+              this.used[i].setVisible(false);
+              
+              if(this.used[i]["clear"] != null)
+              {
+                  this.used[i].clear();
+              }
+           }
+           this.unused = this.unused.concat(this.used);
+           this.used = [];
+      ]]>
+      </method>
+  </class> 
+  
+</library>

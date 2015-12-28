@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+	
+	
+<class name="netRemoteCallRPC" extends="remotecall">
+	
+	<!-- this should be the contentSaveWindow -->
+	<attribute name="returnObj" value="null" />
+	
+	<!-- if true this object will register at the update-observer -->
+	<attribute name="registerObject" value="false" type="boolean" />
+	
+	<!-- show Error Messages with normal Box -->
+    <attribute name="activeErrorHandler" value="false" type="boolean" />	
+    
+	<!-- show Error Messages with normal Box -->
+    <attribute name="showLoading" value="true" type="boolean" />    
+	
+	<!-- show Error Messages with Callback Box -->
+	<attribute name="isCallBackHandler" value="false" type="boolean" />	
+	
+	<handler name="oninit">
+		if (this.registerObject) this.parent.addViewToObserver(this);
+	</handler>	
+	<method name="doCall">
+        if (this.showLoading) canvas._loadingAll.setAttribute('visible',true);
+		//if($debug) Debug.write("netRemoteCallRPC/doCall: [ " , this.funcname , " ]");
+		canvas.addCallHistory(this.funcname+"["+this.remotecontext.name +"]");
+        this.invoke();
+	</method>
+	
+	<handler name="sendCallBack" />
+	
+	<!--
+
+	 -->
+	<handler name="ondata" args="value">
+		<![CDATA[
+			//Debug.write("ondata: ",this.funcname,value);
+			
+			if (this.showLoading) canvas._loadingAll.setAttribute('visible',false);
+			
+			//Another Error Handler for the Form-Components
+			if (this.returnObj!=null && Number(value)>0) {
+				//Debug.write("this.returnObj.processNext");
+				this.returnObj.processNext();
+			} else if (this.returnObj!=null && Number(value)<0) {
+				this.returnObj.errorByCode(Number(value));
+			} else if (this.returnObj!=null && value==null) {
+				this.returnObj.errorByCode(-1);
+			}
+			
+            if (this.activeErrorHandler) {
+                if (Number(value)<0){
+                    Debug.warn("Received Error ID: ",value);
+					if (this.isCallBackHandler) {
+						new lz.callbackRpcErrorDialog(canvas,{callBackObject:this,errorid:Number(value)});
+					} else {
+						new lz.rpcErrorDialog(canvas,{errorid:Number(value)});
+					}
+                }
+            }			
+		]]>
+	</handler>	
+	
+</class>
+
+<class name="netRemoteCallHib" extends="netremotecall">
+    
+    <dataset name="dsSendData" request="false" src="http://localhost:5080/i4change/Gateway" type="http">
+        <handler name="ondata" args="d">
+            //if ($debug) Debug.write("ondata",parent.funcname,d);
+        </handler>
+    </dataset>
+
+	<!-- this should be the contentSaveWindow -->
+	<attribute name="returnObj" value="null" />
+	
+	<!-- if true this object will register at the update-observer -->
+	<attribute name="registerObject" value="false" type="boolean" />
+	
+	<!-- show Error Messages with normal Box -->
+    <attribute name="activeErrorHandler" value="false" type="boolean" />	
+    
+	<!-- show Error Messages with normal Box -->
+    <attribute name="showLoading" value="true" type="boolean" />    
+	
+	<!-- show Error Messages with Callback Box -->
+	<attribute name="isCallBackHandler" value="false" type="boolean" />	
+    
+    <!-- if this is rtmp it uses the rtmp-connection else it uses HTTP-Gateway -->
+    <attribute name="useSystemRequestType" value="true" type="string" />
+	
+	<handler name="oninit">
+		if (this.registerObject) this.parent.addViewToObserver(this);
+	</handler>	
+	<method name="doCall">
+        if (this.showLoading) canvas._loadingAll.setAttribute('visible',true);
+		//if($debug) Debug.write("netRemoteCallRPC/doCall: [ " , this.funcname , " ]");
+        if (this.useSystemRequestType) {
+            if (canvas.rpcType == "rtmp") {
+                this.callRPC();
+            } else {
+                //if ($debug) Debug.write("Call RPC VIA HTTP",this.funcname);
+                var serviceMap = this.funcname.split(".");
+                //if ($debug) Debug.write("HTTP service",serviceMap.length);
+                //if ($debug) Debug.write("HTTP service",serviceMap[0]);
+                
+                //By Default use Application Adapter
+                var service = "web.handler";
+                var method = serviceMap[0];
+                
+                //Otherwise use Service-Class
+                if (serviceMap.length == 2) {
+                    service = serviceMap[0] + ".service";
+                    method = serviceMap[1];
+                }
+                
+                //if ($debug) Debug.write("service: ",service);
+                //if ($debug) Debug.write("method: ",method);
+                
+                this.dsSendData.setQueryType("POST");
+                
+                this.dsSendData.setQueryParam("service",service);
+                this.dsSendData.setQueryParam("method",method);
+                
+                //Add arguments
+                var params = this.getParams();
+                var element = LzDataElement.valueToElement(params);
+                
+                //if ($debug) Debug.write("element",element);
+                this.dsSendData.setQueryParam("args",element);
+                
+                this.dsSendData.doRequest();
+            }
+        }
+	</method>
+	
+	<handler name="sendCallBack" />
+	
+	<!--
+
+	 -->
+	<handler name="ondata" args="value">
+		<![CDATA[
+			//Debug.write("ondata: ",this.funcname,value);
+			
+			if (this.showLoading) canvas._loadingAll.setAttribute('visible',false);
+			
+			//Another Error Handler for the Form-Components
+			if (this.returnObj!=null && Number(value)>0) {
+				//Debug.write("this.returnObj.processNext");
+				this.returnObj.processNext();
+			} else if (this.returnObj!=null && Number(value)<0) {
+				this.returnObj.errorByCode(Number(value));
+			} else if (this.returnObj!=null && value==null) {
+				this.returnObj.errorByCode(-1);
+			}
+			
+            if (this.activeErrorHandler) {
+                if (Number(value)<0){
+                    Debug.warn("Received Error ID: ",value);
+					if (this.isCallBackHandler) {
+						new lz.callbackRpcErrorDialog(canvas,{callBackObject:this,errorid:Number(value)});
+					} else {
+						new lz.rpcErrorDialog(canvas,{errorid:Number(value)});
+					}
+                }
+            }			
+		]]>
+	</handler>	
+</class>
+
+</library>

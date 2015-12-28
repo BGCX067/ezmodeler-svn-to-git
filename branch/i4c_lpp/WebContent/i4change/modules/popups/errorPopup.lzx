@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+	
+<class name="warningPopup" extends="guiPresenter" labelid="1135"
+	docking="true" resizeable="false" closable="true" 
+    width="300" x="$once{ canvas.width/2 - this.width/2 }" height="${ _content.height+30 }">
+
+	<attribute name="fadeDelegate" value="null" />
+    <handler name="oninit">
+    	if (canvas.currentWarningPopUp != null) {
+    		canvas.currentWarningPopUp.close();
+    	}
+    	canvas.currentWarningPopUp = this;
+        this.fadeDelegate = new LzDelegate( this, "fadeText" );
+        lz.Timer.addTimer( this.fadeDelegate, 6000 );
+    </handler>
+    <method name="fadeText" args="item">
+        this.close();
+    </method>
+    <handler name="onclose">
+    	canvas.currentWarningPopUp = null;
+    </handler>
+    
+	<attribute name="error" value="" type="string" />
+    
+    <infoIconBox iconResourceName="messagebox_warning_rsc"
+                 text="${ parent.error }" x="10" name="_content"
+                 y="24" width="$once{ parent.width -20 }" />
+<!--
+	<view y="24" width="218" height="200" x="2" clip="true">
+		<text y="30" fontsize="10" fontstyle="bold" text="${ parent.parent.error }"
+			multiline="true" width="190" />
+		<vscrollbar name="_scrollbar" />
+	</view>
+ -->
+</class>
+
+<class name="errorPopupJavaRPC" extends="guiPresenter" labelid="204"
+    docking="true" resizeable="false" closable="true" 
+    width="300" x="$once{ canvas.width/2 - this.width/2 }" height="${ _content.height+30 }">
+
+    <attribute name="errorObject" value="" type="string" />
+    
+    <attribute name="error" value="" type="string" />
+    
+    <view layout="axis:y;spacing:0" name="_content" y="24">
+        <infoIconBox iconResourceName="messagebox_warning_rsc"
+                     text="${ parent.parent.errorObject }" x="10"
+                     width="$once{ parent.parent.width -20 }" />
+                     
+        <infoIconBox iconResourceName="messagebox_warning_rsc"
+                     text="${ parent.parent.error }" x="10" 
+                     width="$once{ parent.parent.width -20 }" />
+    </view>
+
+</class>	
+
+<class name="errorPopup" extends="guiPresenter" labelid="204"
+	docking="true" resizeable="false" closable="true" 
+    width="300" x="$once{ canvas.width/2 - this.width/2 }" height="${ _content.height+30 }">
+
+	<attribute name="error" value="" type="string" />
+    
+    <infoIconBox iconResourceName="messagebox_warning_rsc"
+                 text="${ parent.error }" x="10" name="_content"
+                 y="24" width="$once{ parent.width -20 }" />
+<!--
+	<view y="24" width="218" height="200" x="2" clip="true">
+		<text y="30" fontsize="10" fontstyle="bold" text="${ parent.parent.error }"
+			multiline="true" width="190" />
+		<vscrollbar name="_scrollbar" />
+	</view>
+ -->
+</class>
+
+<class name="errorPopupWithLabel" extends="errorPopup" closable="true" >
+    
+    <attribute name="labelerrorid" type="number" setter="setErrorLabelId(labelerrorid)" />
+    <method name="setErrorLabelId" args="labelerrorid" >
+        this.labelerrorid = labelerrorid;
+        //if ($debug) Debug.write("this.labelerrorid: ",this.labelerrorid);
+        if ($debug) {
+            this.setAttribute("error","labelerrorid: "+canvas.getLabelName(this.labelerrorid));
+        } else {
+            this.setAttribute("error",canvas.getLabelName(this.labelerrorid));
+        }
+    </method>
+
+</class>
+
+<class name="errorPopupWithLabelAndLink" extends="errorPopupWithLabel" height="${ _content.height+70 }">
+    
+    <attribute name="labellinkButton" type="number" />
+    <attribute name="linkButtonAction" type="string" value="userSettings" />
+    
+    <simpleLabelButton width="180" 
+    				   x="$once{ parent.width - 184 }" y="${ parent.height - 26 }"
+    				   labelid="$once{ parent.labellinkButton }">
+        <handler name="onclick">
+        	parent.close();
+        	quicklinkAct(parent.linkButtonAction);
+        </handler>
+    </simpleLabelButton>
+
+</class>
+
+</library>

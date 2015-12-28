@@ -1,0 +1,375 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+ 
+ 
+<class name="kDashBoardBox" extends="view" >
+    
+    <attribute name="labelid" type="number" setter="setLabelId(labelid)" />
+    <method name="setLabelId" args="_labelid" >
+        this.labelid = _labelid;
+        this.setAttribute("headerText",canvas.getLabelName(this.labelid));
+    </method>
+    
+    <attribute name="headerText" value="" type="string" />
+    
+    <view name="_head" x="2" y="2" width="${ parent.width-4 }" height="34" bgcolor="0x3F5B9E">
+        
+        <text x="10" fontstyle="bold" fontsize="14" fgcolor="0xFFFFFF" 
+              text="${ parent.parent.headerText }" valign="middle"></text>
+        
+        <view resource="kaleidoscope_textbox_milk" width="${ parent.width }" height="30"
+              stretches="width">
+            
+        </view>
+        
+    </view>
+    
+    <view x="2" width="${ parent.width - 4 }" y="34" height="${ parent.height - 34 }"
+          bgcolor="0x3F5B9E" opacity="0.1"></view>
+    
+</class>
+
+<!---  modules:dashboard -->
+<class name="kDashboard" extends="baseContentTabbedView" closeable="false"
+       labelid="807" width="${ canvas.width }" height="${ canvas.height-48 }">	
+             
+
+    <kDashBoardBox width="260" height="320" name="userProfile" labelid="1223" id="_userDashBoard">
+        <handler name="oninit">
+            this.getUserSelf.doCall();
+	    </handler>
+	    <method name="sendRefresh">
+	        this.getUserSelf.doCall();
+	    </method>
+	    <netRemoteCallRPC name="getUserSelf" funcname="getUserSelf" 
+	        remotecontext="$once{  canvas.userServiceRPC }" > 
+	        <netparam><method name="getValue"> return canvas.sessionId; </method></netparam>
+	        <handler name="ondata" args="value">
+	            <![CDATA[
+	                if($debug) Debug.write("dashboard/getUserSelf: ",value);
+	                parent._username.setText(canvas.getLabelName(376)+value.login);
+	                if (value.pictureuri==null || value.pictureuri.length==0){
+	                    value.pictureuri = "d.jpg";
+	                } else {
+	                    value.pictureuri = "_profile_"+value.pictureuri;
+	                }
+	                var d = new Date();
+	                var downloadurl = canvas.httpprotocol+'://'+canvas.rtmphostlocal+':'+canvas.httpport
+	                        +'/'+canvas.webAppRootKey+'/DownloadHandler?fileName='+value.pictureuri
+	                        +'&moduleName=userprofile&parentPath=&room=&domain='
+	                        +'&sid='+canvas.sessionId+'&random='+d.getTime();
+	                if($debug) Debug.write("dashboard/downloadurl "+downloadurl);
+	                parent._userpic.setAttribute('src',downloadurl);    
+	            ]]>
+	        </handler>
+	    </netRemoteCallRPC>  
+        
+        <labelText name="_username" fontstyle="bold" multiline="true" width="134"
+                   y="40" labelid="376" x="124" />
+        
+        <image y="40" x="4" name="_userpic">
+        	<view resource="edit_table" valign="bottom" align="right" onmouseover="" onmouseout="">
+        		<handler name="onclick">
+        			new uploadWindow(canvas.main_content._content.inner,{
+            			             x:300,uploadmodule:'userprofile',
+            			             isOnlyProfile:true,isdefaultreturn:false,
+            			             returnObj:this.parent.parent
+        			             });
+        		</handler>
+        		<labelTooltip labelid="1252" />
+        	</view>
+        </image> 
+    </kDashBoardBox>
+    
+    <kDashBoardBox width="${ canvas.width - 262 }" x="262" height="320" name="loadDiagram" labelid="1224">
+        
+	    <handler name="oninit">
+	        //Add Help Item
+	        canvas.addCurrentHelpId(36,this.__constructor__.classname);
+	        canvas.addToCurrentDiagramList(this);
+	    </handler> 
+	    
+	    <method name="updateDiagramRevision" args="diagram">
+	        this._diagrams.updateDiagramRevision(diagram);
+	    </method>
+	    
+	    <method name="refreshDiagramRevision" >
+	        this._diagrams.refreshDiagramRevision();
+	    </method>
+	    
+	    <view clickable="true" showhandcursor="false" y="20" x="1" width="${ parent.width-2 }" 
+	          height="${ parent.height-21 }" ></view>
+        
+        <view x="6" y="38" name="_header" layout="axis:x;spacing:2">
+        	<handler name="oninit">
+        		if (canvas.userobject.userPropsAsObject.dashBoardDiagramPod != undefinied){
+        			if (canvas.userobject.userPropsAsObject.dashBoardDiagramPod.selected == 1) {
+        				//Is same like Default State
+        			} else {
+        				this._head1.setAttribute("y",2);
+        				this._head2.setAttribute("y",0);
+        				parent._open.setAttribute("visibility","hidden");
+                        parent._diagrams.setAttribute("visibility","visible");
+        			}
+        		}
+        	</handler>
+	        <view name="_head1" width="140" height="22" bgcolor="0x3F5B9E">
+                <handler name="onclick">
+                    parent.parent._open.setAttribute("visibility","visible");
+                    parent.parent._diagrams.setAttribute("visibility","hidden");
+                    this.setAttribute("y",0);
+                    parent._head2.setAttribute("y",2);
+                    parent.setNewUserProperty.setProperties(1);
+                </handler>
+	            <labelText x="10" fontstyle="bold" fontsize="14" fgcolor="0xFFFFFF" 
+	                  labelid="1228" valign="middle"></labelText>
+	            <view resource="kaleidoscope_textbox_milk" width="$once{ parent.width }" height="22"
+	                  stretches="both">
+	            </view>
+	        </view>
+            <view name="_head2" width="140" y="2" height="22" bgcolor="0x3F5B9E">
+                <handler name="onclick">
+                    parent.parent._open.setAttribute("visibility","hidden");
+                    parent.parent._diagrams.setAttribute("visibility","visible");
+                    this.setAttribute("y",0);
+                    parent._head1.setAttribute("y",2);
+                    parent.setNewUserProperty.setProperties(2);
+                </handler>
+                <labelText x="10" fontstyle="bold" fontsize="14" fgcolor="0xFFFFFF" 
+                      labelid="1229" valign="middle"></labelText>
+                <view resource="kaleidoscope_textbox_milk" width="$once{ parent.width }" height="22"
+                      stretches="both">
+                </view>
+            </view>
+            
+            <netRemoteCallRPC name="setNewUserProperty" funcname="setNewUserProperty" 
+                          remotecontext="$once{  canvas.mainServiceRPC }" showLoading="false" >
+                <attribute name="propKey" value="" type="string" />   
+                <attribute name="propValue" value="null" />
+                <method name="setProperties" args="val">
+                    this.propValue = new Object();
+                    this.propValue["selected"] = val;
+                    this.doCall();
+                </method>
+                <netparam><method name="getValue"> return canvas.sessionId; </method></netparam>  
+                <netparam><method name="getValue"> return "dashBoardDiagramPod"; </method></netparam>  
+                <netparam><method name="getValue"> return parent.propValue; </method></netparam>  
+                <handler name="ondata" args="value">
+                    //The onResult-Handler will be called be the rtmpconnection
+                    if ($debug) Debug.write("setNewUserProperty: ",this.propValue);
+                </handler>  
+            </netRemoteCallRPC>
+        </view>      
+	    
+        <view name="_open" y="60" height="$once{ parent.height-58 }" >
+            <view width="400">
+	            <newDiagramButtons name="_newDiagramButtons" /> 
+	        </view>
+            <view x="400" width="${ parent.parent.width - 400 }" height="$once{ parent.height-58 }">
+                <simpleLabelButtonTooltip valign="middle" fontstyle="bold" 
+                                          align="center" labelid="1227" height="47">
+                    <handler name="onclick">
+                    	parent.parent.parent._header._head1.setAttribute("y",2);
+                    	parent.parent.parent._header._head2.setAttribute("y",0);
+                        parent.parent.parent._open.setAttribute("visibility","hidden");
+                        parent.parent.parent._diagrams.setAttribute("visibility","visible");
+                        parent.parent.parent._header.setNewUserProperty.setProperties(2);
+                    </handler>
+                </simpleLabelButtonTooltip>
+            </view>
+        </view>
+        
+	    <baseDiagramLoader name="_diagrams" y="60" x="1" width="${ parent.width-2 }" additionalX="-1" 
+	          height="${ parent.height-60 }" visibility="hidden"/>
+              
+        <view y="60" width="${ parent.width }" height="2" bgcolor="0x3F5B9E"></view>
+        
+    </kDashBoardBox>
+    
+    <kDashBoardBox width="${ canvas.width - 348 }" height="${ parent.height - 328 }" y="322" name="faqAndHelp" labelid="1225">
+        
+    </kDashBoardBox>
+    
+    <kDashBoardBox x="${ canvas.width - 346 }" width="346" height="${ parent.height - 328 }" 
+                   y="322" name="ideasAndEvents" labelid="1226">
+        
+        <handler name="oninit">
+        //Add Help Item
+        canvas.addCurrentHelpId(31,this.__constructor__.classname);
+	    </handler>     
+        
+	    <view y="34" bgcolor="white" name="_inner" x="4" width="$once{ parent.width-6 }" 
+	          height="$once{ parent.height-34 }" />
+	          
+	        <attribute name="currentDiagram" value="null" />
+	        
+	        <handler name="onopen" />
+	        
+	        <netRemoteCallRPC name="getDiagramObjectsById" funcname="getDiagramObjectsById" 
+	                          remotecontext="$once{  canvas.diagramServiceRPC }" >      
+	            <attribute name="diagramId" value="" type="string" />
+	            <netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+	            <netparam><method name="getValue">return parent.diagramId;</method></netparam> 
+	            <netparam><method name="getValue">return canvas.currentdomainObj.organisation_id;</method></netparam>
+	            <handler name="ondata" args="value">
+	                if ($debug) Debug.write("getDiagramObjectsByNo: ",value);
+	                parent.loadDiagram(value);
+	            </handler>
+	        </netRemoteCallRPC>         
+	        
+	        <method name="loadDiagram" args="value">
+	            if ($debug) Debug.write("loadDiagram: ",this.currentDiagram);
+	            
+	            canvas.currentDiagram = this.currentDiagram;
+	            canvas.currentInstanceList = value;
+	            
+	            if (this.currentDiagram.diagramType.diagramTypeId == 1) {
+	                quicklinkAct('processgroup');
+	            } else if (this.currentDiagram.diagramType.diagramTypeId == 2) {
+	                quicklinkAct('roleView');
+	            } else if (this.currentDiagram.diagramType.diagramTypeId == 3) {
+	                quicklinkAct('hierarchical');
+	            } else if (this.currentDiagram.diagramType.diagramTypeId == 4) {
+	                quicklinkAct('singleRole');
+	            }
+	            this.onopen.sendEvent();
+	        </method>
+	        
+	        <view name="regress_issuelist" resource="_regress_issuelist_rsc" x="2" y="24">
+	            <handler name="onclick">
+	                parent._list.getIssuesByOrganizationAssignedToMe.doCall();
+	            </handler>
+	            <labelTooltip labelid="954" />
+	        </view>
+	
+	        <view name="_list" y="42" width="${ parent.width }"  height="${ parent.height-42 }" >
+	            
+	            <handler name="oninit">
+	                this.addHeaderItem(662,144);
+	                this.addHeaderItem(663,144);
+	                this.addHeaderItem(948,50);
+	                this.getIssuesByOrganizationAssignedToMe.doCall();
+	            </handler>             
+	            
+	            <handler name="onclickedItem" args="obj">
+	                if (obj.diagramObj.diagram != null) {
+	                    if ($debug) Debug.write("obj",obj.diagramObj.diagram.diagramId);
+	                    parent.currentDiagram = obj.diagramObj.diagram;
+	                    parent.getDiagramObjectsById.diagramId = obj.diagramObj.diagram.diagramId;
+	                    parent.getDiagramObjectsById.doCall();
+	                } else {
+	                    new lz.errorPopupWithLabel(canvas,{labelerrorid:947});
+	                }
+	            </handler>
+	            
+	            <method name="clickedApproveItem" args="obj,bool">
+	                this.approveSingleDiagramObject.diagramObjectId = obj.diagramObj.diagramObjectId
+	                this.approveSingleDiagramObject.approve = bool;                
+	                if (bool) {
+	                    this.approveSingleDiagramObject.doCall();
+	                } else {
+	                    new confirmDeleteWindowCustomLabel(canvas,{refObj:this,
+	                            funcNameConfirm:'clearAllConfirm',messageLabelid:952});
+	                }
+	            </method>
+	            
+	            <method name="clearAllConfirm" >
+	                this.approveSingleDiagramObject.doCall();
+	            </method>            
+	            
+	            <netRemoteCallRPC name="approveSingleDiagramObject" funcname="approveSingleDiagramObject" 
+	                              remotecontext="$once{  canvas.diagramServiceRPC }" activeErrorHandler="true" >    
+	                <attribute name="diagramObjectId" value="0" type="number" />  
+	                <attribute name="approve" value="true" type="boolean" />  
+	                <netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+	                <netparam><method name="getValue">return parent.diagramObjectId;</method></netparam>
+	                <netparam><method name="getValue">return parent.approve;</method></netparam>
+	                <handler name="ondata" args="value">
+	                    if ($debug) Debug.write("approveSingleDiagramObject: ",value);
+	                    parent.getIssuesByOrganizationAssignedToMe.doCall();
+	                </handler>
+	            </netRemoteCallRPC>              
+	            
+	            <method name="addHeaderItem" args="labelid,width" >
+	                if ($debug) Debug.write("addHeaderItem: ",labelid,width,this.width,this._innerlisthead._inn.width);
+	                new turnOverListHeaderItem(this._innerlisthead._inn,{labelid:labelid,width:width,subviewsid:this._innerlisthead._inn.subviews.length});
+	            </method>       
+	            
+	            <method name="doLoadList" args="loadList">
+	                <![CDATA[
+	                    this.clearList();
+	                    for (var i=0;i<loadList.length;i++) {
+	                        //if ($debug) Debug.write("loadList[i]: ",loadList[i]);
+	                        if (loadList[i].objectTypeName=="issueflow") {
+	                            new ideaListItem(this._innerlist._inn._inn,{
+	                                diagramObj:loadList[i],
+	                                diagramname:loadList[i].diagram.name,
+	                                issuename:loadList[i].name,
+	                                inserted:parseDateToStringTime(loadList[i].inserted)
+	                            });
+	                        } else if (loadList[i].diagram != null){
+	                            new pendingListItem(this._innerlist._inn._inn,{
+	                                diagramObj:loadList[i],
+	                                diagramname:loadList[i].diagram.name,
+	                                issuename:loadList[i].name,
+	                                inserted:parseDateToStringTime(loadList[i].inserted)
+	                            });
+	                        } else {
+	                            new pendingListItem(this._innerlist._inn._inn,{
+	                                diagramObj:loadList[i],
+	                                diagramname:"No Diagram available",
+	                                issuename:loadList[i].name,
+	                                inserted:parseDateToStringTime(loadList[i].inserted)
+	                            });
+	                        }
+	                    }
+	                ]]>
+	            </method> 
+	            
+	            <method name="sendWidthUpdate" args="w,subviewsid" >
+	                <![CDATA[
+	                ////Debug.write(w,subviewsid,this._innerlist._inn);
+	                for (var i=0;i<this._innerlist._inn._inn.subviews.length;i++){
+	                    this._innerlist._inn._inn.subviews[i].subviews[subviewsid].setAttribute('width',w);
+	                }
+	                ]]>
+	            </method>   
+	            
+	            <method name="clearList">
+	                this._innerlist._inn._inn.destroy();
+	                new innerList(this._innerlist._inn,{name:'_inn'});
+	            </method>
+	                      
+	            <view name="_innerlisthead" height="20" width="${ parent.width }" 
+	                x="${ parent._innerlist.x }" y="2" clip="true">
+	                <view name="_inn" layout="axis:x;spacing:0" />
+	            </view>         
+	    
+	            <view name="_innerlist" height="${ parent.height-22 }" width="${ parent.width }"
+	                y="22" clip="true">
+	                <view name="_inn" >
+	                    <innerList name="_inn" />
+	                </view>
+	                <vscrollbar name="_scrollbar" />
+	                <hscrollbar />
+	            </view>
+	                
+	            <netRemoteCallRPC name="getIssuesByOrganizationAssignedToMe" 
+	                              funcname="getIssuesByOrganizationAssignedToMe" 
+	                              remotecontext="$once{  canvas.diagramServiceRPC }" >      
+	                <netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+	                <netparam><method name="getValue">return canvas.currentdomainObj.organisation_id;</method></netparam>
+	                <handler name="ondata" args="value">
+	                    if ($debug) Debug.write("getIssuesByOrganizationAsignedToMe: ",value);
+	                    parent.doLoadList(value);
+	                </handler>
+	            </netRemoteCallRPC>  
+	            
+	        </view>
+
+    </kDashBoardBox>
+
+
+</class>
+
+</library>

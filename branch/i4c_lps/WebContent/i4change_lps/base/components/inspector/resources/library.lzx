@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+    
+	<resource name="btn_presenter_minimize2">
+        <frame src="minimize2_up.png" />
+        <frame src="minimize2_mo.png" />
+        <frame src="minimize2_dn.png" />
+    </resource>
+    
+	<resource name="btn_presenter_minimize2a">
+        <frame src="minimize2a_up.png" />
+        <frame src="minimize2a_mo.png" />
+        <frame src="minimize2a_dn.png" />
+    </resource>
+     
+</library>

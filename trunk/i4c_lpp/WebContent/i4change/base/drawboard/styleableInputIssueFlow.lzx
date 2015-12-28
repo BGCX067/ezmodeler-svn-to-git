@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+<class name="styleableInputIssueFlow" extends="inputtext" x="${ (parent.width/6)+1 }" y="1" multiline="true"
+		width="${ (parent.width/6)*4-2 }" height="${ parent.height-20 }" >
+
+	<attribute name="startAdjustHight" value="false" type="boolean" />
+	
+	<handler name="oninit">
+		<![CDATA[
+			lz.Focus.setFocus(this);	
+			if (lz.Keys.downKeysArray.length != 1
+				&& lz.Keys.downKeysArray[0] != canvas.continousCreationKey ) { 
+				//if ($debug) Debug.write("Is continous Tool Menu 1");
+				parent.parent.parent.parent.parent.parent._toolBar.doSelectItem("hand_single");
+			}
+		]]>
+	</handler>
+
+	<handler name="onblur" args="obj">
+		//if ($debug) Debug.write("obj",this);
+		parent.parent.completedIssueflowObj(this);
+	</handler>
+</class>
+
+<class name="styleableTextIssueFlow" extends="text" x="${ (parent.width/6)+1 }" y="1" multiline="true"
+		width="${ (parent.width/6)*4-2 }" height="${ parent.height-20 }" >
+
+
+</class>
+
+<class name="styleableTextAssigneeIssueFlow" extends="text" x="${ (parent.width/6)+1 }" 
+        y="${ parent.height - 20 }" multiline="true" fontstyle="italic" 
+        width="${ (parent.width/6)*4-2 }" height="20" >
+    <attribute name="lastAssigneeUser_id" value="0" type="number" />
+</class>
+
+
+
+</library>

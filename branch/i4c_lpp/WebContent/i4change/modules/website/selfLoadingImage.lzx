@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+	
+<class name="selfLoadingImage" extends="view" >
+	
+	<attribute name="aspectRatio" value="true" type="boolean"/>
+    <attribute name="loadingImage" value="" type="string"/>
+    
+    <attribute name="imageHeight" value="100" type="number"/>
+    <attribute name="imageWidth" value="500" type="number"/>
+    
+    <image name="_src" src="$once{ parent.loadingImage }" stretches="both">
+    	
+    	<handler name="onload" >
+    		<![CDATA[
+    		    //if ($debug) Debug.write("##### onload THIS -0- ",this.src);
+    		  
+        		if (parent.aspectRatio){
+        			
+        			var ratio = this.height / this.width;
+                    var ratio2 = this.width / this.height;
+                        
+                    var newWidth = this.width;
+                    var newHeight = this.height;
+                    
+        			if (this.width > parent.width) {
+        				
+        				//if ($debug) Debug.write("IS BIGGER IN WIDTH");
+        				
+        				var newWidth = parent.width;
+        				var newHeight = newWidth * ratio;
+        				
+        				//if ($debug) Debug.write("newHeight,newWidth -1- ",newHeight,newWidth);
+        				
+        				if (newHeight > parent.height) {
+        					
+        					var newHeight = parent.height;
+                            var newWidth = newHeight * ratio2;
+        					
+        				}
+        			} else if (this.height > parent.height) {
+        				
+        				//if ($debug) Debug.write("IS BIGGER IN HEIGHT");
+        				
+        				var newHeight = parent.height;
+                        var newWidth = newHeight * ratio2;
+                        
+                        if (newWidth > parent.width) {
+                        	var newWidth = parent.width;
+                            var newHeight = newWidth * ratio;
+                        }
+        				
+        			}
+        			
+        			//if ($debug) Debug.write("parent.height,parent.width -1- ",parent.height,parent.width);
+        			//if ($debug) Debug.write("this.height,this.width -2- ",this.height,this.width);
+        			//if ($debug) Debug.write("newHeight,newWidth ",newHeight,newWidth);
+        			
+        			this.setAttribute("height",newHeight);
+        			this.setAttribute("width",newWidth);
+        			
+        			parent.setAttribute("imageHeight",newHeight);
+                    parent.setAttribute("imageWidth",newWidth);
+        			
+        		}
+    		]]>
+    	</handler>
+    	
+    </image>
+    
+</class>
+
+
+</library>

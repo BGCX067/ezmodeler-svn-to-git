@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<library>
+
+<class name="approvalOfPendingObject" extends="view" width="220">
+    <infoIconBox name="_infoBox" labelid="731" width="$once{parent.width}" x="0"/>
+    <simpleLabelButton labelid="732" name="_approve" x="0" y="30" width="105" >
+        <handler name="onclick">
+            ////if ($debug) Debug.write("parent.parent.parent.parent.parent: ",parent.parent.parent.parent.parent.parent.parent);
+            parent.parent.parent.parent.parent.parent.parent.approveObject();
+        </handler>
+    </simpleLabelButton>
+    <simpleLabelButton labelid="733" name="_remove" x="105" y="30" width="105" >
+        <handler name="onclick">
+            parent.parent.parent.parent.parent.parent.parent.removeObject();
+        </handler>
+    </simpleLabelButton>
+</class>
+
+</library>

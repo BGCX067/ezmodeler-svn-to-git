@@ -1,0 +1,51 @@
+<canvas bgcolor="#D4D0C8" debug="true">
+
+<dataset name="dset" src="http://127.0.0.1:8000/DBTest/getwin.jsp" request="true" type="http"/>
+
+  <!--
+<dataset name="dset" src="http://127.0.0.1:8000/DBTest/getwin.jsp" request="true" type="http"/>
+-->
+  <dataset name="dsSendData" request="false" src="http://127.0.0.1:8000/DBTest/contactmgr.jsp" type="http"/>
+
+<class name="win" extends="view" bgcolor="blue">
+
+    <!-- this creates a new box of the specified class and with the given arguments -->
+    <method name="addBoxByClass" args="className,args">
+      var pool = poolmanager.getPool(this, className);
+      var view = pool.getView(args);
+      view.materialize();
+     // adjustDistances();
+      return view;
+    </method>
+</class>
+  <view name="vw">
+
+    <method name="sendData_new" args="action">
+      var d=canvas.datasets.dsSendData;                       // 3
+      var p=new LzParam();                                    // 3a
+      p.addValue("action", action, true);
+      d.setQueryString(p);                                   // 3c
+      d.doRequest();                                         // 3d
+    </method>
+
+    <simplelayout axis="y"/>
+
+    <datapointer id="mydp" xpath="dset:/rectangle[1]/win[1] "/>
+	
+
+	<button > Show Win..
+
+      <handler name="onclick">
+
+	do{
+		var s = mydp.getNodeAttribute('y');
+		Debug.write (" Y :: " + s);
+
+		} while (mydp.selectNext());
+      </handler>
+    </button>
+
+</view>
+  <text y="100" name="output" width="200">Data will appear here.</text>
+
+</canvas>

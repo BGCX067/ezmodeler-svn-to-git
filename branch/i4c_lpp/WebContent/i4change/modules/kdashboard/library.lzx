@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+	
+	<resource name="edit_table" src="resources/element_edit.png" />
+	
+	<resource name="nav_right_green_rsc" src="resources/nav_right_green.png" />
+	
+	<resource name="search_big_rsc" src="resources/view.png" />
+	
+    <include href="kDashboard.lzx" />
+    <include href="issuesListDashBoard.lzx" />
+
+</library>

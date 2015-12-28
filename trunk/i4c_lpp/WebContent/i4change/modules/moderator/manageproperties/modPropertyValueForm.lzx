@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+<!--- configuration edit panel. -->
+<class name="modPropertyValueForm" extends="baseContentSaveView">
+
+	<!-- recordContent-id -->
+	<attribute name="propertyId" value="0" type="number" />
+    <attribute name="obj" value="null" />
+	
+	<!--handlers -->
+    
+    <handler name="oninit">
+        this.getPropertyValidationTypes.doCall();
+    </handler>
+    
+    <netRemoteCallRPC name="getPropertyValidationTypes" funcname="getPropertyValidationTypes" 
+                      dataobject="propertyValidationTypes" remotecontext="$once{ canvas.propertyServiceRPC }" >
+        <netparam><method name="getValue">return canvas.sessionId;</method></netparam>
+        <handler name="ondata" args="value">
+            //The onResult-Handler will be called be the rtmpconnection
+            //if ($debug) Debug.write("getPropertyValidationTypes ",value);
+            //if ($debug) Debug.write("getPropertyValidationTypes ",canvas.propertyValidationTypes);
+            
+            //parent.propertyValidationType.selectItemAt(0);
+            parent.getDiagramObjectTypesPublicAndOrg.doCall();
+        </handler>  
+    </netRemoteCallRPC> 
+    
+    <!--
+    public List<ObjectTypeDTO> getDiagramObjectTypes(String SID) {
+     -->
+    <netRemoteCallRPC name="getDiagramObjectTypesPublicAndOrg" funcname="getDiagramObjectTypesPublicAndOrg" 
+                      dataobject="diagramObjectTypesModDS" remotecontext="$once{ canvas.propertyServiceRPC }" >
+        <netparam><method name="getValue">return canvas.sessionId;</method></netparam>
+        <netparam><method name="getValue">return canvas.currentdomainObj.organisation_id;</method></netparam>
+    </netRemoteCallRPC>  
+
+	<handler name="onsavecompleted" >
+		this.getPropertyById.doCall();
+	</handler>
+	
+	<handler name="onreload" >
+		if (this.propertyId!=0) this.getPropertyById.doCall();
+	</handler>	
+
+	<handler name="onnew">
+		this.propertyId=0;
+		this.propertyName.setAttribute('text',"");
+        this.tooltip.setAttribute('text',"");
+        this.objectTypeName.selectItemAt(0);
+        this.propertyCategory.setPropertyCategory("","0");
+        this.comment.setAttribute('text',"");
+        this.propertyValidationType.selectItemAt(0);
+        this._listItems.clearList();
+	</handler>
+	
+    <handler name="ondelete" >
+		if (this.propertyId!=0){
+			this.deleteProperty.doCall();
+		}
+    </handler>
+	
+	<!-- methods -->
+
+    <method name="initValueFieldsByObject" args="obj">
+        //if ($debug) Debug.write("initValueFieldsByObject: ",obj);
+		this.propertyId = obj.propertyId;
+		if (this.propertyId!=0){
+			this.getPropertyById.doCall();
+		}
+    </method>
+    
+    <method name="initFields" args="obj">
+    	<![CDATA[
+            //if ($debug) Debug.write("initFields: ",obj);
+            this.obj = obj;
+            if (obj == null) {
+            	return;
+            }
+			this.propertyName.setAttribute('text',canvas.getLabelName(obj.labelid));
+			this.tooltip.setAttribute('text',canvas.getLabelName(obj.toolTip));
+            this.objectTypeName.selectItem(obj.objectTypeName);
+            this.comment.setAttribute('text',obj.comment);
+            if (obj.propertyValidationTypeId == null) {
+                this.propertyValidationType.selectItemAt(0);
+            } else {
+                this.propertyValidationType.selectItem(String(obj.propertyValidationTypeId));
+            }
+            
+            if (obj.propertyCategory == null) {
+                this.propertyCategory.setPropertyCategory("","0");
+            } else {
+                this.propertyCategory.setPropertyCategory(obj.propertyCategory.categoryName,obj.propertyCategory.propertyCategoryId);
+            }
+            
+        ]]>
+    </method>
+	
+	<!-- remotecalls -->
+	
+  	<netRemoteCallRPC name="getPropertyById" funcname="getPropertyById" 
+  		remotecontext="$once{  canvas.propertyServiceRPC }" > 
+  		<attribute name="doReload" value="false" type="boolean" />
+  		<netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+    	<netparam><method name="getValue">return parent.parent.propertyId;</method></netparam>
+    	<handler name="ondata" args="value">
+    		<![CDATA[
+	    		//if ($debug) Debug.write("getPropertyById: ",value);
+	    		if (this.doReload) {
+	    			if (value == null && parent.propertyId > 0) {
+	    				this.doCall();
+	    			} else {
+		    			this.doReload = false;
+		    			parent.getLanguageByIdAndVectorLabeled.labels = new Array();
+		    			parent.getLanguageByIdAndVectorLabeled.labels.push(value.labelid);
+		    			parent.getLanguageByIdAndVectorLabeled.labels.push(value.toolTip);
+		    			parent.getLanguageByIdAndVectorLabeled.doCall();
+	    			}
+	    		} else {
+	    			parent.getPropertyListItemsByPropertyId.doCall();
+	    			parent.initFields(value);
+	    		}
+    		]]>
+    	</handler>
+  	</netRemoteCallRPC>
+  	
+    <!--
+    public List<PropertyListItem> getPropertyListItemsByPropertyId(String SID, Long propertyId)
+     -->
+    <netRemoteCallRPC name="getPropertyListItemsByPropertyId" funcname="getPropertyListItemsByPropertyId" 
+        remotecontext="$once{  canvas.propertyServiceRPC }" > 
+        <attribute name="doReload" value="false" type="boolean" />
+        <netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+        <netparam><method name="getValue">return parent.parent.propertyId;</method></netparam>
+        <handler name="ondata" args="value">
+            <![CDATA[
+                //if ($debug) Debug.write("getPropertyListItemsByPropertyId: ",value);
+                //if ($debug) Debug.write("getPropertyListItemsByPropertyId propertyId: ",parent.propertyId);
+                parent._listItems.clearList();
+                for (var i=0;i<value.length;i++) {
+                    parent._listItems.addItemAdv(value[i].value,value[i].key,value[i]);
+                }
+            ]]>
+        </handler>
+    </netRemoteCallRPC>  	
+	
+	<!-- Reload Labels cause you need them to display changes -->
+    <netRemoteCallRPC name="getLanguageByIdAndVectorLabeled" funcname="getLanguageByIdAndVectorLabeled" 
+                    remotecontext="$once{  canvas.languageServiceRPC }" >   
+        <attribute name="labels" value="null" />    
+        <netparam><method name="getValue">return  canvas.userlang;</method></netparam>
+        <netparam><method name="getValue">return parent.labels;</method></netparam> 
+        <netparam><method name="getValue">return true;</method></netparam>
+        <handler name="ondata" args="value">
+            <![CDATA[
+                //if($debug) Debug.write("hibRtmpConnection/getLanguageByIdAndVectorLabeled:[",value,"]");
+                for (var eg in value) {
+                	saveOrUpdaeLabelTagByObject(value[eg]);
+                }
+                parent.getPropertyById.doCall();
+                this.parent.parent._turnoverlist.oncallnext.sendEvent();
+            ]]>
+        </handler>  
+    </netRemoteCallRPC>  
+    
+	<netRemoteCallRPC name="deleteProperty" funcname="deleteProperty" 
+                      remotecontext="$once{  canvas.propertyServiceRPC }" >      
+  		<netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+    	<netparam><method name="getValue">return parent.parent.propertyId;</method></netparam>	
+        <handler name="ondata" args="value">
+			//if ($debug) Debug.write("deleteProperty ",value);
+			if (value>0){
+				this.parent.parent._turnoverlist.oncallnext.sendEvent();
+				this.parent.onnew.sendEvent();
+			}
+		</handler>
+	</netRemoteCallRPC>		
+
+  	<netRemoteCallRPC name="saveOrUpdateProperty" funcname="saveOrUpdateProperty" 
+  		remotecontext="$once{  canvas.propertyServiceRPC }" registerObject="true" >   
+		<attribute name="sendObject" value="null" />
+		<!-- gets called by Observer
+        Long propertyId = Long.valueOf(values.get("propertyId").toString()).longValue();
+                
+                String propertyName = values.get("propertyName").toString();
+                String tooltip = values.get("tooltip").toString();
+                Long languages_id = Long.valueOf(values.get("languages_id").toString()).longValue();
+                String comment = values.get("comment").toString();
+                Boolean isPublic = Boolean.valueOf(values.get("isPublic").toString()).booleanValue();
+                Long organisation_id = Long.valueOf(values.get("organisation_id").toString()).longValue();
+                String objectTypeName = values.get("objectTypeName").toString();
+         -->
+  		<method name="prepareCall">
+  			this.sendObject=new Object();
+            this.sendObject["propertyId"] = this.parent.propertyId;
+            this.sendObject["propertyName"] = this.parent.propertyName.getText();
+            this.sendObject["tooltip"] = this.parent.tooltip.getText();
+            this.sendObject["languages_id"] =  canvas.userlang;
+            this.sendObject["isPublic"] = false;
+            this.sendObject["organisation_id"] = canvas.currentdomainObj.organisation_id;
+            this.sendObject["objectTypeName"] = this.parent.objectTypeName.getValue();
+            this.sendObject["comment"] = this.parent.comment.getText();
+            this.sendObject["propertyValidationTypeId"] = parent.propertyValidationType.getValue();
+            this.sendObject["propertyCategoryId"] = parent.propertyCategory.propertyCategoryId;
+            this.sendObject["propertyListValues"] = parent._listItems.getAllItemsAdv();
+            //if ($debug) Debug.write("prepareCall: ",this.sendObject);
+  		</method>
+  		<netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+    	<netparam><method name="getValue">return parent.sendObject;</method></netparam>	  		
+    	<handler name="ondata" args="val">
+			<![CDATA[
+    		//if ($debug) Debug.write("saveOrUpdateproperty ",val);
+			if (val>0){
+				//Debug.write("updateConfByConfigurationId val greater 0: ",val);
+                parent.propertyId = val;
+                parent.getPropertyById.doReload = true;
+                parent.getPropertyById.doCall();
+                //parent.getLanguageByIdAndMax.start = 0;
+                //parent.getLanguageByIdAndMax.doCall();
+			}
+			]]>
+    	</handler>
+  	</netRemoteCallRPC>	
+    
+	<!-- content -->
+    
+    <labelText labelid="987" width="200" y="40" resize="false" fontstyle="bold" />
+    
+    <labelText labelid="988" width="200" y="70" resize="false" x="2"/>
+        <customEdittext name="propertyName" y="70" x="120" width="270" text="" />
+
+    <labelText labelid="989" width="200" y="100" resize="false" x="2"/>
+        <customEdittext name="tooltip" y="100" x="120" width="270" text="" />
+        
+    <labelText labelid="990" width="200" y="130" resize="false" x="2"/>
+        <omComboBox name="objectTypeName" y="130" x="120" width="270" editable="false">
+            <handler name="oninit">
+                this.selectItemAt(0);
+            </handler>
+            <labelTextListItem datapath="diagramObjectTypesModDS:/item/" 
+                               value="$path{'name/text()'}"
+                               labelid="$path{'labelid/text()'}" />
+        </omComboBox>
+        
+    <labelText labelid="1322" width="200" y="160" resize="false" x="2"/>
+        <customEdittext name="propertyCategory" y="160" x="120" width="208" text="">
+            <attribute name="propertyCategoryId" value="0" type="number" />
+            <method name="search">
+                new lz.searchPropertyCategory(parent,{
+                          refObj:this,isAdministrationPanel:false,
+                          x:this.x,y:this.y-2
+                      });
+            </method>
+            
+            <method name="addItem">
+                new lz.modSaveOrUpdatePropertyCategory(canvas.main_content._content.inner,{
+                      x:this.getAttributeRelative("x",canvas)-200,
+                      y:this.getAttributeRelative("y",canvas)-120,
+                      refObj:this
+                    })
+            </method>
+            
+            <method name="setPropertyCategory" args="text,categoryId">
+                this.setAttribute("text",text);
+                this.propertyCategoryId = categoryId;
+            </method>
+        </customEdittext>  
+        
+        <propertyCategoryIcons name="_propertyCategoryIcons" y="160" x="330" />      
+        
+    <labelText labelid="1015" width="200" y="190" resize="false" x="2"/>   
+        <omComboBox name="propertyValidationType" y="190" x="120" width="270" editable="false">
+            <handler name="oninit">
+                this.selectItemAt(0);
+            </handler>
+            <handler name="onselect" args="sel">
+                if (sel.value == "8") {
+                    parent._listValuesLabel.setAttribute("fgcolor",0x000000);
+                    parent._listItems.setAttribute("opacity",1);
+                    parent._listItemAdd.setAttribute("opacity",1);
+                } else {
+                    parent._listValuesLabel.setAttribute("fgcolor",0xCCCCCC);
+                    parent._listItems.setAttribute("opacity",0.3);
+                    parent._listItemAdd.setAttribute("opacity",0.3);
+                }
+            </handler>
+            <labelTextListItem datapath="propertyValidationTypes:/item/" 
+                               value="$path{'propertyValidationTypeId/text()'}"
+                               labelid="$path{'labelId/text()'}" />
+        </omComboBox>
+        
+    <labelText name="_listValuesLabel" labelid="1355" width="200" y="220" resize="false" x="2"/>
+        <simpleValueList name="_listItems" y="220" x="120" width="270" height="190" 
+            multiselect="true" itemclassname="simpleListItemAdv"/>   
+            <view x="400" y="220" name="_listItemAdd" 
+                  oninit="this.setSource(canvas.getIconPathByName('icon_add_item_website_rsc'))">
+                <method name="addItem" args="obj">
+                    //if ($debug) Debug.write("addItem",obj,obj.obj);
+                    this.parent._listItems.addItemAdv(obj.value,obj.value,obj);
+                </method>
+                <handler name="onclick">
+                    //if ($debug) Debug.write("webSiteAdminSearchBox");
+                    new lz.propertyEditorSearchListItems(canvas,{refObj:this});
+                </handler>
+                <labelTooltip labelid="1356" />
+            </view>                 
+    
+    <labelText labelid="995" width="200" y="420" resize="false" x="2"/>
+        <customScrollEdittext name="comment" y="420" x="120" width="270" 
+            height="100" text="" />    
+         
+</class>
+
+</library>

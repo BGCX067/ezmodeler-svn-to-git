@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+<class name="errorPopupDisconnect" extends="guiPresenter" labelid="204"
+	docking="true" resizeable="false" closable="false" 
+    width="300" x="$once{ canvas.width/2 - this.width/2 }" height="230">
+    
+    <handler name="oninit">
+        lz.ModeManager.makeModal(this);
+    </handler>
+    
+    <handler name="onclose">
+        lz.ModeManager.release(this);
+    </handler>
+    
+	<attribute name="error" value="" type="string" />
+    
+    <infoIconBox iconResourceName="messagebox_warning_rsc"
+                 text="${ parent.error }" x="10"
+                 y="24" width="$once{ parent.width -20 }" height="$once{ parent.height -24 }" />
+                 
+    <simpleLabelButton labelid="790" width="100" x="$once{ parent.width - 106 }" 
+                       y="$once{ parent.height - 26 }">
+        <handler name="onclick">
+            parent.close();
+            quicklinkAct('logout');
+        </handler>
+    </simpleLabelButton>   
+<!--
+	<view y="24" width="218" height="200" x="2" clip="true">
+		<text y="30" fontsize="10" fontstyle="bold" text="${ parent.parent.error }"
+			multiline="true" width="190" />
+		<vscrollbar name="_scrollbar" />
+	</view>
+ -->
+</class>
+
+</library>

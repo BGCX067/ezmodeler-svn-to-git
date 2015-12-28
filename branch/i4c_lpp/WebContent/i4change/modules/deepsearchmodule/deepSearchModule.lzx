@@ -1,0 +1,348 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+	
+    
+<class name="deepSearchModuleListItem" extends="basePagingListItem" height="60"> 
+
+    <attribute name="obj" value="null" />
+    
+    <attribute name="diagramObject_id" value="0" type="number" />
+    
+    <attribute name="itemName" type="string" />
+    <attribute name="objectTypeNameLabel" type="string" />
+    <attribute name="inserted" type="string" />
+    <attribute name="updated" type="string"/>
+    <attribute name="itemRef" value="null" />
+    
+    <method name="setItemName" args="itemName">
+        this.itemName = itemName;
+        this._itemName.setAttribute("text",itemName)
+    </method>
+    <method name="setObjectTypeNameLabel" args="objectTypeNameLabel">
+        this.objectTypeNameLabel = objectTypeNameLabel;
+        this._objectTypeNameLabel.setAttribute("text",objectTypeNameLabel);
+    </method>
+    <method name="setInserted" args="inserted">
+        this.inserted = inserted;
+        this._inserted.setAttribute("text",inserted);
+    </method>
+    <method name="setUpdated" args="updated">
+        this.updated = updated;
+        this._updated.setAttribute("text",updated);
+    </method>
+    
+    <turnOverTextItem name="_itemName" width="160" multiline="true" height="60" />
+    <turnOverTextItem name="_objectTypeNameLabel" width="100" height="60" />
+    <turnOverTextItem name="_inserted" width="120" height="60" />
+    <turnOverTextItem name="_updated" width="120" height="60" />
+    
+    <attribute name="_tempxValue" type="number" value="0" />
+    <attribute name="_tempyValue" type="number" value="0" />
+    
+    
+    <labelTooltip name="tooltip" dynamicLabelToolTipItem="searchListToolTip"
+                  dynamicLabelToolTip="true" />
+                  
+    <!-- -->
+    <!--
+    <labelTooltip text="$once{ canvas.getLabelName(802) + parent.obj.insertedby.login }" />
+     -->
+
+</class>
+
+<class name="searchListToolTip" extends="xmlCrmMultiTooltipListOfImages">
+    
+    <handler name="oninit">
+    	//if ($debug) Debug.write("searchListToolTip ",this.refObj);
+        this.getDiagramObjectPureById.doCall();
+    </handler>
+    
+    <!--
+        getDiagramObjectPureById
+     -->
+    <netRemoteCallRPC name="getDiagramObjectPureById" funcname="getDiagramObjectPureById" 
+                      remotecontext="$once{  canvas.diagramServiceRPC }" showLoading="false">   
+        <netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+        <netparam><method name="getValue">return parent.parent.refObj.parent.diagramObject_id;</method></netparam>
+        <handler name="ondata" args="value">
+            <![CDATA[
+                //if ($debug) Debug.write("getDiagramObjectPureById ",value);
+                parent.initContent(value);
+            ]]>
+        </handler>
+    </netRemoteCallRPC>   
+    
+    <method name="initContent" args="obj">
+        <![CDATA[
+            var xVal = canvas.getMouse('x');
+            var yVal = canvas.getMouse('y');
+            
+            if (obj.roles != null && obj.roles.length != 0) {
+                
+                var txtString = canvas.getLabelName(1253);
+                
+                for (var i=0;i<obj.roles.length;i++) {
+                    var downloadurl = canvas.httpprotocol+'://'+canvas.rtmphostlocal+':'+canvas.httpport
+                        +'/'+canvas.webAppRootKey+'/DownloadHandler?fileName=CHAT'
+                        +'&moduleName=chat&parentPath=&room_id='
+                        +'&remoteUserid='+obj.roles[i].assignee.user_id
+                        +'&sid='+canvas.sessionId;   
+                        
+                    var thisText = txtString+" "+obj.roles[i].assignee.firstname
+                                        +" "+obj.roles[i].assignee.lastname
+                                        +" ["+obj.roles[i].assignee.login+"]";
+                    this.addItem(thisText,downloadurl);
+                }
+                
+                if (xVal<canvas.width/2){
+                    xVal += 0;
+                } else {
+                    xVal -= this.width-14;
+                }
+                if (yVal<canvas.height/1.2){
+                    yVal += 24;
+                } else {
+                    yVal -= (this.height + 40);
+                }
+                
+            } else {
+                
+                var thisText = canvas.getLabelName(802) + obj.insertedby.login
+                
+                var downloadurl = canvas.httpprotocol+'://'+canvas.rtmphostlocal+':'+canvas.httpport
+                    +'/'+canvas.webAppRootKey+'/DownloadHandler?fileName=CHAT'
+                    +'&moduleName=chat&parentPath=&room_id='
+                    +'&remoteUserid='+obj.insertedby.user_id
+                    +'&sid='+canvas.sessionId;            
+                            
+                this.addItem(thisText,downloadurl);
+                
+                if (xVal<canvas.width/2){
+                    xVal += 0;
+                } else {
+                    xVal -= this.width-14;
+                }
+                if (yVal<canvas.height/1.2){
+                    yVal += 24;
+                } else {
+                    yVal -= (this.height + 40);
+                }
+                
+            }
+            
+            this.setAttribute('x',xVal);
+            this.setAttribute('y',yVal); 
+        ]]>
+    </method>
+    
+</class>
+
+
+
+<class name="deepSearchModule" extends="baseContentTabbedView" closeable="true"
+       labelid="1418" width="${ canvas.width }" height="${ canvas.height-48 }">	
+
+
+    <deepSearchModuleMenu name="_searchBar">
+    	<handler name="onNewSearch">
+    		parent._results.search = this.search.getValues();
+    		parent._results.currentObjects = this.objectTypes.objectTypes.getValues();
+            parent._results.currentPropertyList = this._propertiesList.getValues();
+            parent._results.itemStatus = Number(this._customSettings.itemStatus.getValue());
+            parent._results.doSearch();
+    	</handler>
+    	<handler name="onSaveFilter">
+    		parent._results.search = this.search.getValues();
+            parent._results.currentObjects = this.objectTypes.objectTypes.getValues();
+            parent._results.currentPropertyList = this._propertiesList.getValues();
+            parent._results.itemStatus = Number(this._customSettings.itemStatus.getValue());
+            parent._results.doSaveFilter(this.savedFilter._details._name.getText(),
+                        this.savedFilter._details._descr.getText());
+    	</handler>
+    </deepSearchModuleMenu>
+    	
+   
+    <view name="_border" x="200" width="2" 
+    	  bgcolor="$once{ canvas.basebgcolorizer }" height="$once{ parent.height }" />
+        
+    <turnOverListOrderedPaged name="_results" x="202" itemHeight="60"
+    	width="${ parent.width - 202 }" height="$once{ parent.height }" 
+        orderby="name" step="500" asc="true" listItemName="deepSearchModuleListItem">
+        
+        <attribute name="renderList" value="null"/>
+        <attribute name="currentObjects" value="null"/>
+        <attribute name="currentPropertyList" value="null"/>
+        
+        <attribute name="itemStatus" value="1" type="number" />
+        
+        <attribute name="search" value="null" />
+          
+        <method name="doSearch">
+        	this.getDiagramObjectsFullSearch.doCall();
+        </method>  
+        
+        <method name="doSaveFilter" args="filterName,filterDesc">
+        	this.saveSearchFilter.filterName = filterName;
+        	this.saveSearchFilter.filterDesc = filterDesc;
+        	
+        	this.saveSearchFilter.doCall();
+        </method>
+          
+        <handler name="oninit">
+        	
+        	this.search = new Array();
+        	this.currentObjects = new Array();
+        	
+            this.addHeaderItemOrdered(605,this.width-360,"name",true,true);
+            this.addHeaderItemOrdered(794,100,"objectTypeName",true,false);
+            this.addHeaderItemOrdered(606,120,"inserted",true,false);
+            this.addHeaderItemOrdered(1427,120,"updated",true,false);
+            
+            parent._searchBar.onNewSearch.sendEvent();
+            canvas.currentSearchTerm = "";
+            
+            this.getDiagramObjectsFullSearch.doCall();
+        </handler>  
+        
+        <handler name="onUpdateOrder">
+            //if ($debug) Debug.write("onUpdateOrder");
+            this.getDiagramObjectsFullSearch.doCall();
+        </handler>
+        
+        <handler name="onclickedItem" args="obj">
+            //if ($debug) Debug.write("obj",obj);
+        </handler>
+        
+        <handler name="oncallnext" >
+            this.getDiagramObjectsFullSearch.doCall();
+        </handler>
+        
+        <handler name="oncallpre" >     
+            this.getDiagramObjectsFullSearch.doCall();
+        </handler>
+        
+        <handler name="onclickedItem" args="obj">
+            if ($debug) Debug.write("onclickedItem",obj.diagramObject_id);
+            canvas.diagramObject_id = obj.diagramObject_id;
+            quicklinkAct("diagramObjectDetails");
+        </handler>
+        
+        <netRemoteCallRPC name="getDiagramObjectsFullSearch" funcname="getDiagramObjectsFullSearch" 
+                          remotecontext="$once{  canvas.diagramServiceRPC }" >      
+            <netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+            <netparam><method name="getValue">return canvas.currentdomainObj.organisation_id;</method></netparam>
+            <netparam><method name="getValue">return parent.parent.start; </method></netparam>
+            <netparam><method name="getValue">return parent.parent.step; </method></netparam>
+            <netparam><method name="getValue">return parent.parent.currentObjects;</method></netparam>
+            <netparam><method name="getValue">return parent.parent.orderby;</method></netparam>
+            <netparam><method name="getValue">return parent.parent.asc;</method></netparam>
+            <netparam><method name="getValue">return parent.parent.search;</method></netparam>
+            <netparam><method name="getValue">return parent.parent.currentPropertyList;</method></netparam>
+            <netparam><method name="getValue">return parent.parent.itemStatus;</method></netparam>
+            <handler name="ondata" args="value">
+                if ($debug) Debug.write("getDiagramObjectsFullSearch: ",value);
+                this.parent.initValues(value.records);
+                this.parent.renderContent(value.result);
+            </handler>
+        </netRemoteCallRPC> 
+        
+        <!--
+        public Long saveSearchFilter(String SID, Long organization_id,  int start, int max, 
+            Vector objectTypeNames, String orderBy, boolean asc, Vector search, 
+            Vector properties, Integer itemStatus, String sql)
+            -->
+        <netRemoteCallRPC name="saveSearchFilter" funcname="saveSearchFilter" 
+                          remotecontext="$once{  canvas.diagramServiceRPC }" >   
+            <attribute name="filterName" value="" type="string" />
+            <attribute name="filterDesc" value="" type="string" />      
+            <netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+            <netparam><method name="getValue">return canvas.currentdomainObj.organisation_id;</method></netparam>
+            <netparam><method name="getValue">return parent.parent.start; </method></netparam>
+            <netparam><method name="getValue">return parent.parent.step; </method></netparam>
+            <netparam><method name="getValue">return parent.parent.currentObjects;</method></netparam>
+            <netparam><method name="getValue">return parent.parent.orderby;</method></netparam>
+            <netparam><method name="getValue">return parent.parent.asc;</method></netparam>
+            <netparam><method name="getValue">return parent.parent.search;</method></netparam>
+            <netparam><method name="getValue">return parent.parent.currentPropertyList;</method></netparam>
+            <netparam><method name="getValue">return parent.parent.itemStatus;</method></netparam>
+            <netparam><method name="getValue">return "";</method></netparam>
+            <netparam><method name="getValue">return parent.filterName;</method></netparam>
+            <netparam><method name="getValue">return parent.filterDesc;</method></netparam>
+            <handler name="ondata" args="value">
+                if ($debug) Debug.write("saveSearchFilter: ",value);
+            </handler>
+        </netRemoteCallRPC> 
+        
+        <!--
+        <method name="renderContent" args="records">
+            <![CDATA[
+            this.clearList();
+            for (var i=0;i<records.length;i++){
+                new lz.roleExplorerListItem(this._innerlist._inn._inn,{obj:records[i],
+                    itemName:records[i].name,
+                    objectTypeNameLabel:this.getLabelIdForObjectType(records[i].objectTypeName),
+                    inserted:parseDateToStringTime(records[i].inserted)});
+            }
+            ]]>
+        </method>
+         -->
+        <method name="renderContent" args="records">
+            <![CDATA[
+                //this.clearList();
+                var list = this._innerlist._inn._inn;
+                this.renderList = records;
+                
+                this._innerlist._inn.setAttribute("y",0);
+                this._innerlist._inn._inn.setAttribute("height",records.length*this.itemHeight);
+                
+                this._innerlist._inn.resetItems();
+                
+                for (var i=0;i<list.subviews.length;i++){
+                    if (records.length > i) {
+                        list.subviews[i].setAttribute("clickable",true);
+                        list.subviews[i].obj = records[i];
+                        list.subviews[i].diagramObject_id = records[i][0];
+                        list.subviews[i].setItemName(records[i][1]);
+                        list.subviews[i].setObjectTypeNameLabel(records[i][2]);
+                        list.subviews[i].setInserted(parseDateToStringTime(records[i][3]));
+                        list.subviews[i].setUpdated(parseDateToStringTime(records[i][4]));
+                    } else {
+                        list.subviews[i].obj = null;
+                        list.subviews[i].diagramObject_id = 0;
+                        list.subviews[i].setItemName("");
+                        list.subviews[i].setObjectTypeNameLabel("");
+                        list.subviews[i].setInserted("");
+                        list.subviews[i].setUpdated("");
+                        list.subviews[i].setAttribute("clickable",false);
+                    }
+                }
+                
+            ]]>
+        </method>
+        
+        <handler name="onScrollItem" args="item">
+            <![CDATA[
+                if (this.renderList.length > item.itemId) {
+                    item.setAttribute("clickable",true);
+                    item.obj = this.renderList[item.itemId];
+                    item.diagramObject_id = this.renderList[item.itemId][0];
+                    item.setItemName(this.renderList[item.itemId][1]);
+                    item.setObjectTypeNameLabel(this.renderList[item.itemId][2]);
+                    item.setInserted(parseDateToStringTime(this.renderList[item.itemId][3]));
+                    item.setUpdated(parseDateToStringTime(this.renderList[item.itemId][4]));
+                } else {
+                    item.obj = null;
+                    item.diagramObject_id = 0;
+                    item.setItemName("");
+                    item.setObjectTypeNameLabel("");
+                    item.setInserted("");
+                    item.setUpdated("");
+                    item.setAttribute("clickable",false);
+                }
+            ]]>
+        </handler>
+        
+    </turnOverListOrderedPaged>
+</class>
+
+</library>

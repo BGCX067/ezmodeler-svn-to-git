@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<library>
+
+<class name="rteEditorView" extends="guiPresenter" 
+       labelid="$once{ (this.isNewItem) ? 763 : 764 }" width="424" y="100" 
+       docking="true" closable="true" resizeable="false" height="540"
+       x="$once{ canvas.width/2-this.width/2}" >
+    
+    <attribute name="helpId" value="0" type="number" />
+    <attribute name="helpItem" value="null" />
+    <attribute name="helpName" value="" type="string" />
+    
+    <attribute name="refObj" value="null" />
+    <attribute name="isNewItem" value="true" type="boolean" />
+    
+    <handler name="oninit">
+        lz.ModeManager.makeModal(this);
+        if (!this.isNewItem) {
+            //if ($debug) Debug.write("helpItem: ",this.helpItem);
+            this.subject.setAttribute('text',canvas.getLabelName(this.helpItem.topicLabelId));
+            grte.setHTMLText(canvas.getLabelName(this.helpItem.labelId));
+            this.priority.selectItem(String(this.helpItem.priority));
+            this.agentHelp.setValue(this.helpItem.isAgentHelp);
+        }
+    </handler>
+    
+    <handler name="onclose">
+        refObj.reload();
+        lz.ModeManager.releaseAll();
+    </handler>
+    
+    <!-- 
+    public Long addHelpText(String SID, Long helpId, String helpName, boolean isAgentHelp, int priority, 
+            String topicText, String helpText, Long languages_id)
+    -->
+    <netRemoteCallRPC name="addHelpText" funcname="addHelpText" 
+                      remotecontext="$once{  canvas.helpServiceRPC }" >      
+        <netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+        <netparam><method name="getValue">return parent.parent.helpId;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.helpName;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.agentHelp.getValue();</method></netparam>
+        <netparam><method name="getValue">return Number(parent.parent.priority.getValue());</method></netparam>
+        <netparam><method name="getValue">return parent.parent.subject.getText();</method></netparam>
+        <netparam><method name="getValue">return grte.getHTMLText();</method></netparam>
+        <netparam><method name="getValue">return  canvas.userlang;</method></netparam>
+        <handler name="ondata" args="value">
+            //if ($debug) Debug.write("getDiagramObjectsRoles: ",value);
+            //this.parent.destroy();
+            parent.close();
+        </handler>
+    </netRemoteCallRPC>   
+    
+    <netRemoteCallRPC name="editHelpText" funcname="editHelpText" 
+                      remotecontext="$once{  canvas.helpServiceRPC }" >      
+        <netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+        <netparam><method name="getValue">return parent.parent.helpId;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.helpName;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.agentHelp.getValue();</method></netparam>
+        <netparam><method name="getValue">return Number(parent.parent.priority.getValue());</method></netparam>
+        <netparam><method name="getValue">return parent.parent.subject.getText();</method></netparam>
+        <netparam><method name="getValue">return grte.getHTMLText();</method></netparam>
+        <netparam><method name="getValue">return  canvas.userlang;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.helpItem;</method></netparam>
+        <handler name="ondata" args="value">
+            //if ($debug) Debug.write("editHelpText: ",value);
+            //this.parent.destroy();
+            parent.close();
+        </handler>
+    </netRemoteCallRPC> 
+    
+    <labelText y="22" fontstyle="bold" x="2" labelid="758" fontsize="11" />
+    
+    <labelText y="44" labelid="756" fontsize="11" />
+    <customEdittext name="subject" y="44" x="120" fontsize="11" width="$once{ parent.width - 120 }" />  
+    
+    <labelText y="70" labelid="757" fontsize="11" />
+    <omComboBox name="priority" width="100" y="70" x="120" editable="false" >
+        <textlistitem text="1" value="1" />  
+        <textlistitem text="2" value="2" />  
+        <textlistitem text="3" value="3" />  
+        <textlistitem text="4" value="4" />  
+        <textlistitem text="5" value="5" />  
+        <textlistitem text="6" value="6" />  
+        <textlistitem text="7" value="7" />  
+        <textlistitem text="8" value="8" />  
+        <textlistitem text="9" value="9" />  
+        <textlistitem text="10" value="10" />  
+        <handler name="oninit">
+            this.selectItemAt(4);
+        </handler>             
+    </omComboBox>
+    
+    <rte y="102" x="2" name="_rte" />
+    
+    <labelCheckbox name="agentHelp" labelid="759" x="2" y="$once{ parent.height -22 }" fontsize="11" />
+    
+    <simpleLabelButton labelid="755" width="100" 
+        y="$once{ parent.height -22 }" x="$once{ parent.width - this.width*2 - 10 }">
+        <handler name="onclick">
+            //if ($debug) Debug.write("THIS: ",this,grte.getHTMLText());
+            if (parent.isNewItem) {
+                parent.addHelpText.doCall();
+            } else {
+                //if ($debug) Debug.write("helpItem: ",parent.helpItem);
+                parent.editHelpText.doCall();
+            }
+        </handler>
+    </simpleLabelButton>
+    
+    <simpleLabelButton labelid="768" width="100" 
+        y="$once{ parent.height -22 }" x="$once{ parent.width - this.width }">
+        <handler name="onclick">
+            parent.close();
+        </handler>
+    </simpleLabelButton>
+    
+</class>
+
+</library>

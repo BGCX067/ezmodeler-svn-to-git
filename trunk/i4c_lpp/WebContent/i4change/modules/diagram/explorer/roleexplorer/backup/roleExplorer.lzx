@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<library>
+
+<!--- "System" panel on the dashboard -->
+<class name="roleExplorer" extends="libraryExplorer" 
+       labelid="604" >
+       
+       <!-- resizeable="false"
+	   width="300" height="300" closable="true" labelid="604" y="10">
+        -->
+    <method name="refresh">
+        this._inner._roles._innerTableProcess.getDiagramObjects.doCall();
+        this._inner._processes._innerTableProcess.getDiagramObjects.doCall(); 
+        this._inner._flowsTable._innerTableProcess.getDiagramObjects.doCall(); 
+    </method>
+    
+    <handler name="oninit">
+        //Add Help Item
+        canvas.addCurrentHelpId(5,this.__constructor__.classname);
+        
+        if (canvas.currentDiagramRef.diagramType=="roleview") {
+            menu_showRoleExplorer._checkbox.setValue(true);
+        } else if (canvas.currentDiagramRef.diagramType=="singleRole") {
+            menu_showRoleExplorerSingleRole._checkbox.setValue(true);
+        }
+    </handler>
+    <handler name="onclose">
+        
+        ////if ($debug) Debug.write("canvas.currentDiagramRef.diagramType: ",
+        //                    canvas.currentDiagramRef.diagramType);
+                            
+        if (canvas.currentDiagramRef.diagramType=="roleview") {
+            menu_showRoleExplorer._checkbox.setValue(false);
+        } else if (canvas.currentDiagramRef.diagramType=="singleRole") {
+            menu_showRoleExplorerSingleRole._checkbox.setValue(false);
+        }
+    </handler>
+    
+	<view y="20" bgcolor="$once{ canvas.currentMenuLayoutBackGround }" 
+          name="_inner" x="1" width="${ parent.width-2 }" 
+		  height="${ parent.height-21 }" clip="true" >
+		
+	    <roundrect name="_btn_roles"
+            backgroundStartColor="$once{ Number(canvas.basebgcolorizer) }" 
+                    backgroundStartOpacity="1" width="120" height="80"
+	                backgroundStopColor="$once{ Number(canvas.baseMousecolorizer) }" 
+                    backgroundStopOpacity="0.25">
+            <labelText y="-4" x="10" labelid="607" fontsize="10" fontstyle="bold" fgcolor="0x333333" />
+            <handler name="onclick">
+                if (this.y != 0) {
+                    this.setAttribute('y',0);
+                    parent._btn_flows.setAttribute('y',3);
+                    parent._btn_processes.setAttribute('y',3);
+                    parent._flowsTable.setAttribute('visibility','hidden');
+                    parent._processes.setAttribute('visibility','hidden');
+                    parent._roles.setAttribute('visibility','visible');
+                }
+            </handler>
+	    </roundrect>
+        <roundrect name="_btn_processes"
+            backgroundStartColor="$once{ Number(canvas.basebgcolorizer) }" x="122" y="3"
+                    backgroundStartOpacity="1" width="90" height="80"
+                    backgroundStopColor="$once{ Number(canvas.baseMousecolorizer) }" 
+                    backgroundStopOpacity="0.25">
+            <labelText y="-4" x="10" labelid="608" fontsize="10" fontstyle="bold" fgcolor="0x333333" />
+            <handler name="onclick">
+                if (this.y != 0) {
+                    this.setAttribute('y',0);
+                    parent._btn_roles.setAttribute('y',3);
+                    parent._btn_flows.setAttribute('y',3);
+                    parent._flowsTable.setAttribute('visibility','hidden');
+                    parent._processes.setAttribute('visibility','visible');
+                    parent._roles.setAttribute('visibility','hidden');
+                }
+            </handler>
+        </roundrect>
+        <roundrect name="_btn_flows"
+            backgroundStartColor="$once{ Number(canvas.basebgcolorizer) }" x="214" y="3"
+                    backgroundStartOpacity="1" width="90" height="80"
+                    backgroundStopColor="$once{ Number(canvas.baseMousecolorizer) }" 
+                    backgroundStopOpacity="0.25">
+            <labelText y="-4" x="10" labelid="645" fontsize="10" fontstyle="bold" fgcolor="0x333333" />
+            <handler name="onclick">
+                if (this.y != 0) {
+                    this.setAttribute('y',0);
+                    parent._btn_roles.setAttribute('y',3);
+                    parent._btn_processes.setAttribute('y',3);
+                    parent._flowsTable.setAttribute('visibility','visible');
+                    parent._roles.setAttribute('visibility','hidden');
+                    parent._processes.setAttribute('visibility','hidden');
+                }
+            </handler>
+        </roundrect>
+        
+		<rolesTable name="_roles" visibility="visible" />
+        <processAndActivitiesTable name="_processes" visibility="hidden" />
+        <flowsTable name="_flowsTable" visibility="hidden" />
+        
+	</view>
+    
+</class> 
+
+</library>

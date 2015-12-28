@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+    
+    <resource name="wizzard_minimize_rsc" src="resources/wizzard_gripper_rsc.swf" />
+    
+    <resource name="wizzard_maximize_rsc" src="resources/wizzard_gripper_open_rsc.swf" />
+    
+    <include href="steps/" />
+    <include href="firstStartWizzard.lzx" />
+    
+</library>

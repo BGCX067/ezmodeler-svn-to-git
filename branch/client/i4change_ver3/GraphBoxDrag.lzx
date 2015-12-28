@@ -1,0 +1,48 @@
+
+<library>
+  
+  <!--
+    This implements a draggable GraphBox
+    -->
+  <class name="GraphBoxDrag" extends="GraphBox">
+    
+    <attribute name="offsetX" value="10"/>
+    <attribute name="offsetY" value="10"/>
+    
+    <state name="drag">
+      <attribute name="mousePosX" value="${parent.getMouse('x') - this.offsetX}"/>
+      <attribute name="mousePosY" value="${parent.getMouse('y') - this.offsetY}"/>
+      <attribute name="x" value="${dragYOnly ? this.x : this.mousePosX}"/>
+      <attribute name="y" value="${this.mousePosY}"/>
+    </state>
+    
+    <method event="onmousedown">
+  <![CDATA[
+
+      var s = checkCursor();
+      if ( s == "drag" ) {
+        this.offsetX = parent.getMouse('x') - this.x;
+        this.offsetY = parent.getMouse('y') - this.y;
+     
+		Debug.write("What is box :: " + this);
+	    var subs = canvas.scr.panel.subviews;
+	    var subs_main = canvas.scr.subviews;
+		         drag.apply();
+			
+]]>
+
+      }
+    </method>
+    
+    <method event="onmouseup">
+      drag.remove();
+      parent.boxMoved(this);
+    </method>
+    
+    <method event="ony">
+      parent.boxMoving(this);
+    </method>
+    
+  </class>
+  
+</library>

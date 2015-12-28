@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+  <class table="invoice" lazy="false" name="org.i4change.app.hibernate.beans.user.Invoice">
+    <id column="invoice_id" name="invoiceId">
+      <generator class="increment"/>
+    </id>
+    <property name="invoiceNumber" type="long" column="invoice_number"/>
+    <property name="invoiceString" type="string" column="invoice_string"/>
+    <many-to-one outer-join="true" insert="true" column="transaction_id" lazy="false" update="false" name="transactionPaypal" class="org.i4change.app.hibernate.beans.user.TransactionPaypal"/>
+    <property name="mergedXmlData_FileName" type="string" column="mergedXmlData_FileName"/>
+    <property name="invoiceFileName" type="string" column="invoiceFileName"/>
+    <property name="inserted" type="java.util.Date" column="inserted"/>
+    <property name="description" type="string" column="description"/>
+    <property name="insertedFormated" type="string" column="insertedFormated"/>
+    <property name="invoicePdfName" type="string" column="invoicePdfName"/>
+  </class>
+</hibernate-mapping>

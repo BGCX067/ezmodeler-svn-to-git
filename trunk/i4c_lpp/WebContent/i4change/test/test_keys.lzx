@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<canvas debug="true" width="100%" height="100%">
+    <debug fontsize="12" oninit="Debug.showInternalProperties = true" />
+    
+    <handler name="onkeydown" reference="lz.Keys" args="k">
+    	Debug.write("onkeydown",k);
+    </handler>
+    <handler name="onkeyup" reference="lz.Keys" args="k">
+    	Debug.write("onkeyup",k);
+    </handler>
+    
+    <view width="200" height="200" bgcolor="0xFF3300">
+    	<handler name="onmousedown">
+            if ($debug) Debug.write("### onmousedown lz.Keys.downKeysArray: ",lz.Keys.downKeysArray);
+    	</handler>
+    </view>
+    
+</canvas>

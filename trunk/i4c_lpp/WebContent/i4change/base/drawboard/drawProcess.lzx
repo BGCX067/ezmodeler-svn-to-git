@@ -1,0 +1,595 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+<class name="drawProcess" extends="drawProcessGroup">
+	
+  	<attribute name="currentprocessstroke" value="0xFFCC00" />
+  	<attribute name="currentprocessstrokeDis" value="1" type="number" />
+  	<attribute name="currentprocessstrokeFill" value="0xFFFF00" />
+  	<attribute name="currentprocessstrokeFillDis" value="1" type="number" />
+  	<attribute name="currentprocesslineWidth" value="2" type="number" />
+	
+    <!-- ###########################
+    Processgroup
+     -->
+	<method name="startProcess">
+		//Debug.write("startRect");
+    	this.currentlayer = new lz.drawViewContainerNew(this,{name:'process'+this.getCounter(),typeOfObject:'processTemp',width:this.width+2,height:this.height+2});
+    	new lz.drawViewNew(this.currentlayer,{name:'_process',typeOfObject:'process',width:this.width+2,height:this.height+2});
+		this.drawlineOnObject(this.currentlayer._process,-1,-1,0,0);
+		this.drawlineOnObject(this.currentlayer._process,this.width,this.height,this.width+1,this.height+1);
+  	</method>  
+  	
+  	<method name="loadProcess" args="txt,objectId,x,y,width,height,newName,connectList,dataCarrierList,propertyMap">
+		<![CDATA[
+            //if ($debug) Debug.write("loadProcess, propertyMap: ",propertyMap);
+			this.currentlayer = new lz.drawViewContainerNew(this,{name:newName,
+					typeOfObject:'processTemp',labelid:568,doUpdate:false,
+					x:x,y:y,width:width,height:height});
+			////if ($debug) Debug.write(this.currentlayer,width,height);	
+    		new lz.drawViewNewItem(this.currentlayer,{name:'_process',
+    				typeOfObject:'process',x:0,y:0,
+    				width:width,height:height});
+			////if ($debug) Debug.write(this.currentlayer._process,width,height);
+			//this.currentlayer = new lz.drawViewNew(this,{name:'process'+this.getCounter(),typeOfObject:'process',x:x,y:y,width:width,height:height});
+			this.drawProcessHistory(this.currentlayer,0,0,width,height,this.currentprocessstroke,
+				this.currentprocesslineWidth,this.currentprocessstrokeFill,
+				this.currentprocessstrokeDis,this.currentprocessstrokeFillDis);
+			
+			//this.currentlayer._process.setAttribute('stretches','both');
+			this.drawProcessFinal(this.currentlayer.name,this.currentprocessstroke,
+                this.currentprocesslineWidth,this.currentprocessstrokeFill,
+                this.currentprocessstrokeDis,this.currentprocessstrokeFillDis,
+                x,y,width,height,
+                txt,objectId,connectList,dataCarrierList,propertyMap);
+                
+			this.checkStepLayers();
+			//this.currentlayer.initEditableText(txt);
+            this.completedObjectTextObjByLoading(this.currentlayer,txt);
+			this.currentlayer.typeOfObject = "process";
+            this.currentlayer.isOrgConnectionItem = true;
+            this.currentlayer.doUpdate = true;
+		]]>
+	</method> 
+    
+    <method name="loadProcessDrag" args="txt,objectId,x,y,width,height,newName,dataCarrierList,propertyMap">
+        <![CDATA[
+        
+            //see drawBoardConnector.lzx
+            var posObject = this.calcObjectPos(x,x,y,y,"any",false,1,40);
+            var x = posObject.x;
+            var y = posObject.y;
+            var width = posObject.width-20;
+            var height = posObject.height-20;
+            
+            var connectList = this.checkOrganisationConnection('process',x,y,width,height,this.currentlayer);
+            
+            if (connectList.length == 0) {
+            	new lz.warningPopup(canvas,{error:canvas.getLabelName(806),closable:true});
+            }
+            
+            this.currentlayer = new lz.drawViewContainerNew(this,{name:newName,
+                    typeOfObject:'processTemp',labelid:568,doUpdate:false,
+                    x:x,y:y,width:width,height:height});
+            ////if ($debug) Debug.write(this.currentlayer,width,height);  
+            new lz.drawViewNewItem(this.currentlayer,{name:'_process',
+                    typeOfObject:'process',x:0,y:0,
+                    width:width,height:height});
+            ////if ($debug) Debug.write(this.currentlayer._process,width,height);
+            //this.currentlayer = new lz.drawViewNew(this,{name:'process'+this.getCounter(),typeOfObject:'process',x:x,y:y,width:width,height:height});
+            this.drawProcessHistory(this.currentlayer,0,0,width,height,this.currentprocessstroke,
+                this.currentprocesslineWidth,this.currentprocessstrokeFill,
+                this.currentprocessstrokeDis,this.currentprocessstrokeFillDis);
+            
+            //this.currentlayer._process.setAttribute('stretches','both');
+            this.drawProcessFinal(this.currentlayer.name,this.currentprocessstroke,
+                this.currentprocesslineWidth,this.currentprocessstrokeFill,
+                this.currentprocessstrokeDis,this.currentprocessstrokeFillDis,
+                x,y,width,height,
+                txt,objectId,connectList,dataCarrierList,propertyMap);
+            this.checkStepLayers();
+            //this.currentlayer.initEditableText(txt);
+            this.completedObjectTextObjByLoading(this.currentlayer,txt);
+            this.currentlayer.typeOfObject = "process";
+            this.currentlayer.isOrgConnectionItem = true;
+            this.currentlayer.doUpdate = true;
+        ]]>
+    </method> 
+
+	<method name="endProcessDrag" args="x,y">
+		<![CDATA[
+			//if ($debug) Debug.write(" this.startx, this.starty , this.endx, this.endy ",this.startx, this.starty , this.endx, this.endy);
+            //Using Company Size as default, cause Role-View uses same Grid Sizes as Hierarchical Grid
+			
+            //see drawBoardConnector.lzx
+            var posObject = this.calcObjectPos(x,x,y,y,"any",false,1,40);
+            var x = posObject.x;
+            var y = posObject.y;
+            var width = posObject.width-20;
+            var height = posObject.height-20;
+            
+            var connectList = this.checkOrganisationConnection('process',x,y,width,height,this.currentlayer);
+			
+            if (connectList.length == 0) {
+            	new lz.warningPopup(canvas,{error:canvas.getLabelName(806),closable:true});
+            }
+            
+            this.currentlayer = new lz.drawViewContainerNew(this,{name:'process'+this.getCounter(),
+					typeOfObject:'processTemp',labelid:568,doUpdate:false,
+					x:x,y:y,width:width,height:height});
+			////if ($debug) Debug.write(this.currentlayer,width,height);	
+    		new lz.drawViewNewItem(this.currentlayer,{name:'_process',
+    				typeOfObject:'process',x:0,y:0,
+    				width:width,height:height});
+			////if ($debug) Debug.write(this.currentlayer._process,width,height);
+			     //this.currentlayer = new lz.drawViewNew(this,{name:'process'+this.getCounter(),typeOfObject:'process',x:x,y:y,width:width,height:height});
+			this.drawProcessHistory(this.currentlayer,0,0,width,height,
+                this.currentprocessstroke,this.currentprocesslineWidth,
+                this.currentprocessstrokeFill,this.currentprocessstrokeDis,
+                this.currentprocessstrokeFillDis);
+			
+		    //this.currentlayer._process.setAttribute('stretches','both');
+			this.drawProcessFinal(this.currentlayer.name,this.currentprocessstroke,
+                this.currentprocesslineWidth,this.currentprocessstrokeFill,
+                this.currentprocessstrokeDis,this.currentprocessstrokeFillDis,
+                x,y,width,height,
+                '',0,connectList, new Array(),null);
+			this.checkStepLayers();
+			this.currentlayer.loadObjectIdentifier();
+			this.currentlayer.typeOfObject = "process";
+            this.currentlayer.isOrgConnectionItem = true;
+            this.currentlayer.doUpdate = true;
+
+		]]>
+	</method> 
+
+    <method name="endProcess">
+        <![CDATA[
+            //if ($debug) Debug.write("endProcess this.startx, this.starty , this.endx, this.endy ",this.startx, this.starty , this.endx, this.endy);
+            this.currentlayer.destroy();
+            //Using Company Size as default, cause Role-View uses same Grid Sizes as Hierarchical Grid
+            
+            //see drawBoardConnector.lzx
+            var posObject = this.calcObjectPos(this.startx,this.endx,this.starty,this.endy,"any",false,1,40);
+            var x = posObject.x;
+            var y = posObject.y;
+            var width = posObject.width-20;
+            var height = posObject.height-20;
+            
+            //if ($debug) Debug.write("endProcess: ",x,y,width,height);
+            var connectList = this.checkOrganisationConnection('process',x,y,width,height,this.currentlayer);
+            
+            if (connectList.length == 0) {
+            	new lz.warningPopup(canvas,{error:canvas.getLabelName(806),closable:true});
+            }
+            
+            this.currentlayer = new lz.drawViewContainerNew(this,{name:'process'+this.getCounter(),
+                    typeOfObject:'processTemp',labelid:568,doUpdate:false,
+                    x:x,y:y,width:width,height:height});
+            ////if ($debug) Debug.write(this.currentlayer,width,height);  
+            new lz.drawViewNewItem(this.currentlayer,{name:'_process',
+                    typeOfObject:'process',x:0,y:0,
+                    width:width,height:height});
+            ////if ($debug) Debug.write(this.currentlayer._process,width,height);
+                 //this.currentlayer = new lz.drawViewNew(this,{name:'process'+this.getCounter(),typeOfObject:'process',x:x,y:y,width:width,height:height});
+            this.drawProcessHistory(this.currentlayer,0,0,width,height,
+                    this.currentprocessstroke,this.currentprocesslineWidth,
+                    this.currentprocessstrokeFill,this.currentprocessstrokeDis,
+                    this.currentprocessstrokeFillDis);
+            
+            //check if this Object is connected to a Role in this Diagram
+            this.checkOrganisationConnection("process",x,y,width,height,this.currentlayer);
+            
+            //if ($debug) Debug.write("Connect To Objects: ",connectList);
+            
+            //this.currentlayer._process.setAttribute('stretches','both');
+            this.drawProcessFinal(this.currentlayer.name,this.currentprocessstroke,
+                this.currentprocesslineWidth,this.currentprocessstrokeFill,
+                this.currentprocessstrokeDis,this.currentprocessstrokeFillDis,
+                x,y,width,height,
+                '',0,connectList, new Array(),null);
+            this.checkStepLayers();
+            this.currentlayer.loadObjectIdentifier();
+            this.currentlayer.typeOfObject = "process";
+            this.currentlayer.isOrgConnectionItem = true;
+            this.currentlayer.doUpdate = true;
+        ]]>
+    </method>    
+    
+    <!--
+    //Using Company Size as default, cause Role-View uses same Grid Sizes as Hierarchical Grid
+            var x = Math.round((this.startx/(canvas.defaultCompanyWidth*canvas.gridFixedFactor))*(canvas.defaultCompanyWidth*canvas.gridFixedFactor) + 20);
+            var width = this.endx - this.startx;
+            if (this.endx<this.startx){
+                x = this.endx;
+                width = Math.abs(width);
+            }
+            var y = Math.round((this.starty/(canvas.defaultCompanyHeight*canvas.gridFixedFactor))*(canvas.defaultCompanyHeight*canvas.gridFixedFactor) + 20);
+            var height = this.endy - this.starty;
+            if (this.endy<this.starty){
+                y = this.endy;
+                height = Math.abs(height);
+            }
+            
+            if (width<20){
+                width = canvas.defaultProcessWidth
+            }
+            if (height < 20) {
+                height = canvas.defaultProcessHeight;
+            }
+       -->
+	
+	<method name="loadFixedProcess" args="txt,objectId,x,y,width,height,newName,dataCarrierList,propertyMap">
+		<![CDATA[			
+			this.currentlayer = new lz.drawViewContainerNew(this,{name:newName,
+					typeOfObject:'processtreeTemp',labelid:568,doUpdate:false,
+					x:x,y:y,width:width,height:height});
+			////if ($debug) Debug.write(this.currentlayer,width,height);	
+    		new lz.drawViewNewItem(this.currentlayer,{name:'_process',
+    				typeOfObject:'processtree',x:0,y:0,
+    				width:width,height:height});
+			////if ($debug) Debug.write(this.currentlayer._process,width,height);
+			//this.currentlayer = new lz.drawViewNew(this,{name:'process'+this.getCounter(),typeOfObject:'process',x:x,y:y,width:width,height:height});
+			this.drawProcessHistory(this.currentlayer,0,0,width,height,this.currentprocessstroke,
+                    this.currentprocesslineWidth,this.currentprocessstrokeFill,
+                    this.currentprocessstrokeDis,this.currentprocessstrokeFillDis);
+			
+			//this.currentlayer._process.setAttribute('stretches','both');
+			this.drawFixedProcessFinal(this.currentlayer.name,this.currentprocessstroke,
+                this.currentprocesslineWidth,this.currentprocessstrokeFill,
+                this.currentprocessstrokeDis,this.currentprocessstrokeFillDis,
+                x,y,width,height,txt,objectId,dataCarrierList,propertyMap);
+			this.checkStepLayers();
+            this.completedObjectTextObjByLoading(this.currentlayer,txt);
+			//this.currentlayer.initEditableText(txt);
+			this.currentlayer.typeOfObject = "processtree";
+            this.currentlayer.doUpdate = true;
+			//this.autoConnectionTreeLines(this.currentlayer);
+		]]>
+	</method> 	
+    
+    <method name="loadFixedProcessDrag" args="txt,objectId,x,y,width,height,newName,dataCarrierList,propertyMap">
+        <![CDATA[           
+
+            var newPositionsObject = this.calcDefaultObjectPositionHierarchical(x,y,width,height);
+            ////if ($debug) Debug.write("newPositionsObject: ",newPositionsObject.x,newPositionsObject.y);
+            var x = newPositionsObject.x;
+            var y = newPositionsObject.y;
+        
+            this.currentlayer = new lz.drawViewContainerNew(this,{name:newName,
+                    typeOfObject:'processtreeTemp',labelid:568,doUpdate:false,
+                    x:x,y:y,width:width,height:height});
+            ////if ($debug) Debug.write(this.currentlayer,width,height);  
+            new lz.drawViewNewItem(this.currentlayer,{name:'_process',
+                    typeOfObject:'processtree',x:0,y:0,
+                    width:width,height:height});
+            ////if ($debug) Debug.write(this.currentlayer._process,width,height);
+            //this.currentlayer = new lz.drawViewNew(this,{name:'process'+this.getCounter(),typeOfObject:'process',x:x,y:y,width:width,height:height});
+            this.drawProcessHistory(this.currentlayer,0,0,width,height,this.currentprocessstroke,
+                    this.currentprocesslineWidth,this.currentprocessstrokeFill,
+                    this.currentprocessstrokeDis,this.currentprocessstrokeFillDis);
+            
+            //this.currentlayer._process.setAttribute('stretches','both');
+            this.drawFixedProcessFinal(this.currentlayer.name,this.currentprocessstroke,
+                this.currentprocesslineWidth,this.currentprocessstrokeFill,
+                this.currentprocessstrokeDis,this.currentprocessstrokeFillDis,
+                x,y,width,height,txt,objectId,dataCarrierList,propertyMap);
+            this.checkStepLayers();
+            this.completedObjectTextObjByLoading(this.currentlayer,txt);
+            //this.currentlayer.initEditableText(txt);
+            this.currentlayer.typeOfObject = "processtree";
+            this.currentlayer.doUpdate = true;
+            //this.autoConnectionTreeLines(this.currentlayer);
+        ]]>
+    </method>   
+    
+    <method name="drawFixedProcessDrag" args="x,y">
+        <![CDATA[
+            //if ($debug) Debug.write(" this.startx, this.starty , this.endx, this.endy ",this.startx, this.starty , this.endx, this.endy);
+            //this.currentlayer.destroy();
+            var width = width = canvas.defaultProcessGroupWidth;
+            var height = canvas.defaultProcessGroupHeight;
+            
+            var newPositionsObject = this.calcDefaultObjectPositionHierarchical(x,y,width,height);
+            ////if ($debug) Debug.write("newPositionsObject: ",newPositionsObject.x,newPositionsObject.y);
+            var x = newPositionsObject.x;
+            var y = newPositionsObject.y;
+            
+            this.currentlayer = new lz.drawViewContainerNew(this,{name:'processtree'+this.getCounter(),
+                    typeOfObject:'processtreeTemp',labelid:568,doUpdate:false,
+                    x:x,y:y,width:width,height:height});
+            ////if ($debug) Debug.write(this.currentlayer,width,height);  
+            new lz.drawViewNewItem(this.currentlayer,{name:'_process',
+                    typeOfObject:'processtree',x:0,y:0,
+                    width:width,height:height});
+            ////if ($debug) Debug.write(this.currentlayer._process,width,height);
+            //this.currentlayer = new lz.drawViewNew(this,{name:'process'+this.getCounter(),typeOfObject:'process',x:x,y:y,width:width,height:height});
+            this.drawProcessHistory(this.currentlayer,0,0,width,height,this.currentprocessstroke,this.currentprocesslineWidth,this.currentprocessstrokeFill,this.currentprocessstrokeDis,this.currentprocessstrokeFillDis);
+            
+            //this.currentlayer._process.setAttribute('stretches','both');
+            this.drawFixedProcessFinal(this.currentlayer.name,this.currentprocessstroke,
+                this.currentprocesslineWidth,this.currentprocessstrokeFill,
+                this.currentprocessstrokeDis,this.currentprocessstrokeFillDis,
+                x,y,width,height,
+                '',0, new Array(),null);
+            this.checkStepLayers();
+            this.currentlayer.loadObjectIdentifier();
+            this.currentlayer.typeOfObject = "processtree";
+            this.currentlayer.doUpdate = true;
+            //this.autoConnectionTreeLines(this.currentlayer);
+        ]]>
+    </method>   
+	
+	<method name="drawFixedProcess">
+		<![CDATA[
+			//if ($debug) Debug.write(" this.startx, this.starty , this.endx, this.endy ",this.startx, this.starty , this.endx, this.endy);
+			//this.currentlayer.destroy();
+			var width = width = canvas.defaultProcessGroupWidth;
+			var height = canvas.defaultProcessGroupHeight;
+			
+			var newPositionsObject = this.calcDefaultObjectPositionHierarchical(this.startx,this.starty,width,height);
+            ////if ($debug) Debug.write("newPositionsObject: ",newPositionsObject.x,newPositionsObject.y);
+            var x = newPositionsObject.x;
+            var y = newPositionsObject.y;
+			
+			this.currentlayer = new lz.drawViewContainerNew(this,{name:'processtree'+this.getCounter(),
+					typeOfObject:'processtreeTemp',labelid:568,doUpdate:false,
+					x:x,y:y,width:width,height:height});
+			////if ($debug) Debug.write(this.currentlayer,width,height);	
+    		new lz.drawViewNewItem(this.currentlayer,{name:'_process',
+    				typeOfObject:'processtree',x:0,y:0,
+    				width:width,height:height});
+			////if ($debug) Debug.write(this.currentlayer._process,width,height);
+			//this.currentlayer = new lz.drawViewNew(this,{name:'process'+this.getCounter(),typeOfObject:'process',x:x,y:y,width:width,height:height});
+			this.drawProcessHistory(this.currentlayer,0,0,width,height,this.currentprocessstroke,this.currentprocesslineWidth,this.currentprocessstrokeFill,this.currentprocessstrokeDis,this.currentprocessstrokeFillDis);
+			
+			//this.currentlayer._process.setAttribute('stretches','both');
+			this.drawFixedProcessFinal(this.currentlayer.name,this.currentprocessstroke,
+                this.currentprocesslineWidth,this.currentprocessstrokeFill,
+                this.currentprocessstrokeDis,this.currentprocessstrokeFillDis,
+                x,y,width,height,
+                '',0, new Array(),null);
+			this.checkStepLayers();
+			this.currentlayer.loadObjectIdentifier();
+			this.currentlayer.typeOfObject = "processtree";
+            this.currentlayer.doUpdate = true;
+			//this.autoConnectionTreeLines(this.currentlayer);
+		]]>
+	</method> 	
+	
+	<method name="setFixedProcessXPosition" args="objRef,newx">
+		<![CDATA[
+			var x = Math.round(newx/(canvas.defaultProcessGroupWidth*1.4))*(canvas.defaultProcessGroupWidth*1.4);
+			var y = Math.round(objRef.y/(canvas.defaultProcessGroupHeight*1.4))*(canvas.defaultProcessGroupHeight*1.4);
+			var isFreePosition = false;
+				
+			while (!isFreePosition) {
+				var foundItem = false;
+				
+				for (var i=0;i<this.subviews.length;i++) {
+					if (this.subviews[i].x == x && this.subviews[i].y == y){
+						if (objRef == this.subviews[i]){
+							////if ($debug) Debug.write("Found Self: ");
+							continue;
+						} else {
+							////if ($debug) Debug.write("Found Other Item: ",i,this.subviews[i]);
+							foundItem = true;
+							break;
+						}
+					}
+				}
+				
+				if (foundItem){
+					x += (canvas.defaultProcessGroupWidth*1.4);
+				} else {
+					isFreePosition = true;
+				}
+			}
+			objRef.setAttribute('x',x);
+		]]>
+	</method>
+	
+	<method name="setFixedProcessYPosition" args="objRef,newy">
+		objRef.setAttribute('y',Math.round(newy/(canvas.defaultProcessGroupHeight*1.4))*(canvas.defaultProcessGroupHeight*1.4));
+	</method>
+	
+  	<method name="drawProcess" args="x1,y1,x2,y2">
+   		<![CDATA[
+    		
+    		currentlayer._process.lineWidth = this.currentprocesslineWidth;
+    		currentlayer._process.strokeStyle = this.currentprocessstroke;
+    		currentlayer._process.fillStyle = this.currentprocessstrokeFill;
+    		
+    		currentlayer._process.beginPath();
+    		currentlayer._process.moveTo(x1,y1);
+    		currentlayer._process.lineTo(x1,y2);
+    		currentlayer._process.lineTo(x2,y2);
+    		currentlayer._process.lineTo(x2,y1);
+    		currentlayer._process.lineTo (x1,y1);
+    		//currentlayer._process.closePath();
+    		
+    		if (this.currentrectanglestrokeDis!=-1){
+	    		currentlayer._process.stroke();
+    		}
+
+    		if (this.currentrectanglestrokeFillDis!=-1){
+	    		currentlayer._process.fill();
+    		}
+    		
+    	]]>   
+  	</method>    
+  	
+  	<method name="drawProcessOnTarget" args="targetOBj,x1,y1,x2,y2">
+   		<![CDATA[
+    		
+    		targetOBj._process.lineWidth = this.currentprocesslineWidth;
+    		targetOBj._process.strokeStyle = this.currentprocessstroke;
+    		targetOBj._process.fillStyle = this.currentprocessstrokeFill;
+    		
+    		targetOBj._process.beginPath();
+    		targetOBj._process.moveTo(x1,y1);
+    		targetOBj._process.lineTo(x1,y2);
+    		targetOBj._process.lineTo(x2,y2);
+    		targetOBj._process.lineTo(x2,y1);
+    		targetOBj._process.lineTo (x1,y1);
+    		//currentlayer._process.closePath();
+    		
+    		if (this.currentrectanglestrokeDis!=-1){
+	    		targetOBj._process.stroke();
+    		}
+
+    		if (this.currentrectanglestrokeFillDis!=-1){
+	    		targetOBj._process.fill();
+    		}
+    		
+    	]]>   
+  	</method>    
+  	
+  	<method name="drawProcessToHistory" args="lastActionObject,parentView">
+		this.currentlayer = new lz.drawViewContainerNew(parentView,{name:lastActionObject[lastActionObject.length-1],
+			typeOfObject:'process',
+			x:lastActionObject[lastActionObject.length-5],y:lastActionObject[lastActionObject.length-4],
+			width:lastActionObject[lastActionObject.length-3],height:lastActionObject[lastActionObject.length-2]});
+		new lz.drawViewNewItem(this.currentlayer,{name:'_process',typeOfObject:'process',x:lastActionObject[lastActionObject.length-5],y:lastActionObject[lastActionObject.length-4],width:lastActionObject[lastActionObject.length-3],height:lastActionObject[lastActionObject.length-2]});
+   		this.drawProcessHistory(this.currentlayer._process,0,0,lastActionObject[lastActionObject.length-3],lastActionObject[lastActionObject.length-2],lastActionObject[1],lastActionObject[2],lastActionObject[3],lastActionObject[4],lastActionObject[5]);
+  	</method>
+    
+  	<method name="drawProcessHistory" args="parentObj,x1,y1,x2,y2,stroke,line,fill,strokeDis,fillDis">
+   		<![CDATA[
+    		////if ($debug) Debug.write("drawProcessHistory",parentObj,x1,y1,x2,y2,stroke,line,fill,strokeDis,fillDis);
+    		parentObj._process.lineWidth = line;
+    		parentObj._process.fillStyle = fill;
+    		parentObj._process.strokeStyle = stroke;
+    		
+    		parentObj._process.beginPath();
+    		parentObj._process.moveTo(x1,y1);
+    		parentObj._process.lineTo(x1,y2);
+    		parentObj._process.lineTo(x2,y2);
+    		parentObj._process.lineTo(x2,y1);
+    		parentObj._process.lineTo (x1,y1);
+    		//parentObj._process.closePath();
+    		
+    		if (strokeDis!=-1){
+	    		parentObj._process.stroke();
+    		}
+    		
+    		if (fillDis!=-1){
+	    		parentObj._process.fill();
+    		}
+	        //var t = new lz.styleableInputDrawBoard(parentObj,{name:'_textview',
+	        //	text:'Process',fontstyle:this.currentlayerstyle,
+	        //	fontsize:this.currentlayersize,fgcolor:this.currentlayerletter});
+		
+    	]]>   
+  	</method>  
+  	
+  	<method name="drawProcessFinal" args="newName,stroke,line,fill,strokeDis,fillDis,x,y,width,height,currentText,diagramobjectid,connectList,dataCarrierList,propertyList" >
+  		//Debug.write("drawrectregisterFinal",newName,stroke,line,fill,strokeDis,fillDis,x,y,width,height);
+		var actionObject = new Array();
+	    actionObject[0] = 'process';
+	    actionObject[1] = stroke;
+	    actionObject[2] = line;
+	    actionObject[3] = fill;
+	    actionObject[4] = strokeDis;
+	    actionObject[5] = fillDis;
+        actionObject[6] = propertyList;
+        actionObject[7] = dataCarrierList;
+        actionObject[8] = connectList;
+        actionObject[9] = currentText;
+        actionObject[10] = diagramobjectid;
+		actionObject[11] = this.counter;
+	    actionObject[12] = x;
+	    actionObject[13] = y;
+	    actionObject[14] = width;
+	    actionObject[15] = height;	    
+	    actionObject[16] = newName;
+	    this.baseactionobjectList.push(actionObject);
+	    this.onsharedMessage('draw',actionObject);
+  	</method>
+  	
+  	<method name="drawFixedProcessFinal" args="newName,stroke,line,fill,strokeDis,fillDis,x,y,width,height,currentText,diagramobjectid,dataCarrierList,propertyList" >
+  		//Debug.write("drawrectregisterFinal",newName,stroke,line,fill,strokeDis,fillDis,x,y,width,height);
+		var actionObject = new Array();
+	    actionObject[0] = 'processtree';
+	    actionObject[1] = stroke;
+	    actionObject[2] = line;
+	    actionObject[3] = fill;
+	    actionObject[4] = strokeDis;
+	    actionObject[5] = fillDis;
+        actionObject[6] = propertyList;
+        actionObject[7] = dataCarrierList;
+        actionObject[8] = currentText;
+        actionObject[9] = diagramobjectid;
+		actionObject[10] = this.counter;
+	    actionObject[11] = x;
+	    actionObject[12] = y;
+	    actionObject[13] = width;
+	    actionObject[14] = height;	    
+	    actionObject[15] = newName;
+	    this.baseactionobjectList.push(actionObject);
+	    this.onsharedMessage('draw',actionObject);
+  	</method>
+  	
+  	<method name="editProcessTextByValues" args="obj">
+		<![CDATA[
+			if (!this.letterObjectIsActive){
+				//obj._process.destroy();
+				
+				//this.drawProcessOnTarget()
+				if (this.boundingref!=null) {
+                    //if ($debug) Debug.write("REMOVE BOUNDING REF");
+                    this.boundingref.removeIt();
+                }
+			    
+			    var txt = obj._textview.getText();
+			    
+			    var _txt = obj._textview.getText();
+				var _fontstyle = obj._textview.fontstyle;
+				var _fontsize = obj._textview.fontsize;
+				var _fgcolor = obj._textview.fgcolor;
+				var _width = obj._textview.width;
+				var _height = obj._textview.height;
+				obj._textview.destroy();
+		        var t = new lz.styleableInputDrawBoard(obj,{name:'_textview',
+					text:_txt,
+					fontstyle:_fontstyle,
+					fontsize:_fontsize,
+					fgcolor:_fgcolor,
+					width:_width,height:_height});
+	        }	
+		]]>
+	</method>
+	
+	<method name="completedProcessObj" args="obj">
+		//if ($debug) Debug.write("completedProcessObj: ",obj);
+		var _parentObj = obj.parent;
+		var _txt = obj.getText();
+		var _fontstyle = obj.fontstyle;
+		var _fontsize = obj.fontsize;
+		var _fgcolor = obj.fgcolor;
+		var _width = obj.width;
+		var _height = obj.height;
+		obj.destroy();
+		var t = new lz.styleableTextDrawBoard(_parentObj,{name:'_textview',
+				text:_txt,
+				fontstyle:_fontstyle,
+				fontsize:_fontsize,
+				fgcolor:_fgcolor,
+				width:_width,height:_height});
+        this.updateObjTextByName(_parentObj.name,_txt);
+	</method>
+	
+	<method name="redrawProcessItemByScaling" args="refObj">
+		//if ($debug) Debug.write("redrawProcessItemByScaling: ",refObj,refObj.width,refObj.height);
+		refObj._process.destroy();
+		new lz.drawViewNewItem(refObj,{name:'_process',
+    				typeOfObject:'process',x:0,y:0,
+    				width:refObj.width,height:refObj.height});
+    	refObj._process.sendToBack();		
+    	this.drawProcessOnTarget(refObj,0,0,refObj.width,refObj.height);		
+	</method>
+	
+	
+</class>
+
+</library>

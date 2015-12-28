@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<library>
+
+
+<class name="diagramSideBarFlow" extends="baseDiagramSideBar" >
+    
+    <baseContentElementsSidebar name="_innerSideBar">
+        <propertyInspectorSidebar name="_propertyInspector" />
+        <documentsSidebar name="_documentsSidebar" />
+        <revisionhistorySidebar name="_version" />
+        <diagramObjectConnectedDiagramsSidebar name="_diagramObjectConnectedDiagrams" />
+        <objectOrgItemsSidebar name="_objectOrgItemsSidebar" />
+        <organisationObjectItemsSidebar name="_organisationObjectItemsSidebar" />
+        <hierarchicalExplorerSidebar name="_hierarchicalExplorerSidebar" />
+        <flowsExplorerSidebar name="_flowsExplorerSidebar" />
+        <processAndActivitiesTableSidebar name="_processAndActivitiesTableSidebar" />
+        <dataCarrierItemsSidebar name="_dataCarrier" />
+    </baseContentElementsSidebar>
+    
+</class> 
+
+
+</library>

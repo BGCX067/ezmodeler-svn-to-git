@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<library>
+
+<!--- "System" panel on the dashboard -->
+<class name="propertyInspector" extends="guiPresenter" resizeable="true"
+       y="$once{ canvas.height-this.height-16-40 }"
+       x="0" width="420" height="200" closable="true" labelid="657">
+          
+    <attribute name="selectedObj" value="null" />
+    <attribute name="baseObject" value="null" />
+    
+    <handler name="oninit">
+        //Add Help Item
+        canvas.addCurrentHelpId(20,this.__constructor__.classname);
+    </handler>  
+    <handler name="oninit">
+        parent.propertyInspectorIsInited = true;
+        if (canvas.currentDiagramRef.diagramType=="roleview") {
+            menu_showPropertyInspector._checkbox.setValue(true);
+        } else if (canvas.currentDiagramRef.diagramType=="processgroup") {
+            menu_showPropertyInspectorProcess._checkbox.setValue(true);
+        } else if (canvas.currentDiagramRef.diagramType=="hierarchical") {
+            menu_showPropertyInspectorHierarchical._checkbox.setValue(true);
+        } else if (canvas.currentDiagramRef.diagramType=="singleRole") {
+            menu_showPropertyInspectorSingleRole._checkbox.setValue(true);
+        }
+    </handler>
+    <handler name="onclose">
+        parent.propertyInspectorIsInited = false;
+        if (canvas.currentDiagramRef.diagramType=="roleview") {
+            menu_showPropertyInspector._checkbox.setValue(false);
+        } else if (canvas.currentDiagramRef.diagramType=="processgroup") {
+            menu_showPropertyInspectorProcess._checkbox.setValue(false);
+        } else if (canvas.currentDiagramRef.diagramType=="hierarchical") {
+            menu_showPropertyInspectorHierarchical._checkbox.setValue(false);
+        } else if (canvas.currentDiagramRef.diagramType=="singleRole") {
+            menu_showPropertyInspectorSingleRole._checkbox.setValue(false);
+        }
+    </handler>
+    
+    <method name="setNewAssigneeValue" args="value,text">
+        this.selectedObj._issueAssignee.lastAssigneeUser_id = Number(value);
+        this.selectedObj._issueAssignee.setAttribute('text',text);
+        canvas.currentDiagramRef._scrollcontent.dragArea.contentArea._currentBoard.updateIssueBaseObjectAssignee(
+            this.selectedObj.name,value,text);
+    </method>
+    
+    <method name="setNewPendingAssigneeValue" args="value,text">
+        this.selectedObj._assignee.lastAssigneeUser_id = Number(value);
+        this.selectedObj._assignee.setAttribute('text',text);
+        canvas.currentDiagramRef._scrollcontent.dragArea.contentArea._currentBoard.setNewPendingAssigneeValue(
+            this.selectedObj.name,value,text);
+    </method>
+    
+    <method name="approveObject">
+        var currentDrawArea = canvas.currentDiagramRef._scrollcontent.dragArea.contentArea._currentBoard;
+        this.baseObject = currentDrawArea.getBaseObjectListItemByName(this.selectedObj.name);
+        currentDrawArea.deleteItemByName(this.selectedObj.name);
+        ////if ($debug) Debug.write("this.baseObject: ",this.baseObject);
+        this.baseObject[this.baseObject.length-9] = false;
+        
+        //Overwrite that cause remotely there are only Objects of Type *unitFixed* available
+        if (this.baseObject[0] == 'unit'){
+            this.baseObject[0] = 'unitFixed';
+        } else if (this.baseObject[0] == 'departement'){
+            this.baseObject[0] = 'departementFixed';
+        } else if (this.baseObject[0] == 'company'){
+            this.baseObject[0] = 'companyFixed';
+        }
+        currentDrawArea.sendWatchObject("draw",this.baseObject,false);
+    </method>
+    
+    <method name="removeObject">
+        //this.baseObject = currentDrawArea.getBaseObjectListItemByName(this.selectedObj.name);
+        var currentDrawArea = canvas.currentDiagramRef._scrollcontent.dragArea.contentArea._currentBoard;
+        currentDrawArea.deleteItemByName(this.selectedObj.name);
+    </method>
+        
+    <method name="setObjectSelectedObj" args="objRef">
+        <![CDATA[
+	        this.selectedObj = objRef;
+	        
+	        this.inner.inn.content.clearContent();
+	        if (this.selectedObj == null) {
+	            this.inner._name.setAttribute("text",'');
+	        } else {
+	            this.inner._name.setAttribute("text",
+	                this.selectedObj._textview.getText() + 
+	                "  ( " + this.selectedObj.typeOfObject + " )"
+	                );
+                
+                var currentDrawArea = canvas.currentDiagramRef._scrollcontent.dragArea.contentArea._currentBoard;
+                this.baseObject = currentDrawArea.getBaseObjectListItemByName(this.selectedObj.name);
+                var diagramObjectId = baseObject[baseObject.length-7];
+                
+                if (this.selectedObj.typeOfObject == "issueflow") {
+                    var _issueFlowDetails = new lz.issueFlowDetails(this.inner.inn.content);
+                    ////if ($debug) Debug.write("canvas.currentDiagramRef: ",canvas.currentDiagramRef);
+                    ////if ($debug) Debug.write("currentDrawArea: ",currentDrawArea);
+                    var assigneeUser_id = baseObject[baseObject.length-9];
+                    ////if ($debug) Debug.write("baseObject: ",assigneeUser_id);
+                    for (var eg=0;eg<canvas.orgUserList.length;eg++) {
+                        _issueFlowDetails.users.addItem(canvas.orgUserList[eg].login,
+                            canvas.orgUserList[eg].user_id);
+                    }
+                    _issueFlowDetails.sendUpdateEvent = false;
+                    _issueFlowDetails.users.selectItem(String(assigneeUser_id));
+                    _issueFlowDetails.sendUpdateEvent = true;
+                } else if (this.selectedObj.pending) {
+                    
+                    var _pendingDetails = new lz.pendingDetails(this.inner.inn.content);
+                    ////if ($debug) Debug.write("canvas.currentDiagramRef: ",canvas.currentDiagramRef);
+                    ////if ($debug) Debug.write("currentDrawArea: ",currentDrawArea);
+                    var assigneeUser_id = baseObject[baseObject.length-10];
+                    var assigneeUser_Name = baseObject[baseObject.length-11];
+                    
+                    for (var eg=0;eg<canvas.orgUserList.length;eg++) {
+                        if (canvas.orgUserList[eg].level_id > 1){
+	                        _pendingDetails.users.addItem(canvas.orgUserList[eg].login,
+	                            canvas.orgUserList[eg].user_id);
+                        }
+                    }
+                    _pendingDetails.sendUpdateEvent = false;
+                    //In case of there is no usre with Moderation/Administration rights
+                    if (_pendingDetails.users.getItem(String(assigneeUser_id)) == null){
+                        _pendingDetails.users.addItem(assigneeUser_Name,assigneeUser_id);
+                    }
+                    _pendingDetails.users.selectItem(String(assigneeUser_id));
+                    _pendingDetails.sendUpdateEvent = true;
+                    
+                } else {
+                    ////if ($debug) Debug.write("setObjectSelectedObj: ",objRef);
+                    new lz.objectPropertyDetails(this.inner.inn.content);
+                }
+                
+                //Load Data Carrier Module
+                if (this.baseObject[0] == "inputflow" 
+                        || this.baseObject[0] == "outputflow"
+                        || this.baseObject[0] == "activity") {
+                    new lz.dataCarrierItems(this.inner.inn.content,{
+                            baseObject:this.baseObject,
+                            diagramObjectId:diagramObjectId,
+                            baseObjectItemIndex:10
+                        });
+                } else if (this.baseObject[0] == "unit" || this.baseObject[0] == "unitFixed" 
+                        || this.baseObject[0] == "departement" || this.baseObject[0] == "departementFixed" 
+                        || this.baseObject[0] == "company" || this.baseObject[0] == "companyFixed") {
+                    if (currentDrawArea.diagramType == 2 || currentDrawArea.diagramType == 4) {
+	                    new lz.dataCarrierItems(this.inner.inn.content,{
+	                            baseObject:this.baseObject,
+	                            diagramObjectId:diagramObjectId,
+	                            baseObjectItemIndex:12
+	                        });
+                    } else {
+                        new lz.dataCarrierItems(this.inner.inn.content,{
+                                baseObject:this.baseObject,
+                                diagramObjectId:diagramObjectId,
+                                baseObjectItemIndex:9
+                            });
+                    }
+                } else if (this.baseObject[0] == "process" || this.baseObject[0] == "processtree") {
+                    if (currentDrawArea.diagramType == 2 || currentDrawArea.diagramType == 4) {
+                        new lz.dataCarrierItems(this.inner.inn.content,{
+                                baseObject:this.baseObject,
+                                diagramObjectId:diagramObjectId,
+                                baseObjectItemIndex:10
+                            });
+                    } else {
+                        new lz.dataCarrierItems(this.inner.inn.content,{
+                                baseObject:this.baseObject,
+                                diagramObjectId:diagramObjectId,
+                                baseObjectItemIndex:9
+                            });
+                    }
+                } else if (this.baseObject[0] == "processgroup") {
+                    new lz.dataCarrierItems(this.inner.inn.content,{
+                            baseObject:this.baseObject,
+                            diagramObjectId:diagramObjectId,
+                            baseObjectItemIndex:9
+                        });
+                } else {
+                    //if ($debug) Debug.write("No DataCarrier for this this.baseObject[0]: ",this.baseObject[0]);
+                }
+                
+                //if ($debug) Debug.write("this.selectedObj.typeOfObject: ",assigneeUser_id);
+                
+                if (this.selectedObj.typeOfObject == "process" || this.selectedObj.typeOfObject == "activity" 
+                        || this.selectedObj.typeOfObject == "inputflow" || this.selectedObj.typeOfObject == "outputflow"
+                        || this.selectedObj.typeOfObject == "processtree") {
+                    //if ($debug) Debug.write("setObjectSelectedObj: ",this.baseObject);
+                    new lz.objectOrgItems(this.inner.inn.content,{
+                            baseObject:this.baseObject,
+                            diagramObjectId:diagramObjectId
+                        });
+                }  else if (this.selectedObj.typeOfObject == "unit" || this.selectedObj.typeOfObject == "departement" 
+                        || this.selectedObj.typeOfObject == "company" || 
+                        this.selectedObj.typeOfObject == "unitFixed" || this.selectedObj.typeOfObject == "departementFixed" 
+                        || this.selectedObj.typeOfObject == "companyFixed") {
+                    //if ($debug) Debug.write("setObjectSelectedObj: ",this.baseObject);
+                    new lz.organisationObjectItems(this.inner.inn.content,{
+                            baseObject:this.baseObject,
+                            diagramObjectId:diagramObjectId
+                        });
+                } else {
+                    //if ($debug) Debug.write("not handled typeOfObject for Role / Process Connection: ",this.selectedObj.typeOfObject);
+                }
+                
+                if (this.selectedObj.typeOfObject != "connector") {
+	                //show list of Diagrams using this Object
+	                new lz.diagramObjectConnectedDiagrams(this.inner.inn.content,{
+	                            baseObject:this.baseObject,
+	                            diagramObjectId:diagramObjectId
+	                        });  
+                }
+                
+	        }
+	        
+        ]]>
+    </method>
+    
+    <view y="20" bgcolor="white" name="inner" x="1" width="${ parent.width-2 }" 
+          height="${ parent.height-21 }" clip="true" >
+        
+	    <labelText x="2" y="0" labelid="658" />
+	    <labelText name="_name" x="80" y="0" bgcolor="0xDDDDDD"
+	               width="220" resize="false" />
+	    
+        <view name="inn" width="${ parent.width }" y="22" clip="true" 
+              height="${ parent.height-34  }">
+	        <!-- height="$once{ parent.height - 44 }" -->
+	        <view name="content" layout="axis:y;spacing:2" >
+	            <method name="clearContent">
+	                for (var eg in this.subviews) {
+	                    this.subviews[eg].destroy();
+	                }
+	            </method>
+	        </view>  
+            <vscrollbar name="_scrollbar" />    
+        </view>      
+           
+    </view>
+</class>
+
+</library>

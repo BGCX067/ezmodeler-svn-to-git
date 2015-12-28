@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+	
+	<resource name="open_close_icon_rsc">
+		<frame src="resources/open_close_icon_2.png" />
+		<frame src="resources/open_close_icon.png" />
+	</resource>
+    
+    <include href="deepSearchModuleMenu.lzx" />
+    <include href="deepSearchModule.lzx" />
+    <include href="diagramObjectDetails.lzx" />
+
+</library>

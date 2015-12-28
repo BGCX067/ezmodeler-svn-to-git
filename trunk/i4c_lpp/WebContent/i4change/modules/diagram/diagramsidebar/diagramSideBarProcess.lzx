@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<library>
+
+<class name="diagramSideBarProcess" extends="baseDiagramSideBar" >
+    
+    <baseContentElementsSidebar name="_innerSideBar">
+        <propertyInspectorSidebar name="_propertyInspector" />
+        <documentsSidebar name="_documentsSidebar" />
+        <revisionhistorySidebar name="_version" />
+        <diagramObjectConnectedDiagramsSidebar name="_diagramObjectConnectedDiagrams" />
+        <objectOrgItemsSidebar name="_objectOrgItemsSidebar" />
+        <!--
+        //There is not connected Org Object for Hierarchical Objects
+        <organisationObjectItemsSidebar name="_organisationObjectItemsSidebar" />
+         -->
+        <processExplorerSidebar name="_libraryObjects" >
+            <handler name="oninit">
+		        this.setDiagramObjects(canvas.currentDiagram);
+            </handler>
+        </processExplorerSidebar>
+        <dataCarrierItemsSidebar name="_dataCarrier" />
+    </baseContentElementsSidebar>
+    
+</class> 
+
+
+</library>

@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+    <!--- LOGIN panel window labelid="108" -->
+    <class name="checkLoginData" extends="guiPresenter" title="Login" 
+        resizeable="false" closable="true" closeByMethod="true" width="340" height="200"
+        x="$once{ canvas.width/2 - this.width/2 }"  y="20">
+    
+        <attribute name="refObj" value="null" />
+        <attribute name="childObj" value="null" />
+        
+        <attribute name="showRegisterIng" value="true" type="boolean" />
+    
+        <attribute name="labeliderror" value="0" type="number" />
+    
+        <attribute name="pressEnter" value="null" />
+    
+        <!-- 
+             nasty workaround as the start/stop events of animator seems to be 
+             called when destroyed
+             -->
+        <attribute name="isDestroyed" value="false" type="boolean" />
+    
+        <handler name="oninit">
+        	if (canvas.loaderVar != null) {
+                canvas.loaderVar.close();
+            }
+			canvas._hideAll.setAttribute("visibility", "visible");
+        </handler> 
+    
+        <method name="doClose">
+
+			//if ($debug) Debug.write("doClose: ",this);
+			this.isDestroyed = true;
+			for (var eg in this.subviews) {
+				this.subviews[eg].destroy();
+			}
+			for (var eg in this.subnodes) {
+				this.subnodes[eg].destroy();
+			}
+			canvas._hideAll.setAttribute("visibility", "hidden");
+			this.destroy();
+        </method>
+    
+        <handler name="onclose">
+			if (this.childObj != null)
+				this.childObj.close();
+        </handler>
+    
+        <method name="showFirstStep">
+			if (this.isDestroyed)
+				return;
+			this._inner._slidaArea._userValues.setAttribute("visibility",
+					"visible");
+			this._inner._slidaArea._orgLoginValues.destroy();
+			this._inner._slidaArea._advancedUsers.destroy();
+			this._inner._slidaArea._addNewPendingOrgView.destroy();
+			this._resetUserText.setAttribute("visibility", "visible");
+
+			this.setAttribute("height", 200);
+			this.setAttribute("width", 340);
+			this.setAttribute("x", (canvas.width / 2 - 340 / 2));
+        </method>
+    
+        <method name="showSecondForm">
+			if (this.isDestroyed)
+				return;
+			//this._inner._slidaArea._orgLoginValues.setAttribute("visibility","visible");
+			//this._inner._slidaArea._advancedUsers.setAttribute("visibility","visible");
+			new lz.addNewPendingOrgView(this._inner._slidaArea, {
+						name : '_addNewPendingOrgView',
+						x : 540
+					});
+        </method>
+
+        <method name="loadOrgItems">
+        <![CDATA[
+			if (this.isDestroyed)
+				return;
+				
+		    if (this.showRegisterIng) {
+			    this.showOrganizations.doStart();
+		    }
+		    
+			new lz.advancedUsersLogin(this._inner._slidaArea, {
+						name : '_advancedUsers'
+					});
+			new lz.orgLoginValues(this._inner._slidaArea, {
+						name : '_orgLoginValues',
+						showRegisterIng:this.showRegisterIng
+					});
+			this._resetUserText.setAttribute("visibility", "hidden");
+			this._inner._slidaArea._userValues.setAttribute("visibility",
+					"hidden");
+			this._inner._slidaArea._orgLoginValues.loadOrgItems();
+        ]]>
+        </method>
+    
+        <method name="showAddPendingOrgForm">
+			if (this.isDestroyed)
+				return;
+			this.showNewPendingOrganizations.doStart();
+        </method>
+    
+        <method name="backToOrgChoose">
+			if (this.isDestroyed)
+				return;
+			this._inner._slidaArea.doNotshowNewPendingOrganizations.doStart();
+        </method>
+    
+        <!-- -->
+        <view name="_inner" width="${ parent.width }" height="${ parent.height }" clip="true" >
+    
+            <view name="_slidaArea">
+    		
+                <userValues name="_userValues" 
+                			showRegisterIng="$once{ parent.parent.parent.showRegisterIng }"/>
+    		
+                <!--
+                    <orgLoginValues name="_orgLoginValues" visibility="hidden" />
+                    <advancedUsersLogin name="_advancedUsers" visibility="hidden" />
+                    <addNewPendingOrgView name="_addNewPendingOrgView" x="540" />
+                     -->
+    		
+                <animatorgroup name="showAddPendingOrganizations" 
+                    start="false" process="simoultanious">
+                    <animator attribute="x" to="-540" duration="750" />
+                </animatorgroup>
+			
+                <animatorgroup name="doNotshowNewPendingOrganizations" 
+                    onstop="parent.parent.parent.doNotshowNewPendingOrganizations.doStart()"
+                    start="false" process="simoultanious">
+                    <animator attribute="x" to="0" duration="750" />
+                </animatorgroup>
+			
+            </view>
+	
+	    
+        </view>
+
+        <labelText align="right" resize="true" valign="bottom">
+            <handler name="oninit">
+            <![CDATA[
+				this.setAttribute("text", "<u><FONT color='#0000CC'>visit "
+								+ canvas.currentappname + "</FONT></u>");
+            ]]>
+            </handler>
+            <handler name="onclick">
+				lz.Browser.loadURL(canvas.currentappnameurl, "_blank");
+            </handler>        
+        </labelText>
+    
+        <labelText name="_resetUserText" align="left" resize="true" valign="bottom">
+            <handler name="oninit">
+            <![CDATA[
+				this.setAttribute("text", "<u><FONT color='#0000CC'>"
+								+ canvas.getLabelName(311) + "</FONT></u>");
+            ]]>
+            </handler>
+            <attribute name="showResetBox" value="false" type="boolean" />
+            <handler name="onclick">
+				if (!this.showResetBox) {
+					this.parent.showResetForm.doStart();
+					this.showResetBox = true;
+				} else {
+					this.parent.disableResetForm.doStart();
+					this.showResetBox = false;
+				}
+            </handler>       
+        </labelText>        
+    
+        <method name="createReset" args="value">
+			var resetF = new lz.resetForm(value, {
+						name : '_resetForm'
+					});
+        </method>
+    
+        <method name="destroyReset" args="value">
+			value._resetForm.destroy();
+        </method>   
+
+        <animator name="showRegForm" attribute="x" to="20" duration="500" start="false" />
+        <animator name="doreset" attribute="x" to="$once{ canvas.width/2 - parent.width/2 }" 
+            duration="500" start="false" />
+    
+        <animator name="showResetForm" attribute="height" to="400" duration="500" 
+            onstop="parent.createReset(parent)" start="false" />
+        <animator name="disableResetForm" attribute="height" to="200" duration="500" 
+            onstart="parent.destroyReset(parent);" start="false" />    
+
+        <animatorgroup name="showOrganizations" start="false"
+            onstop="parent.showSecondForm()" process="simoultanious">
+            <animator attribute="x" to="$once{ (canvas.width/2 - 540/2) }" duration="750" />
+            <animator attribute="width" to="540" duration="750" />
+        </animatorgroup>
+	
+        <method name="handleStop">
+			//if ($debug) Debug.write(this); 
+			//The animator sends a stop where it should not send a stop
+			if (this._inner["_slidaArea"]){
+                this._inner._slidaArea.showAddPendingOrganizations.doStart()
+			}
+        </method>
+        <animatorgroup name="showNewPendingOrganizations" 
+            onstop="parent.handleStop()"
+            start="false" process="simoultanious">
+            <animator attribute="height" to="530" duration="750" />
+            <animator attribute="x" to="$once{ (canvas.width/2 - 540/2) }" duration="750" />
+            <animator attribute="width" to="540" duration="750" />
+        </animatorgroup>
+    
+        <animatorgroup name="doNotshowNewPendingOrganizations"
+            start="false" process="simoultanious">
+            <animator attribute="height" to="200" duration="750" />
+            <animator attribute="x" to="$once{ (canvas.width/2 - 540/2) }" duration="750" />
+            <animator attribute="width" to="540" duration="750" />
+        </animatorgroup>       
+    </class>
+    
+</library>

@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<config>
+
+<!-- URL/IP to use for the Server
+    if this value is empty it will try to connect to the 
+    domain-name the OpenMeetings-Client has been loading from  
+    -->
+<rtmphostlocal>192.168.254.85</rtmphostlocal>
+
+<!--  
+Port to use for the Server
+To this port the default server lookup is done
+
+You can find all this configuraiton in your red5-Config in: $RED5_HOME/conf/red5.properties
+ -->
+<rtmpport>1935</rtmpport>
+
+<!-- 
+Port to use for the Server
+To this port the fallback is done once the default rtmport failed
+this should workaround 99% of all firewalls
+ -->
+<rtmpTunnelport>8088</rtmpTunnelport>
+
+<!-- 
+Port to use for the Server
+This port is used to connec to the http-servlet
+of the red5-servlet
+ -->
+<httpport>5080</httpport>
+	  
+<!--
+	These colors are the main colors and style the hole application
+ -->
+<basebgcolorizer>0xCCCCCC</basebgcolorizer>
+<baseMousecolorizer>0xDDDDDD</baseMousecolorizer>
+<baseMouseOvercolorizer>0xDDDDDD</baseMouseOvercolorizer>
+	
+<connectorPointColor>0xFF3300</connectorPointColor>
+	
+<!-- 
+	Version number of this distro
+ -->
+<currentappversion>Version Alpha</currentappversion>
+    
+<!--
+    Name of the Application
+    this is the Top-Icon Name of the Application
+ -->    
+<currentappname>i4Change r237</currentappname>    
+    
+<!-- 
+    URL to the Home of the Application
+    this is the URL which is used if you click on the Top-icon
+-->    
+<currentappnameurl>http://www.i4change.com</currentappnameurl>        
+
+<!--
+    URL to Bugs/Support
+    this is the URL which is used if you click on *report a bug*
+ -->
+<currentappnamebugurl>http://www.webbase-design.de:8580/secure/Dashboard.jspa</currentappnamebugurl>   
+        
+<!--
+    Video-Settings
+    this value is used in Audio_Streaming, at which the *activity-meter* will
+    send a notification for all connected hosts of a conference
+    the result of this notification is that you see the green-light highlighted if
+    a remote user is speaking
+ -->
+<loudnessAcitviation>7</loudnessAcitviation>   
+    
+<!--
+    OpenMeetings-Webapp Name
+    This is the name of the WebApp the Client will try to connect
+    in former versions (till 0.5 Beta7) the name was xmlcrm
+    the same param kann be find in the webapp in the Red5-Webapp
+    red5-web.properties
+    web.xml
+ -->
+<webAppRootKey>i4change</webAppRootKey>  
+    
+<!--
+    Window-Effect Settings
+    showWindowEffect-values:
+    y = yes
+    n = no
+    showWindowEffectOpacity-values
+    between 0 and 1
+ -->
+<showWindowEffect>y</showWindowEffect>    
+	
+<!--
+	First day in the Week used by the Calendar
+	0 means Sunday
+	1 means Monday
+	this is the way how the Celendar inits a week
+-->
+<firstdayinweek>1</firstdayinweek>	
+	
+<!-- default Object sizes -->
+<defaultProcessGroupWidth>140</defaultProcessGroupWidth>
+<defaultProcessGroupHeight>80</defaultProcessGroupHeight>
+
+<defaultProcessWidth>140</defaultProcessWidth>
+<defaultProcessHeight>80</defaultProcessHeight>
+
+<defaultActicityWidth>140</defaultActicityWidth>
+<defaultActicityHeight>80</defaultActicityHeight>
+
+<defaultCompanyWidth>140</defaultCompanyWidth>
+<defaultCompanyHeight>80</defaultCompanyHeight>
+
+<defaultDepartementWidth>140</defaultDepartementWidth>
+<defaultDepartementHeight>80</defaultDepartementHeight>
+
+<defaultUnitWidth>140</defaultUnitWidth>
+<defaultUnitHeight>80</defaultUnitHeight>
+    
+<defaultRoleWidth>280</defaultRoleWidth>
+<defaultRoleHeight>160</defaultRoleHeight>    
+
+<defaultInputFlowWidth>140</defaultInputFlowWidth>
+<defaultInputFlowHeight>80</defaultInputFlowHeight>
+
+<defaultOutFlowWidth>140</defaultOutFlowWidth>
+<defaultOutFlowHeight>80</defaultOutFlowHeight>
+	
+<!-- configuration of system default keys -->
+<!-- key 16 == SHIFT -->
+<defaultOptionmenuKeyNumber>16</defaultOptionmenuKeyNumber>
+<!-- key 17 == STRG on Windows or Apple-Key on OSX -->
+<continousCreationKey>17</continousCreationKey>
+    
+    
+<defaultDiagramHeight>1600</defaultDiagramHeight>
+<defaultDiagramWidth>2400</defaultDiagramWidth>
+
+
+<currentConnectorStroke>0x666666</currentConnectorStroke>
+
+
+<snapWidth>160</snapWidth>
+<snapHeight>80</snapHeight>
+
+<snapWidthGridX>16</snapWidthGridX>
+<snapHeightGridY>16</snapHeightGridY>
+        
+</config>

@@ -1,0 +1,28 @@
+<invoice>
+  <invoiceNumber>25</invoiceNumber>
+  <invoiceString>2009-25</invoiceString>
+  <transactionPaypal>
+    <transactionId>28</transactionId>
+    <transActionPaypalId>6UG90415J4612232C</transActionPaypalId>
+    <amount>39.95</amount>
+    <paidDate class="sql-timestamp">2009-01-22 10:45:27.0</paidDate>
+    <status>Completed</status>
+    <inserted class="sql-timestamp">2009-01-22 10:45:26.0</inserted>
+    <numberOfLicenses>1</numberOfLicenses>
+    <amountStartTransaction>39.95</amountStartTransaction>
+    <startTransaction class="sql-timestamp">2009-01-22 10:44:49.0</startTransaction>
+    <firstName>Sebastian</firstName>
+    <lastName>Wagner</lastName>
+    <firstNameBilling>Sebastian</firstNameBilling>
+    <lastNameBilling>Wagner</lastNameBilling>
+    <address__1>Bleichstraße 92</address__1>
+    <address__2></address__2>
+    <city>Pforzheim</city>
+    <countryCode>DE</countryCode>
+    <countryAsName>Germany</countryAsName>
+    <State>selected</State>
+    <zip>75173</zip>
+  </transactionPaypal>
+  <inserted>2009-01-22 10:45:59.987 CET</inserted>
+  <description>i4Change License 1 Year Single User</description>
+</invoice>

@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+	
+<dataset name="userDefiniedTypes">
+	<item value="" />
+	<item value="registrationPod" />
+	<item value="feedbackPod" />
+</dataset>	
+
+<dataset name="webSiteLayoutDS">
+	<item value="" />
+	<item value="bottomLeftSquare" />
+</dataset>
+
+<!--- configuration edit panel. -->
+<class name="webSiteAdminValueForm" extends="baseContentSaveView">
+
+	<!-- recordContent-id -->
+	<attribute name="webItemId" value="0" type="number" />
+    <attribute name="obj" value="null" />
+	
+	<!--handlers -->
+
+	<handler name="onsavecompleted" >
+		this.getWebItemById.doCall();
+	</handler>
+	
+	<handler name="onreload" >
+		if (this.webItemId!=0) this.getWebItemById.doCall();
+	</handler>	
+
+	<handler name="onnew">
+		this.webItemId=0;
+        this.webItemName.setAttribute('text','');
+        this.webItemImagepath.setAttribute('text','');
+        this.typeName.selectItemAt(0);
+        this.position.selectItemAt(0);
+        this._rte.setText('');
+        this.isRoot.setValue(false);
+        this.isMasterRoot.setValue(false);
+        this.webItemLayout.selectItemAt(0);
+        this.changeOnlyNeeded.setValue(false);
+        this.videoURL.setAttribute('text','');
+        this.userDefiniedType.selectItemAt(0);
+        this.isHelpItem.setValue(false);
+        this.parent.orderInt.setAttribute("text","");
+        
+        this._parentItems.clearList();
+        this._childItems.clearList();
+	</handler>
+	
+    <handler name="ondelete" >
+		if (this.webItemId!=0){
+            this.deleteWebItem.doCall();
+		}
+    </handler>
+	
+	<!-- methods -->
+
+    <method name="initValueFieldsByObject" args="obj">
+		this.webItemId = obj.webItemId;
+		if (this.webItemId!=0){
+			this.getWebItemById.doCall();
+		}
+    </method>
+    
+    <method name="initFields" args="obj">
+    	<![CDATA[
+            if ($debug) Debug.write("initFields: ",obj);
+            this.obj = obj;
+            if (obj == null) {
+            	this.onnew.sendEvent();
+            	return;
+            }
+			this.webItemName.setAttribute('text',obj.webItemName);
+	        this.webItemImagepath.setAttribute('text',obj.webItemImagepath);
+	        this.typeName.selectItem(""+obj.webItemType.webItemTypeId);
+	        this.position.selectItem(""+obj.position);
+            this._rte.setText(obj.webItemText);
+	        this.isRoot.setValue(obj.isRoot);
+            this.changeOnlyNeeded.setValue(obj.changeOnlyNeeded);
+	        this.videoURL.setAttribute('text',obj.videoURL);
+	        this.userDefiniedType.selectItem(obj.userDefiniedType);
+	        
+	        if (obj.isMasterRoot == null) {
+	        	this.isMasterRoot.setValue(false);
+	        } else {
+	            this.isMasterRoot.setValue(obj.isMasterRoot);
+	        }
+	        
+	        if (obj.webItemLayout == null) {
+	        	this.webItemLayout.selectItemAt(0);
+	        } else {
+	            this.webItemLayout.selectItem(obj.webItemLayout);
+	        }
+	        
+	        if (obj.isHelpItem == null) {
+                this.isHelpItem.setValue(false);
+            } else {
+                this.isHelpItem.setValue(obj.isHelpItem);
+            }
+            
+            if (obj.orderInt == null) {
+            	this.orderInt.setAttribute("text","");
+            } else {
+                this.orderInt.setAttribute("text",obj.orderInt);
+            }
+            
+            this._parentItems.clearList();
+            this._childItems.clearList();
+            
+            for (var i=0;i<obj.childItems.length;i++) {
+                this._childItems.addItem(obj.childItems[i].childItem.webItemName,obj.childItems[i].child_webitem_id);
+            }
+            
+            for (var i=0;i<obj.parentItems.length;i++) {
+                this._parentItems.addItem(obj.parentItems[i].parentItem.webItemName,obj.parentItems[i].parent_webitem_id);
+            }
+            
+        ]]>
+    </method>
+	
+	<!-- remotecalls -->
+    
+  	<netRemoteCallRPC name="getWebItemById" funcname="getWebItemById" 
+  		remotecontext="$once{  canvas.websiteServiceRPC }" > 
+  		<attribute name="counter" value="0" type="number" />
+  		<netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+    	<netparam><method name="getValue">return parent.parent.webItemId;</method></netparam>
+    	<handler name="ondata" args="value">
+    		<![CDATA[
+                if ($debug) Debug.write("getWebItemById: ",parent.webItemId,value);
+                if (value == null) {
+                	if (this.counter < 3) {
+                    	this.counter++;
+                    	this.doCall();
+                	} else {
+                		this.counter = 0;
+                	}
+                } else {
+                	this.counter = 0;
+        		    parent.initFields(value);
+                }
+            ]]>
+    	</handler>
+  	</netRemoteCallRPC>
+	
+	<netRemoteCallRPC name="deleteWebItem" funcname="deleteWebItem" 
+                      remotecontext="$once{  canvas.websiteServiceRPC }" >      
+        <attribute name="sendObject" value="null" />
+		<method name="prepareCall">
+  		</method>
+  		<netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+    	<netparam><method name="getValue">return parent.parent.webItemId;</method></netparam>	
+        <handler name="ondata" args="value">
+			//if ($debug) Debug.write("deleteWebItem ",value);
+            this.parent.onnew.sendEvent();
+            this.parent.parent._turnoverlist.oncallnext.sendEvent();
+		</handler>
+	</netRemoteCallRPC>		
+
+
+  	<netRemoteCallRPC name="saveOrUpdateWebItem" funcname="saveOrUpdateWebItem" 
+  		remotecontext="$once{  canvas.websiteServiceRPC }" registerObject="true" >   
+		<attribute name="sendObject" value="null" />
+		<!-- gets called by Observer -->
+  		<method name="prepareCall">
+  			this.sendObject=new Object();
+            this.sendObject["webItemId"] = this.parent.webItemId;
+            this.sendObject["webItemName"] = this.parent.webItemName.getText();
+            this.sendObject["webItemImagepath"] = this.parent.webItemImagepath.getText();
+            this.sendObject["webItemTypeId"] = Number(this.parent.typeName.getValue());
+            this.sendObject["position"] = Number(this.parent.position.getValue());
+            this.sendObject["webItemText"] = parent._rte.getText();
+            this.sendObject["isRoot"] = this.parent.isRoot.getValue();
+            this.sendObject["changeOnlyNeeded"] = this.parent.changeOnlyNeeded.getValue();
+            this.sendObject["videoURL"] = this.parent.videoURL.getText();
+            this.sendObject["userDefiniedType"] = this.parent.userDefiniedType.getValue();
+            
+            this.sendObject["isMasterRoot"] = this.parent.isMasterRoot.getValue();
+            this.sendObject["webItemLayout"] = this.parent.webItemLayout.getValue();
+            
+        	this.sendObject["orderInt"] = this.parent.orderInt.getText();
+            
+            this.sendObject["isHelpItem"] = this.parent.isHelpItem.getValue();
+            
+            this.sendObject["parentItems"] = this.parent._parentItems.getAllItems();
+            this.sendObject["childItems"] = this.parent._childItems.getAllItems();
+            
+            //if ($debug) Debug.write("prepareCall: ",this.sendObject);
+  		</method>
+  		<netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+    	<netparam><method name="getValue">return parent.sendObject;</method></netparam>	  		
+    	<handler name="ondata" args="val">
+			<![CDATA[
+    		//if ($debug) Debug.write("saveOrUpdateWebItem ",val);
+			if (val>0){
+				//Debug.write("updateConfByConfigurationId val greater 0: ",val);
+				this.parent.parent._turnoverlist.oncallnext.sendEvent();
+				var obj = new Array();
+				obj["webItemId"] = val;
+				this.parent.initValueFieldsByObject(obj);
+			}
+			]]>
+    	</handler>
+  	</netRemoteCallRPC>	
+	
+	<!-- content -->
+    
+    <labelText labelid="1207" width="200" y="40" resize="false" fontstyle="bold" />
+    
+    <labelText labelid="1199" width="200" y="70" resize="false" x="2"/>
+        <customEdittext name="webItemName" y="70" x="120" width="270" text="" />
+
+    <labelText labelid="1200" width="200" y="100" resize="false" x="2"/>
+        <omComboBox name="typeName" width="270" y="100" x="120" editable="false" fontsize="11">
+            <handler name="oninit" >
+                <![CDATA[
+                    for (var i=0;i<canvas.webItemTypes.length;i++) {
+                        ////if ($debug) Debug.write("Label Number: ",hib.webItemTypes[i].label_number);
+                        ////if ($debug) Debug.write("Label webItemTypeId: ",hib.webItemTypes[i].webItemTypeId);
+                        this.addItem(canvas.getLabelName(canvas.webItemTypes[i].label_number),canvas.webItemTypes[i].webItemTypeId);
+                    }
+                    this.selectItemAt(0);
+                ]]>
+            </handler> 
+        </omComboBox>
+        
+    <labelText labelid="1347" width="200" y="130" resize="false" x="2"/>
+        <omComboBox name="userDefiniedType" width="270" y="130" x="120" editable="false" fontsize="11">
+        	<handler name="oninit" >
+                <![CDATA[
+                    this.selectItemAt(0);
+                ]]>
+            </handler> 
+            <textlistitem datapath="userDefiniedTypes:/item/" value="$path{ '@value' }" text="$path{ '@value' }" />
+        </omComboBox>        
+
+    <labelText labelid="1201" width="200" y="160" resize="false" x="2"/>
+        <customEdittext name="webItemImagepath" y="160" x="120" width="270" text="" />
+        
+    <labelText labelid="1214" width="200" y="190" resize="false" x="2"/>
+        <customEdittext name="videoURL" y="190" x="120" width="270" text="" />
+        
+    <labelText labelid="1203" width="200" y="220" resize="false" x="2"/>
+        <omComboBox name="position" width="270" y="220" x="120" editable="false" fontsize="11">
+            <handler name="oninit" >
+                <![CDATA[
+                    for (var i=1;i<10;i++) {
+                        this.addItem(""+i,i);
+                    }
+                    this.selectItemAt(0);
+                ]]>
+            </handler> 
+        </omComboBox>
+        
+    <labelCheckbox name="isMasterRoot" labelid="1350" y="250" x="200" /> 
+   
+    <labelCheckbox name="isRoot" labelid="1204" y="250" x="4" /> 
+    
+    <labelCheckbox name="changeOnlyNeeded" labelid="1215" y="280" x="4" />
+    
+    <labelCheckbox name="isHelpItem" labelid="1397" y="310" x="4" />
+    
+    <labelText labelid="1406" width="200" y="340" resize="false" x="2"/>
+        <customEdittext name="orderInt" y="340" x="120" width="270" 
+        				regexpType="number" text="" />
+    
+    <labelText labelid="1351" width="200" y="370" resize="false" x="2"/>
+        <omComboBox name="webItemLayout" width="270" y="370" x="120" editable="false" fontsize="11">
+            <handler name="oninit" >
+                <![CDATA[
+                    this.selectItemAt(0);
+                ]]>
+            </handler> 
+            <textlistitem datapath="webSiteLayoutDS:/item/" value="$path{ '@value' }" text="$path{ '@value' }" />
+        </omComboBox>        
+         
+    <rte y="400" x="0" name="_rte" height="300" />
+    
+    <labelText labelid="1216" width="200" y="690" resize="false" x="2"/>
+    <simpleValueList name="_parentItems" y="690" x="120" width="270" height="190" 
+        multiselect="true" itemclassname="simpleListItemAdv"/>   
+        <view x="400" y="690" oninit="this.setSource(canvas.getIconPathByName('icon_add_item_website_rsc'))">
+            <method name="addItem" args="obj">
+                //if ($debug) Debug.write("addItem",obj,obj.obj);
+                this.parent._parentItems.addItem(obj.obj.webItemName,obj.obj.webItemId);
+            </method>
+            <handler name="onclick">
+                //if ($debug) Debug.write("webSiteAdminSearchBox");
+                new lz.webSiteAdminSearchBox(canvas,{refObj:this});
+            </handler>
+            <labelTooltip labelid="1218" />
+        </view>   
+    
+    <labelText labelid="1217" width="200" y="890" resize="false" x="2"/>
+    <simpleValueList name="_childItems" y="890" x="120" width="270" height="190" 
+        multiselect="true" itemclassname="simpleListItemAdv"/>     
+        <view x="400" y="890" oninit="this.setSource(canvas.getIconPathByName('icon_add_item_website_rsc'))">
+            <method name="addItem" args="obj">
+                //if ($debug) Debug.write("addItem",obj,obj.obj);
+                this.parent._childItems.addItem(obj.obj.webItemName,obj.obj.webItemId);
+            </method>
+            <handler name="onclick">
+                //if ($debug) Debug.write("webSiteAdminSearchBox");
+                new lz.webSiteAdminSearchBox(canvas,{refObj:this});
+            </handler>
+            <labelTooltip labelid="1218" />
+        </view>  
+        
+</class>
+
+</library>

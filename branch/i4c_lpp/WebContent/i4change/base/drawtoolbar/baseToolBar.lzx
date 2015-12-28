@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+	
+<class name="baseToolBar" extends="toolnaviinspector" >
+	
+	<attribute name="objectRef" value="null" />
+	
+	<method name="setSelection" args="obj">
+		<![CDATA[
+			//If you select the same item twice, then reset again to selection tool
+			if (this.objectRef == obj && obj.modi != "hand_single") {
+				obj = this.doSelectItem("hand_single");
+				
+			} 
+			
+			if (obj.setSelectionToItem){			
+				if (this.objectRef!=null){
+					this.objectRef._isselected = false;
+					this.objectRef._area.setAttribute('bgcolor',0xFFFFFF);
+				}
+				this.objectRef = obj;
+				this.objectRef._isselected = true;
+				//if ($debug) Debug.write(this.objectRef);
+				//if ($debug) Debug.write(this.objectRef._area);
+				this.objectRef._area.setAttribute('bgcolor',canvas.basebgcolorizer);
+				parent._scrollcontent.dragArea.contentArea._currentBoard.setModus(this.objectRef.modi);
+			} else {
+	            parent._scrollcontent.dragArea.contentArea._currentBoard.setModus(obj.modi);
+	            //reset to the previous status
+	            parent._scrollcontent.dragArea.contentArea._currentBoard.setModus(this.objectRef.modi);
+	        }
+        ]]>
+	</method>
+	
+	
+	<method name="doSelectItem" args="modi">
+		<![CDATA[
+			//if ($debug) Debug.write("doSelectItem",modi);	
+			for (var i=0;i<this._area.subviews.length;i++) {
+				////if ($debug) Debug.write("this._area.subviews[i]",this._area.subviews[i].modi);
+				if (this._area.subviews[i].modi == modi) {
+					//if ($debug) Debug.write("Found it;")
+					this._area.subviews[i].onmouseup.sendEvent(this);
+					return this._area.subviews[i];
+				}
+			}
+		]]>
+	</method>	
+	
+</class>
+
+</library>

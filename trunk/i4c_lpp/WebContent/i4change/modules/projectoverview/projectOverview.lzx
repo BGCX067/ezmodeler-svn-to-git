@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+<!--- Configuration module for ADMIN -->
+<class name="projectOverview"  extends="baseContentTabbedView" labelid="263"> 
+        
+    <handler name="oninit">
+        //Add Help Item
+        canvas.addCurrentHelpId(40,this.__constructor__.classname);
+    </handler> 
+    
+	<view>
+		
+		<handler name="oninit">
+			if (canvas.toGeneratedProject != 0) {
+				this.startGenerateOverview.projectId = canvas.toGeneratedProject;
+				this.startGenerateOverview.doCall();
+			}
+		</handler>
+	
+	    <netRemoteCallRPC name="startGenerateOverview" funcname="startGenerateOverview" 
+	        remotecontext="$once{  canvas.reportServiceRPC }" activeErrorHandler="true" >
+	        <attribute name="projectId" value="" type="string" />         
+	        <netparam><method name="getValue">return canvas.sessionId;</method></netparam>
+	        <netparam><method name="getValue">return parent.projectId;</method></netparam>
+	        <netparam><method name="getValue">return canvas.currentdomainObj.organisation_id;</method></netparam>
+	        <handler name="ondata" args="value">
+	            <![CDATA[
+	                //The onResult-Handler will be called be the rtmpconnection
+	                //if ($debug) Debug.write("startGeneratePreview: ",value);
+	                canvas.toGeneratedProject = 0;
+	                if (value > 0) {
+	                    
+	                }
+	            ]]>
+	        </handler>  
+	    </netRemoteCallRPC> 
+    
+    </view>
+    
+    <vscrollbar name="_scrollbar" />
+        
+</class>
+
+</library>

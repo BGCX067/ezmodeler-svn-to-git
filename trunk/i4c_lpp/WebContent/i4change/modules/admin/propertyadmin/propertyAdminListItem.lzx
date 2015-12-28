@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+<!--- Configuration list. It shows ID-KEY pairs. -->
+<class name="propertyAdminListItem" extends="baseContentListItem">
+	
+	<attribute name="propertyId" value="0" type="number" />
+	<attribute name="propertyName" value="" type="string" />
+    <attribute name="organisation" value="" type="string" />
+    <attribute name="objectTypeName" value="" type="string" />
+	
+	<turnOverTextItem text="$once{ parent.propertyId }" width="80" />
+	<turnOverTextItem text="$once{ parent.propertyName }" width="166" />
+    <turnOverTextItem text="$once{ parent.organisation }" width="140" />
+    <turnOverTextItem text="$once{ parent.objectTypeName }" width="140" />
+	
+</class>
+
+</library>

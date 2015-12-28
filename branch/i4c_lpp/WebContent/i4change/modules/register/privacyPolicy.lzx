@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+    
+<class name="privacyPolicy" extends="labelExplorerBox" labelid="1078"
+    docking="true" resizeable="false" closable="true" width="400" x="400" y="0" height="490">
+    
+    <labelText labelid="1079" width="390" y="24" 
+               multiline="true" resize="false" x="5"/>
+    
+    <simpleLabelButton labelid="1017" width="100" x="$once{ parent.width - 110 }" 
+                       y="$once{ parent.height - 26 }">
+        <handler name="onclick">
+            this.parent.close();
+        </handler>
+    </simpleLabelButton>   
+	
+</class>
+
+</library>

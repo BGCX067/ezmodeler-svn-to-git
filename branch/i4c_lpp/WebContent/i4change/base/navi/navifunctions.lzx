@@ -1,0 +1,416 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+<script>
+<![CDATA[
+var labelObj;
+    
+var tempActionForNavi = '';
+
+// Load Labels from List
+var labels = new Array();
+
+function setLabelObjectByHundred(no,obj){
+    ////if($debug) Debug.write("FUNC/setLabelObjectByHundred");
+    if(no!=0) no = Math.floor(no/100);
+    ////if ($debug) Debug.write("SetLabelObject: ",no,obj);
+    labels[no] = obj;
+}
+
+function getLabelTag(labelid){
+    ////if($debug) Debug.write("FUNC/getLabelTag",labelid);
+    var no = Math.floor(labelid/100);
+    return getLabelTagByNo(no,labelid);
+}
+
+function saveOrUpdaeLabelTagByObject(labelObj){
+    ////if($debug) Debug.write("FUNC/getLabelTag",labelid);
+    var no = Math.floor(labelObj.label_number/100);
+    var l = labels[no];
+    
+    for (var eg=0;eg<=l.length;eg++){
+        if (l[eg].label_number==labelObj.label_number){
+            ////if($debug) Debug.write("FUNC/getLabelTagByNo",no,labelid,l[eg].value);
+            //canvas.checkLabelByIDMethod(labelid,l[eg].value);
+            l[eg].value = labelObj.value;
+            return;
+        }
+    }
+    labels[no].push(labelObj);
+}
+
+function getLabelTagByNo(no,labelid){
+    var labeltag = "";
+    var l = labels[no]
+    ////if ($debug) Debug.write("Search label tag in: ",labelid,no,labels[no]);
+    ////if ($debug) Debug.write("Search label tag in: ",5,labels[5]);
+    for (var eg=0;eg<=l.length;eg++){
+        if (l[eg].label_number==labelid){
+            ////if($debug) Debug.write("FUNC/getLabelTagByNo",no,labelid,l[eg].value);
+            //canvas.checkLabelByIDMethod(labelid,l[eg].value);
+            if ($debug) {
+                return l[eg].value+" ["+labelid+"]";
+            }
+            return l[eg].value;
+        }
+    }
+    if (labelid == 0) {
+    	return '';
+    }
+    return 'error';
+}
+
+function quicklink(action){
+    //if($debug) Debug.write("FUNC/quicklink",action);
+    
+	//We have to check this before processing any menu action
+	if (canvas.currentDiagramRef != null) {
+		if (!canvas.currentDiagramRef.leaveDiagram()){
+			//In this case something needs to be saved on the current diagram
+			return;
+		}
+	}	
+    mainmenuList.doAction(action);
+}   
+    
+function quicklinkAct(action){
+    //if($debug) Debug.write("FUNC/quicklinkAct",action);
+    
+	//We have to check this before processing any menu action
+	if (canvas.currentDiagramRef != null) {
+		if (!canvas.currentDiagramRef.leaveDiagram()){
+			//In this case something needs to be saved on the current diagram
+			return;
+		}
+	}
+    var t = new Array();
+    t.action = action;
+    loadContent(t,null,null);
+}            
+
+function loadContent(obj,parentobj,preparentobj){
+    //if($debug) Debug.write("FUNC/loadContent: ",obj.action);
+    
+    tempActionForNavi = obj.action;
+    
+    //reset the canvas.currentDrillDownType if its not a Drill-Down
+    if (! canvas.isTempNewlyCreated) {
+        canvas.currentDrillDownType = null;
+    }
+    
+    if (obj.action == "roleView"
+        || obj.action == "processgroup"
+        || obj.action == "singleRole"
+        || obj.action == "hierarchical") {
+        if (canvas.diagramObjectIsOpen){
+            //if ($debug) Debug.write("Already Open Do Not Clear Content");
+            loadContentByTempActionForNavi();
+        } else {
+            if (!clearStageContent(obj)) {
+	            loadContentByTempActionForNavi();
+	        }
+        }
+    } else {
+        //canvas.diagramObjectIsOpen = false;
+        //if (!clearStageContent(obj)) {
+	    //    loadContentByTempActionForNavi();
+	    //}
+        //Goto Dashboard and Replace the current Dashboard with the new Content
+        
+        loadContentByTempActionForNavi();
+        
+    }
+    
+}
+    
+
+
+    /*if (tempActionForNavi!="logout"){
+        if (tempActionForNavi == "processgroup" 
+                || tempActionForNavi == "roleView"
+                || tempActionForNavi == "singleRole"
+                || tempActionForNavi == "hierarchical") {
+            if (canvas.diagramObjectIsOpen){
+                //if ($debug) Debug.write("diagramObjectIsOpen already Open");
+                new lz[tempActionForNavi](canvas.main_content._content.inner._mainDiagram.contentArea);
+            } else {
+                //Clear Help Labels
+                canvas.clearCurrentHelpIds();
+                _currentUserHeaderMenu.setAttribute('y',0);
+                _currentUserHeaderMenu.bringToFront();
+                //if ($debug) Debug.write("diagramObjectIsOpen INIT Open");
+                canvas.setAttribute('naviHeight',28);
+                canvas._mainbgcontentNavi.setAttribute('visibility','hidden');
+                new lz.mainDiagram(canvas.main_content._content.inner,{name:'_mainDiagram'});
+                canvas.diagramObjectIsOpen = true;
+                new lz[tempActionForNavi](canvas.main_content._content.inner._mainDiagram.contentArea);
+            }
+        } else {
+            lz.Browser.loadJS('changeTitle("i4Change")');
+            //Clear Help Labels
+            canvas.clearCurrentHelpIds();
+            _currentUserHeaderMenu.setAttribute('y',58);
+            canvas._roleViewMenubar.setAttribute('visibility','hidden');
+            canvas._processgroupMenubar.setAttribute('visibility','hidden');
+            canvas._hierarchicalMenubar.setAttribute('visibility','hidden');         
+            canvas._singleRoleMenubar.setAttribute('visibility','hidden');
+            canvas.setAttribute('naviHeight',110);
+            canvas._mainbgcontentNavi.setAttribute('visibility','visible');
+            // //if($debug) Debug.write("FUNC/loadContentByString ",tempActionForNavi);
+            new lz[tempActionForNavi](canvas.main_content._content.inner);
+        }
+    } else {
+        canvas._mainbgcontentNavi.navi.destroy();
+        canvas._mainbgcontentNavi.help.destroy();
+         canvas.logoutUser.doCall();
+    }*/
+
+function loadContentByTempActionForNavi(){
+    //if($debug) Debug.write("FUNC/loadContentByTempActionForNavi: ",tempActionForNavi,canvas.main_content);
+
+    if (tempActionForNavi=="aboutPopup") {
+        new lz.aboutPopup(canvas);
+    } else if (tempActionForNavi!="logout"){
+        if (tempActionForNavi != "processgroup" 
+                && tempActionForNavi != "roleView"
+                && tempActionForNavi != "singleRole"
+                && tempActionForNavi != "hierarchical") {
+            lz.Browser.loadJS('changeTitle("i4Change")');
+        }
+ 
+        if (canvas.diagramObjectIsOpen){
+            //if ($debug) Debug.write("diagramObjectIsOpen already Open");
+            new lz[tempActionForNavi](canvas.main_content._content.inner._mainDiagram.contentArea);
+        } else {
+            //Clear Help Labels
+            canvas.clearCurrentHelpIds();
+            _currentUserHeaderMenu.setAttribute('y',0);
+            _currentUserHeaderMenu.bringToFront();
+            //if ($debug) Debug.write("diagramObjectIsOpen INIT Open");
+            canvas.setAttribute('naviHeight',28);
+            canvas._mainbgcontentNavi.setAttribute('visibility','hidden');
+            new lz.mainDiagram(canvas.main_content._content.inner,{name:'_mainDiagram'});
+            canvas.diagramObjectIsOpen = true;
+            new lz[tempActionForNavi](canvas.main_content._content.inner._mainDiagram.contentArea);
+        }
+
+    } else {
+        _currentUserHeaderMenu.setAttribute('visibility','hidden');
+        canvas._dashboardMenubar.destroy();
+        canvas._roleViewMenubar.destroy();
+        canvas._processgroupMenubar.destroy();
+        canvas._hierarchicalMenubar.destroy();
+        canvas._singleRoleMenubar.destroy();      
+        clearStageContent(null);
+        canvas.userAutoLoggedIn = false;
+        canvas.userStoredHash = "";
+        var t = new lz.sharedObject();
+        t.getLocal('userdata');
+        var g = t.getData('userdata');
+        if (g==null) g = new Array();
+        g["rememberme"] = false;
+        g["userhash"] = "";
+        t.setData('userdata',g);
+        t.flush(); 
+        mainServiceRPC.logoutUser.doCall();
+    }
+}    
+
+function getTempActionname() {
+    return tempActionForNavi;
+}
+
+function clearStageContent(obj){
+    // //if($debug) Debug.write("FUNC/clearStageContent: ",obj);
+    //can be called with zero arguments
+    //if (arguments.length!=0) obj.parent.parent.clearAllSubItemLists();  
+    
+    return canvas.main_content._content.clearAll();
+}
+function setLabelObject(labelObjRef){
+    // //if($debug) Debug.write("FUNC/setLabelObject",labelObjRef);
+    labelObj = labelObjRef;
+}
+
+function getLabelNameXMLCRM(labelid){
+    // //if($debug) Debug.write("FUNC/getLabelNameXMLCRM",labelid);
+    for (var i=0;i<labelObj.length;i++){
+        if (labelid==labelObj[i].fieldvalues_id){
+            return labelObj[i].value;
+        }
+    }
+    
+}
+
+function getStringTime(){
+    var dateObj = new Date();
+    var hours = dateObj.getHours();
+    if (hours<10) hours="0"+hours;
+    var minutes = dateObj.getMinutes();
+    if (minutes<10) minutes="0"+minutes;
+    return ''+hours+':'+minutes;
+}    
+
+function parseDateToString(dateObj){
+    //if($debug) Debug.write("FUNC/parseDateToString",dateObj);
+    
+    if (dateObj==null || dateObj=="null" || dateObj==undefined) return "";
+    
+	if (dateObj instanceof Date) {
+        
+        //if($debug) Debug.write("FUNC/parseDateToString DATE ",dateObj);
+        
+        var d = dateObj.getDate();
+        if (d<10) d = "0"+d;
+        var m = dateObj.getMonth()+1;
+        if (m<10) m = "0"+m;
+        var y = dateObj.getFullYear();
+        if (y<10) y = "0"+y;
+        return d+'.'+m+'.'+y;
+    } else if (typeof dateObj === "string") {
+        
+        //if($debug) Debug.write("FUNC/parseDateToString String ",dateObj);
+        if (dateObj.length == 21) {
+            //Then the Format must be 2009-04-07 14:54:04.0
+            //                        012345678901234567890
+            var d = dateObj.substr(8, 2);
+            var mo = dateObj.substr(5, 2);
+            var y = dateObj.substr(0, 4);
+            return d+'.'+mo+'.'+y;
+        } else if (dateObj.length == 19) {
+            //Then the Format must be 14.04.2009 13:13:34
+            //                        0123456789012345678
+            var d = dateObj.substr(0, 2);
+            var mo = dateObj.substr(3, 2);
+            var y = dateObj.substr(6, 4);
+            return d+'.'+mo+'.'+y;
+        }
+        return "";
+    } else {
+		
+		//if($debug) Debug.write("FUNC/parseDateToString OBJ ",dateObj);
+		
+		if (dateObj.class == "java.sql.Timestamp") {
+			var d = dateObj.date;
+	    	if (d<10) d = "0"+d;
+	    	var m = dateObj.month+1;
+		    if (m<10) m = "0"+m;
+		    var y = 1900+dateObj.year;
+		    if (y<10) y = "0"+y;
+		    return d+'.'+m+'.'+y;
+		}
+		
+		return "";
+	}
+}
+
+function parseDateToStringTime(dateObj){
+    //if($debug) Debug.write("FUNC/parseDateToStringTime",dateObj);
+    
+    if (dateObj==null || dateObj=="null" || dateObj==undefined) return "";
+    
+	if (dateObj instanceof Date) {
+	    var d = dateObj.getDate();
+	    if (d<10) d = "0"+d;
+	    var mo = dateObj.getMonth()+1;
+	    if (mo<10) mo = "0"+mo;
+	    var y = dateObj.getFullYear();
+	    if (y<10) y = "0"+y;
+	    var h = dateObj.getHours();
+	    if (h<10) h = "0"+h;    
+	    var m = dateObj.getMinutes();
+	    if (m<10) m = "0"+m;        
+	    return d+'.'+mo+'.'+y+' '+h+':'+m;
+	} else if (typeof dateObj === "string") {
+        
+        //if($debug) Debug.write("FUNC/parseDateToString String ",dateObj);
+        if (dateObj.length == 21) {
+        	//Then the Format must be 2009-04-07 14:54:04.0
+        	//                        012345678901234567890
+        	var d = dateObj.substr(8, 2);
+            var mo = dateObj.substr(5, 2);
+            var y = dateObj.substr(0, 4);
+            var h = dateObj.substr(11, 2);
+            var m = dateObj.substr(14, 2);
+            return d+'.'+mo+'.'+y+' '+h+':'+m;
+        } else if (dateObj.length == 19) {
+            //Then the Format must be 14.04.2009 13:13:34
+            //                        0123456789012345678
+            var d = dateObj.substr(0, 2);
+            var mo = dateObj.substr(3, 2);
+            var y = dateObj.substr(6, 4);
+            var h = dateObj.substr(11, 2);
+            var m = dateObj.substr(14, 2);
+            return d+'.'+mo+'.'+y+' '+h+':'+m;
+        }
+        return "";
+    } else {
+		
+		if (dateObj.class == "java.sql.Timestamp") {
+			var d = dateObj.date;
+	    	if (d<10) d = "0"+d;
+	    	var mo = dateObj.month+1;
+		    if (mo<10) mo = "0"+mo;
+		    var y = 1900+dateObj.year;
+		    if (y<10) y = "0"+y;
+		    var h = dateObj.hours;
+		    if (h<10) h = "0"+h;    
+		    var m = dateObj.minutes;
+		    if (m<10) m = "0"+m;
+		    return d+'.'+mo+'.'+y+' '+h+':'+m;
+		}
+		
+	}
+	
+	return "";
+}
+function parseStringToDate(t){
+    // //if($debug) Debug.write("FUNC/parseStringToDate",t);
+    if (t.length==10){
+        var d = Number(t.substring(0, 2));
+        var m = Number(t.substring(3, 5));
+        var y = Number(t.substring(6, 10));
+        if (!isNaN(d) && !isNaN(m) && !isNaN(y)){
+            return new Date(y, m-1, d);
+        } else {
+            return new Date();
+        }
+    } else {
+        return new Date();
+    }
+}
+
+function getStringDateFileSave(){
+    // //if($debug) Debug.write("FUNC/getStringDateFileSave");
+    var dateObj = new Date();
+    var hours = dateObj.getHours();
+    if (hours<10) hours="0"+hours;
+    var minutes = dateObj.getMinutes();
+    if (minutes<10) minutes="0"+minutes;
+    var date = dateObj.getDate();
+    if (date<10) date="0"+date;
+    var month = dateObj.getMonth()+1;
+    if (month<10) month="0"+month;
+    return date+'_'+month+'_'+dateObj.getFullYear()+'_at_'+hours+'_'+minutes;
+}  
+
+function getStringTimePC(){
+    // //if($debug) Debug.write("FUNC/getStringDateFileSave");
+    var dateObj = new Date();
+    var hours = dateObj.getHours();
+    if (hours<10) hours="0"+hours;
+    var minutes = dateObj.getMinutes();
+    if (minutes<10) minutes="0"+minutes;
+    var sec = dateObj.getSeconds();
+    if (sec<10) sec="0"+sec;
+    var date = dateObj.getDate();
+    if (date<10) date="0"+date;
+    var month = dateObj.getMonth()+1;
+    if (month<10) month="0"+month;
+    return ''+date+'_'+month+'_'+dateObj.getFullYear()+'_at_'+hours+':'+minutes+':'+sec+' ('+dateObj.getMilliseconds()+')';
+} 
+
+]]>
+</script>
+
+</library>

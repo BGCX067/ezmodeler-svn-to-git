@@ -1,0 +1,660 @@
+<map>
+  <entry>
+    <string>diagramType</string>
+    <long>2</long>
+  </entry>
+  <entry>
+    <string>diagramName</string>
+    <string>Short2</string>
+  </entry>
+  <entry>
+    <string>diagramMap</string>
+    <vector>
+      <vector>
+        <string>unit</string>
+        <int>4154876</int>
+        <int>2</int>
+        <int>11846910</int>
+        <int>1</int>
+        <int>1</int>
+        <string>null</string>
+        <vector/>
+        <string>null</string>
+        <string>null</string>
+        <boolean>false</boolean>
+        <string>Role [573] 50</string>
+        <int>63</int>
+        <int>0</int>
+        <int>680</int>
+        <int>560</int>
+        <int>660</int>
+        <int>120</int>
+        <string>unit_1246349438110</string>
+      </vector>
+      <vector>
+        <string>inputflow</string>
+        <int>39168</int>
+        <int>2</int>
+        <int>65331</int>
+        <int>1</int>
+        <int>1</int>
+        <string>null</string>
+        <vector/>
+        <vector>
+          <vector>
+            <string>unit_1246349438110</string>
+            <int>63</int>
+            <string>unit</string>
+          </vector>
+        </vector>
+        <string>Inputflow [575] 51</string>
+        <int>61</int>
+        <int>0</int>
+        <int>700</int>
+        <int>580</int>
+        <int>140</int>
+        <int>80</int>
+        <string>inputflow_1246349440164</string>
+      </vector>
+      <vector>
+        <string>processtree</string>
+        <int>16763904</int>
+        <int>2</int>
+        <int>16776960</int>
+        <int>1</int>
+        <int>1</int>
+        <string>null</string>
+        <vector/>
+        <vector>
+          <vector>
+            <string>unit_1246349438110</string>
+            <int>63</int>
+            <string>unit</string>
+          </vector>
+        </vector>
+        <string>Process [568] 52</string>
+        <int>59</int>
+        <int>0</int>
+        <int>860</int>
+        <int>580</int>
+        <int>140</int>
+        <int>80</int>
+        <string>process_1246349441932</string>
+      </vector>
+      <vector>
+        <string>activity</string>
+        <int>16737792</int>
+        <int>2</int>
+        <int>16711422</int>
+        <int>1</int>
+        <int>1</int>
+        <string>null</string>
+        <vector/>
+        <vector>
+          <vector>
+            <string>unit_1246349438110</string>
+            <int>63</int>
+            <string>unit</string>
+          </vector>
+        </vector>
+        <string>Activity [574] 53</string>
+        <int>62</int>
+        <int>0</int>
+        <int>1020</int>
+        <int>580</int>
+        <int>140</int>
+        <int>80</int>
+        <string>activity_1246349443814</string>
+      </vector>
+      <vector>
+        <string>outputflow</string>
+        <int>13369344</int>
+        <int>2</int>
+        <int>16724736</int>
+        <int>1</int>
+        <int>1</int>
+        <string>null</string>
+        <string>null</string>
+        <vector>
+          <vector>
+            <string>unit_1246349438110</string>
+            <int>63</int>
+            <string>unit</string>
+          </vector>
+        </vector>
+        <string>Outputflow [576] 54</string>
+        <int>60</int>
+        <int>0</int>
+        <int>1180</int>
+        <int>580</int>
+        <int>140</int>
+        <int>80</int>
+        <string>outputflow_1246349445358</string>
+      </vector>
+    </vector>
+  </entry>
+  <entry>
+    <string>diagramId</string>
+    <long>0</long>
+  </entry>
+  <entry>
+    <string>diagramObjects</string>
+    <map>
+      <entry>
+        <long>62</long>
+        <org.i4change.app.hibernate.beans.diagram.DiagramObject>
+          <diagramObjectId>62</diagramObjectId>
+          <deleted>false</deleted>
+          <inserted class="sql-timestamp">2009-06-30 10:10:47.0</inserted>
+          <insertedby>
+            <user__id>1</user__id>
+            <age class="sql-timestamp">2009-06-04 21:21:15.0</age>
+            <availible>1</availible>
+            <firstname>Sebastian</firstname>
+            <lastlogin class="sql-timestamp">2009-06-23 12:04:13.0</lastlogin>
+            <lastname>Wagner</lastname>
+            <lasttrans>0</lasttrans>
+            <level__id>3</level__id>
+            <login>swagner</login>
+            <password>519edbe68ddca5be0c26ed1d4807bdd2</password>
+            <regdate class="sql-timestamp">2009-06-04 21:21:15.0</regdate>
+            <status>1</status>
+            <title__id>1</title__id>
+            <starttime class="sql-timestamp">2009-06-04 21:21:15.0</starttime>
+            <deleted>false</deleted>
+            <language__id>1</language__id>
+            <adresses>
+              <adresses__id>1</adresses__id>
+              <additionalname>92</additionalname>
+              <comment></comment>
+              <fax>fax</fax>
+              <starttime class="sql-timestamp">2009-06-04 21:21:15.0</starttime>
+              <states>
+                <country__id>80</country__id>
+                <name>Germany</name>
+                <paypal>DE</paypal>
+                <starttime class="sql-timestamp">2009-06-04 21:21:09.0</starttime>
+                <deleted>false</deleted>
+              </states>
+              <state__id>0</state__id>
+              <street>Bleichstrasse</street>
+              <town>Pforzheim</town>
+              <zip>75173</zip>
+              <emails class="org.hibernate.collection.PersistentSet">
+                <initialized>true</initialized>
+                <owner class="org.i4change.app.hibernate.beans.adresses.Adresses" reference="../.."/>
+                <cachedSize>-1</cachedSize>
+                <role>org.i4change.app.hibernate.beans.adresses.Adresses.emails</role>
+                <key class="long">1</key>
+                <dirty>false</dirty>
+                <storedSnapshot class="map">
+                  <entry>
+                    <org.i4change.app.hibernate.beans.adresses.Adresses__Emails>
+                      <adresses__emails__id>1</adresses__emails__id>
+                      <mail>
+                        <mail__id>1</mail__id>
+                        <email>seba.wagner@gmail.com</email>
+                        <comment></comment>
+                        <starttime class="sql-timestamp">2009-06-04 21:21:15.0</starttime>
+                        <deleted>false</deleted>
+                      </mail>
+                      <adresses__id>1</adresses__id>
+                      <starttime class="sql-timestamp">2009-06-04 21:21:15.0</starttime>
+                      <deleted>false</deleted>
+                    </org.i4change.app.hibernate.beans.adresses.Adresses__Emails>
+                    <org.i4change.app.hibernate.beans.adresses.Adresses__Emails reference="../org.i4change.app.hibernate.beans.adresses.Adresses__Emails"/>
+                  </entry>
+                </storedSnapshot>
+                <set>
+                  <org.i4change.app.hibernate.beans.adresses.Adresses__Emails reference="../../storedSnapshot/entry/org.i4change.app.hibernate.beans.adresses.Adresses__Emails"/>
+                </set>
+              </emails>
+            </adresses>
+            <resethash>34ae1d81d6ade64fa0f969ada8563693</resethash>
+            <uuid>dece76e0-5ce5-4d2a-91e6-5e8eb3e5659e</uuid>
+            <isPending>false</isPending>
+            <userHash>7f253f21a45ee89e0b86981dd6db0835</userHash>
+            <useDefaultDiscounts>true</useDefaultDiscounts>
+            <licenseUserPayed>0</licenseUserPayed>
+            <licenseUserUsed>0</licenseUserUsed>
+            <unlimitedLicenses>true</unlimitedLicenses>
+          </insertedby>
+          <name>Activity [574] 53</name>
+          <objectTypeName>activity</objectTypeName>
+          <organisation>
+            <organisation__id>1</organisation__id>
+            <name>i4Change Playground</name>
+            <insertedby>1</insertedby>
+            <starttime class="sql-timestamp">2009-06-04 21:21:15.0</starttime>
+            <deleted>false</deleted>
+          </organisation>
+          <uuid>9c343838-c2fa-4f6b-b8e0-3194e83553bf</uuid>
+          <dataCarrierDiagramObject class="org.hibernate.collection.PersistentSet">
+            <initialized>true</initialized>
+            <owner class="org.i4change.app.hibernate.beans.diagram.DiagramObject" reference="../.."/>
+            <cachedSize>-1</cachedSize>
+            <role>org.i4change.app.hibernate.beans.diagram.DiagramObject.dataCarrierDiagramObject</role>
+            <key class="long">62</key>
+            <dirty>false</dirty>
+            <storedSnapshot class="map"/>
+            <set/>
+          </dataCarrierDiagramObject>
+          <objectKey>590f50b1-1c1e-4e10-b766-da34a13b5399</objectKey>
+          <pending>false</pending>
+        </org.i4change.app.hibernate.beans.diagram.DiagramObject>
+      </entry>
+      <entry>
+        <long>60</long>
+        <org.i4change.app.hibernate.beans.diagram.DiagramObject>
+          <diagramObjectId>60</diagramObjectId>
+          <deleted>false</deleted>
+          <inserted class="sql-timestamp">2009-06-30 10:10:47.0</inserted>
+          <insertedby>
+            <user__id>1</user__id>
+            <age class="sql-timestamp">2009-06-04 21:21:15.0</age>
+            <availible>1</availible>
+            <firstname>Sebastian</firstname>
+            <lastlogin class="sql-timestamp">2009-06-23 12:04:13.0</lastlogin>
+            <lastname>Wagner</lastname>
+            <lasttrans>0</lasttrans>
+            <level__id>3</level__id>
+            <login>swagner</login>
+            <password>519edbe68ddca5be0c26ed1d4807bdd2</password>
+            <regdate class="sql-timestamp">2009-06-04 21:21:15.0</regdate>
+            <status>1</status>
+            <title__id>1</title__id>
+            <starttime class="sql-timestamp">2009-06-04 21:21:15.0</starttime>
+            <deleted>false</deleted>
+            <language__id>1</language__id>
+            <adresses>
+              <adresses__id>1</adresses__id>
+              <additionalname>92</additionalname>
+              <comment></comment>
+              <fax>fax</fax>
+              <starttime class="sql-timestamp">2009-06-04 21:21:15.0</starttime>
+              <states>
+                <country__id>80</country__id>
+                <name>Germany</name>
+                <paypal>DE</paypal>
+                <starttime class="sql-timestamp">2009-06-04 21:21:09.0</starttime>
+                <deleted>false</deleted>
+              </states>
+              <state__id>0</state__id>
+              <street>Bleichstra�e</street>
+              <town>Pforzheim</town>
+              <zip>75173</zip>
+              <emails class="org.hibernate.collection.PersistentSet">
+                <initialized>true</initialized>
+                <owner class="org.i4change.app.hibernate.beans.adresses.Adresses" reference="../.."/>
+                <cachedSize>-1</cachedSize>
+                <role>org.i4change.app.hibernate.beans.adresses.Adresses.emails</role>
+                <key class="long">1</key>
+                <dirty>false</dirty>
+                <storedSnapshot class="map">
+                  <entry>
+                    <org.i4change.app.hibernate.beans.adresses.Adresses__Emails>
+                      <adresses__emails__id>1</adresses__emails__id>
+                      <mail>
+                        <mail__id>1</mail__id>
+                        <email>seba.wagner@gmail.com</email>
+                        <comment></comment>
+                        <starttime class="sql-timestamp">2009-06-04 21:21:15.0</starttime>
+                        <deleted>false</deleted>
+                      </mail>
+                      <adresses__id>1</adresses__id>
+                      <starttime class="sql-timestamp">2009-06-04 21:21:15.0</starttime>
+                      <deleted>false</deleted>
+                    </org.i4change.app.hibernate.beans.adresses.Adresses__Emails>
+                    <org.i4change.app.hibernate.beans.adresses.Adresses__Emails reference="../org.i4change.app.hibernate.beans.adresses.Adresses__Emails"/>
+                  </entry>
+                </storedSnapshot>
+                <set>
+                  <org.i4change.app.hibernate.beans.adresses.Adresses__Emails reference="../../storedSnapshot/entry/org.i4change.app.hibernate.beans.adresses.Adresses__Emails"/>
+                </set>
+              </emails>
+            </adresses>
+            <resethash>34ae1d81d6ade64fa0f969ada8563693</resethash>
+            <uuid>dece76e0-5ce5-4d2a-91e6-5e8eb3e5659e</uuid>
+            <isPending>false</isPending>
+            <userHash>7f253f21a45ee89e0b86981dd6db0835</userHash>
+            <useDefaultDiscounts>true</useDefaultDiscounts>
+            <licenseUserPayed>0</licenseUserPayed>
+            <licenseUserUsed>0</licenseUserUsed>
+            <unlimitedLicenses>true</unlimitedLicenses>
+          </insertedby>
+          <name>Outputflow [576] 54</name>
+          <objectTypeName>flow</objectTypeName>
+          <organisation>
+            <organisation__id>1</organisation__id>
+            <name>i4Change Playground</name>
+            <insertedby>1</insertedby>
+            <starttime class="sql-timestamp">2009-06-04 21:21:15.0</starttime>
+            <deleted>false</deleted>
+          </organisation>
+          <uuid>5b3363a0-52bb-4c0f-9bd8-534552f404dc</uuid>
+          <dataCarrierDiagramObject class="org.hibernate.collection.PersistentSet">
+            <initialized>true</initialized>
+            <owner class="org.i4change.app.hibernate.beans.diagram.DiagramObject" reference="../.."/>
+            <cachedSize>-1</cachedSize>
+            <role>org.i4change.app.hibernate.beans.diagram.DiagramObject.dataCarrierDiagramObject</role>
+            <key class="long">60</key>
+            <dirty>false</dirty>
+            <storedSnapshot class="map"/>
+            <set/>
+          </dataCarrierDiagramObject>
+          <objectKey>2093c484-2064-49d4-a389-91df7c9ef627</objectKey>
+          <pending>false</pending>
+        </org.i4change.app.hibernate.beans.diagram.DiagramObject>
+      </entry>
+      <entry>
+        <long>61</long>
+        <org.i4change.app.hibernate.beans.diagram.DiagramObject>
+          <diagramObjectId>61</diagramObjectId>
+          <deleted>false</deleted>
+          <inserted class="sql-timestamp">2009-06-30 10:10:47.0</inserted>
+          <insertedby>
+            <user__id>1</user__id>
+            <age class="sql-timestamp">2009-06-04 21:21:15.0</age>
+            <availible>1</availible>
+            <firstname>Sebastian</firstname>
+            <lastlogin class="sql-timestamp">2009-06-23 12:04:13.0</lastlogin>
+            <lastname>Wagner</lastname>
+            <lasttrans>0</lasttrans>
+            <level__id>3</level__id>
+            <login>swagner</login>
+            <password>519edbe68ddca5be0c26ed1d4807bdd2</password>
+            <regdate class="sql-timestamp">2009-06-04 21:21:15.0</regdate>
+            <status>1</status>
+            <title__id>1</title__id>
+            <starttime class="sql-timestamp">2009-06-04 21:21:15.0</starttime>
+            <deleted>false</deleted>
+            <language__id>1</language__id>
+            <adresses>
+              <adresses__id>1</adresses__id>
+              <additionalname>92</additionalname>
+              <comment></comment>
+              <fax>fax</fax>
+              <starttime class="sql-timestamp">2009-06-04 21:21:15.0</starttime>
+              <states>
+                <country__id>80</country__id>
+                <name>Germany</name>
+                <paypal>DE</paypal>
+                <starttime class="sql-timestamp">2009-06-04 21:21:09.0</starttime>
+                <deleted>false</deleted>
+              </states>
+              <state__id>0</state__id>
+              <street>Bleichstra�e</street>
+              <town>Pforzheim</town>
+              <zip>75173</zip>
+              <emails class="org.hibernate.collection.PersistentSet">
+                <initialized>true</initialized>
+                <owner class="org.i4change.app.hibernate.beans.adresses.Adresses" reference="../.."/>
+                <cachedSize>-1</cachedSize>
+                <role>org.i4change.app.hibernate.beans.adresses.Adresses.emails</role>
+                <key class="long">1</key>
+                <dirty>false</dirty>
+                <storedSnapshot class="map">
+                  <entry>
+                    <org.i4change.app.hibernate.beans.adresses.Adresses__Emails>
+                      <adresses__emails__id>1</adresses__emails__id>
+                      <mail>
+                        <mail__id>1</mail__id>
+                        <email>seba.wagner@gmail.com</email>
+                        <comment></comment>
+                        <starttime class="sql-timestamp">2009-06-04 21:21:15.0</starttime>
+                        <deleted>false</deleted>
+                      </mail>
+                      <adresses__id>1</adresses__id>
+                      <starttime class="sql-timestamp">2009-06-04 21:21:15.0</starttime>
+                      <deleted>false</deleted>
+                    </org.i4change.app.hibernate.beans.adresses.Adresses__Emails>
+                    <org.i4change.app.hibernate.beans.adresses.Adresses__Emails reference="../org.i4change.app.hibernate.beans.adresses.Adresses__Emails"/>
+                  </entry>
+                </storedSnapshot>
+                <set>
+                  <org.i4change.app.hibernate.beans.adresses.Adresses__Emails reference="../../storedSnapshot/entry/org.i4change.app.hibernate.beans.adresses.Adresses__Emails"/>
+                </set>
+              </emails>
+            </adresses>
+            <resethash>34ae1d81d6ade64fa0f969ada8563693</resethash>
+            <uuid>dece76e0-5ce5-4d2a-91e6-5e8eb3e5659e</uuid>
+            <isPending>false</isPending>
+            <userHash>7f253f21a45ee89e0b86981dd6db0835</userHash>
+            <useDefaultDiscounts>true</useDefaultDiscounts>
+            <licenseUserPayed>0</licenseUserPayed>
+            <licenseUserUsed>0</licenseUserUsed>
+            <unlimitedLicenses>true</unlimitedLicenses>
+          </insertedby>
+          <name>Inputflow [575] 51</name>
+          <objectTypeName>flow</objectTypeName>
+          <organisation>
+            <organisation__id>1</organisation__id>
+            <name>i4Change Playground</name>
+            <insertedby>1</insertedby>
+            <starttime class="sql-timestamp">2009-06-04 21:21:15.0</starttime>
+            <deleted>false</deleted>
+          </organisation>
+          <uuid>d4987256-b274-407e-9147-145936f0c09e</uuid>
+          <dataCarrierDiagramObject class="org.hibernate.collection.PersistentSet">
+            <initialized>true</initialized>
+            <owner class="org.i4change.app.hibernate.beans.diagram.DiagramObject" reference="../.."/>
+            <cachedSize>-1</cachedSize>
+            <role>org.i4change.app.hibernate.beans.diagram.DiagramObject.dataCarrierDiagramObject</role>
+            <key class="long">61</key>
+            <dirty>false</dirty>
+            <storedSnapshot class="map"/>
+            <set/>
+          </dataCarrierDiagramObject>
+          <objectKey>7398dfb5-6178-40b2-8fe6-34bd7fee95e4</objectKey>
+          <pending>false</pending>
+        </org.i4change.app.hibernate.beans.diagram.DiagramObject>
+      </entry>
+      <entry>
+        <long>63</long>
+        <org.i4change.app.hibernate.beans.diagram.DiagramObject>
+          <diagramObjectId>63</diagramObjectId>
+          <deleted>false</deleted>
+          <inserted class="sql-timestamp">2009-06-30 10:10:47.0</inserted>
+          <insertedby>
+            <user__id>1</user__id>
+            <age class="sql-timestamp">2009-06-04 21:21:15.0</age>
+            <availible>1</availible>
+            <firstname>Sebastian</firstname>
+            <lastlogin class="sql-timestamp">2009-06-23 12:04:13.0</lastlogin>
+            <lastname>Wagner</lastname>
+            <lasttrans>0</lasttrans>
+            <level__id>3</level__id>
+            <login>swagner</login>
+            <password>519edbe68ddca5be0c26ed1d4807bdd2</password>
+            <regdate class="sql-timestamp">2009-06-04 21:21:15.0</regdate>
+            <status>1</status>
+            <title__id>1</title__id>
+            <starttime class="sql-timestamp">2009-06-04 21:21:15.0</starttime>
+            <deleted>false</deleted>
+            <language__id>1</language__id>
+            <adresses>
+              <adresses__id>1</adresses__id>
+              <additionalname>92</additionalname>
+              <comment></comment>
+              <fax>fax</fax>
+              <starttime class="sql-timestamp">2009-06-04 21:21:15.0</starttime>
+              <states>
+                <country__id>80</country__id>
+                <name>Germany</name>
+                <paypal>DE</paypal>
+                <starttime class="sql-timestamp">2009-06-04 21:21:09.0</starttime>
+                <deleted>false</deleted>
+              </states>
+              <state__id>0</state__id>
+              <street>Bleichstra�e</street>
+              <town>Pforzheim</town>
+              <zip>75173</zip>
+              <emails class="org.hibernate.collection.PersistentSet">
+                <initialized>true</initialized>
+                <owner class="org.i4change.app.hibernate.beans.adresses.Adresses" reference="../.."/>
+                <cachedSize>-1</cachedSize>
+                <role>org.i4change.app.hibernate.beans.adresses.Adresses.emails</role>
+                <key class="long">1</key>
+                <dirty>false</dirty>
+                <storedSnapshot class="map">
+                  <entry>
+                    <org.i4change.app.hibernate.beans.adresses.Adresses__Emails>
+                      <adresses__emails__id>1</adresses__emails__id>
+                      <mail>
+                        <mail__id>1</mail__id>
+                        <email>seba.wagner@gmail.com</email>
+                        <comment></comment>
+                        <starttime class="sql-timestamp">2009-06-04 21:21:15.0</starttime>
+                        <deleted>false</deleted>
+                      </mail>
+                      <adresses__id>1</adresses__id>
+                      <starttime class="sql-timestamp">2009-06-04 21:21:15.0</starttime>
+                      <deleted>false</deleted>
+                    </org.i4change.app.hibernate.beans.adresses.Adresses__Emails>
+                    <org.i4change.app.hibernate.beans.adresses.Adresses__Emails reference="../org.i4change.app.hibernate.beans.adresses.Adresses__Emails"/>
+                  </entry>
+                </storedSnapshot>
+                <set>
+                  <org.i4change.app.hibernate.beans.adresses.Adresses__Emails reference="../../storedSnapshot/entry/org.i4change.app.hibernate.beans.adresses.Adresses__Emails"/>
+                </set>
+              </emails>
+            </adresses>
+            <resethash>34ae1d81d6ade64fa0f969ada8563693</resethash>
+            <uuid>dece76e0-5ce5-4d2a-91e6-5e8eb3e5659e</uuid>
+            <isPending>false</isPending>
+            <userHash>7f253f21a45ee89e0b86981dd6db0835</userHash>
+            <useDefaultDiscounts>true</useDefaultDiscounts>
+            <licenseUserPayed>0</licenseUserPayed>
+            <licenseUserUsed>0</licenseUserUsed>
+            <unlimitedLicenses>true</unlimitedLicenses>
+          </insertedby>
+          <name>Role [573] 50</name>
+          <objectTypeName>unitFixed</objectTypeName>
+          <organisation>
+            <organisation__id>1</organisation__id>
+            <name>i4Change Playground</name>
+            <insertedby>1</insertedby>
+            <starttime class="sql-timestamp">2009-06-04 21:21:15.0</starttime>
+            <deleted>false</deleted>
+          </organisation>
+          <uuid>bf83b243-1229-4567-9f4c-da24b1bcfad6</uuid>
+          <dataCarrierDiagramObject class="org.hibernate.collection.PersistentSet">
+            <initialized>true</initialized>
+            <owner class="org.i4change.app.hibernate.beans.diagram.DiagramObject" reference="../.."/>
+            <cachedSize>-1</cachedSize>
+            <role>org.i4change.app.hibernate.beans.diagram.DiagramObject.dataCarrierDiagramObject</role>
+            <key class="long">63</key>
+            <dirty>false</dirty>
+            <storedSnapshot class="map"/>
+            <set/>
+          </dataCarrierDiagramObject>
+          <objectKey>e758b6f0-67d8-424e-ac73-9e4d54f98664</objectKey>
+          <pending>false</pending>
+        </org.i4change.app.hibernate.beans.diagram.DiagramObject>
+      </entry>
+      <entry>
+        <long>59</long>
+        <org.i4change.app.hibernate.beans.diagram.DiagramObject>
+          <diagramObjectId>59</diagramObjectId>
+          <deleted>false</deleted>
+          <inserted class="sql-timestamp">2009-06-30 10:10:47.0</inserted>
+          <insertedby>
+            <user__id>1</user__id>
+            <age class="sql-timestamp">2009-06-04 21:21:15.0</age>
+            <availible>1</availible>
+            <firstname>Sebastian</firstname>
+            <lastlogin class="sql-timestamp">2009-06-23 12:04:13.0</lastlogin>
+            <lastname>Wagner</lastname>
+            <lasttrans>0</lasttrans>
+            <level__id>3</level__id>
+            <login>swagner</login>
+            <password>519edbe68ddca5be0c26ed1d4807bdd2</password>
+            <regdate class="sql-timestamp">2009-06-04 21:21:15.0</regdate>
+            <status>1</status>
+            <title__id>1</title__id>
+            <starttime class="sql-timestamp">2009-06-04 21:21:15.0</starttime>
+            <deleted>false</deleted>
+            <language__id>1</language__id>
+            <adresses>
+              <adresses__id>1</adresses__id>
+              <additionalname>92</additionalname>
+              <comment></comment>
+              <fax>fax</fax>
+              <starttime class="sql-timestamp">2009-06-04 21:21:15.0</starttime>
+              <states>
+                <country__id>80</country__id>
+                <name>Germany</name>
+                <paypal>DE</paypal>
+                <starttime class="sql-timestamp">2009-06-04 21:21:09.0</starttime>
+                <deleted>false</deleted>
+              </states>
+              <state__id>0</state__id>
+              <street>Bleichstra�e</street>
+              <town>Pforzheim</town>
+              <zip>75173</zip>
+              <emails class="org.hibernate.collection.PersistentSet">
+                <initialized>true</initialized>
+                <owner class="org.i4change.app.hibernate.beans.adresses.Adresses" reference="../.."/>
+                <cachedSize>-1</cachedSize>
+                <role>org.i4change.app.hibernate.beans.adresses.Adresses.emails</role>
+                <key class="long">1</key>
+                <dirty>false</dirty>
+                <storedSnapshot class="map">
+                  <entry>
+                    <org.i4change.app.hibernate.beans.adresses.Adresses__Emails>
+                      <adresses__emails__id>1</adresses__emails__id>
+                      <mail>
+                        <mail__id>1</mail__id>
+                        <email>seba.wagner@gmail.com</email>
+                        <comment></comment>
+                        <starttime class="sql-timestamp">2009-06-04 21:21:15.0</starttime>
+                        <deleted>false</deleted>
+                      </mail>
+                      <adresses__id>1</adresses__id>
+                      <starttime class="sql-timestamp">2009-06-04 21:21:15.0</starttime>
+                      <deleted>false</deleted>
+                    </org.i4change.app.hibernate.beans.adresses.Adresses__Emails>
+                    <org.i4change.app.hibernate.beans.adresses.Adresses__Emails reference="../org.i4change.app.hibernate.beans.adresses.Adresses__Emails"/>
+                  </entry>
+                </storedSnapshot>
+                <set>
+                  <org.i4change.app.hibernate.beans.adresses.Adresses__Emails reference="../../storedSnapshot/entry/org.i4change.app.hibernate.beans.adresses.Adresses__Emails"/>
+                </set>
+              </emails>
+            </adresses>
+            <resethash>34ae1d81d6ade64fa0f969ada8563693</resethash>
+            <uuid>dece76e0-5ce5-4d2a-91e6-5e8eb3e5659e</uuid>
+            <isPending>false</isPending>
+            <userHash>7f253f21a45ee89e0b86981dd6db0835</userHash>
+            <useDefaultDiscounts>true</useDefaultDiscounts>
+            <licenseUserPayed>0</licenseUserPayed>
+            <licenseUserUsed>0</licenseUserUsed>
+            <unlimitedLicenses>true</unlimitedLicenses>
+          </insertedby>
+          <name>Process [568] 52</name>
+          <objectTypeName>processtree</objectTypeName>
+          <organisation>
+            <organisation__id>1</organisation__id>
+            <name>i4Change Playground</name>
+            <insertedby>1</insertedby>
+            <starttime class="sql-timestamp">2009-06-04 21:21:15.0</starttime>
+            <deleted>false</deleted>
+          </organisation>
+          <uuid>c70f9389-fac9-46a3-ac4c-79dfed8805f1</uuid>
+          <dataCarrierDiagramObject class="org.hibernate.collection.PersistentSet">
+            <initialized>true</initialized>
+            <owner class="org.i4change.app.hibernate.beans.diagram.DiagramObject" reference="../.."/>
+            <cachedSize>-1</cachedSize>
+            <role>org.i4change.app.hibernate.beans.diagram.DiagramObject.dataCarrierDiagramObject</role>
+            <key class="long">59</key>
+            <dirty>false</dirty>
+            <storedSnapshot class="map"/>
+            <set/>
+          </dataCarrierDiagramObject>
+          <objectKey>e89e265b-0fa1-4983-b837-a27b6201d940</objectKey>
+          <pending>false</pending>
+        </org.i4change.app.hibernate.beans.diagram.DiagramObject>
+      </entry>
+    </map>
+  </entry>
+</map>

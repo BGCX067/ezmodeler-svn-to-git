@@ -1,0 +1,567 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!-- methods for main.lzx -->
+
+<library>
+ 
+	<method name="openMeetingsMenuItemHandler" args="item">
+	    lz.Browser.loadURL("http://www.i4change.com","_BLANK");
+	</method>
+    
+    <attribute name="keyDelegate" value="null" />
+    
+    <method name="doSaveDiagram" args="item">
+        //if ($debug) Debug.write("doSaveDiagram: ",item,this);
+        if (canvas.currentDiagramRef) {
+            canvas.currentDiagramRef._scrollcontent.dragArea.contentArea._currentBoard.doQuickSave();
+        }
+    </method>
+    
+    <method name="doSaveAsDiagram" args="item">
+        //if ($debug) Debug.write("doSaveAsDiagram: ",item,this);
+        if (canvas.currentDiagramRef) {
+            canvas.currentDiagramRef._scrollcontent.dragArea.contentArea._currentBoard.currentDiagram = null;
+            canvas.currentDiagramRef._scrollcontent.dragArea.contentArea._currentBoard.ondrawmodus.sendEvent("saveobj");
+        }
+    </method>
+    
+    <method name="doAddDiagram" args="item">
+        new lz.chooseDiagramType(canvas);
+    </method>
+    
+    <method name="doOpenDiagram" args="item">
+        new lz.diagramLoaderWin(canvas.main_content._content.inner);
+    </method>
+    
+    <method name="doPrintDiagram" args="item">
+        if (canvas.currentDiagramRef) {
+            canvas.currentDiagramRef._scrollcontent.dragArea.contentArea._currentBoard.exportCustom();
+        }
+    </method>
+    
+    <handler name="onkeyup" reference="lz.Keys" args="k">
+    	//Debug.write("onkeyup",k);
+    	if (lz.Keys.downKeysArray.length >= 1) {
+    		lz.Keys.downKeysArray = new Array();
+    	}
+    </handler>
+    
+    <autoLoader name="loaderVar" initstage="early" />
+	 
+     <!--
+	    this.keyDelegate = new LzDelegate(this, "doSaveAsDiagram");
+	    lz.Keys.callOnKeyCombo(this.keyDelegate, ["CONTROL","SHIFT","S"]);
+	    
+	    this.keyDelegate = new LzDelegate(this, "doAddDiagram");
+	    lz.Keys.callOnKeyCombo(this.keyDelegate, ["CONTROL","N"]);
+	    
+	    this.keyDelegate = new LzDelegate(this, "doOpenDiagram");
+	    lz.Keys.callOnKeyCombo(this.keyDelegate, ["CONTROL","O"]);
+	    
+	    this.keyDelegate = new LzDelegate(this, "doPrintDiagram");
+	    lz.Keys.callOnKeyCombo(this.keyDelegate, ["CONTROL","P"]);
+    -->
+    
+	<method name="myinit">
+		<![CDATA[
+        
+		    this.keyDelegate = new LzDelegate(this, "doSaveDiagram");
+            lz.Keys.callOnKeyCombo(this.keyDelegate, ["CONTROL","S"]);
+
+			//if($debug) Debug.write("main.lzx/config.xml ondata",this);
+			//Set Config-values by config.xml, see comments on config.xml
+			this.setAttribute('rtmphostlocal',canvas.myConfigSet.getPointer().xpathQuery('config/rtmphostlocal/text()'));   
+			this.setAttribute('httpprotocol',canvas.myConfigSet.getPointer().xpathQuery('config/httpprotocol/text()'));
+			this.setAttribute('httpUploadprotocol',canvas.myConfigSet.getPointer().xpathQuery('config/httpUploadprotocol/text()'));
+			this.setAttribute('httpport',Number(canvas.myConfigSet.getPointer().xpathQuery('config/httpport/text()'))); 
+			this.setAttribute('httpUploadPort',Number(canvas.myConfigSet.getPointer().xpathQuery('config/httpUploadPort/text()'))); 
+			this.setAttribute('basebgcolorizer',canvas.myConfigSet.getPointer().xpathQuery('config/basebgcolorizer/text()'));  
+			this.setAttribute('baseMousecolorizer',canvas.myConfigSet.getPointer().xpathQuery('config/baseMousecolorizer/text()'));  
+			this.setAttribute('baseMouseOvercolorizer',canvas.myConfigSet.getPointer().xpathQuery('config/baseMouseOvercolorizer/text()'));  
+			this.setAttribute('currentappversion',canvas.myConfigSet.getPointer().xpathQuery('config/currentappversion/text()'));  
+			this.setAttribute('currentappname',canvas.myConfigSet.getPointer().xpathQuery('config/currentappname/text()'));  
+			this.setAttribute('currentappnameurl',canvas.myConfigSet.getPointer().xpathQuery('config/currentappnameurl/text()'));  
+			this.setAttribute('currentappnamebugurl',canvas.myConfigSet.getPointer().xpathQuery('config/currentappnamebugurl/text()'));
+			this.setAttribute('loudnessAcitviation',canvas.myConfigSet.getPointer().xpathQuery('config/loudnessAcitviation/text()'));
+			this.setAttribute('webAppRootKey',canvas.myConfigSet.getPointer().xpathQuery('config/webAppRootKey/text()'));
+			this.setAttribute('showWindowEffect',canvas.myConfigSet.getPointer().xpathQuery('config/showWindowEffect/text()'));
+			this.setAttribute('firstdayinweek',canvas.myConfigSet.getPointer().xpathQuery('config/firstdayinweek/text()'));
+			
+			this.setAttribute('connectorPointColor',canvas.myConfigSet.getPointer().xpathQuery('config/connectorPointColor/text()'));
+		
+			this.setAttribute('defaultProcessGroupWidth',Number(canvas.myConfigSet.getPointer().xpathQuery('config/defaultProcessGroupWidth/text()')));  
+			this.setAttribute('defaultProcessGroupHeight',Number(canvas.myConfigSet.getPointer().xpathQuery('config/defaultProcessGroupHeight/text()')));  
+			this.setAttribute('defaultProcessWidth',Number(canvas.myConfigSet.getPointer().xpathQuery('config/defaultProcessWidth/text()')));  
+			this.setAttribute('defaultProcessHeight',Number(canvas.myConfigSet.getPointer().xpathQuery('config/defaultProcessHeight/text()')));  
+			this.setAttribute('defaultActicityWidth',Number(canvas.myConfigSet.getPointer().xpathQuery('config/defaultActicityWidth/text()')));  
+			this.setAttribute('defaultActicityHeight',Number(canvas.myConfigSet.getPointer().xpathQuery('config/defaultActicityHeight/text()')));  
+			this.setAttribute('defaultCompanyWidth',Number(canvas.myConfigSet.getPointer().xpathQuery('config/defaultCompanyWidth/text()')));  
+			this.setAttribute('defaultCompanyHeight',Number(canvas.myConfigSet.getPointer().xpathQuery('config/defaultCompanyHeight/text()')));  
+			this.setAttribute('defaultDepartementWidth',Number(canvas.myConfigSet.getPointer().xpathQuery('config/defaultDepartementWidth/text()')));  
+			this.setAttribute('defaultDepartementHeight',Number(canvas.myConfigSet.getPointer().xpathQuery('config/defaultDepartementHeight/text()')));  
+			this.setAttribute('defaultUnitWidth',Number(canvas.myConfigSet.getPointer().xpathQuery('config/defaultUnitWidth/text()')));  
+			this.setAttribute('defaultUnitHeight',Number(canvas.myConfigSet.getPointer().xpathQuery('config/defaultUnitHeight/text()')));  
+			this.setAttribute('defaultInputFlowWidth',Number(canvas.myConfigSet.getPointer().xpathQuery('config/defaultInputFlowWidth/text()')));  
+			this.setAttribute('defaultInputFlowHeight',Number(canvas.myConfigSet.getPointer().xpathQuery('config/defaultInputFlowHeight/text()')));  
+			this.setAttribute('defaultOutFlowWidth',Number(canvas.myConfigSet.getPointer().xpathQuery('config/defaultOutFlowWidth/text()')));  
+			this.setAttribute('defaultOutFlowHeight',Number(canvas.myConfigSet.getPointer().xpathQuery('config/defaultOutFlowHeight/text()')));  
+			
+			this.setAttribute('defaultOptionmenuKeyNumber',Number(canvas.myConfigSet.getPointer().xpathQuery('config/defaultOptionmenuKeyNumber/text()')));  
+			this.setAttribute('continousCreationKey',Number(canvas.myConfigSet.getPointer().xpathQuery('config/continousCreationKey/text()')));  
+			
+            
+            this.setAttribute('defaultRoleWidth',Number(canvas.myConfigSet.getPointer().xpathQuery('config/defaultRoleWidth/text()')));  
+            this.setAttribute('defaultRoleHeight',Number(canvas.myConfigSet.getPointer().xpathQuery('config/defaultRoleHeight/text()')));  
+              
+            this.setAttribute('defaultDiagramHeight',Number(canvas.myConfigSet.getPointer().xpathQuery('config/defaultDiagramHeight/text()')));  
+            this.setAttribute('defaultDiagramWidth',Number(canvas.myConfigSet.getPointer().xpathQuery('config/defaultDiagramWidth/text()')));  
+            this.setAttribute('currentConnectorStroke',Number(canvas.myConfigSet.getPointer().xpathQuery('config/currentConnectorStroke/text()')));  
+            this.setAttribute('snapWidth',Number(canvas.myConfigSet.getPointer().xpathQuery('config/snapWidth/text()')));  
+            this.setAttribute('snapHeight',Number(canvas.myConfigSet.getPointer().xpathQuery('config/snapHeight/text()')));  
+            this.setAttribute('snapWidthGridX',Number(canvas.myConfigSet.getPointer().xpathQuery('config/snapWidthGridX/text()')));  
+            this.setAttribute('snapHeightGridY',Number(canvas.myConfigSet.getPointer().xpathQuery('config/snapHeightGridY/text()')));  
+            
+            this.setAttribute('autoSaveTime',Number(canvas.myConfigSet.getPointer().xpathQuery('config/autoSaveTime/text()')));
+            
+            this.clearCurrentHelpIds();
+			
+			var doubleSlash = _url.indexOf("//");
+			var isNotPort80 = _url.indexOf(":", doubleSlash+2);
+			//Debug.write("isNotPort80: ",isNotPort80);
+			if (isNotPort80!=-1){
+			    //Debug.write("isNotPort80: ",doubleSlash+2, _url.indexOf(":", doubleSlash+2)-doubleSlash-2);
+			    var server = _url.substr(doubleSlash+2, _url.indexOf(":", doubleSlash+2)-doubleSlash-2); 
+			} else {
+			    var server = _url.substr(doubleSlash+2, _url.indexOf("/", doubleSlash+2)-doubleSlash-2); 
+			}
+			
+			//Debug.write("this zielnr: ",this,server);
+			
+			this.setAttribute('rtmphost',server);
+		
+			if (this.rtmphostlocal.length==0){
+			    this.setAttribute('rtmphostlocal',server);
+			}
+		
+			//check for reset password
+			var hash = lz.Browser.getInitArg('hash');
+			if (hash!=undefined){
+				canvas.isResetUsername = true;
+				canvas.resetHash = hash;		
+			}
+			
+			//check autologin hash
+            var autologin = lz.Browser.getInitArg('autologin');
+            if (autologin!=undefined && autologin!="undefined" 
+                    && autologin != null && autologin != "" 
+                    && autologin != "null"){
+                canvas.autologin = autologin;        
+            }
+    		if ($debug) Debug.write("autologin: ",autologin);
+            
+			//Debug.write("rtmphostlocal,rtmphost: ",canvas.rtmphostlocal,canvas.rtmphost);	
+			
+			//var src = 'rtmp://'+canvas.rtmphostlocal+':'+canvas.rtmpport+'/'+canvas.webAppRootKey+'/hibernate';
+			// canvas.setAttribute('src',src);
+			canvas.loaderVar.src.setAttribute("text","connecting");
+			// canvas.connect();
+			
+			this.callHistory = new Array();
+			
+			applicationRPC.load();
+		]]>
+	</method>
+	
+	<method name="getLabelName" args="id">
+		if (this.isinited) {
+    		////if($debug) Debug.write("main.lzx/getLabelName()",this.isinited,id);
+    		return getLabelTag(id);
+		}
+	</method>
+	
+	<attribute name="checkLabelArray" value="null" />
+	
+	<handler name="oninit">
+		this.checkLabelArray = new Array();
+	</handler>
+	
+	<method name="checkLabelByIDMethod" args="id,value">
+		<![CDATA[
+			//if ($debug) Debug.write("checkLabelByIDMethod : ",id,value);
+			var bool = false;
+			for (var i=0;i<this.checkLabelArray.length;i++){
+				if (this.checkLabelArray[i].id == id){
+					bool = true;
+					//if ($debug) Debug.write("Found : ",this.checkLabelArray[i]);
+				}
+			}
+			if (!bool){
+				var tArray = new Array();
+				tArray["id"] = id;
+				tArray["value"] = value;
+				this.checkLabelArray.push(tArray);
+			}
+		]]>
+	</method>
+	
+	<method name="getLabelArray">
+		<![CDATA[
+			var tString = "";
+			for (var i=0;i<this.checkLabelArray.length;i++){
+				tString += this.checkLabelArray[i]["id"]+", ";
+			}
+			//if ($debug) Debug.write("tString: ",tString);
+		]]>
+	</method>
+	
+	<method name="setInitObject" args="obj">
+		canvas.initObjectDiagram = obj;
+	</method>
+	
+	<method name="showKaleidoscope">
+    	if($debug) Debug.write("showKaleidoscope: ",this);
+    	
+    	if (canvas.isRegisterLogin) {
+    		new lz.registerWizzardWebSite(canvas,{dragable:false,
+    		          align:'center',valign:'middle'});
+    	} else if (canvas.isWebSiteLogin) {
+    		new lz.checkLoginData(canvas,{dragable:false,
+    		          showRegisterIng:false,valign:'middle'});
+    	} else {
+        	canvas.website_content.setAttribute("visibility","visible");
+    		new lz.kaleidoscope(canvas.website_content);
+    	}
+    	
+    </method>
+
+	<!-- you can delete this comment. It was just memo.
+			Mar 24 2008 onokeiji@gmail.com
+		 moved from modules/conference/conference/conferenceMenubar.lzx
+	-->
+	<method name="doActionmenu" args="stringSub">
+	    <![CDATA[
+	    	//We have to check this before processing any menu action
+			if (canvas.currentDiagramRef != null) {
+				if (!canvas.currentDiagramRef.leaveDiagram()){
+					//In this case something needs to be saved on the current diagram
+					return;
+				}
+			}
+	        //if($debug) Debug.write("doActionmenu: ",stringSub);
+	        
+			if (stringSub == 'search') {
+				
+				var t = new Array();
+                t.action = 'deepSearchModule';
+                ////if($debug) Debug.write( 'conferenceMenubar: doActionMenu(): ' , t);
+                loadContent(t);
+				
+			} else if (stringSub=='quit') {
+                
+                var tempactionName = getTempActionname();
+                //if($debug) Debug.write("getTempActionname(): ",getTempActionname());
+                
+                if (tempactionName == 'mainDiagram' || tempactionName == 'hierarchical' ||
+                    tempactionName == 'singleRole' || 
+                    tempactionName == 'roleView' || tempactionName == 'processgroup') {
+                    if (!canvas.main_content._content.inner.subviews[0].checkForBulkUpdates()) {
+                        var t = new Array();
+	                    t.action = 'mainDashboard';
+	                    ////if($debug) Debug.write( 'conferenceMenubar: doActionMenu(): ' , t);
+	                    loadContent(t);
+                    }
+                }
+                
+            } else if (stringSub=='showProcessExplorer') {
+                if (canvas.currentDiagramRef._processExplorer == null) {
+                    new lz.processExplorer(canvas.currentDiagramRef,{name:'_processExplorer'});
+                }   
+            } else if (stringSub=='showHierarchicalExplorer') {
+                if (canvas.currentDiagramRef._hierarchicalExplorer == null) {
+                    new lz.hierarchicalExplorer(canvas.currentDiagramRef,{name:'_hierarchicalExplorer'});
+                }   
+            } else if (stringSub=='showRoleExplorer') {
+                if (canvas.currentDiagramRef._roleexplorer == null) {
+                    new lz.roleExplorer(canvas.currentDiagramRef,{name:'_roleexplorer'});
+                }
+                
+                
+            } else if (stringSub=='showRevisionHistory') {
+                if (canvas.currentDiagramRef._revisionhistory == null) {
+                    new lz.revisionhistory(canvas.currentDiagramRef,{name:'_revisionhistory',
+                        currentRemoteDiagram:canvas.currentDiagramRef._scrollcontent.dragArea.contentArea._currentBoard.currentDiagramObject
+                    });
+                }
+            } else if (stringSub=='showRevisionHistoryProcess') {
+                if (canvas.currentDiagramRef._revisionhistory == null) {
+                    new lz.revisionhistory(canvas.currentDiagramRef,{name:'_revisionhistory',
+                        currentRemoteDiagram:canvas.currentDiagramRef._scrollcontent.dragArea.contentArea._currentBoard.currentDiagramObject
+                    });
+                }
+            } else if (stringSub=='showRevisionHistoryHierarchical') {
+                if (canvas.currentDiagramRef._revisionhistory == null) {
+                    new lz.revisionhistory(canvas.currentDiagramRef,{name:'_revisionhistory',
+                        currentRemoteDiagram:canvas.currentDiagramRef._scrollcontent.dragArea.contentArea._currentBoard.currentDiagramObject
+                    });
+                }    
+                
+            } else if (stringSub=='showPropertyInspector') {
+                //if ($debug) Debug.write(canvas.currentDiagramRef._propertyInspector);
+                if (canvas.currentDiagramRef._propertyInspector == null) {
+                    new lz.propertyInspector(canvas.currentDiagramRef,{name:'_propertyInspector'});
+                }
+            } else if (stringSub=='showPropertyInspectorProcess') {
+                if (canvas.currentDiagramRef._propertyInspector == null) {
+                    new lz.propertyInspector(canvas.currentDiagramRef,{name:'_propertyInspector'});
+                }
+            } else if (stringSub=='showPropertyInspectorProcessHierarchical') {
+                if (canvas.currentDiagramRef._propertyInspector == null) {
+                    new lz.propertyInspector(canvas.currentDiagramRef,{name:'_propertyInspector'});
+                }    
+                
+            } else if (stringSub=='open') {
+                new lz.diagramLoaderWin(canvas.main_content._content.inner);
+            } else if (stringSub=='close') {
+                if (canvas.currentDiagramRef != null) {
+                    //if ($debug) Debug.write(canvas.currentDiagramRef);
+                    canvas.currentDiagramRef.ontabcontentleave.sendEvent();
+                } else {
+                    //if ($debug) Debug.warn("No Diagram available");
+                }
+            } else if (stringSub=='print') {
+                //if($debug) Debug.write("doActionmenu: ",stringSub);
+                canvas.currentDiagramRef._scrollcontent.dragArea.contentArea._currentBoard.doPrintJob();
+            } else if (stringSub=='exportSVG') {
+                canvas.currentDiagramRef._scrollcontent.dragArea.contentArea._currentBoard.exportSVG();
+            } else if (stringSub=='exportPNG') {
+                canvas.currentDiagramRef._scrollcontent.dragArea.contentArea._currentBoard.exportPNG();
+            } else if (stringSub=='exportJPG') {
+                canvas.currentDiagramRef._scrollcontent.dragArea.contentArea._currentBoard.exportJPG();
+            } else if (stringSub=='exportPDF') {
+                canvas.currentDiagramRef._scrollcontent.dragArea.contentArea._currentBoard.exportPDF();
+            } else if (stringSub=='exportCustom') {
+                canvas.currentDiagramRef._scrollcontent.dragArea.contentArea._currentBoard.exportCustom();
+            } else if (stringSub=='exportXML') {
+                canvas.currentDiagramRef._scrollcontent.dragArea.contentArea._currentBoard.exportXML();
+            } else if (stringSub=='importXML') {
+                new lz.importDiagram(canvas);
+            } else if (stringSub=='exportPowerPoint') {
+                canvas.currentDiagramRef._scrollcontent.dragArea.contentArea._currentBoard.exportPPTCustom();
+            } else if (stringSub=='new') {
+                new lz.chooseDiagramType(canvas);
+            } else if (stringSub=='save') {
+                canvas.currentDiagramRef._scrollcontent.dragArea.contentArea._currentBoard.doSaveByToolSet()
+            } else if (stringSub=='save_as') {
+                canvas.currentDiagramRef._scrollcontent.dragArea.contentArea._currentBoard.currentDiagram = null;
+                canvas.currentDiagramRef._scrollcontent.dragArea.contentArea._currentBoard.doSaveByToolSet();
+            } else if (stringSub=='changeProject') {
+                new lz.changeAndAddProject(canvas);
+            } else if (stringSub=='changeRole') {
+                new lz.changeAndAddRole(canvas,{
+                                currentRoleName: canvas.currentRole.roleObject.name
+                            });
+            } else {
+                if ($debug) Debug.warn("Unkown Action ",stringSub);
+            }
+            
+            
+	    ]]>
+	</method>   
+    
+    <method name="initMainDialog">
+        <![CDATA[
+        
+        	//TODO: Check where the Loader Var Auto-Dialog has gone
+            //canvas.loaderVar.close();
+            
+            new lz.mainDiagram(canvas.main_content._content.inner,{name:'_mainDiagram'});
+            canvas.diagramObjectIsOpen = true;
+        
+            if (canvas.userobject.userlevel.level_id == 3){
+	            new lz.dashboardMenubarAdmin (canvas,{name:'_dashboardMenubar',visibility:'hidden'});
+	            new lz.roleViewMenubarAdmin (canvas,{name:'_roleViewMenubar',visibility:'hidden'});
+	            new lz.processgroupMenubarAdmin (canvas,{name:'_processgroupMenubar',visibility:'hidden'});
+	            new lz.hierarchicalMenubarAdmin (canvas,{name:'_hierarchicalMenubar',visibility:'hidden'});
+	            new lz.singleRoleMenubarAdmin (canvas,{name:'_singleRoleMenubar',visibility:'hidden'});
+            } else if (canvas.userobject.userlevel.level_id == 2){
+	            new lz.dashboardMenubarMod (canvas,{name:'_dashboardMenubar',visibility:'hidden'});
+	            new lz.roleViewMenubarMod (canvas,{name:'_roleViewMenubar',visibility:'hidden'});
+	            new lz.processgroupMenubarMod (canvas,{name:'_processgroupMenubar',visibility:'hidden'});
+	            new lz.hierarchicalMenubarMod (canvas,{name:'_hierarchicalMenubar',visibility:'hidden'});
+	            new lz.singleRoleMenubarMod (canvas,{name:'_singleRoleMenubar',visibility:'hidden'});
+            } else {
+                if (canvas.currentdomainUserObj.isModerator){
+                    new lz.dashboardMenubarMod (canvas,{name:'_dashboardMenubar',visibility:'hidden'});
+                } else {
+	               new lz.dashboardMenubarUser (canvas,{name:'_dashboardMenubar',visibility:'hidden'});
+                }
+	            new lz.roleViewMenubarUser (canvas,{name:'_roleViewMenubar',visibility:'hidden'});
+	            new lz.processgroupMenubarUser (canvas,{name:'_processgroupMenubar',visibility:'hidden'});
+	            new lz.hierarchicalMenubarUser (canvas,{name:'_hierarchicalMenubar',visibility:'hidden'});
+	            new lz.singleRoleMenubarUser (canvas,{name:'_singleRoleMenubar',visibility:'hidden'});
+            }
+            
+            //Initialize Main-Dashboard
+            quicklinkAct('kDashboard');
+        
+            _currentUserHeaderMenu.setAttribute('visibility','visible');
+            if (canvas.currentRole != null) {
+                _currentUserHeaderMenu.setAttribute('text',
+                            canvas.userobject.login + '@' + canvas.currentdomainObj.name 
+                            + " (" + canvas.getLabelName(709) + canvas.currentRole.roleObject.name + ")");            
+            } else {
+                _currentUserHeaderMenu.setAttribute('text',
+                            canvas.userobject.login + '@' + canvas.currentdomainObj.name );            
+            }
+            _currentUserHeaderMenu.bringToFront();
+            
+            var showFirstStartWizzard = canvas.getUserProperty("showFirstStartWizzard");
+            
+            if ($debug) Debug.write("showFirstStartWizzard",showFirstStartWizzard);
+            if (showFirstStartWizzard != null) {
+                if (showFirstStartWizzard) {
+                     new lz.firstStartWizzard(canvas);
+                }
+            } else {
+                new lz.firstStartWizzard(canvas);
+            }
+            
+            if (canvas.loaderVar != null) {
+                canvas.loaderVar.close();
+            }
+            
+        ]]>
+    </method>
+    
+    <method name="getUserProperty" args="key">
+        <![CDATA[
+            if ($debug) Debug.write("canvas.userobject.userPropsAsObject: ",canvas.userobject.userPropsAsObject);
+                
+            var value = null;
+            for (var i = 0;i<canvas.userobject.userPropsAsObject.length;i++) {
+                if (canvas.userobject.userPropsAsObject[i].keyItem == key) {
+                	return canvas.userobject.userPropsAsObject[i].value;
+                }
+            }
+            
+            return value;
+    	]]>
+    </method>
+     
+	
+	<command id="cmd_quit" onselect="canvas.doActionmenu('quit')" /> 
+    <command id="cmd_open" onselect="canvas.doActionmenu('open')" /> 
+    <command id="cmd_search" onselect="canvas.doActionmenu('search')" /> 
+    <command id="cmd_close" onselect="canvas.doActionmenu('close')" /> 
+    
+    <command id="cmd_new" onselect="canvas.doActionmenu('new')" /> 
+    <command id="cmd_save" onselect="canvas.doActionmenu('save')" />
+    <command id="cmd_save_as" onselect="canvas.doActionmenu('save_as')" />  
+    
+    <command id="cmd_print" onselect="canvas.doActionmenu('print')" /> 
+    
+    <command id="cmd_exportSVG" onselect="canvas.doActionmenu('exportSVG')" />
+    <command id="cmd_exportPNG" onselect="canvas.doActionmenu('exportPNG')" /> 
+    <command id="cmd_exportJPG" onselect="canvas.doActionmenu('exportJPG')" /> 
+    <command id="cmd_exportPDF" onselect="canvas.doActionmenu('exportPDF')" /> 
+    <command id="cmd_exportCustom" onselect="canvas.doActionmenu('exportCustom')" /> 
+    <command id="cmd_exportXML" onselect="canvas.doActionmenu('exportXML')" /> 
+    
+    <command id="cmd_exportPowerPoint" onselect="canvas.doActionmenu('exportPowerPoint')" /> 
+    
+    <command id="cmd_import" onselect="canvas.doActionmenu('importXML')" />
+    
+    <command id="cmd_change_project" onselect="canvas.doActionmenu('changeProject')" />
+    <command id="cmd_change_role" onselect="canvas.doActionmenu('changeRole')" />
+    
+    <command id="cmd_showRoleExplorer" onselect="canvas.doActionmenu('showRoleExplorer')" /> 
+    <command id="cmd_showRevisionHistory" onselect="canvas.doActionmenu('showRevisionHistory')" /> 
+    <command id="cmd_showHierarchicalExplorer" onselect="canvas.doActionmenu('showHierarchicalExplorer')" />
+    <command id="cmd_showProcessExplorer" onselect="canvas.doActionmenu('showProcessExplorer')" /> 
+    <command id="cmd_showPropertyInspector" onselect="canvas.doActionmenu('showPropertyInspector')" /> 
+    <command id="cmd_showRevisionHistoryProcess" onselect="canvas.doActionmenu('showRevisionHistoryProcess')" /> 
+    <command id="cmd_showPropertyInspectorProcess" onselect="canvas.doActionmenu('showPropertyInspectorProcess')" /> 
+    <command id="cmd_showRevisionHistoryHierarchical" onselect="canvas.doActionmenu('showRevisionHistoryHierarchical')" /> 
+    <command id="cmd_showPropertyInspectorProcessHierarchical" onselect="canvas.doActionmenu('showPropertyInspectorProcessHierarchical')" /> 
+
+    <!-- These are Observer-Pattern Like Functions for the Help System -->
+    <method name="clearCurrentHelpIds">
+        canvas.currentHelpArray = new Array();
+    </method>
+
+    <method name="checkCurrentHelpIds">
+        return canvas.currentHelpArray;
+    </method>
+    
+    <method name="addCurrentHelpId" args="helpId,helpName">
+        <![CDATA[
+	        for (var i=0;i<canvas.currentHelpArray.length;i++) {
+	            if (canvas.currentHelpArray[i][0] == helpId) {
+                    //Already on the List
+                    return;
+                }
+            }
+            canvas.currentHelpArray.push({0:helpId,1:helpName});
+        ]]>
+    </method>
+    
+    <method name="addToCurrentDiagramList" args="obj">
+        if (canvas.currentDiagramList == null) canvas.currentDiagramList = new Array();
+        this.currentDiagramList.push(obj);
+    </method>
+    
+    <method name="removeFromCurrentDiagramList" args="obj">
+        <![CDATA[
+	        for (var i=0;i<this.currentDiagramList.length;i++) {
+                if (this.currentDiagramList[i] == obj) {
+                    this.currentDiagramList.splice(i,1);
+                }
+            }
+        ]]>
+    </method>
+    
+    <method name="getConfByKey" args="conf_key">
+        <![CDATA[
+            for (var i=0;i<this.defaultConfigObj.length;i++) {
+                if (this.defaultConfigObj[i].conf_key == conf_key) {
+                    return this.defaultConfigObj[i];
+                }
+            }
+            return null;
+        ]]>
+    </method>
+    
+    <method name="addCallHistory" args="rpcName">
+    	<![CDATA[
+    		if (this.callHistory.length > 20) {
+    			this.callHistory.splice(0,1);
+    		}
+    		////if ($debug) Debug.write("addCallHistory ",rpcName);
+    		canvas.rpcCounter += 1;
+    		
+    		var t = new Object();
+    		t.rpcCounter = canvas.rpcCounter;
+    		t.rpcName = rpcName;
+    		t.rpcStart = getStringTimePC();
+    		t.rpcEnd = "";
+    		
+    		this.callHistory.push(t);
+    		
+    		return canvas.rpcCounter;
+    		
+    	]]>
+    </method>
+    
+    <method name="completedCallHistory" args="rpcCount">
+    	<![CDATA[
+    	   
+    	   for (var i=0;i<this.callHistory.length;i++) {
+    	   	  if (this.callHistory[i].rpcCounter == rpcCount) {
+    	   	  	this.callHistory[i].rpcEnd = getStringTimePC();
+    	   	  }
+    	   }
+    	
+    	]]>
+    </method>
+
+</library>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+<!--- Configuration list. It shows ID-KEY pairs. -->
+<class name="webSiteAdminListItem" extends="baseContentListItem">
+	
+	<attribute name="webItemId" value="0" type="number" />
+	<attribute name="webItemName" value="" type="string" />
+    <attribute name="typeName" value="" type="string" />
+	
+	<turnOverTextItem text="$once{ parent.webItemId }" width="80" />
+	<turnOverTextItem text="$once{ parent.webItemName }" width="166" />
+    <turnOverTextItem text="$once{ parent.typeName }" width="200" />
+	
+</class>
+
+</library>

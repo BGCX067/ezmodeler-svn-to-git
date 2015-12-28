@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+    
+<class name="addProject" extends="view" >
+    
+    <event name="onComplete" />
+    
+    <method name="register">
+        //this.registerB.onclick.sendEvent();
+        this.addProject.projectName = this.profileName.getText();
+        this.addProject.projectDesc = this.profileDescription.getText();
+        if (this.addProject.projectName.length != 0) {
+            this.addProject.doCall();
+        } else {
+        	new lz.errorPopupWithLabel(canvas,{labelerrorid:1289});
+        }
+    </method>
+    
+    <animator name="_doShow" attribute="height" to="270" start="false" duration="750" />
+    <animator name="_doClose" attribute="height" to="0" start="false" duration="750" />
+                
+    <labelText labelid="1237" width="200" y="0" resize="false" x="2"/>
+        <customEdittext name="profileName" y="0" x="120" width="360" text="" />  
+         
+    <labelText labelid="1238" width="200" y="30" resize="false" x="2"/>
+        <customEdittext name="profileDescription" y="30" x="120" multiline="true"
+                        width="360" text="" height="200" /> 
+
+    <simpleLabelButton labelid="1274" width="100" x="$once{ parent.parent.width-105*2 }" 
+                       y="244">
+        <handler name="onclick">
+            parent.register();
+        </handler>
+    </simpleLabelButton> 
+    
+    <simpleLabelButton labelid="1284" width="100" x="$once{ parent.parent.width-105*1 }" 
+                       y="244">
+        <handler name="onclick">
+        	parent.parent._cancel.setAttribute("visibility","visible");
+            parent._doClose.doStart();
+        </handler>
+    </simpleLabelButton> 
+
+    <!--
+       public Long addProject(String SID, String name, String description, Long organisation_id,
+            String wizzardType, Boolean buildByWizzard, Integer wizzardStep)
+     -->
+    <netRemoteCallRPC name="addProject" funcname="addProject" 
+        remotecontext="$once{  canvas.projectServiceRPC }" activeErrorHandler="true" >
+        <attribute name="projectName" value="" type="string" />   
+        <attribute name="projectDesc" value="" type="string" />         
+        <netparam><method name="getValue">return canvas.sessionId;</method></netparam>
+        <netparam><method name="getValue">return parent.projectName;</method></netparam>
+        <netparam><method name="getValue">return parent.projectDesc;</method></netparam>  
+        <netparam><method name="getValue">return canvas.currentdomainObj.organisation_id;</method></netparam>
+        <netparam><method name="getValue">return "";</method></netparam>   
+        <netparam><method name="getValue">return true;</method></netparam> 
+        <netparam><method name="getValue">return 3;</method></netparam>     
+        <handler name="ondata" args="value">
+            <![CDATA[
+                //The onResult-Handler will be called be the rtmpconnection
+                //if ($debug) Debug.write("addProject: ",value);
+                if (value > 0) {
+                    parent.addProjectToUser.projectId = value;
+                    parent.getProjectById.projectId = value;
+                    parent.addProjectToUser.doCall();
+                }
+            ]]>
+        </handler>  
+    </netRemoteCallRPC> 
+    
+    <!--
+    public Long addProjectToUser(String SID, long projectId)
+     -->
+    <netRemoteCallRPC name="addProjectToUser" funcname="addProjectToUser" 
+        remotecontext="$once{  canvas.projectServiceRPC }" >
+        <attribute name="projectId" value="" type="string" />         
+        <netparam><method name="getValue">return canvas.sessionId;</method></netparam>
+        <netparam><method name="getValue">return parent.projectId;</method></netparam>
+        <handler name="ondata" args="value">
+            <![CDATA[
+                //The onResult-Handler will be called be the rtmpconnection
+                //if ($debug) Debug.write("getProjectById: ",value);
+                if (value != null) {
+                    parent.getProjectById.doCall();
+                }
+            ]]>
+        </handler>  
+    </netRemoteCallRPC> 
+    
+    <!--
+        public Project getProjectById(String SID, Long projectId)
+     -->
+    <netRemoteCallRPC name="getProjectById" funcname="getProjectById" 
+        remotecontext="$once{  canvas.projectServiceRPC }" >
+        <attribute name="projectId" value="" type="string" />         
+        <netparam><method name="getValue">return canvas.sessionId;</method></netparam>
+        <netparam><method name="getValue">return parent.projectId;</method></netparam>
+        <handler name="ondata" args="value">
+            <![CDATA[
+                //The onResult-Handler will be called be the rtmpconnection
+                //if ($debug) Debug.write("getProjectById: ",value);
+                if (value != null) {
+                    canvas.projectObj = value;
+                    canvas.currentProjectId = value.projectId;
+                    _currentUserHeaderMenu.setAttribute("projectText"," ( "+canvas.projectObj.name+" ) ");
+                    parent.onComplete.sendEvent();
+                }
+            ]]>
+        </handler>  
+    </netRemoteCallRPC> 
+    
+</class>
+
+</library>

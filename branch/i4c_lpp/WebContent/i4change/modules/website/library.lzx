@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+	
+	<resource name="background_login_website" 
+			  src="resources/background_button.swf" />
+       
+    <resource name="enter_next_step" 
+              src="resources/arrow_right_green.png" />   
+              
+    <resource name="enter_pre_step" 
+              src="resources/arrow_left_green.png" />      
+
+    <resource name="background_box_shadow" 
+              src="resources/box_shadow.swf" />
+                
+    <resource name="kaleidoscope_textbox_milk" 
+              src="resources/milk.swf" />
+    
+    <!--          
+    <resource name="logo_central_rsc" 
+              src="resources/sampel_logo.png" />
+              
+    <resource name="logo_who_rsc" 
+              src="resources/sampel_who.png" />
+    <resource name="logo_how_rsc" 
+              src="resources/sampel_how.png" />
+    <resource name="logo_where_rsc" 
+              src="resources/sampel_where.png" />
+    <resource name="logo_why_rsc" 
+              src="resources/sampel_why.png" />
+     -->
+     
+    <include href="selfLoadingImage.lzx" />
+    <include href="pods/" />
+    <include href="kaleidoscopeGripper.lzx" />
+    <include href="kaleidoscope.lzx" />
+
+</library>

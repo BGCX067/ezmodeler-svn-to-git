@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+    
+    <resource name="open_sidebar" src="resources/open_sidebar.swf" />
+    <resource name="close_sidebar" src="resources/close_sidebar.swf" />
+    <resource name="resize_bg_sidebar" src="resources/resize_bg.swf" />
+	
+    <include href="sideBarPod.lzx" />
+    <include href="baseDiagramSideBar.lzx" />
+    
+    <include href="diagramSideBarHierarchical.lzx" />
+    <include href="diagramSideBarFlow.lzx" />
+    <include href="diagramSideBarProcess.lzx" />
+    
+	<include href="diagramSideBar.lzx" />
+    <include href="sideBarDraggingPod.lzx" />
+
+</library>

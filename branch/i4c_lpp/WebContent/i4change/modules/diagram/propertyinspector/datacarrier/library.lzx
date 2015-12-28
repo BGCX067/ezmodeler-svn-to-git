@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+	
+    <include href="dataCarrierItemsSidebar.lzx" />
+    <include href="newDataCarrierItem.lzx" />
+	<include href="datacarrierExplorer.lzx" />
+	<include href="editDataCarrierItem.lzx" />
+
+</library>

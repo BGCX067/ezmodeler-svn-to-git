@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+"-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory name="">
+        <property name="hibernate.bytecode.use_reflection_optimizer">false</property>
+        <property name="hibernate.connection.driver_class">org.gjt.mm.mysql.Driver</property>
+        <property name="hibernate.connection.password">67810</property>
+        <property name="hibernate.connection.url">jdbc:mysql://localhost/develop</property>
+        <property name="hibernate.connection.username">root</property>
+        <property name="hibernate.dialect">org.hibernate.dialect.MySQL5InnoDBDialect</property>
+        <mapping resource="org/i4change/app/hibernate/Userlevel.hbm.xml" />
+        <mapping resource="org/i4change/app/hibernate/Sessiondata.hbm.xml" />
+        <mapping resource="org/i4change/app/hibernate/Fieldlanguagesvalues.hbm.xml" />
+        <mapping resource="org/i4change/app/hibernate/Navimain.hbm.xml" />
+        <mapping resource="org/i4change/app/hibernate/Markercategory.hbm.xml" />
+        <mapping resource="org/i4change/app/hibernate/Navisub.hbm.xml" />
+        <mapping resource="org/i4change/app/hibernate/Configuration.hbm.xml" />
+        <mapping resource="org/i4change/app/hibernate/Phones.hbm.xml" />
+        <mapping resource="org/i4change/app/hibernate/Objecttype.hbm.xml" />
+        <mapping resource="org/i4change/app/hibernate/ErrorValues.hbm.xml" />
+        <mapping resource="org/i4change/app/hibernate/ErrorType.hbm.xml" />
+        <mapping resource="org/i4change/app/hibernate/Naviglobal.hbm.xml" />
+        <mapping resource="org/i4change/app/hibernate/DiagramObject.hbm.xml" />
+        <mapping resource="org/i4change/app/hibernate/Adresses.hbm.xml" />
+        <mapping resource="org/i4change/app/hibernate/Emails.hbm.xml" />
+        <mapping resource="org/i4change/app/hibernate/Baseobject.hbm.xml" />
+        <mapping resource="org/i4change/app/hibernate/Organisation.hbm.xml" />
+        <mapping resource="org/i4change/app/hibernate/Diagramrevision.hbm.xml" />
+        <mapping resource="org/i4change/app/hibernate/Usergroups.hbm.xml" />
+        <mapping resource="org/i4change/app/hibernate/AdressesPhones.hbm.xml" />
+        <mapping resource="org/i4change/app/hibernate/Userdata.hbm.xml" />
+        <mapping resource="org/i4change/app/hibernate/Users.hbm.xml" />
+        <mapping resource="org/i4change/app/hibernate/States.hbm.xml" />
+        <mapping resource="org/i4change/app/hibernate/Salutations.hbm.xml" />
+        <mapping resource="org/i4change/app/hibernate/Objectmarker.hbm.xml" />
+        <mapping resource="org/i4change/app/hibernate/UsersUsergroups.hbm.xml" />
+        <mapping resource="org/i4change/app/hibernate/Diagram.hbm.xml" />
+        <mapping resource="org/i4change/app/hibernate/Object.hbm.xml" />
+        <mapping resource="org/i4change/app/hibernate/Fieldvalues.hbm.xml" />
+        <mapping resource="org/i4change/app/hibernate/AdressesEmails.hbm.xml" />
+        <mapping resource="org/i4change/app/hibernate/OrganisationUsers.hbm.xml" />
+    </session-factory>
+</hibernate-configuration>

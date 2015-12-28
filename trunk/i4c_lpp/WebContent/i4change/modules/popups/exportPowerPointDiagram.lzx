@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+    
+<resource name="bg_exportppt_rsc" src="resources/bg_exportppt.png" />
+	
+<class name="exportPowerPointDiagram" extends="guiPresenter" labelid="1257"
+    docking="true" closable="true" width="470" resizeable="false" 
+    x="$once{ canvas.width/2 - this.width/2 }" y="100" height="350">
+    
+    <dataset name="presentationTemplates" />
+    
+    <handler name="oninit">
+        //Add Help Item
+        //canvas.addCurrentHelpId(11,this.__constructor__.classname);
+    </handler>
+    
+    <attribute name="refObj" value="null" />
+    
+    <handler name="oninit">
+    	lz.ModeManager.makeModal(this);
+        this.getPresentationTemplates.doCall();
+    </handler>
+    
+    <handler name="onclose">
+    	lz.ModeManager.release(this);
+    </handler>
+
+    <netRemoteCallRPC name="getPresentationTemplates" funcname="getPresentationTemplates" 
+                      remotecontext="$once{ canvas.mainServiceRPC }" 
+                      dataobject="$once{ parent.presentationTemplates }">      
+        <param><method name="getValue"> return canvas.sessionId; </method></param>
+        <netparam><method name="getValue"> return canvas.currentdomainObj.organisation_id;</method></netparam>
+        <handler name="ondata" args="value">
+            //if ($debug) Debug.write("getPresentationTemplates ",value);
+        </handler>
+    </netRemoteCallRPC>     
+           
+    <labelText labelid="1258" y="22" x="10" resize="true" fontstyle="bold"/> 
+    
+    <view x="3" y="44" resource="bg_exportppt_rsc"></view>
+    <view name="_box" x="5" y="46" clip="true" width="$once{ parent.width - 10 }" height="200">
+        <attribute name="pTemplateId" value="1" type="number" />
+        <attribute name="selectedItem" value="null" />
+        <handler name="onclickedItem" args="item">
+            //if ($debug) Debug.write("onclickedItem: ",item);
+            if (this.selectedItem != null) {
+                this.selectedItem.isSelected = false;
+                this.selectedItem.onmouseout.sendEvent();
+            }
+            this.selectedItem = item;
+            this.selectedItem.isSelected = true;
+            this.pTemplateId = item.presentationTemplateId;
+        </handler>
+    	<view name="content" layout="axis:y;spacing:2">
+            <view datapath="local:classroot.presentationTemplates:/item/" bgcolor="0xFFFFFF">
+                
+                <attribute name="isSelected" value="false" type="boolean"/>
+                <attribute name="presentationTemplateId" value="0" type="number" />
+                
+                <method name="select">
+			        this.isSelected=true;
+			        this.overlayerBG.setAttribute('visibility','visible');
+			    </method>
+                
+                <handler name="onmouseout">
+			        if (!this.isSelected) this.overlayerBG.setAttribute('visibility','hidden');
+			    </handler>
+                
+                <handler name="onmouseover">
+                    this.overlayerBG.setAttribute('visibility','visible');
+                </handler>
+                
+                <handler name="onclick">
+		            this.parent.parent.onclickedItem.sendEvent(this);
+			    </handler>
+                
+                <handler name="ondata" args="d">
+                    <![CDATA[
+                        var preview = this.datapath.xpathQuery("preview/text()");
+                        var templateKey = this.datapath.xpathQuery("templateKey/text()");
+                        this.presentationTemplateId = Number(this.datapath.xpathQuery("presentationTemplateId/text()"));
+                        //if ($debug) Debug.write("preview: ",preview,templateKey);
+                        var d = new Date();
+                        var downloadurl = canvas.httpprotocol+'://'+canvas.rtmphostlocal+':'+canvas.httpport
+                                +'/'+canvas.webAppRootKey+'/DownloadHandler?fileName='+preview
+                                +'&moduleName=ptemplate' 
+                                +'&parentPath='+templateKey
+                                +'&sid='+canvas.sessionId
+                                +'&random='+d.getTime();
+                        //if($debug) Debug.write("dashboard/downloadurl "+downloadurl);
+                        this._pre._preview.setAttribute('src',downloadurl);    
+                    ]]>
+                </handler>
+                
+                <labelText text="$path{ 'templateName/text()' }" resize="false" width="200" multiline="true" />
+                <view name="_pre" x="200" width="258" height="179" bgcolor="0x000000">
+                    <image name="_preview" x="1" y="1" bgcolor="0xFFFFFF">
+                        <handler name="onload">
+                            parent.parent.overlayerBG.setAttribute("height",this.height+2);
+                            parent.setAttribute("height",this.height+2);
+                            parent.setAttribute("width",this.width+2);
+                        </handler>
+                    </image>
+                </view>
+                
+                <view name="overlayerBG" width="$once{ parent.width }" height="$once{ parent.height }" 
+                      visibility="hidden" opacity="0.3" bgcolor="$once{ canvas.baseMouseOvercolorizer }" />
+                
+            </view>
+        </view>
+        <vscrollbar name="_scrollbar" />
+    </view>
+    
+    <labelCheckbox name="_doIncludeText" x="4" y="266" labelid="1269" value="true" />
+    
+    <labelCheckbox name="_doIncludeIdeasANdTextBoxes" x="4" y="286" labelid="1270" value="true" />
+    
+    <labelCheckbox name="_doIncludeDetails" x="4" y="306" labelid="1271" value="true" />
+
+    <simpleLabelButton name="_do_not_save" x="$once{parent.width - 115*2 }" 
+        y="$once{parent.height - 26 }" labelid="672" width="110" height="20">
+        <handler name="onclick">
+            this.parent.close();
+        </handler>
+    </simpleLabelButton>      
+    
+    <simpleLabelButton name="_confirm_each" x="$once{parent.width - 115*1 }" 
+        y="$once{parent.height - 26 }" labelid="671" width="110" height="20">
+        <handler name="onclick">
+            this.parent.refObj.doExportByTypeAndTemplate("ppt",parent._box.pTemplateId, 
+                parent._doIncludeText.getValue(),parent._doIncludeIdeasANdTextBoxes.getValue(),
+                parent._doIncludeDetails.getValue());
+            this.parent.close();
+        </handler>
+    </simpleLabelButton>        
+	
+</class>
+
+</library>

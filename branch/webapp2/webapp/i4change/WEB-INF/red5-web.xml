@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+	
+	<bean id="placeholderConfig" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+	    <property name="location" value="/WEB-INF/red5-web.properties" />
+	</bean>
+	
+	<bean id="web.context" class="org.red5.server.Context" 
+		autowire="byType" />
+	
+	<bean id="web.scope" class="org.red5.server.WebScope"
+		 init-method="register">
+		<property name="server" ref="red5.server" />
+		<property name="parent" ref="global.scope" />
+		<property name="context" ref="web.context" />
+		<property name="handler" ref="web.handler" />
+		<property name="contextPath" value="${webapp.contextPath}" />
+		<property name="virtualHosts" value="${webapp.virtualHosts}" />
+	</bean>
+    
+    <!-- 
+    <bean id="theSessionFactory" class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+        <property name="configLocation"
+            value="conf/hibernate.cfg.xml"/>
+         value="WEB-INF/hibernate.cfg.xml"
+    </bean>
+     -->
+
+    <bean id="i4change.InvoiceDaoImpl"
+        class="org.i4change.app.data.user.daos.InvoiceDaoImpl">
+    </bean> 
+     
+	<!-- Class for the Streaming Handlers -->
+	<bean id="web.handler" 
+	    class="org.i4change.app.remote.Application"
+		singleton="true" />
+		
+	<!-- Class for Methods which can be invoked by the client -->
+    <bean id="configservice.service" 
+	    class="org.i4change.app.remote.ConfigurationService" 
+		singleton="true" />	
+		
+	<!-- Class for Methods which can be invoked by the client -->
+    <bean id="errorservice.service" 
+	    class="org.i4change.app.remote.ErrorService" 
+		singleton="true" />			
+
+	<!-- Class for Methods which can be invoked by the client -->
+    <bean id="xmlcrm.service" 
+	    class="org.i4change.app.remote.MainService" 
+		singleton="true" />
+	
+	<!-- Class for Methods which can be invoked by the client -->
+    <bean id="languageservice.service" 
+	    class="org.i4change.app.remote.LanguageService" 
+		singleton="true" />	
+	
+    <!-- Class for Methods which can be invoked by the client -->
+    <bean id="roleservice.service" 
+        class="org.i4change.app.remote.RoleService" 
+        singleton="true" /> 	
+        
+    <!-- Class for Methods which can be invoked by the client -->
+    <bean id="helpservice.service" 
+        class="org.i4change.app.remote.HelpService" 
+        singleton="true" />     
+    
+    <import resource="services/userservice.service.xml" />    
+    <import resource="services/diagramservice.service.xml" />
+    <import resource="services/propertyservice.service.xml" />	
+    <import resource="services/organizationservice.service.xml" /> 
+    <import resource="services/downloadservice.service.xml" /> 
+    <import resource="services/websiteservice.service.xml" /> 
+    <import resource="services/projectservice.service.xml" /> 
+    <import resource="services/reportservice.service.xml" /> 
+					
+</beans>

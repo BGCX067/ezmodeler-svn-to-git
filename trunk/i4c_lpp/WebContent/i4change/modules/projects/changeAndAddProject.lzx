@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+	
+	
+<class name="changeAndAddProjectListItem" extends="basePagingListItem"> 
+
+    <attribute name="obj" value="null" />
+   
+    <attribute name="projectId" type="string" value="" /> 
+    <attribute name="itemName" type="string" value="" />
+    <attribute name="ownerName" type="string" value="" />
+    <attribute name="inserted" type="string" value="" />
+    <attribute name="itemRef" value="null" />
+    
+    <method name="setProjectId" args="projectId">
+        this.projectId = projectId;
+        this._projectId.setAttribute("text",projectId)
+    </method>
+    <method name="setItemName" args="itemName">
+        this.itemName = itemName;
+        this._itemName.setAttribute("text",itemName)
+    </method>
+    <method name="setOwnerName" args="ownerName">
+        this.ownerName = ownerName;
+        this._ownerName.setAttribute("text",ownerName)
+    </method>
+    <method name="setInserted" args="inserted">
+        this.inserted = inserted;
+        this._inserted.setAttribute("text",inserted);
+    </method>
+    
+    <turnOverTextItem name="_projectId" width="20" />
+    <turnOverTextItem name="_itemName" width="160" />
+    <turnOverTextItem name="_ownerName" width="100" />
+    <turnOverTextItem name="_inserted" width="120" />
+    <simpleLabelButton labelid="1281" width="80" visible="${ parent.clickable }">
+    	<handler name="onclick">
+    		this.parent.parent.parent.parent.parent.sendAddClick(parent);
+    	</handler>
+    	<labelTooltip labelid="1282" />
+    </simpleLabelButton>
+    
+    <attribute name="_tempxValue" type="number" value="0" />
+    <attribute name="_tempyValue" type="number" value="0" />
+    
+    <!--
+    <labelTooltip text="$once{ canvas.getLabelName(802) + parent.obj.insertedby.login }" />
+     -->
+
+</class>
+    
+<class name="changeAndAddProject" extends="guiPresenter" resizeable="false"
+       x="$once{ parent.width/2-this.width/2 }" y="20" width="500" 
+       height="380" closable="true" labelid="1273" >
+    
+    <infoIconBox y="22" labelid="1275" width="$once{ parent.width - 20 }" x="10" />
+    
+    <labelText x="2" labelid="592" y="80" />
+    
+    <view y="80" height="20" width="182" x="99" bgcolor="0xD0D0D0" />       
+    <inputtext name="search" x="100" width="180" bgcolor="0xFFFFFF"
+                   height="18" fontsize="10" y="81">
+      <handler name="onkeydown" args="k">
+          ////if ($debug) Debug.write("onkeydown: ",k)
+          if (k == 13) {
+              parent._innerTable.start = 0;
+              parent._innerTable.getProjectsBySearch.doCall();
+          }
+      </handler>
+    </inputtext>
+    
+    <view y="81" x="282" bgcolor="0xFFFFFF" width="18" height="18">
+      <view resource="search_help_item_rsc" y="1" x="1" />
+      <handler name="onclick">
+          parent._innerTable.start = 0;
+          parent._innerTable.getProjectsBySearch.doCall();
+      </handler>
+      <labelTooltip labelid="771" />
+    </view>   
+  
+    <view y="81" x="302" bgcolor="0xFFFFFF" width="18" height="18">
+      <view y="1" x="1" 
+          oninit="this.setSource(canvas.getIconPathByName('icon_addrole_add_small_rsc'))" />
+      <handler name="onclick">
+      	  parent._cancel.setAttribute("visibility","hidden");
+          parent._addProject._doShow.doStart();
+      </handler>
+      <labelTooltip labelid="1287" />
+    </view> 
+      
+    <addProject name="_addProject" height="0" y="110" clip="true" >
+        <handler name="onComplete">
+        	parent.close();
+        </handler>
+    </addProject>
+       
+    <turnOverListOrderedPaged name="_innerTable" y="${ 110+parent._addProject.height }" clip="true"
+            x="1" width="$once{ parent.width-2 }" height="${ 240-parent._addProject.height }" 
+            orderby="c.name" step="25" asc="true" listItemName="changeAndAddProjectListItem">  
+            
+        <attribute name="currentObjects" value="null" />
+          
+        <handler name="oninit">
+            this.currentObjects = new Array();
+            this.currentObjects.push("unitFixed");
+            this.addHeaderItemOrdered(1276,20,"c.projectId",true,true);
+            this.addHeaderItemOrdered(1277,160,"c.name",true,true);
+            this.addHeaderItemOrdered(1278,100,"c.owner.login",true,false);
+            this.addHeaderItemOrdered(1279,120,"c.inserted",true,false);
+            this.addHeaderItemOrdered(1280,80,"",false,false);
+            this.getProjectsBySearch.doCall();
+        </handler>  
+        
+        <handler name="oncallnext" >
+            //if ($debug) Debug.write("oncallnext");
+            this.getProjectsBySearch.doCall();
+        </handler>
+        
+        <handler name="oncallpre" >     
+            //if ($debug) Debug.write("oncallpre");
+            this.getProjectsBySearch.doCall();
+        </handler>
+        
+        <handler name="onUpdateOrder">
+        	this.getProjectsBySearch.doCall();
+        </handler>
+        
+        <handler name="onclickedItem" args="obj">
+            //if ($debug) Debug.write("onclickedItem",obj,obj.obj);
+            //parent.setDiagramObject(obj.obj.name,obj.obj.diagramObjectId);
+        </handler>
+        
+        <netRemoteCallRPC name="getProjectsBySearch" funcname="getProjectsBySearch" 
+                          remotecontext="$once{  canvas.projectServiceRPC }" >      
+            <netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+            <netparam><method name="getValue">return parent.parent.start; </method></netparam>
+            <netparam><method name="getValue">return parent.parent.step; </method></netparam>
+            <netparam><method name="getValue">return parent.parent.orderby;</method></netparam>
+            <netparam><method name="getValue">return parent.parent.asc;</method></netparam>
+            <netparam><method name="getValue">return canvas.currentdomainObj.organisation_id;</method></netparam>
+            <netparam><method name="getValue">return parent.parent.parent.search.getText();</method></netparam>
+            <handler name="ondata" args="value">
+                if ($debug) Debug.write("getProjectsBySearch: ",value);
+                //this.parent.destroy();
+                this.parent.initValues(value.records);
+                this.parent.renderContent(value.result);
+            </handler>
+        </netRemoteCallRPC> 
+        
+        <method name="renderContent" args="records">
+            <![CDATA[
+                 var list = this._innerlist._inn._inn;
+                this.renderList = records;
+                
+                this._innerlist._inn.setAttribute("y",0);
+                this._innerlist._inn._inn.setAttribute("height",records.length*20);
+                
+                this._innerlist._inn.resetItems();
+    		
+                for (var i=0;i<list.subviews.length;i++){
+                    if (records.length > i) {
+                        list.subviews[i].setAttribute("clickable",true);
+                        list.subviews[i].obj = records[i];
+                        list.subviews[i].setProjectId(records[i].projectId);
+                        list.subviews[i].setItemName(records[i].name);
+                        list.subviews[i].setOwnerName(records[i].owner.login);
+                        list.subviews[i].setInserted(parseDateToStringTime(records[i].inserted));
+                    } else {
+                        list.subviews[i].obj = null;
+                        list.subviews[i].setProjectId("");
+                        list.subviews[i].setItemName("");
+                        list.subviews[i].setOwnerName("");
+                        list.subviews[i].setInserted("");
+                        list.subviews[i].setAttribute("clickable",false);
+                    }
+                }
+            ]]>
+        </method>
+        
+        <handler name="onScrollItem" args="item">
+            <![CDATA[
+                if (this.renderList.length > item.itemId) {
+                    item.setAttribute("clickable",true);
+                    item.obj = this.renderList[item.itemId];
+                    item.setProjectId(this.renderList[item.itemId].projectId);
+                    item.setItemName(this.renderList[item.itemId].name);
+                    item.setOwnerName(this.renderList[item.itemId].owner.login);
+                    item.setInserted(parseDateToStringTime(this.renderList[item.itemId].inserted));
+                } else {
+                    item.obj = null;
+                    item.setProjectId("");
+                    item.setItemName("");
+                    item.setOwnerName("");
+                    item.setInserted("");
+                    item.setAttribute("clickable",false);
+                }
+            ]]>
+        </handler>
+        
+        <method name="sendAddClick" args="item">
+            if ($debug) Debug.write("sendAddClick: ",item);
+            this.addProjectToUser.projectId = item.projectId;
+            this.getProjectById.projectId = item.projectId;
+            this.addProjectToUser.doCall();
+            //parent.parent.diaObjId = item.obj.diagramObjectId;
+            //this.addRoleToUser.prepareCall(item.obj.diagramObjectId);
+        </method>
+        
+        <!--
+        public Long addProjectToUser(String SID, long projectId)
+         -->
+        <netRemoteCallRPC name="addProjectToUser" funcname="addProjectToUser" 
+            remotecontext="$once{  canvas.projectServiceRPC }" activeErrorHandler="true">
+            <attribute name="projectId" value="" type="string" />         
+            <netparam><method name="getValue">return canvas.sessionId;</method></netparam>
+            <netparam><method name="getValue">return parent.projectId;</method></netparam>
+            <handler name="ondata" args="value">
+                <![CDATA[
+                    //The onResult-Handler will be called be the rtmpconnection
+                    //if ($debug) Debug.write("getProjectById: ",value);
+                    if (value != null && value > 0) {
+                        parent.getProjectById.doCall();
+                    }
+                ]]>
+            </handler>  
+        </netRemoteCallRPC> 
+        
+        <!--
+            public Project getProjectById(String SID, Long projectId)
+         -->
+        <netRemoteCallRPC name="getProjectById" funcname="getProjectById" 
+            remotecontext="$once{  canvas.projectServiceRPC }" >
+            <attribute name="projectId" value="" type="string" />         
+            <netparam><method name="getValue">return canvas.sessionId;</method></netparam>
+            <netparam><method name="getValue">return parent.projectId;</method></netparam>
+            <handler name="ondata" args="value">
+                <![CDATA[
+                    //The onResult-Handler will be called be the rtmpconnection
+                    //if ($debug) Debug.write("getProjectById: ",value);
+                    if (value != null) {
+                        canvas.projectObj = value;
+                        canvas.currentProjectId = value.projectId;
+                        _currentUserHeaderMenu.setAttribute("projectText"," ( "+canvas.projectObj.name+" ) ");
+                        parent.parent._addProject.onComplete.sendEvent();
+                    }
+                ]]>
+            </handler>  
+        </netRemoteCallRPC>         
+        
+    </turnOverListOrderedPaged> 
+    
+    <simpleLabelButton name="_cancel" labelid="1274" width="100" x="$once{ parent.width-105*1 }" 
+                       y="$once{ parent.height-24 }">
+        <handler name="onclick">
+            this.parent.close();
+        </handler>
+    </simpleLabelButton>   
+	
+</class>
+
+</library>

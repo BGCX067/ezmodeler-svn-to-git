@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+<!--- User administration module for ADMIN.-->
+<class name="modUserRoles"  extends="baseContentTabbedView" labelid="956">  
+
+    <handler name="oninit">
+        //Add Help Item
+        canvas.addCurrentHelpId(48,this.__constructor__.classname);
+    </handler> 
+    
+    <view>
+        
+        <labelText labelid="958" width="440" y="2" resize="false" 
+                   x="2" multiline="true" fontstyle="italic" />
+        
+        
+        <labelText labelid="969" y="40" x="2" fontstyle="bold" />      
+    
+        <turnOverList name="_turnoverlist" width="440" height="540" 
+            x="2" y="70" orderby="c.user_id" step="50" asc="true">
+    
+            <handler name="oninit">
+                this.addHeaderItem(146,60);
+                this.addHeaderItem(147,100);
+                this.addHeaderItem(148,132);
+                this.addHeaderItem(149,132);
+                this.getUserListByOrganization.doCall();
+            </handler>
+            
+            <handler name="oncallnext" >
+                this.getUserListByOrganization.doCall();
+            </handler>
+            
+            <handler name="oncallpre" >     
+                this.getUserListByOrganization.doCall();
+            </handler>
+            
+            <handler name="onclickedItem" args="obj">
+                //Debug.write("onclickedItem",obj,obj.obj);
+                parent._useradminvalueform.initValueFieldsByObject(obj.obj);
+            </handler>
+            
+            <netRemoteCallRPC name="getUserListByOrganization" funcname="getUserListByOrganization" 
+                              remotecontext="$once{  canvas.userServiceRPC }" >      
+                <netparam><method name="getValue"> return canvas.sessionId; </method></netparam>
+                <netparam><method name="getValue"> return parent.parent.start; </method></netparam>
+                <netparam><method name="getValue"> return parent.parent.step; </method></netparam>
+                <netparam><method name="getValue"> return parent.parent.orderby; </method></netparam>
+                <netparam><method name="getValue"> return parent.parent.asc; </method></netparam>
+                <netparam><method name="getValue">return canvas.currentdomainObj.organisation_id;</method></netparam>
+                <handler name="ondata" args="value">
+                    //Debug.write("getUserList: ",value);
+                    //this.parent.destroy();
+                    this.parent.initValues(value.records);
+                    this.parent.renderContent(value.result);
+                </handler>
+            </netRemoteCallRPC> 
+            
+            <method name="renderContent" args="records">
+                <![CDATA[
+	                this.clearList();
+	                for (var i=0;i<records.length;i++){
+	                    new lz.userAdminListItem(this._innerlist._inn._inn,{obj:records[i],user_id:records[i].user_id,login:records[i].login,firstname:records[i].firstname,lastname:records[i].lastname});
+	                }
+                ]]>
+            </method>
+    
+        </turnOverList>
+            
+
+        
+        <userModeratorValueForm name="_useradminvalueform" x="460" />
+
+    </view>
+    
+    <vscrollbar name="_scrollbar" />
+    
+</class>
+
+</library>

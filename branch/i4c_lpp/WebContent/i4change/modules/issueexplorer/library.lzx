@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+    
+    <resource name="_approve_pending_org_rsc" src="resources/apply.png" />
+    <resource name="_deny_pending_org_rsc" src="resources/cancel.png" />
+    <resource name="_regress_issuelist_rsc" src="resources/kaboodleloop.png" />
+	
+	<include href="issueExplorer.lzx" />
+
+</library>

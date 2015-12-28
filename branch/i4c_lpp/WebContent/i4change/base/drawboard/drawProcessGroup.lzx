@@ -1,0 +1,522 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+	
+<!--	
+<class name="drawProcessgroupWhiteBoard" resource="drawarrow_rsc" >
+	<method name="setTint" args="color, brightness">
+	    <![CDATA[
+	    if (color != "" && color != null){
+	        if (brightness == null) { brightness = 0; }
+	        var rgb = color;
+	        var red=(rgb >> 16) & 0xFF;
+	        var green=(rgb >> 8) & 0xFF;
+	        var blue=rgb & 0xFF;
+
+	        this.setColorTransform( { ra : red, ga : green, ba : blue,
+	                            		rb : 0, gb : 0, bb : 0 } );
+	    }
+	    ]]>
+	</method>
+</class>
+ -->
+
+<class name="drawProcessGroup" extends="baseDrawSave">
+	
+  	<attribute name="currentprocessgroupstroke" value="0xFF6600" />
+  	<attribute name="currentprocessgroupstrokeDis" value="1" type="number" />
+  	<attribute name="currentprocessgroupstrokeFill" value="0xFF9900" />
+  	<attribute name="currentprocessgroupstrokeFillDis" value="1" type="number" />
+  	<attribute name="currentprocessgrouplineWidth" value="2" type="number" />
+	
+    <!-- ###########################
+    Processgroup
+     -->
+	<method name="startProcessgroup">
+		//Debug.write("startRect");
+    	this.currentlayer = new lz.drawViewContainerNew(this,{name:'processgroup'+this.getCounter(),typeOfObject:'processgroupTemp',width:this.width+2,height:this.height+2});
+    	new lz.drawViewNew(this.currentlayer,{name:'_processgroup',typeOfObject:'processgroup',width:this.width+2,height:this.height+2});
+		this.drawlineOnObject(this.currentlayer._processgroup,-1,-1,0,0);
+		this.drawlineOnObject(this.currentlayer._processgroup,this.width,this.height,this.width+1,this.height+1);
+  	</method>  
+
+	<method name="endProcessgroup">
+		<![CDATA[
+			////if ($debug) Debug.write(" this.startx, this.starty , this.endx, this.endy ",this.startx, this.starty , this.endx, this.endy);
+			this.currentlayer.destroy();
+			var x = Math.round(this.startx/(canvas.defaultProcessGroupWidth*canvas.gridFixedFactor))*(canvas.defaultProcessGroupWidth*canvas.gridFixedFactor);
+			var width = this.endx - this.startx;
+			if (this.endx<this.startx){
+				x = this.endx;
+				width = Math.abs(width);
+			}
+			
+			var y = Math.round(this.starty/(canvas.defaultProcessGroupHeight*canvas.gridFixedFactor))*(canvas.defaultProcessGroupHeight*canvas.gridFixedFactor);
+			var height = this.endy - this.starty;
+			if (this.endy<this.starty){
+				y = this.endy;
+				height = Math.abs(height);
+				
+			}
+			
+			if (width<20){
+				width = canvas.defaultProcessGroupWidth;
+			}
+			if (height < 20) {
+				height = canvas.defaultProcessGroupHeight;
+			}
+            
+            var newPositionsObject = this.calcDefaultObjectPositionHierarchical(x,y,width,height);
+            ////if ($debug) Debug.write("newPositionsObject: ",newPositionsObject.x,newPositionsObject.y);
+            var x = newPositionsObject.x;
+            var y = newPositionsObject.y;
+            
+			////if ($debug) Debug.write("height,width: ",height,width);
+			
+			this.currentlayer = new lz.drawViewContainerNew(this,{name:'processgroup'+this.getCounter(),
+					typeOfObject:'processgroupTemp',doUpdate:false,
+					x:x,y:y,width:width,height:height});
+			////if ($debug) Debug.write(this.currentlayer,width,height);	
+    		new lz.drawViewNewItem(this.currentlayer,{name:'_processgroup',
+    				typeOfObject:'processgroup',x:0,y:0,
+    				width:width,height:height});
+			////if ($debug) Debug.write(this.currentlayer._processgroup,width,height);
+			//this.currentlayer = new lz.drawViewNew(this,{name:'processgroup'+this.getCounter(),typeOfObject:'processgroup',x:x,y:y,width:width,height:height});
+			this.drawProcessgroupHistory(this.currentlayer,0,0,width,height,
+                this.currentprocessgroupstroke,this.currentprocessgrouplineWidth,
+                this.currentprocessgroupstrokeFill,this.currentprocessgroupstrokeDis,
+                this.currentprocessgroupstrokeFillDis);
+			
+			//this.currentlayer._processgroup.setAttribute('stretches','both');
+			this.drawProcessgroupFinal(this.currentlayer.name,this.currentprocessgroupstroke,
+                this.currentprocessgrouplineWidth,this.currentprocessgroupstrokeFill,
+                this.currentprocessgroupstrokeDis,this.currentprocessgroupstrokeFillDis,
+                x,y,width,height,
+                '',0, new Array(),null);
+			this.checkStepLayers();
+			this.currentlayer.typeOfObject = "processgroup";
+            this.currentlayer.doUpdate = true;
+		]]>
+	</method> 
+	
+	<!---
+		@TODO: Check if ready to delete this function
+		@keyword deprecated
+	-->
+	<method name="findFixedPosition" args="x,y,width,height">
+		
+	</method>
+	
+	<method name="loadFixedProcessgroup_saveObj" args="txt,objectId,x,y,width,height,newName,dataCarrierList,propertyMap">
+		<![CDATA[
+			this.currentlayer = new lz.drawViewContainerNew(this,{name:newName,
+					typeOfObject:'processgroupTemp',doUpdate:false,
+					x:x,y:y,width:width,height:height});
+					
+			//if ($debug) Debug.write(this.currentlayer,width,height);	
+    		new lz.drawViewNewItem(this.currentlayer,{name:'_processgroup',
+    				typeOfObject:'processgroup',x:0,y:0,
+    				width:width,height:height});
+			////if ($debug) Debug.write(this.currentlayer._processgroup,width,height);
+			//this.currentlayer = new lz.drawViewNew(this,{name:'processgroup'+this.getCounter(),typeOfObject:'processgroup',x:x,y:y,width:width,height:height});
+			this.drawProcessgroupHistory(this.currentlayer,0,0,width,height,this.currentprocessgroupstroke,
+				this.currentprocessgrouplineWidth,this.currentprocessgroupstrokeFill,
+				this.currentprocessgroupstrokeDis,this.currentprocessgroupstrokeFillDis);
+			
+			//this.currentlayer._processgroup.setAttribute('stretches','both');
+			this.drawProcessgroupFinal(this.currentlayer.name,this.currentprocessgroupstroke,
+                this.currentprocessgrouplineWidth,this.currentprocessgroupstrokeFill,
+                this.currentprocessgroupstrokeDis,this.currentprocessgroupstrokeFillDis,
+                x,y,width,height,
+                txt,objectId,dataCarrierList,propertyMap);
+			this.checkStepLayers();
+            this.completedObjectTextObjByLoading(this.currentlayer,txt);
+			//this.currentlayer.initEditableText(txt);
+			this.currentlayer.typeOfObject = "processgroup";
+            this.currentlayer.doUpdate = true;
+			//this.autoConnectionTreeLines(this.currentlayer);
+		]]>
+	</method> 
+    
+    <method name="loadFixedProcessgroup_saveObjDrag" args="txt,objectId,x,y,width,height,newName,dataCarrierList,propertyMap">
+        <![CDATA[
+        
+            var newPositionsObject = this.calcDefaultObjectPositionHierarchical(x,y,width,height);
+            ////if ($debug) Debug.write("newPositionsObject: ",newPositionsObject.x,newPositionsObject.y);
+            var x = newPositionsObject.x;
+            var y = newPositionsObject.y;
+            
+            this.currentlayer = new lz.drawViewContainerNew(this,{name:newName,
+                    typeOfObject:'processgroupTemp',doUpdate:false,
+                    x:x,y:y,width:width,height:height});
+                    
+            //if ($debug) Debug.write(this.currentlayer,width,height);    
+            new lz.drawViewNewItem(this.currentlayer,{name:'_processgroup',
+                    typeOfObject:'processgroup',x:0,y:0,
+                    width:width,height:height});
+            ////if ($debug) Debug.write(this.currentlayer._processgroup,width,height);
+            //this.currentlayer = new lz.drawViewNew(this,{name:'processgroup'+this.getCounter(),typeOfObject:'processgroup',x:x,y:y,width:width,height:height});
+            this.drawProcessgroupHistory(this.currentlayer,0,0,width,height,this.currentprocessgroupstroke,
+                this.currentprocessgrouplineWidth,this.currentprocessgroupstrokeFill,
+                this.currentprocessgroupstrokeDis,this.currentprocessgroupstrokeFillDis);
+            
+            //this.currentlayer._processgroup.setAttribute('stretches','both');
+            this.drawProcessgroupFinal(this.currentlayer.name,this.currentprocessgroupstroke,
+                this.currentprocessgrouplineWidth,this.currentprocessgroupstrokeFill,
+                this.currentprocessgroupstrokeDis,this.currentprocessgroupstrokeFillDis,
+                x,y,width,height,
+                txt,objectId,dataCarrierList,propertyMap);
+            this.checkStepLayers();
+            this.completedObjectTextObjByLoading(this.currentlayer,txt);
+            //this.currentlayer.initEditableText(txt);
+            this.currentlayer.typeOfObject = "processgroup";
+            this.currentlayer.doUpdate = true;
+            //this.autoConnectionTreeLines(this.currentlayer);
+        ]]>
+    </method> 
+    
+    <method name="drawFixedProcessgroupDrag" args="x,y">
+        <![CDATA[
+            //if ($debug) Debug.write(" this.startx, this.starty , this.endx, this.endy ",this.startx, this.starty , this.endx, this.endy);
+            //this.currentlayer.destroy();
+            var width = canvas.defaultProcessGroupWidth;
+            var height = canvas.defaultProcessGroupHeight;
+            
+            var newPositionsObject = this.calcDefaultObjectPositionHierarchical(x,y,width,height);
+            ////if ($debug) Debug.write("newPositionsObject: ",newPositionsObject.x,newPositionsObject.y);
+            var x = newPositionsObject.x;
+            var y = newPositionsObject.y;
+            
+            this.currentlayer = new lz.drawViewContainerNew(this,{name:'processgroup'+this.getCounter(),
+                    typeOfObject:'processgroupTemp',doUpdate:false,
+                    x:x,y:y,width:width,height:height});
+                    
+            //if ($debug) Debug.write(this.currentlayer,width,height);    
+            new lz.drawViewNewItem(this.currentlayer,{name:'_processgroup',
+                    typeOfObject:'processgroup',x:0,y:0,
+                    width:width,height:height});
+            ////if ($debug) Debug.write(this.currentlayer._processgroup,width,height);
+            //this.currentlayer = new lz.drawViewNew(this,{name:'processgroup'+this.getCounter(),typeOfObject:'processgroup',x:x,y:y,width:width,height:height});
+            this.drawProcessgroupHistory(this.currentlayer,0,0,width,height,
+                    this.currentprocessgroupstroke,this.currentprocessgrouplineWidth,
+                    this.currentprocessgroupstrokeFill,this.currentprocessgroupstrokeDis,
+                    this.currentprocessgroupstrokeFillDis);
+            
+            //this.currentlayer._processgroup.setAttribute('stretches','both');
+            this.drawProcessgroupFinal(this.currentlayer.name,this.currentprocessgroupstroke,
+                this.currentprocessgrouplineWidth,this.currentprocessgroupstrokeFill,
+                this.currentprocessgroupstrokeDis,this.currentprocessgroupstrokeFillDis,
+                x,y,width,height,
+                '',0,new Array(),null);
+            this.checkStepLayers();
+            this.currentlayer.loadObjectIdentifier();
+            this.currentlayer.typeOfObject = "processgroup";
+            this.currentlayer.doUpdate = true;
+            //this.autoConnectionTreeLines(this.currentlayer);
+        ]]>
+    </method>   
+	
+	<method name="drawFixedProcessgroup">
+		<![CDATA[
+			//if ($debug) Debug.write(" this.startx, this.starty , this.endx, this.endy ",this.startx, this.starty , this.endx, this.endy);
+			//this.currentlayer.destroy();
+			var width = canvas.defaultProcessGroupWidth;
+			var height = canvas.defaultProcessGroupHeight;
+			
+			var newPositionsObject = this.calcDefaultObjectPositionHierarchical(this.startx,this.starty,width,height);
+            ////if ($debug) Debug.write("newPositionsObject: ",newPositionsObject.x,newPositionsObject.y);
+            var x = newPositionsObject.x;
+            var y = newPositionsObject.y;
+			
+			this.currentlayer = new lz.drawViewContainerNew(this,{name:'processgroup'+this.getCounter(),
+					typeOfObject:'processgroupTemp',doUpdate:false,
+					x:x,y:y,width:width,height:height});
+					
+			//if ($debug) Debug.write(this.currentlayer,width,height);	
+    		new lz.drawViewNewItem(this.currentlayer,{name:'_processgroup',
+    				typeOfObject:'processgroup',x:0,y:0,
+    				width:width,height:height});
+			////if ($debug) Debug.write(this.currentlayer._processgroup,width,height);
+			//this.currentlayer = new lz.drawViewNew(this,{name:'processgroup'+this.getCounter(),typeOfObject:'processgroup',x:x,y:y,width:width,height:height});
+			this.drawProcessgroupHistory(this.currentlayer,0,0,width,height,
+                    this.currentprocessgroupstroke,this.currentprocessgrouplineWidth,
+                    this.currentprocessgroupstrokeFill,this.currentprocessgroupstrokeDis,
+                    this.currentprocessgroupstrokeFillDis);
+			
+			//this.currentlayer._processgroup.setAttribute('stretches','both');
+			this.drawProcessgroupFinal(this.currentlayer.name,this.currentprocessgroupstroke,
+                this.currentprocessgrouplineWidth,this.currentprocessgroupstrokeFill,
+                this.currentprocessgroupstrokeDis,this.currentprocessgroupstrokeFillDis,
+                x,y,width,height,
+                '',0, new Array(),null);
+			this.checkStepLayers();
+			this.currentlayer.loadObjectIdentifier();
+			this.currentlayer.typeOfObject = "processgroup";
+            this.currentlayer.doUpdate = true;
+			//this.autoConnectionTreeLines(this.currentlayer);
+		]]>
+	</method> 	
+	
+	<method name="loadFixedProcessgroup" args="objRef,strx,stry">
+		<![CDATA[
+			this.startx = strx;
+			this.starty = stry;
+			//if ($debug) Debug.write(" this.startx, this.starty , this.endx, this.endy ",this.startx, this.starty , this.endx, this.endy);
+			//this.currentlayer.destroy();
+			var width = width = canvas.defaultProcessGroupWidth;
+			var height = canvas.defaultProcessGroupHeight;
+			
+			var newPositionsObject = this.calcDefaultObjectPositionHierarchical(this.startx,this.starty,width,height);
+            ////if ($debug) Debug.write("newPositionsObject: ",newPositionsObject.x,newPositionsObject.y);
+            var x = newPositionsObject.x;
+            var y = newPositionsObject.y;
+			
+			this.currentlayer = new lz.drawViewContainerNew(this,{name:'processgroup'+this.getCounter(),
+					typeOfObject:'processgroupTemp',doUpdate:false,
+					x:x,y:y,width:width,height:height});
+					
+			//if ($debug) Debug.write(this.currentlayer,width,height);	
+    		new lz.drawViewNewItem(this.currentlayer,{name:'_processgroup',
+    				typeOfObject:'processgroup',x:0,y:0,
+    				width:width,height:height});
+			////if ($debug) Debug.write(this.currentlayer._processgroup,width,height);
+			//this.currentlayer = new lz.drawViewNew(this,{name:'processgroup'+this.getCounter(),typeOfObject:'processgroup',x:x,y:y,width:width,height:height});
+			this.drawProcessgroupHistory(this.currentlayer,0,0,width,height,this.currentprocessgroupstroke,this.currentprocessgrouplineWidth,this.currentprocessgroupstrokeFill,this.currentprocessgroupstrokeDis,this.currentprocessgroupstrokeFillDis);
+			
+			//this.currentlayer._processgroup.setAttribute('stretches','both');
+			this.drawProcessgroupFinal(this.currentlayer.name,this.currentprocessgroupstroke,
+                this.currentprocessgrouplineWidth,this.currentprocessgroupstrokeFill,
+                this.currentprocessgroupstrokeDis,this.currentprocessgroupstrokeFillDis,
+                x,y,width,height,
+                '',0, new Array(),null);
+			this.checkStepLayers();
+			//this.currentlayer.loadObjectIdentifier();
+            this.completedObjectTextObjByLoading(objRef[6]);
+			//this.currentlayer.initEditableText(objRef[6]);
+			this.currentlayer.typeOfObject = "processgroup";
+			this.autoConnectionTreeLines(this.currentlayer);
+            this.currentlayer.doUpdate = true;
+		]]>
+	</method> 
+    
+    <method name="setFixedProcessGroupXPosition" args="objRef,newx">
+        <![CDATA[
+            objRef.setAttribute('x',this.getFixedProcessGroupXPosition(objRef,newx));
+        ]]>
+    </method>		
+	 
+	<method name="getFixedProcessGroupXPosition" args="objRef,newx">
+		<![CDATA[
+		    ////if ($debug) Debug.write("getFixedProcessGroupXPosition ",newx,objRef.x);
+		
+			var x = Math.round(newx/(canvas.defaultProcessGroupWidth*canvas.gridFixedFactor))*(canvas.defaultProcessGroupWidth*canvas.gridFixedFactor);
+			var y = Math.round(objRef.y/(canvas.defaultProcessGroupHeight*canvas.gridFixedFactor))*(canvas.defaultProcessGroupHeight*canvas.gridFixedFactor);
+			var isFreePosition = false;
+			
+			while (!isFreePosition) {
+				var foundItem = false;
+				
+				for (var i=0;i<this.subviews.length;i++) {
+					if (this.subviews[i].x == x && this.subviews[i].y == y){
+						if (objRef == this.subviews[i]){
+                            ////if ($debug) Debug.write("Found Self!");
+                            continue;
+                        } else {
+                            foundItem = true;
+                            break;
+                        }
+					}
+				}
+				
+				if (foundItem){
+					x += (canvas.defaultProcessGroupWidth*canvas.gridFixedFactor);
+				} else {
+					isFreePosition = true;
+				}
+			}
+			
+			//if ($debug) Debug.write("getFixedProcessGroupXPosition ",x);
+			
+			return x;
+		]]>
+	</method>
+	
+	<method name="setFixedProcessGroupYPosition" args="objRef,newy">
+		objRef.setAttribute('y',Math.round(newy/(canvas.defaultProcessGroupHeight*canvas.gridFixedFactor))*(canvas.defaultProcessGroupHeight*canvas.gridFixedFactor));
+	</method>
+    
+  	<method name="drawProcessgroup" args="x1,y1,x2,y2">
+   		<![CDATA[
+    		
+    		currentlayer._processgroup.lineWidth = this.currentprocessgrouplineWidth;
+    		currentlayer._processgroup.strokeStyle = this.currentprocessgroupstroke;
+    		currentlayer._processgroup.fillStyle = this.currentprocessgroupstrokeFill;
+    		
+    		currentlayer._processgroup.beginPath();
+    		currentlayer._processgroup.moveTo(x1,y1);
+    		currentlayer._processgroup.lineTo(x1,y2);
+    		currentlayer._processgroup.lineTo(x2,y2);
+    		currentlayer._processgroup.lineTo(x2,y1);
+    		currentlayer._processgroup.lineTo (x1,y1);
+    		//currentlayer._processgroup.closePath();
+    		
+    		if (this.currentrectanglestrokeDis!=-1){
+	    		currentlayer._processgroup.stroke();
+    		}
+
+    		if (this.currentrectanglestrokeFillDis!=-1){
+	    		currentlayer._processgroup.fill();
+    		}
+    		
+    	]]>   
+  	</method>    
+  	
+  	<method name="drawProcessgroupOnTarget" args="targetOBj,x1,y1,x2,y2">
+   		<![CDATA[
+    		
+    		targetOBj._processgroup.lineWidth = this.currentprocessgrouplineWidth;
+    		targetOBj._processgroup.strokeStyle = this.currentprocessgroupstroke;
+    		targetOBj._processgroup.fillStyle = this.currentprocessgroupstrokeFill;
+    		
+    		targetOBj._processgroup.beginPath();
+    		targetOBj._processgroup.moveTo(x1,y1);
+    		targetOBj._processgroup.lineTo(x1,y2);
+    		targetOBj._processgroup.lineTo(x2,y2);
+    		targetOBj._processgroup.lineTo(x2,y1);
+    		targetOBj._processgroup.lineTo (x1,y1);
+    		//currentlayer._processgroup.closePath();
+    		
+    		if (this.currentrectanglestrokeDis!=-1){
+	    		targetOBj._processgroup.stroke();
+    		}
+
+    		if (this.currentrectanglestrokeFillDis!=-1){
+	    		targetOBj._processgroup.fill();
+    		}
+    		
+    	]]>   
+  	</method>    
+  	
+  	<method name="drawProcessgroupToHistory" args="lastActionObject,parentView">
+		this.currentlayer = new lz.drawViewContainerNew(parentView,{name:lastActionObject[lastActionObject.length-1],
+			typeOfObject:'processgroup',
+			x:lastActionObject[lastActionObject.length-5],y:lastActionObject[lastActionObject.length-4],
+			width:lastActionObject[lastActionObject.length-3],height:lastActionObject[lastActionObject.length-2]});
+		new lz.drawViewNewItem(this.currentlayer,{name:'_processgroup',typeOfObject:'processgroup',x:lastActionObject[lastActionObject.length-5],y:lastActionObject[lastActionObject.length-4],width:lastActionObject[lastActionObject.length-3],height:lastActionObject[lastActionObject.length-2]});
+   		this.drawProcessgroupHistory(this.currentlayer._processgroup,0,0,lastActionObject[lastActionObject.length-3],lastActionObject[lastActionObject.length-2],lastActionObject[1],lastActionObject[2],lastActionObject[3],lastActionObject[4],lastActionObject[5]);
+  	</method>
+    
+  	<method name="drawProcessgroupHistory" args="parentObj,x1,y1,x2,y2,stroke,line,fill,strokeDis,fillDis">
+   		<![CDATA[
+    		////if ($debug) Debug.write("drawProcessgroupHistory",parentObj,x1,y1,x2,y2,stroke,line,fill,strokeDis,fillDis);
+    		parentObj._processgroup.lineWidth = line;
+    		parentObj._processgroup.strokeStyle = stroke;
+    		parentObj._processgroup.fillStyle = fill;
+    		
+    		parentObj._processgroup.beginPath();
+    		parentObj._processgroup.moveTo(x1,y1);
+    		parentObj._processgroup.lineTo(x1,y2);
+    		parentObj._processgroup.lineTo(x2,y2);
+    		parentObj._processgroup.lineTo(x2,y1);
+    		parentObj._processgroup.lineTo (x1,y1);
+    		//parentObj._processgroup.closePath();
+    		
+    		if (strokeDis!=-1){
+	    		parentObj._processgroup.stroke();
+    		}
+    		
+    		if (fillDis!=-1){
+	    		parentObj._processgroup.fill();
+    		}
+		
+    	]]>   
+  	</method>  
+  	
+  	<method name="drawProcessgroupFinal" args="newName,stroke,line,fill,strokeDis,fillDis,x,y,width,height,currentText,diagramobjectid,dataCarrierList,propertyList" >
+  		//Debug.write("drawrectregisterFinal",newName,stroke,line,fill,strokeDis,fillDis,x,y,width,height);
+		var actionObject = new Array();
+	    actionObject[0] = 'processgroup';
+	    actionObject[1] = stroke;
+	    actionObject[2] = line;
+	    actionObject[3] = fill;
+	    actionObject[4] = strokeDis;
+	    actionObject[5] = fillDis;
+        actionObject[6] = propertyList;
+        actionObject[7] = dataCarrierList;
+	    actionObject[8] = currentText;//Text Value
+        actionObject[9] = diagramobjectid;
+		actionObject[10] = this.counter;
+	    actionObject[11] = x;
+	    actionObject[12] = y;
+	    actionObject[13] = width;
+	    actionObject[14] = height;	    
+	    actionObject[15] = newName;
+	    this.baseactionobjectList.push(actionObject);
+	    this.onsharedMessage('draw',actionObject);
+  	</method>
+  	
+    	
+  	
+  	<method name="editProcessGroupTextByValues" args="obj">
+		<![CDATA[
+			if (!this.letterObjectIsActive){
+				//obj._processgroup.destroy();
+				
+				//this.drawProcessgroupOnTarget()
+			    
+				if (this.boundingref!=null) {
+                    //if ($debug) Debug.write("REMOVE BOUNDING REF");
+                    this.boundingref.removeIt();
+                }
+                
+			    var txt = obj._textview.getText();
+			    
+			    var _txt = obj._textview.getText();
+				var _fontstyle = obj._textview.fontstyle;
+				var _fontsize = obj._textview.fontsize;
+				var _fgcolor = obj._textview.fgcolor;
+				var _width = obj._textview.width;
+				var _height = obj._textview.height;
+				obj._textview.destroy();
+		        var t = new lz.styleableInputDrawBoard(obj,{name:'_textview',
+					text:_txt,
+					fontstyle:_fontstyle,
+					fontsize:_fontsize,
+					fgcolor:_fgcolor,
+					width:_width,height:_height});
+	        }	
+		]]>
+	</method>
+	
+	<method name="completedProcessGroupObj" args="obj">
+		//if ($debug) Debug.write("completedProcessGroupObj: ",obj);
+		var _parentObj = obj.parent;
+		var _txt = obj.getText();
+		var _fontstyle = obj.fontstyle;
+		var _fontsize = obj.fontsize;
+		var _fgcolor = obj.fgcolor;
+		var _width = obj.width;
+		var _height = obj.height;
+		obj.destroy();
+		var t = new lz.styleableTextDrawBoard(_parentObj,{name:'_textview',
+				text:_txt,
+				fontstyle:_fontstyle,
+				fontsize:_fontsize,
+				fgcolor:_fgcolor,
+				width:_width,height:_height});
+		this.updateObjTextByName(_parentObj.name,_txt);
+	</method>
+	
+	<method name="redrawProcessGroupItemByScaling" args="refObj">
+		////if ($debug) Debug.write("redrawProcessGroupItemByScaling: ",refObj,refObj.width,refObj.height);
+		refObj._processgroup.destroy();
+		new lz.drawViewNewItem(refObj,{name:'_processgroup',
+    				typeOfObject:'processgroup',x:0,y:0,
+    				width:refObj.width,height:refObj.height});
+    	refObj._processgroup.sendToBack();		
+    	this.drawProcessgroupOnTarget(refObj,0,0,refObj.width,refObj.height);		
+	</method>
+	
+	
+</class>
+
+</library>

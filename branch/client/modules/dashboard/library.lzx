@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+    
+    <resource name="add_diagram_icon" src="resources/arrow_right_green.png" />
+	
+	<!--
+	is this resource necessary?
+	-swagner
+	I think this is not necessary. Never used.
+	-h.kuze
+	<include href="resources/" />
+	 -->
+     
+    <include href="pendingorgs/" />
+	<include href="infosPanel.lzx" />
+	<include href="profilesPanel.lzx" />
+	<include href="rssPanel.lzx" />
+	<include href="mainDashboard.lzx" />
+    <include href="dashboardMenubar.lzx" />
+
+</library>

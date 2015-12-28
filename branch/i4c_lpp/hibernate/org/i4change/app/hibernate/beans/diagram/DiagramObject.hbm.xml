@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+  <class table="diagramobject" lazy="false" name="org.i4change.app.hibernate.beans.diagram.DiagramObject">
+    <id column="diagramobject_id" name="diagramObjectId">
+      <generator class="increment"/>
+    </id>
+    <property name="uuid" type="string" column="uuid"/>
+    <property name="deleted" type="string" column="deleted"/>
+    <property name="inserted" type="java.util.Date" column="inserted"/>
+    <many-to-one outer-join="true" insert="true" column="insertedby" lazy="false" update="true" name="insertedby" class="org.i4change.app.hibernate.beans.user.Users"/>
+    <property name="name" type="text" column="name"/>
+    <property name="updated" type="java.util.Date" column="updated"/>
+    <many-to-one outer-join="true" insert="true" column="updatedby" lazy="false" update="true" name="updatedby" class="org.i4change.app.hibernate.beans.user.Users"/>
+    <property name="objectTypeName" type="string" column="objecttypename"/>
+    <many-to-one outer-join="true" insert="true" column="organisation_id" lazy="false" update="true" name="organisation" class="org.i4change.app.hibernate.beans.domain.Organisation"/>
+    <property name="pending" type="boolean" column="pending"/>
+    <property name="objectKey" type="string" column="objectkey"/>
+    <many-to-one outer-join="true" insert="true" column="assignee_id" lazy="false" update="true" name="assignee" class="org.i4change.app.hibernate.beans.diagram.Assignee"/>
+    <set table="datacarrier_diagramobject" lazy="false" inverse="true" cascade="none" name="dataCarrierDiagramObject">
+      <key column="diagramobject_id"/>
+      <one-to-many class="org.i4change.app.hibernate.beans.diagram.DataCarrierDiagramObject"/>
+    </set>
+    <property name="comment" type="text" column="comment"/>
+  </class>
+</hibernate-mapping>

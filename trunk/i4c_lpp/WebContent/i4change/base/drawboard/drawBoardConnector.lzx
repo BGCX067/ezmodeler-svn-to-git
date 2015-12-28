@@ -1,0 +1,1990 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+    
+
+<class name="drawBoardConnector" extends="drawIssue">
+
+    <!--- Trackgroup for all Connector Points -->
+    <attribute name="trackgroup" value="mymenu" type="string"/>
+    <attribute name="connectordraw_del" value="$once{ new LzDelegate(this, 'drawConnector' )}" />
+    <attribute name="currentConnectorStroke" value="$once{ canvas.currentConnectorStroke }" />
+    <attribute name="currentConnectorLineWidth" value="2" type="number" />  
+    
+    <attribute name="currentStartObject" value="null" />    
+    <attribute name="currentEndObject" value="null" />  
+    
+    <attribute name="alreadyDeleted" value="false" type="boolean" />
+    
+    <attribute name="connectorList" value="null" />
+    
+    <attribute name="pointRectInside" value="null" />
+    
+    <!--
+    <handler name="ondrawmodus" args="draw">
+        ////if ($debug) Debug.write("drawmodus ",draw);
+        this.drawmodus = draw;
+        if (this.drawmodus=='connector'){
+            this.showAllConnectors();
+        } else {
+            this.removeAllConnectors();
+        }
+    </handler>
+     -->
+    
+    <!--
+    <method name="showAllConnectors">
+        <![CDATA[
+            for (var i=0;i<this.subviews.length;i++){
+                if (this.subviews[i].typeOfObject=="processgroup"
+                    || this.subviews[i].typeOfObject=="process"
+                    || this.subviews[i].typeOfObject=="processtree"
+                    || this.subviews[i].typeOfObject=="activity"
+                    || this.subviews[i].typeOfObject=="issueflow"
+                    || this.subviews[i].typeOfObject=="company"
+                    || this.subviews[i].typeOfObject=="departement"
+                    || this.subviews[i].typeOfObject=="companyFixed"
+                    || this.subviews[i].typeOfObject=="departementFixed"
+                    || this.subviews[i].typeOfObject=="unitFixed"
+                    || this.subviews[i].typeOfObject=="inputflow"
+                    || this.subviews[i].typeOfObject=="outputflow"){
+                    this.subviews[i].showObjectConnectors();
+                }
+            }
+        ]]>
+    </method>
+     -->
+    
+    <!--
+    	This Method is used during the Loading of a 
+    	Diagram to Simulate an Anchor to draw the Connection Line
+     -->
+    <method name="simulateAllConnectors">
+        <![CDATA[
+            for (var i=0;i<this.subviews.length;i++){
+                if (this.subviews[i].typeOfObject=="processgroup"
+                    || this.subviews[i].typeOfObject=="process"
+                    || this.subviews[i].typeOfObject=="processtree"
+                    || this.subviews[i].typeOfObject=="activity"
+                    || this.subviews[i].typeOfObject=="issueflow"
+                    || this.subviews[i].typeOfObject=="company"
+                    || this.subviews[i].typeOfObject=="departement"
+                    || this.subviews[i].typeOfObject=="companyFixed"
+                    || this.subviews[i].typeOfObject=="departementFixed"
+                    || this.subviews[i].typeOfObject=="unitFixed"
+                    || this.subviews[i].typeOfObject=="inputflow"
+                    || this.subviews[i].typeOfObject=="outputflow"){
+                    this.subviews[i].simulateObjectConnectors();
+                }
+            }
+        ]]>
+    </method>
+    
+    <!--
+    <method name="removeAllConnectors">
+        <![CDATA[
+            for (var i=0;i<this.subviews.length;i++){
+                if (this.subviews[i].typeOfObject=="processgroup"
+                    || this.subviews[i].typeOfObject=="process"
+                    || this.subviews[i].typeOfObject=="processtree"
+                    || this.subviews[i].typeOfObject=="activity"
+                    || this.subviews[i].typeOfObject=="issueflow"
+                    || this.subviews[i].typeOfObject=="company"
+                    || this.subviews[i].typeOfObject=="departement"
+                    || this.subviews[i].typeOfObject=="companyFixed"
+                    || this.subviews[i].typeOfObject=="departementFixed"
+                    || this.subviews[i].typeOfObject=="unitFixed"
+                    || this.subviews[i].typeOfObject=="inputflow"
+                    || this.subviews[i].typeOfObject=="outputflow"){
+                    this.subviews[i].removeObjectConnectors();
+                }
+            }
+        ]]>
+    </method>
+     -->
+     
+    <!--
+    	This Method is used during the Loading of a 
+    	Diagram to Simulate an Anchor to draw the Connection Line
+     -->
+    <method name="removeSimulatedConnectors">
+         <![CDATA[
+            for (var i=0;i<this.subviews.length;i++){
+                if (this.subviews[i].typeOfObject=="processgroup"
+                    || this.subviews[i].typeOfObject=="process"
+                    || this.subviews[i].typeOfObject=="processtree"
+                    || this.subviews[i].typeOfObject=="activity"
+                    || this.subviews[i].typeOfObject=="issueflow"
+                    || this.subviews[i].typeOfObject=="company"
+                    || this.subviews[i].typeOfObject=="departement"
+                    || this.subviews[i].typeOfObject=="companyFixed"
+                    || this.subviews[i].typeOfObject=="departementFixed"
+                    || this.subviews[i].typeOfObject=="unitFixed"
+                    || this.subviews[i].typeOfObject=="inputflow"
+                    || this.subviews[i].typeOfObject=="outputflow"){
+                    this.subviews[i].removeConnectors();
+                }
+            }
+        ]]>
+    </method>
+    
+    <method name="startDrawConnector" args="startObj">
+        ////if ($debug) Debug.write("startDrawConnector",startObj);
+        this.alreadyDeleted = false;
+        this.currentStartObject = startObj;
+        this.startx = this.getMouse('x');
+        this.starty = this.getMouse('y');   
+        this.doDrawConnectorObject();
+        this.connectordraw_del.register(lz.Idle,'onidle');
+    </method>
+    
+    <method name="doDrawConnectorObject">
+        this.currentlayer = new lz.drawViewNewItem(this,{name:'connector'+this.getCounter(),typeOfObject:'connector'});     
+        this.currentlayer.strokeStyle = this.currentConnectorStroke;
+        this.currentlayer.lineWidth = this.currentConnectorLineWidth;
+    </method>
+    
+    <method name="endDrawConnector">
+        ////if ($debug) Debug.write("endDrawConnector");
+        if (!this.alreadyDeleted) {
+            this.currentlayer.destroy();
+            this.connectordraw_del.unregisterAll();
+        }
+    </method>
+    
+    <method name="drawConnector" args="item">
+        this.currentlayer.destroy();
+        this.doDrawConnectorObject();
+        this.endx = this.getMouse('x');
+        this.endy = this.getMouse('y');     
+        this.drawConnectorLiveLine(this.currentlayer,this.startx, this.starty, this.endx, this.endy, 0);
+    </method>
+    
+    <method name="setEndPointConnector" args="endPoint">
+        this.currentEndObject = endPoint;
+    </method>
+    
+    <method name="checkEndPointConnector" args="endPoint">
+        if (this.currentStartObject.parent == endPoint.parent) {
+            return false;
+        } else {
+            return true;
+        }
+    </method>
+    
+    <!--
+        Draws the actuall Line of the Connector Object between two given Points
+     -->
+    <method name="drawDottedLine" args="targetObj,startx,starty,endx,endy,stroke,lineWidth">
+        <![CDATA[
+            //var drawObj = new lz.drawViewNewItem(targetObj,{width:this.width,height:this.height});  
+            var drawObj = new lz.drawViewNewItem(targetObj,{width:this.width,height:this.height});        
+            
+            ////if ($debug) Debug.write("drawDottedLine startx,starty,endx,endy: ",startx,starty,endx,endy);
+            
+            Math.linearTween = function (t, b, c, d) {
+                return c*t/d + b;
+            };
+
+            //if($debug)  Debug.write("drawDashLine: ",tObject);
+            var tx = endx;
+            var ty = endy;
+            var sx = startx;
+            var sy = starty;
+            var distance = Math.sqrt(Math.pow(tx-sx,2)+Math.pow(ty-sy,2)); 
+            var steps = Math.floor(distance  / 5 ); 
+            //if($debug)  Debug.write("steps: ",steps);
+            var gap = false;
+            //if($debug)  Debug.write("gap1: ",gap);
+            for (var i = 1; i<=steps; ++i) {
+                var ctx = Math.linearTween(i, sx, tx-sx,steps);    //equations by R.Penner!
+                var cty = Math.linearTween(i, sy, ty-sy,steps);
+                //if($debug)  Debug.write("gap2: ",gap);
+                gap = !gap;    //abwechselnd lücke/nichtlücke
+                if(!gap) {
+                    //if($debug)  Debug.write(csx,csy,"|",ctx,cty);
+                    drawObj.strokeStyle = stroke;
+                    drawObj.lineWidth = lineWidth;
+                    drawObj.beginPath();                                
+                    drawObj.moveTo(csx,csy);
+                    drawObj.lineTo(ctx,cty);
+                    drawObj.stroke();
+                }
+                csx =ctx;
+                csy = cty;
+            }                       
+        ]]>
+    </method>  
+    
+    <method name="drawBasicLine" args="targetObj,startx,starty,endx,endy,stroke,lineWidth">
+        <![CDATA[
+            //var drawObj = new lz.drawViewNewItem(targetObj,{width:this.width,height:this.height});  
+            var drawObj = new lz.drawViewNewItem(targetObj,{width:this.width,height:this.height});        
+            
+            //if($debug)  Debug.write("drawDashLine: ",tObject);
+            var tx = endx;
+            var ty = endy;
+            var sx = startx;
+            var sy = starty;
+            //if($debug)  Debug.write(csx,csy,"|",ctx,cty);
+            drawObj.strokeStyle = stroke;
+            drawObj.lineWidth = lineWidth;
+            drawObj.beginPath();                                
+            drawObj.moveTo(tx,ty);
+            drawObj.lineTo(sx,sy);
+            drawObj.stroke();
+        ]]>
+    </method>  
+    
+    <method name="drawConnectorLiveLine" args="targetObj,startx,starty,endx,endy,caseItem">
+        <![CDATA[
+            //this.drawDottedLine(targetObj,startx,starty,endx,endy,
+                //this.currentConnectorStroke,this.currentConnectorLineWidth);
+            var endName = "";
+            var startName = this.currentStartObject.name;
+            //var lastStepx = 0;
+            //var lastStepy = 0;
+            
+            if (this.currentEndObject != null) {
+                endName = this.currentEndObject.name;
+            } else {
+                if (startName == "w4"){
+                    endName = "w3";
+                } else if (startName == "w1"){
+                    endName = "w2";
+                } else if (startName == "w3"){
+                    endName = "w4";
+                } else if (startName == "w2"){
+                    endName = "w1";
+                }
+            }
+            this.drawConnectorLiveLineWithObjects(targetObj,
+                startx,starty,endx,endy,
+                startName,endName,caseItem, null);
+        ]]>
+    </method>
+    
+    <method name="drawConnectorLiveLineWithObjects" args="targetObj,startx,starty,endx,endy,startName,endName,caseItem,register">
+        //if ($debug) Debug.warn("Deprecated method drawConnectorLiveLineWithObjects",targetObj,startx,starty,endx,endy,startName,endName,caseItem,register);
+    </method>
+    
+    <method name="drawFinalLine" args="objRef">
+        <![CDATA[
+            ////if ($debug) Debug.write("drawFinalLine: ",objRef);
+            this.currentEndObject = objRef;
+            var startx = this.currentStartObject.x + this.currentStartObject.parent.x+10;
+            var starty = this.currentStartObject.y + this.currentStartObject.parent.y+10;
+            var endx = this.currentEndObject.x + this.currentEndObject.parent.x+10;
+            var endy = this.currentEndObject.y + this.currentEndObject.parent.y+10;
+            
+            //Do not change the x,y Position
+            //if (endy < starty){
+            //    starty -= 5;
+            //    endy += 5;
+            //} else if (endy > starty) {
+            //    starty += 5;
+            //    endy -= 5;
+            //}
+            ////if ($debug) Debug.write("startx,starty,endx,endy",startx,starty,endx,endy);
+            this.endDrawConnector();
+            this.alreadyDeleted = true;
+            
+            var endName = "";
+            var startName = this.currentStartObject.name;
+            //var lastStepx = 0;
+            //var lastStepy = 0;
+            
+            if (this.currentEndObject != null) {
+                endName = this.currentEndObject.name;
+            } else {
+                if (startName == "w4"){
+                    endName = "w3";
+                } else if (startName == "w1"){
+                    endName = "w2";
+                } else if (startName == "w3"){
+                    endName = "w4";
+                } else if (startName == "w2"){
+                    endName = "w1";
+                }
+            }
+            
+            if (endx>=startx && endy>starty){
+                this.currentlayer = new lz.drawViewNew(this,{name:'connector'+this.getCounter(),
+                    x:startx,y:starty,typeOfObject:'connector',
+                    width:Math.abs(startx-endx),
+                    height:Math.abs(starty-endy)});     
+                this.currentlayer.strokeStyle = this.currentConnectorStroke;
+                this.currentlayer.lineWidth = this.currentConnectorLineWidth;
+                
+                this.drawConnectorLiveLineWithObjects(this.currentlayer,0, 0, endx-startx, endy-starty, 
+                    startName,endName, 1, true);
+            } else if (endx<=startx && endy<=starty) {
+                this.currentlayer = new lz.drawViewNew(this,{name:'connector'+this.getCounter(),
+                    x:endx,y:endy,typeOfObject:'connector',
+                    width:Math.abs(startx-endx),
+                    height:Math.abs(starty-endy)});  
+                    this.currentlayer.strokeStyle = this.currentConnectorStroke;
+                    this.currentlayer.lineWidth = this.currentConnectorLineWidth;
+                    
+                    this.drawConnectorLiveLineWithObjects(this.currentlayer,Math.abs(startx-endx), Math.abs(starty-endy), 0, 0, 
+                        startName,endName, 2, true);                    
+            } else if (endx<=startx && endy>=starty){
+                this.currentlayer = new lz.drawViewNew(this,{name:'connector'+this.getCounter(),
+                    x:endx,y:starty,typeOfObject:'connector',
+                    width:Math.abs(startx-endx),
+                    height:Math.abs(starty-endy)});     
+                this.currentlayer.strokeStyle = this.currentConnectorStroke;
+                this.currentlayer.lineWidth = this.currentConnectorLineWidth;
+                
+                this.drawConnectorLiveLineWithObjects(this.currentlayer,Math.abs(startx-endx), 0, 0, endy-starty, 
+                    startName,endName, 3, true);
+            } else if (endx>=startx && endy<=starty){
+                this.currentlayer = new lz.drawViewNew(this,{name:'connector'+this.getCounter(),
+                    x:startx,y:endy,typeOfObject:'connector',
+                    width:Math.abs(startx-endx),
+                    height:Math.abs(starty-endy)});     
+                this.currentlayer.strokeStyle = this.currentConnectorStroke;
+                this.currentlayer.lineWidth = this.currentConnectorLineWidth;
+                
+                this.drawConnectorLiveLineWithObjects(this.currentlayer,0, Math.abs(starty-endy), endx-startx, 0, 
+                    startName,endName, 4, true);
+            }
+            
+            if (this.connectorList==null) this.connectorList = new Array();
+            this.connectorList.push([this.currentStartObject.parent.name,
+                                    this.currentStartObject.name,
+                                    this.currentEndObject.parent.name,
+                                    this.currentEndObject.name,
+                                    this.currentlayer.name]);
+            //parent.parent.parent._toolBar.doSelectItem("hand_single");
+        ]]>
+    </method>
+    
+    <method name="loadConnectorLine" args="newName,startObjName,startObjPointName,endObjectName,endObjectPointName,lastactionObject">
+        <![CDATA[
+            //if ($debug) Debug.warn("Deprecated loadConnectorLine: ",newName,startObjName,startObjPointName,endObjectName,endObjectPointName);
+        ]]>
+    </method>
+    
+    <method name="_loadConnectorLine" args="newName,startObjName,startObjPointName,endObjectName,endObjectPointName,lastactionObject">
+        <![CDATA[
+            //////if ($debug) Debug.write(newName,startObjName,startObjPointName,endObjectName,endObjectPointName);
+            
+            var parentStartObj = this.searchSubviews('name',startObjName);
+            var startObj = parentStartObj.searchSubviews('name',startObjPointName);
+        
+            var parentEndObj = this.searchSubviews('name',endObjectName);
+            var endObj = parentEndObj.searchSubviews('name',endObjectPointName);
+        
+            ////if ($debug) Debug.write("startObj,endObj: ",startObj,endObj);
+            this.loaddrawFixedLine(startObj,endObj,newName);
+            
+            this.updateDiagramobjectidId(newName,lastactionObject[lastactionObject.length-7]);
+            this.updateConnectorPropertyMap(newName,lastactionObject[lastactionObject.length-10]);
+            //this.baseactionobjectList.push(lastactionObject);
+        ]]>
+    </method>
+    
+    <method name="loaddrawFixedLine" args="startObj,endObj,newName">
+        <![CDATA[
+            ////if ($debug) Debug.write("loaddrawFixedLine: ",startObj,endObj,newName);
+            this.currentStartObject = startObj;
+            this.currentEndObject = endObj;
+            var startx = this.currentStartObject.x + this.currentStartObject.parent.x+10;
+            var starty = this.currentStartObject.y + this.currentStartObject.parent.y+10;
+            var endx = this.currentEndObject.x + this.currentEndObject.parent.x+10;
+            var endy = this.currentEndObject.y + this.currentEndObject.parent.y+10;
+            
+            ////if ($debug) Debug.write("startx,starty,endx,endy",startx,starty,endx,endy);
+            this.alreadyDeleted = true;
+            
+            var endName = "";
+            var startName = this.currentStartObject.name;
+            //var lastStepx = 0;
+            //var lastStepy = 0;
+            
+            if (this.currentEndObject != null) {
+                endName = this.currentEndObject.name;
+            } else {
+                if (startName == "w4"){
+                    endName = "w3";
+                } else if (startName == "w1"){
+                    endName = "w2";
+                } else if (startName == "w3"){
+                    endName = "w4";
+                } else if (startName == "w2"){
+                    endName = "w1";
+                }
+            }
+            
+            if (endx>=startx && endy>starty){
+                this.currentlayer = new lz.drawViewNew(this,{name:newName,
+                    x:startx,y:starty,typeOfObject:'connector',
+                    width:Math.abs(startx-endx),
+                    height:Math.abs(starty-endy)});     
+                this.currentlayer.strokeStyle = this.currentConnectorStroke;
+                this.currentlayer.lineWidth = this.currentConnectorLineWidth;
+                
+                this.drawConnectorLiveLineWithObjects(this.currentlayer,0, 0, endx-startx, endy-starty, 
+                    startName,endName, 1, true);
+            } else if (endx<=startx && endy<=starty) {
+                this.currentlayer = new lz.drawViewNew(this,{name:newName,
+                    x:endx,y:endy,typeOfObject:'connector',
+                    width:Math.abs(startx-endx),
+                    height:Math.abs(starty-endy)});  
+                    this.currentlayer.strokeStyle = this.currentConnectorStroke;
+                    this.currentlayer.lineWidth = this.currentConnectorLineWidth;
+                    
+                    this.drawConnectorLiveLineWithObjects(this.currentlayer,Math.abs(startx-endx), Math.abs(starty-endy), 0, 0, 
+                        startName,endName, 2, true);                    
+            } else if (endx<=startx && endy>=starty){
+                this.currentlayer = new lz.drawViewNew(this,{name:newName,
+                    x:endx,y:starty,typeOfObject:'connector',
+                    width:Math.abs(startx-endx),
+                    height:Math.abs(starty-endy)});     
+                this.currentlayer.strokeStyle = this.currentConnectorStroke;
+                this.currentlayer.lineWidth = this.currentConnectorLineWidth;
+                
+                this.drawConnectorLiveLineWithObjects(this.currentlayer,Math.abs(startx-endx), 0, 0, endy-starty, 
+                    startName,endName, 3, true);
+            } else if (endx>=startx && endy<=starty){
+                this.currentlayer = new lz.drawViewNew(this,{name:newName,
+                    x:startx,y:endy,typeOfObject:'connector',
+                    width:Math.abs(startx-endx),
+                    height:Math.abs(starty-endy)});     
+                this.currentlayer.strokeStyle = this.currentConnectorStroke;
+                this.currentlayer.lineWidth = this.currentConnectorLineWidth;
+                
+                this.drawConnectorLiveLineWithObjects(this.currentlayer,0, Math.abs(starty-endy), endx-startx, 0, 
+                    startName,endName, 4, true);
+            }
+            
+            if (this.connectorList==null) this.connectorList = new Array();
+            this.connectorList.push([this.currentStartObject.parent.name,
+                                    this.currentStartObject.name,
+                                    this.currentEndObject.parent.name,
+                                    this.currentEndObject.name,
+                                    this.currentlayer.name]);
+        ]]>
+    </method> 
+    
+    <method name="drawFixedLine" args="startObj,endObj">
+        <![CDATA[
+            ////if ($debug) Debug.write("drawFixedLine: ",startObj,endObj);
+            this.currentStartObject = startObj;
+            this.currentEndObject = endObj;
+            var startx = this.currentStartObject.x + this.currentStartObject.parent.x+10;
+            var starty = this.currentStartObject.y + this.currentStartObject.parent.y+10;
+            var endx = this.currentEndObject.x + this.currentEndObject.parent.x+10;
+            var endy = this.currentEndObject.y + this.currentEndObject.parent.y+10;
+            
+            ////if ($debug) Debug.write("startx,starty,endx,endy",startx,starty,endx,endy);
+            this.alreadyDeleted = true;
+            
+            var endName = "";
+            var startName = this.currentStartObject.name;
+            //var lastStepx = 0;
+            //var lastStepy = 0;
+            
+            if (this.currentEndObject != null) {
+                endName = this.currentEndObject.name;
+            } else {
+                if (startName == "w4"){
+                    endName = "w3";
+                } else if (startName == "w1"){
+                    endName = "w2";
+                } else if (startName == "w3"){
+                    endName = "w4";
+                } else if (startName == "w2"){
+                    endName = "w1";
+                }
+            }
+            
+            if (endx>=startx && endy>starty){
+                this.currentlayer = new lz.drawViewNew(this,{name:'connector'+this.getCounter(),
+                    x:startx,y:starty,typeOfObject:'connector',
+                    width:Math.abs(startx-endx),
+                    height:Math.abs(starty-endy)});     
+                this.currentlayer.strokeStyle = this.currentConnectorStroke;
+                this.currentlayer.lineWidth = this.currentConnectorLineWidth;
+                
+                this.drawConnectorLiveLineWithObjects(this.currentlayer,0, 0, endx-startx, endy-starty, 
+                    startName,endName, 1, true);
+            } else if (endx<=startx && endy<=starty) {
+                this.currentlayer = new lz.drawViewNew(this,{name:'connector'+this.getCounter(),
+                    x:endx,y:endy,typeOfObject:'connector',
+                    width:Math.abs(startx-endx),
+                    height:Math.abs(starty-endy)});  
+                    this.currentlayer.strokeStyle = this.currentConnectorStroke;
+                    this.currentlayer.lineWidth = this.currentConnectorLineWidth;
+                    
+                    this.drawConnectorLiveLineWithObjects(this.currentlayer,Math.abs(startx-endx), Math.abs(starty-endy), 0, 0, 
+                        startName,endName, 2, true);                    
+            } else if (endx<=startx && endy>=starty){
+                this.currentlayer = new lz.drawViewNew(this,{name:'connector'+this.getCounter(),
+                    x:endx,y:starty,typeOfObject:'connector',
+                    width:Math.abs(startx-endx),
+                    height:Math.abs(starty-endy)});     
+                this.currentlayer.strokeStyle = this.currentConnectorStroke;
+                this.currentlayer.lineWidth = this.currentConnectorLineWidth;
+                
+                this.drawConnectorLiveLineWithObjects(this.currentlayer,Math.abs(startx-endx), 0, 0, endy-starty, 
+                    startName,endName, 3, true);
+            } else if (endx>=startx && endy<=starty){
+                this.currentlayer = new lz.drawViewNew(this,{name:'connector'+this.getCounter(),
+                    x:startx,y:endy,typeOfObject:'connector',
+                    width:Math.abs(startx-endx),
+                    height:Math.abs(starty-endy)});     
+                this.currentlayer.strokeStyle = this.currentConnectorStroke;
+                this.currentlayer.lineWidth = this.currentConnectorLineWidth;
+                
+                this.drawConnectorLiveLineWithObjects(this.currentlayer,0, Math.abs(starty-endy), endx-startx, 0, 
+                    startName,endName, 4, true);
+            }
+            
+            if (this.connectorList==null) this.connectorList = new Array();
+            this.connectorList.push([this.currentStartObject.parent.name,
+                                    this.currentStartObject.name,
+                                    this.currentEndObject.parent.name,
+                                    this.currentEndObject.name,
+                                    this.currentlayer.name]);
+        ]]>
+    </method>   
+    
+    <method name="checkObjectConnections" args="objRef">
+    	//if ($debug) Debug.warn("Deprecated method checkObjectConnections",objRef);
+    </method>
+    
+    <method name="_checkObjectConnections" args="objRef">
+        <![CDATA[
+        
+            ////if ($debug) Debug.write("objRef -1- check Connections ",objRef.x,objRef.y);
+            
+            
+            var foundConnections = new Array();
+            for (var i=0;i<this.baseactionobjectList.length;i++) {
+                if (this.baseactionobjectList[i][0]=="connector"){
+                    //////if ($debug) Debug.write("Found Connector: ",this.baseactionobjectList[i]);
+                    //////if ($debug) Debug.write("Found StartName: ",this.baseactionobjectList[i][1],objRef.name);
+                    //////if ($debug) Debug.write("Found EndName: ",this.baseactionobjectList[i][3],objRef.name);
+                    if (this.baseactionobjectList[i][1]==objRef.name) {
+                        foundConnections.push(this.baseactionobjectList[i]);
+                    }
+                    if (this.baseactionobjectList[i][3]==objRef.name) {
+                        foundConnections.push(this.baseactionobjectList[i]);
+                    }
+                }
+            }
+            
+            ////if ($debug) Debug.write("Number of Found Connections: ",foundConnections.length,foundConnections);
+        
+            for (var i=0;i<foundConnections.length;i++) {
+                var startObject = null
+                var endObject = null;
+                var targetObject = null;
+                for (var k=0;k<this.subviews.length;k++) {
+                    if (this.subviews[k].name == foundConnections[i][1]) {
+                        startObject = this.subviews[k];
+                    }
+                    if (this.subviews[k].name == foundConnections[i][3]) {
+                        endObject = this.subviews[k];
+                    }
+                    if (this.subviews[k].name == foundConnections[i][foundConnections[i].length-1]) {
+                        targetObject = this.subviews[k];
+                    }
+                }
+                
+                ////if ($debug) Debug.write("startObject,endObject,targetObject: ",startObject,endObject,targetObject);
+                ////if ($debug) Debug.write("targetObject -1- x|y",targetObject.x,targetObject.y);
+            
+                while (targetObject.subviews.length>0){
+                    targetObject.subviews[0].destroy();
+                }
+                
+                if (startObject.x + startObject.width < endObject.x) {
+                    foundConnections[i][2]="w4";
+                    foundConnections[i][4]="w3";
+                    //////if ($debug) Debug.write("startObject w1, w2, w3 => w4");
+                } else if (endObject.x + endObject.width < startObject.x){
+                    foundConnections[i][2]="w3";
+                    foundConnections[i][4]="w4";
+                    //////if ($debug) Debug.write("startObject w1, w2, w4 => w3");
+                } else if (endObject.y <  startObject.y) {
+                    foundConnections[i][2]="w1";
+                    foundConnections[i][4]="w2";
+                } else {
+                    foundConnections[i][2]="w2";
+                    foundConnections[i][4]="w1";
+                }
+                
+                
+                
+                var innerStartx = 0;
+                var innerStarty = 0;
+                if (foundConnections[i][2]=="w1") {
+                    innerStartx = startObject.width/2;
+                } else if (foundConnections[i][2]=="w2") {
+                    innerStartx = startObject.width/2;
+                    innerStarty = startObject.height;
+                } else if (foundConnections[i][2]=="w3") {
+                    innerStarty = startObject.height/2;
+                } else if (foundConnections[i][2]=="w4") {
+                    innerStartx = startObject.width;
+                    innerStarty = startObject.height/2;
+                }
+                
+                var innerEndx = 0;
+                var innerEndy = 0;
+                if (foundConnections[i][4]=="w1") {
+                    innerEndx = endObject.width/2;
+                } else if (foundConnections[i][4]=="w2") {
+                    innerEndx = endObject.width/2;
+                    innerEndy = endObject.height;
+                } else if (foundConnections[i][4]=="w3") {
+                    innerEndy = endObject.height/2;
+                } else if (foundConnections[i][4]=="w4") {
+                    innerEndx = endObject.width;
+                    innerEndy = endObject.height/2;
+                }
+                
+                var startx = startObject.x+innerStartx;
+                var starty = startObject.y+innerStarty;
+                var endx = endObject.x+innerEndx;
+                var endy = endObject.y+innerEndy;
+                
+                if (endx>=startx && endy>starty){  
+                    targetObject.setAttribute('x',startx);
+                    targetObject.setAttribute('y',starty);
+                    targetObject.setAttribute('width',Math.abs(startx-endx));
+                    targetObject.setAttribute('height',Math.abs(starty-endy));
+                    targetObject.strokeStyle = this.currentConnectorStroke;
+                    targetObject.lineWidth = this.currentConnectorLineWidth;
+                    this.drawConnectorLiveLineWithObjects(targetObject,0, 0, endx-startx, endy-starty, 
+                        foundConnections[i][2], foundConnections[i][4], 1, false);
+                } else if (endx<=startx && endy<=starty) {
+                    targetObject.setAttribute('x',endx);
+                    targetObject.setAttribute('y',endy);
+                    targetObject.setAttribute('width',Math.abs(startx-endx));
+                    targetObject.setAttribute('height',Math.abs(starty-endy));
+                    targetObject.strokeStyle = this.currentConnectorStroke;
+                    targetObject.lineWidth = this.currentConnectorLineWidth;
+                    this.drawConnectorLiveLineWithObjects(targetObject,Math.abs(startx-endx), Math.abs(starty-endy), 0, 0, 
+                        foundConnections[i][2], foundConnections[i][4], 2, false);                  
+                } else if (endx<=startx && endy>=starty){
+                    targetObject.setAttribute('x',endx);
+                    targetObject.setAttribute('y',starty);
+                    targetObject.setAttribute('width',Math.abs(startx-endx));
+                    targetObject.setAttribute('height',Math.abs(starty-endy));
+                    targetObject.strokeStyle = this.currentConnectorStroke;
+                    targetObject.lineWidth = this.currentConnectorLineWidth;
+                    this.drawConnectorLiveLineWithObjects(targetObject,Math.abs(startx-endx), 0, 0, endy-starty, 
+                        foundConnections[i][2], foundConnections[i][4], 3, false);
+                } else if (endx>=startx && endy<=starty){
+                    targetObject.setAttribute('x',startx);
+                    targetObject.setAttribute('y',endy);
+                    targetObject.setAttribute('width',Math.abs(startx-endx));
+                    targetObject.setAttribute('height',Math.abs(starty-endy));
+                    targetObject.strokeStyle = this.currentConnectorStroke;
+                    targetObject.lineWidth = this.currentConnectorLineWidth;
+                    this.drawConnectorLiveLineWithObjects(targetObject,0, Math.abs(starty-endy), endx-startx, 0, 
+                        foundConnections[i][2], foundConnections[i][4], 4, false);
+                }               
+                //targetObject.setAttribute('x',startx);
+                //targetObject.setAttribute('y',starty);
+                //targetObject.setAttribute('width',Math.abs(startx-endx));
+                //targetObject.setAttribute('height',Math.abs(starty-endy));
+                //this.drawConnectorLiveLineWithObjects(targetObject,0, 0, endx-startx, endy-starty,
+                //      foundConnections[i][1],foundConnections[i][3]);
+                
+                ////if ($debug) Debug.write("targetObject -2- x|y",targetObject.x,targetObject.y);
+            }
+            
+            ////if ($debug) Debug.write("objRef -2- check Connections ",objRef.x,objRef.y);
+            
+        ]]>
+    </method>
+    
+    <method name="drawConnectorRegisterFinal" args="newName,startObjName,startPointName,endObjName,endPointName,pointsObject,x,y,width,height,propertyList,connectorType" >
+        //if ($debug) Debug.write("drawConnectorRegisterFinal",newName,startObjName,startPointName,endObjName,endPointName,pointsObject,x,y,width,height,propertyList);
+        var actionObject = new Array();
+        actionObject[0] = 'connector';
+        actionObject[1] = startObjName;
+        actionObject[2] = startPointName;
+        actionObject[3] = endObjName;
+        actionObject[4] = endPointName;
+        actionObject[5] = pointsObject;
+        actionObject[6] = this.currentConnectorStroke;
+        actionObject[7] = this.currentConnectorLineWidth;
+        actionObject[8] = connectorType;
+        actionObject[9] = null; //Connector Text Obj
+        actionObject[10] = propertyList; //length - 10
+        actionObject[11] = '';//arrowID @deprecated
+        actionObject[12] = '';//?
+        actionObject[13] = 0;
+        actionObject[14] = this.counter;
+        actionObject[15] = x;
+        actionObject[16] = y;
+        actionObject[17] = width;
+        actionObject[18] = height;       
+        actionObject[19] = newName;
+        //if ($debug) Debug.write("############## this.baseactionobjectList PP");
+        this.baseactionobjectList.push(actionObject);
+        this.onsharedMessage('draw',actionObject);
+    </method>
+    
+    <method name="updateDiagramobjectidId" args="newName,diagramobjectid">
+        <![CDATA[
+            //if ($debug) Debug.write("updateDiagramobjectidId: ",newName,diagramobjectid,this.baseactionobjectList);
+            for (var i=0;i<this.baseactionobjectList.length;i++) {
+                if (this.baseactionobjectList[i][this.baseactionobjectList[i].length-1] == newName){
+                    this.baseactionobjectList[i][this.baseactionobjectList[i].length-7] = diagramobjectid;
+                    break;
+                }
+            }        
+        ]]>
+    </method>
+    
+    <method name="updateConnectorPropertyMap" args="newName,propertyMap">
+        <![CDATA[
+            //if ($debug) Debug.write("updateConnectorPropertyMap: ",newName,propertyMap);
+            for (var i=0;i<this.baseactionobjectList.length;i++) {
+                if (this.baseactionobjectList[i][this.baseactionobjectList[i].length-1] == newName){
+                    this.baseactionobjectList[i][this.baseactionobjectList[i].length-10] = propertyMap;
+                    break;
+                }
+            }        
+        ]]>
+    </method>
+    
+    <!--
+        Set the Connector Text in the Connector 
+     -->
+    <method name="updateConnectorTextObj" args="newName,textObj">
+        <![CDATA[
+            //if ($debug) Debug.write("updateConnectorTextObj: ",newName,textObj);
+            for (var i=0;i<this.baseactionobjectList.length;i++) {
+                if (this.baseactionobjectList[i][this.baseactionobjectList[i].length-1] == newName){
+                	//if ($debug) Debug.write("FOUND ",this.baseactionobjectList[i]);
+                    this.baseactionobjectList[i][9] = textObj;
+                    break;
+                }
+            }        
+        ]]>
+    </method>
+    
+    <!--
+        @deprecated Not needed as the arrow is now drawn by Math
+     -->
+    <method name="updateDiagramobjectConnectorArrowId" args="newName,resourceName">
+        <![CDATA[
+            ////if ($debug) Debug.write("updateDiagramobjectConnectorArrowId: ",newName,diagramobjectid);
+            for (var i=0;i<this.baseactionobjectList.length;i++) {
+                if (this.baseactionobjectList[i][this.baseactionobjectList[i].length-1] == newName){
+                    this.baseactionobjectList[i][this.baseactionobjectList[i].length-9] = resourceName;
+                    break;
+                }
+            }        
+        ]]>
+    </method>
+    
+    <method name="checkForUselessConnectors" args="objName" >
+        <![CDATA[
+            //////if ($debug) Debug.write("checkForUselessConnectors",objName);
+            var deleteList = new Array();
+            for (var i=0;i<this.baseactionobjectList.length;i++){
+                var actionObject = this.baseactionobjectList[i];
+                //////if ($debug) Debug.write("startObjName,endObjName,deleteObj: ",actionObject[1],actionObject[3],objName);
+                if (actionObject[1] == objName || actionObject[3] == objName){
+                    deleteList.push(actionObject);
+                }
+            }
+            //////if ($debug) Debug.write("checkForUselessConnectors deleteList",deleteList);
+            for (var i=0;i<deleteList.length;i++){
+                //////if ($debug) Debug.write("checkForUselessConnectors deleteItemByName",deleteList[i][deleteList[i].length-1]);
+                this.deleteItemByName(deleteList[i][deleteList[i].length-1]);
+            }
+        ]]>
+    </method>
+    
+    <method name="updateConnectorRegisterFinal" args="newName,x,y,width,height,pointsObject" >
+        <![CDATA[
+            //////if ($debug) Debug.write("updateConnectorRegisterFinal",newName,x,y,width,height);
+            for (var i=0;i<this.baseactionobjectList.length;i++){
+                var actionObject = this.baseactionobjectList[i];
+                var objName =  actionObject[actionObject.length-1];
+                //////if ($debug) Debug.write("objName,newName: ",objName,newName);
+                if (objName == newName){
+                    actionObject[5] = pointsObject;
+                    actionObject[actionObject.length-5] = x;
+                    actionObject[actionObject.length-4] = y;
+                    actionObject[actionObject.length-3] = width;
+                    actionObject[actionObject.length-2] = height;       
+                    this.baseactionobjectList[i] = actionObject;
+                    break;
+                }
+            }
+            //this.onsharedMessage('draw',actionObject);
+        ]]>
+    </method>
+    
+    <!--
+        This Function does two things at the same time:
+        Detect if the Click is inside the Connector-Line-Click-Box
+        Or
+        Draw the Connector-Line-Click-Box
+     -->
+    <method name="checkConnectorObjectDrawLine" args="refBaseObjListObj,mousex,mousey,draw">
+        <![CDATA[
+            ////if ($debug) Debug.write("checkConnectorObjectDrawLine: ",refBaseObjListObj,mousex,mousey,draw);
+            
+            var additionalx = refBaseObjListObj[refBaseObjListObj.length-5];
+            var additionaly = refBaseObjListObj[refBaseObjListObj.length-4];             
+            
+            var pointsList = refBaseObjListObj[5];
+            
+            var border = 4;
+            
+            if (draw) {
+            	border = 2;
+            }
+            ////if ($debug) Debug.write("additionalx,additionaly,mousex,mousey: ",additionalx,additionaly,mousex,mousey);
+            ////if ($debug) Debug.write("pointsList: ",pointsList);
+            
+            for (var i=0;i<pointsList.length;i++) {
+                
+                var startx = pointsList[i][0]+additionalx;
+                var starty = pointsList[i][1]+additionaly;
+                
+                var endx = pointsList[i][2]+additionalx;
+                var endy = pointsList[i][3]+additionaly;
+                
+                //if ($debug) Debug.write("startx,starty,endx,endy: ",startx,starty,endx,endy);
+                
+                //Calculate if the Point is inside the Polygon, like descibed in
+                //http://de.wikipedia.org/wiki/Graham_Scan
+                //T (P0 P1 P2) = (x1 - x0) * (y2 - y0) - (x2 - x0) * (y1 - y0)
+                
+                //Vector A
+                //Find the Corner
+                var drawPoints = false;
+                
+                if (endx - startx != 0 && endy - starty == 0) {
+                	
+                	//m is 0
+                	//c is y
+                	//fx = starty
+                	
+                	if (startx <= endx) {
+                		var p1_x = startx - border;
+                        var p1_y = starty + border;
+                        var p2_x = startx - border;
+                        var p2_y = starty - border;
+                        var p3_x = endx + border;
+                        var p3_y = starty - border;
+                        var p4_x = endx + border;
+                        var p4_y = starty + border;
+                	} else {
+                		var p1_x = endx - border;
+                        var p1_y = starty + border;
+                        var p2_x = endx - border;
+                        var p2_y = starty - border;
+                        var p3_x = startx + border;
+                        var p3_y = starty - border;
+                        var p4_x = startx + border;
+                        var p4_y = starty + border;
+                	}
+                	
+                	//drawPoints = true
+                
+                } else if (endx - startx == 0 && endy - starty != 0) {
+                    
+                	//m is endless
+                	//c is endless
+                	//fx = startx
+                	//fx1: x = startx + border
+                	//fx2: x = startx - border
+                	
+                	if (starty >= endy) {
+                		//fx3: y = starty - border
+                		//fx4: y = endy + border
+                		
+                		var p1_x = startx - border;
+                        var p1_y = endy - border;
+                        var p2_x = startx + border;
+                        var p2_y = endy - border;
+                        var p3_x = startx + border;
+                        var p3_y = starty + border;
+                        var p4_x = startx - border;
+                        var p4_y = starty + border;
+                	} else {
+                		//fx3: y = endy - border
+                        //fx4: y = starty + border
+                        
+                		var p1_x = startx - border;
+                        var p1_y = starty - border;
+                		var p2_x = startx + border;
+                        var p2_y = starty - border;
+                		var p3_x = startx + border;
+                        var p3_y = endy + border;
+                		var p4_x = startx - border;
+                        var p4_y = endy + border;
+                	}
+                    
+                } else if (endx - startx != 0 && endy - starty != 0) {
+                    //y = m * x + c;
+                    var m,c = 0;
+                    //starty = m * startx + c;
+                    //endy = m * endx + c;
+                    //c = starty - (m * startx);
+                    //endy = m * endx + starty - (m * startx)
+                    //endy-starty = (m * endx) - (m * startx)
+                    //endy-starty = m * ( endx - startx )
+                
+                    m = (endy-starty) / (endx - startx);
+                    var border1 = border + Math.abs(border*m);
+                    c = starty - (((endy-starty) / (endx - startx)) * startx);
+                    
+                    //if ($debug) Debug.write("m,c: ",m,c);
+                    //fx = m*x +c
+                    
+                    //fx1 + fx2 = fx = m*x + c (+/- border)
+                    //fx1 = fx = m*x + c - border;
+                    //fx2 = fx = m*x + c + border;
+                    //fx3 + fx4 = fx = - 1/m * x + c_orthogonal 
+                    
+                    //c_orthogonal ?
+                    //First orthogonale
+                    //starty = (- 1/m ) * startx + c_orthogonal 
+                    var c_orthogonal_start = starty - (- 1/m * startx);
+                    var c_orthogonal_end = endy - (- 1/m * endx);
+                    var border2 = border + Math.abs(border*(-1/m));
+                    
+                    //if ($debug) Debug.write("fx_normal fx ="+m+"*x+"+(c));
+                    //if ($debug) Debug.write("fx_start fx ="+(- 1/m)+"*x+"+c_orthogonal_start);
+                    //if ($debug) Debug.write("fx_end fx ="+(- 1/m)+"*x+"+c_orthogonal_end);
+                    
+                    var c_orthogonal_fx3,c_orthogonal_fx4 = 0;
+                    if (starty <= endy && startx >= endx) {
+                    	//if ($debug) Debug.write("Phase 1 starty <= endy && startx >= endx");
+                        c_orthogonal_fx3 = c_orthogonal_start - border2;
+                        c_orthogonal_fx4 = c_orthogonal_end + border2;
+                    } else if (starty >= endy && startx >= endx) {
+                        //if ($debug) Debug.write("Phase 2 starty <= endy && startx >= endx");
+                        c_orthogonal_fx3 = c_orthogonal_start + border2;
+                    	c_orthogonal_fx4 = c_orthogonal_end - border2;
+                        //drawPoints = true;
+                    } else if (starty >= endy && startx <= endx) {
+                        //if ($debug) Debug.write("Phase 3 starty <= endy && startx >= endx");
+                        c_orthogonal_fx3 = c_orthogonal_end - border2;
+                        c_orthogonal_fx4 = c_orthogonal_start + border2;
+                    } else if (starty <= endy && startx <= endx) {
+                        //if ($debug) Debug.write("Phase 4 starty <= endy && startx >= endx");
+                        c_orthogonal_fx3 = c_orthogonal_end + border2;
+                        c_orthogonal_fx4 = c_orthogonal_start - border2;
+                    } else {
+                    	if ($debug) Debug.warn("Unkown Phase ",this);
+                    }
+                    
+                    //if ($debug) Debug.write("fx1 fx ="+m+"*x+"+(c-border));
+                    //if ($debug) Debug.write("fx2 fx ="+m+"*x+"+(c+border));
+                    //if ($debug) Debug.write("fx3 fx ="+(- 1/m)+"*x+"+c_orthogonal_fx3);
+                    //if ($debug) Debug.write("fx4 fx ="+(- 1/m)+"*x+"+c_orthogonal_fx4);
+                    
+                    //intersections
+                    //P1 = fx2 | fx3
+                    //fx2 = m*x + c
+                    //fx3 = (- 1/m) * x + c_orthogonal_start 
+                    
+                    //y = m * x + c;
+                    //y = (- 1/m) * x + c_orthogonal_start;
+                    //m * x + c =  - 1/m * x + c_orthogonal_start
+                    //m * x + 1/m * x = c_orthogonal_start - (c)
+                    //x * ( m + 1/m) = c_orthogonal_start - (c)
+                    //var p1_x = (c_orthogonal_start - (c)) / (m + 1/m)
+                    //var p1_y = m * x +(c);
+                    
+                    var p1_x = (c-border1 - c_orthogonal_fx3) / (- 1/m - m);
+                    var p1_y = m * p1_x +(c-border1);
+                    
+                    var p2_x = (c+border1 - c_orthogonal_fx3) / (- 1/m - m);
+                    var p2_y = m * p2_x +(c+border1);
+                                
+                    var p3_x = (c+border1 - c_orthogonal_fx4) / (- 1/m - m);
+                    var p3_y = m * p3_x +(c+border1);
+                    
+                    var p4_x = (c-border1 - c_orthogonal_fx4) / (- 1/m - m);
+                    var p4_y = m * p4_x +(c-border1);
+                    
+                } else {
+                	//Is parallel to the y-axis or parallel to x-axis
+                	
+                	//y = startx
+                	if ($debug) Debug.warn("Unkown Status",this);
+                }
+                
+                if (drawPoints) {
+                    if ($debug) Debug.write("p1_x,p1_y: ",p1_x,p1_y);
+                    new lz.connectorTestZone(this,{x:p1_x,y:p1_y,
+                                    textValue:'p1 startx|starty '+startx+'|'+starty
+                                });
+                    
+                    if ($debug) Debug.write("p2_x,p2_y: ",p2_x,p2_y);
+                    new lz.connectorTestZone(this,{x:p2_x,y:p2_y,
+                                    textValue:'p2 startx|starty '+startx+'|'+starty
+                                });
+                    
+                    if ($debug) Debug.write("p3_x,p3_y: ",p3_x,p3_y);
+                    new lz.connectorTestZone(this,{x:p3_x,y:p3_y,
+                                    textValue:'p3 startx|starty '+startx+'|'+starty
+                                });
+                    
+                    if ($debug) Debug.write("p4_x,p4_y: ",p4_x,p4_y);
+                    new lz.connectorTestZone(this,{x:p4_x,y:p4_y,
+                                    textValue:'p4 startx|starty '+startx+'|'+starty
+                                });
+                }
+                
+                if (draw) {
+                	var isLast = false;
+                	if (i == pointsList.length-1) {
+                		isLast = true;
+                	}
+                    //if ($debug) Debug.warn(" -1- DRAW THE CONNECTION BOUNDING BOX");
+                    var tBox = new lz.boundingBoxConnector(this,{
+                                                pointRect:pointsList[i],pointIndex:i,isLast:isLast
+                                            });
+                    tBox.lineWidth = 1;
+                    //tBox.strokeStyle = 0x999999;
+                    tBox.fillStyle = 0xFF6600;
+                    tBox.beginPath();
+                    tBox.moveTo(p1_x,p1_y);
+                    tBox.lineTo(p2_x,p2_y);
+                    tBox.lineTo(p3_x,p3_y);
+                    tBox.lineTo(p4_x,p4_y);
+                    tBox.lineTo(p1_x,p1_y);
+                    //parentObj._activity.closePath();
+                    
+                    //tBox.stroke();
+                    tBox.fill();
+                    
+                    //return;
+                    
+                } else {
+                
+                    //T (P0 P1 P2) = (x1 - x0) * (y2 - y0) - (x2 - x0) * (y1 - y0)
+                    
+                    //First Vector P1-P2 + POINT_CLICK
+                    //x0,y0 == p1_x,p1_y
+                    //x1,y1 == p2_x,p2_y
+                    //x2,y2 == mousex,mousey
+                    
+                    var T_VectorP1P2 = this.calculateGrahamScan(p1_x,p1_y,p2_x,p2_y,mousex,mousey);
+                    var T_VectorP2P3 = this.calculateGrahamScan(p2_x,p2_y,p3_x,p3_y,mousex,mousey);
+                    var T_VectorP3P4 = this.calculateGrahamScan(p3_x,p3_y,p4_x,p4_y,mousex,mousey);
+                    var T_VectorP4P1 = this.calculateGrahamScan(p4_x,p4_y,p1_x,p1_y,mousex,mousey);
+                    
+                    if (drawPoints) {
+                        if ($debug) Debug.write("T_VectorP1P2: ",T_VectorP1P2);
+                        if ($debug) Debug.write("T_VectorP2P3: ",T_VectorP2P3);
+                        if ($debug) Debug.write("T_VectorP3P4: ",T_VectorP3P4);
+                        if ($debug) Debug.write("T_VectorP4P1: ",T_VectorP4P1);
+                    } 
+                    if (T_VectorP1P2 > 0 && T_VectorP2P3 > 0 && T_VectorP3P4 > 0 && T_VectorP4P1 > 0) {
+                    	
+                    	this.pointRectInside = new Object();
+                    	this.pointRectInside.pointIndex = i;
+                    	this.pointRectInside.point = pointsList[i];
+                    	
+                    	return true;
+                    	
+                    }
+                
+                }
+                    
+            }
+            
+        ]]>
+    </method>
+    
+    <!--
+    //Usual calculation based on everything is in straight lines
+                if (false) {
+                    if (startx < endx) {
+                        ////if ($debug) Debug.write("sx < ex => startx,starty,endx,endy: ",startx,starty,endx,endy);
+                        //horizontal Bounding Box
+                        var boundingx = startx-5;
+                        var boundingy = starty-5;
+                        var boundingwidth = (endx-startx)+10;
+                        var boundingheight = 10;
+                        if (!draw) {
+                            if (mousex >= boundingx && mousex <= boundingx+boundingwidth){
+                                ////if ($debug) Debug.write("Found X1");
+                                if (mousey >= boundingy && mousey <= boundingy+boundingheight){
+                                    ////if ($debug) Debug.write("Found X1 Y1");
+                                    return true;
+                                }
+                            }
+                        } else {
+                            ////if ($debug) Debug.write("draw1");
+                            new lz.boundingBoxConnector(this,{x:boundingx,y:boundingy,width:boundingwidth,height:boundingheight});
+                        }
+                    } else if (startx > endx) {
+                        ////if ($debug) Debug.write("sx > ex => startx,starty,endx,endy: ",startx,starty,endx,endy);
+                        var boundingx = endx-5;
+                        var boundingy = endy-5;
+                        var boundingwidth = (startx-endx)+10;
+                        var boundingheight = 10;
+                        if (!draw) {
+                            if (mousex >= boundingx && mousex <= boundingx+boundingwidth){
+                                ////if ($debug) Debug.write("Found X1");
+                                if (mousey >= boundingy && mousey <= boundingy+boundingheight){
+                                    ////if ($debug) Debug.write("Found X1 Y1");
+                                    return true;
+                                }
+                            }
+                        } else {
+                            ////if ($debug) Debug.write("draw2");
+                            new lz.boundingBoxConnector(this,{x:boundingx,y:boundingy,width:boundingwidth,height:boundingheight});
+                        }
+                    } else if (starty < endy) {
+                        ////if ($debug) Debug.write("sy < ey => startx,starty,endx,endy: ",startx,starty,endx,endy);
+                        var boundingx = startx-5;
+                        var boundingy = starty-5;
+                        var boundingwidth = 10;
+                        var boundingheight = (endy-starty)+10;
+                        if (!draw) {
+                            if (mousex >= boundingx && mousex <= boundingx+boundingwidth){
+                                ////if ($debug) Debug.write("Found X1");
+                                if (mousey >= boundingy && mousey <= boundingy+boundingheight){
+                                    ////if ($debug) Debug.write("Found X1 Y1");
+                                    return true;
+                                }
+                            }
+                        } else {
+                            ////if ($debug) Debug.write("draw3");
+                            new lz.boundingBoxConnector(this,{x:boundingx,y:boundingy,width:boundingwidth,height:boundingheight});
+                        }
+                    } else if (starty > endy) {
+                        ////if ($debug) Debug.write("sy > ey => startx,starty,endx,endy: ",startx,starty,endx,endy);
+                        var boundingx = endx-5;
+                        var boundingy = endy-5;
+                        var boundingwidth = 10;
+                        var boundingheight = (starty-endy)+10;
+                        if (!draw) {
+                            if (mousex >= boundingx && mousex <= boundingx+boundingwidth){
+                                ////if ($debug) Debug.write("Found X1");
+                                if (mousey >= boundingy && mousey <= boundingy+boundingheight){
+                                    ////if ($debug) Debug.write("Found X1 Y1");
+                                    return true;
+                                }
+                            }
+                        } else {
+                            //////if ($debug) Debug.write("draw4");
+                            new lz.boundingBoxConnector(this,{x:boundingx,y:boundingy,width:boundingwidth,height:boundingheight});
+                        }
+                    }
+                } 
+                 -->
+    
+    <method name="calculateGrahamScan" args="x0,y0,x1,y1,x2,y2">
+    	return (x1 - x0) * (y2 - y0) - (x2 - x0) * (y1 - y0);
+    </method>
+    
+    <method name="removeAllBoundingBoxConnectors">
+        <![CDATA[
+            //if ($debug) Debug.write("removeAllBoundingBoxConnectors ");
+            for (var i in this.subviews) {
+            	//if ($debug) Debug.write("RALLBBC his.subviews[i] ",this.subviews[i]);
+                if (this.subviews[i].typeOfObject=="boundingBoxConnector"){
+                	if (this.subviews[i].isDrag) {
+                		this.subviews[i].stopDrag();
+                	}
+                    this.subviews[i].destroy();
+                }
+            }
+        ]]>
+    </method>
+    
+    <method name="autoConnectionTreeLines" args="newObject">
+        <![CDATA[
+        
+            ////if ($debug) Debug.write("### autoConnectionTreeLines " +
+            //        "newObject.typeOfObject: ",newObject.typeOfObject);
+            
+            if (newObject.typeOfObject=="processgroup" 
+                || newObject.typeOfObject=="processtree" ){
+                
+                var connectionPreItem = null;
+                var connectionPostItem = null;
+                
+                for (var i=0;i<this.subviews.length;i++){
+                    //this.subviews[i].setAttribute('',);
+                    if(this.subviews[i].typeOfObject=="processgroup"
+                        || this.subviews[i].typeOfObject=="processtree") {
+                        ////if ($debug) Debug.write("typeOfObject: ",this.subviews[i].typeOfObject);
+                        if (this.subviews[i]!=newObject){
+                            if (this.subviews[i].y == newObject.y){
+                                if (this.subviews[i].x < newObject.x){
+                                    if (connectionPreItem == null){
+                                        connectionPreItem = this.subviews[i];
+                                    } else if (connectionPreItem.x < this.subviews[i].x) {
+                                        connectionPreItem = this.subviews[i];
+                                    }
+                                }
+                                
+                            }
+                        }
+                    }
+                }
+                
+                ////if ($debug) Debug.write("Connection Pre Item: ",connectionPreItem);
+                
+                if (connectionPreItem!=null){
+                    newObject.showObjectConnectors();
+                    connectionPreItem.showObjectConnectors();
+                    ////if ($debug) Debug.write("Found Connection Pre Item: ",connectionPreItem);
+                    this.drawFixedLine(connectionPreItem.w4,newObject.w3);
+                    newObject.removeObjectConnectors();
+                    connectionPreItem.removeObjectConnectors();
+                }
+                
+            }
+            
+        ]]>
+    </method>
+    
+    <method name="autoConnectionHorizontalLines" args="newObject">
+        <![CDATA[
+        
+            ////if ($debug) Debug.write("### autoConnectionTreeLines " +
+            //        "newObject.typeOfObject: ",newObject.typeOfObject);
+            
+            if (newObject.typeOfObject=="companyFixed" 
+                || newObject.typeOfObject=="departementFixed"
+                || newObject.typeOfObject=="unitFixed" ){
+                
+                var connectionPreItem = null;
+                var connectionPostItem = null;
+                
+                for (var i=0;i<this.subviews.length;i++){
+                    //this.subviews[i].setAttribute('',);
+                    if(this.subviews[i].typeOfObject=="companyFixed"
+                        || this.subviews[i].typeOfObject=="departementFixed"
+                        || this.subviews[i].typeOfObject=="unitFixed") {
+                        ////if ($debug) Debug.write("typeOfObject: ",this.subviews[i].typeOfObject);
+                        if (this.subviews[i]!=newObject){
+                            if (this.subviews[i].x == newObject.x){
+                                if (this.subviews[i].y < newObject.y){
+                                    if (connectionPreItem == null){
+                                        connectionPreItem = this.subviews[i];
+                                    } else if (connectionPreItem.y < this.subviews[i].y) {
+                                        connectionPreItem = this.subviews[i];
+                                    }
+                                }
+                                
+                            }
+                        }
+                    }
+                }
+                
+                ////if ($debug) Debug.write("Connection Pre Item: ",connectionPreItem);
+                
+                if (connectionPreItem!=null){
+                    newObject.showObjectConnectors();
+                    connectionPreItem.showObjectConnectors();
+                    ////if ($debug) Debug.write("Found Connection Pre Item: ",connectionPreItem);
+                    this.drawFixedLine(connectionPreItem.w2,newObject.w1);
+                    newObject.removeObjectConnectors();
+                    connectionPreItem.removeObjectConnectors();
+                }
+                
+            }
+            
+        ]]>
+    </method>
+    
+    <method name="completedObjectTextObjPending" args="obj">
+        ////if ($debug) Debug.write("completedObjectTextObj: ",obj);
+        var _parentObj = obj.parent;
+        var _txt = obj.getText();
+        var _fontstyle = obj.fontstyle;
+        var _fontsize = obj.fontsize;
+        var _fgcolor = obj.fgcolor;
+        var _width = obj.width;
+        var _height = obj.height;
+        obj.destroy();
+        var t = new lz.styleableTextPending(_parentObj,{name:'_textview',
+                text:_txt,
+                fontstyle:_fontstyle,
+                fontsize:_fontsize,
+                fgcolor:_fgcolor,
+                width:_width,height:_height});
+        var previousText = this.getPreviousTextObjByName(_parentObj.name);
+        this.updateObjTextByName(_parentObj.name,_txt);
+        this.checkObjectsOnRole(_parentObj);
+        //if ($debug) Debug.write("this.isRemoteLoaderAction: ",this.isRemoteLoaderAction);
+        if (!this.isRemoteLoaderAction){
+            //if ($debug) Debug.write("obj typeOfObject: ",_parentObj.typeOfObject);
+            this.checkObjectForUniqueName(_txt,_parentObj,previousText,_parentObj.typeOfObject);
+        }
+    </method>   
+    
+    <method name="completedObjectTextObj" args="obj">
+        //if ($debug) Debug.write("completedObjectTextObj: ",obj);
+        var _parentObj = obj.parent;
+        var _txt = obj.getText();
+        var _fontstyle = obj.fontstyle;
+        var _fontsize = obj.fontsize;
+        var _fgcolor = obj.fgcolor;
+        var _width = obj.width;
+        var _height = obj.height;
+        obj.destroy();
+        var t = new lz.styleableTextDrawBoard(_parentObj,{name:'_textview',
+                text:_txt,
+                fontstyle:_fontstyle,
+                fontsize:_fontsize,
+                fgcolor:_fgcolor,
+                width:_width,height:_height});
+        var previousText = this.getPreviousTextObjByName(_parentObj.name);
+        this.updateObjTextByName(_parentObj.name,_txt);
+        this.checkObjectsOnRole(_parentObj);
+        //if ($debug) Debug.write("this.isRemoteLoaderAction: ",this.isRemoteLoaderAction);
+        if (!this.isRemoteLoaderAction){
+            //if ($debug) Debug.write("obj typeOfObject: ",_parentObj.typeOfObject);
+            this.checkObjectForUniqueName(_txt,_parentObj,previousText,_parentObj.typeOfObject);
+        }
+    </method>   
+    
+    <method name="completedObjectTextObjByLoading" args="_parentObj,_txt">
+        //if ($debug) Debug.write("completedObjectTextObjByLoading: ",_parentObj.typeOfObject);
+        if (_parentObj.typeOfObject == 'unit' 
+	            || _parentObj.typeOfObject == 'departement'
+	            || _parentObj.typeOfObject == 'company'){
+            var t = new lz.styleableTextDrawBoard(_parentObj,{name:'_textview',
+                    text:_txt,
+                    fontstyle:'bold',
+                    fontsize:this.currentlayersize+2,
+                    fgcolor:this.currentlayerletter});
+        } else {
+            var t = new lz.styleableTextDrawBoard(_parentObj,{name:'_textview',
+                    text:_txt,
+                    fontstyle:this.currentlayerstyle,
+                    fontsize:this.currentlayersize,
+                    fgcolor:this.currentlayerletter});
+        }
+
+    </method>   
+    
+    <method name="completedObjectTextObjByLoadingPending" args="_parentObj,_txt">
+        //if ($debug) Debug.write("completedObjectTextObjByLoadingPending: ",_parentObj.typeOfObject);
+        if (_parentObj.typeOfObject == 'unit' 
+                || _parentObj.typeOfObject == 'departement'
+                || _parentObj.typeOfObject == 'company'){
+            var t = new lz.styleableTextDrawBoard(_parentObj,{name:'_textview',
+                    text:_txt,
+                    fontstyle:'bold',
+                    fontsize:this.currentlayersize+2,
+                    fgcolor:this.currentlayerletter});
+        } else {
+            var t = new lz.styleableTextDrawBoard(_parentObj,{name:'_textview',
+                    text:_txt,
+                    fontstyle:this.currentlayerstyle,
+                    fontsize:this.currentlayersize,
+                    fgcolor:this.currentlayerletter});
+        }
+
+    </method>  
+    
+    <method name="completedObjectTextObjByRemote" args="_parentObj,newObjectName">
+        var obj = _parentObj._textview;
+        var _fontstyle = obj.fontstyle;
+        var _fontsize = obj.fontsize;
+        var _fgcolor = obj.fgcolor;
+        var _width = obj.width;
+        var _height = obj.height;
+        obj.destroy();
+        if (_parentObj.typeOfObject == 'unit'){
+            var t = new lz.styleableTextPending(_parentObj,{name:'_textview',
+                    text:newObjectName,
+                    fontstyle:'bold',
+                    fontsize:_fontsize,
+                    fgcolor:_fgcolor,
+                    width:_width,height:_height});
+        } else {
+            var t = new lz.styleableTextPending(_parentObj,{name:'_textview',
+                    text:newObjectName,
+                    fontstyle:_fontstyle,
+                    fontsize:_fontsize,
+                    fgcolor:_fgcolor,
+                    width:_width,height:_height});
+        }
+        this.updateObjTextByName(_parentObj.name,newObjectName);
+    </method>
+    
+    <method name="updateObjTextByName" args="newName,newText" >
+        <![CDATA[
+            ////if ($debug) Debug.write("updateObjTextByName",newName,newText);
+            for (var i=0;i<this.baseactionobjectList.length;i++){
+                var actionObject = this.baseactionobjectList[i];
+                var objName =  actionObject[actionObject.length-1];
+                ////if ($debug) Debug.write("objName,newName: ",objName,newName);
+                if (objName == newName){
+                    actionObject[actionObject.length-8] = newText;    
+                    ////if ($debug) Debug.write("FOUND new actionObject: ",i,actionObject);
+                    this.baseactionobjectList[i] = actionObject;
+                    break;
+                }
+            }
+            this.onsharedMessage('draw',actionObject);
+        ]]>
+    </method>  
+    
+    <!---
+        @keywords deprecated
+     -->
+    <method name="updateObjectTextObjByName" args="newName,newText" >
+        <![CDATA[
+            ////if ($debug) Debug.write("updateObjectTextObjByName",newName,newText);
+            for (var i=0;i<this.baseactionobjectList.length;i++){
+                var actionObject = this.baseactionobjectList[i];
+                var objName =  actionObject[actionObject.length-1];
+                //////if ($debug) Debug.write("objName,newName: ",objName,newName);
+                if (objName == newName){
+                    actionObject[6] = newText;       
+                    this.baseactionobjectList[i] = actionObject;
+                    break;
+                }
+            }
+            this.onsharedMessage('draw',actionObject);
+            
+        ]]>
+    </method>   
+    
+    <method name="getPreviousTextObjByName" args="newName" >
+        <![CDATA[
+            ////if ($debug) Debug.write("getPreviousTextObjByName",newName);
+            for (var i=0;i<this.baseactionobjectList.length;i++){
+                var actionObject = this.baseactionobjectList[i];
+                var objName =  actionObject[actionObject.length-1];
+                ////if ($debug) Debug.write("objName,newName: ",i,objName,newName);
+                if (objName == newName){
+                    ////if ($debug) Debug.write("Found and Return : ",i,actionObject,actionObject[actionObject.length-8]);
+                    return actionObject[actionObject.length-8];       
+                }
+            }
+        ]]>
+    </method> 
+    
+    <method name="checkObjectsOnRole" args="_parentObj">
+        <![CDATA[
+            if (this.diagramType == "roleview"){
+                ////if ($debug) Debug.write("checkObjectsOnRole: ",_parentObj);
+                var x1 = _parentObj.x;
+                var y1 = _parentObj.y;
+                var x2 = x1 + _parentObj.width;
+                var y2 = y1 + _parentObj.height;
+                ////if ($debug) Debug.write("x1,y1,x2,y2: ",x1,y1,x2,y2);
+                
+                
+                
+                if (_parentObj.typeOfObject == 'process'){
+                    var foundRole = false;
+                    for (var i=0;i<this.subviews.length;i++) {
+                        //////if ($debug) Debug.write("this.subviews[i]",this.subviews[i]);
+                        //////if ($debug) Debug.write("this.subviews[i]",this.subviews[i].typeOfObject);
+                        if (this.subviews[i].typeOfObject == 'unit') {
+                            ////if ($debug) Debug.write("is unit",this.subviews[i]);
+                            if (this.subviews[i].x <= x1 && this.subviews[i].y <= y1
+                                && (this.subviews[i].x + this.subviews[i].width) >= x2
+                                && (this.subviews[i].y + this.subviews[i].height) >= y2) {
+                                    ////if ($debug) Debug.write("Found Unit");
+                                    foundRole = true;
+                                }
+                        }
+                        
+                    }
+                    if (!foundRole){
+                        _parentObj.doShowNoRoleIcon();
+                    }
+                }
+                
+                
+            }
+        ]]>
+    </method>   
+    
+    <!-- backup
+    <method name="setFixedGeneralXPosition" args="objRef,defaultWidth">
+        objRef.setAttribute('x',Math.round(objRef.x/(defaultWidth*canvas.gridFixedFactor))*(defaultWidth*canvas.gridFixedFactor));
+    </method>
+    
+    <method name="setFixedGeneralYPosition" args="objRef,defaultWidth,defaultHeight">
+        <![CDATA[
+            var x = Math.round(objRef.x/(defaultWidth*canvas.gridFixedFactor))*(defaultWidth*canvas.gridFixedFactor);
+            var y = Math.round(objRef.y/(defaultHeight*canvas.gridFixedFactor))*(defaultHeight*canvas.gridFixedFactor);
+            objRef.setAttribute('y',y);
+        ]]>
+    </method>    
+     -->
+     
+    <method name="setFixedGeneralXPosition" args="objRef,defaultWidth,newx">
+        objRef.setAttribute('x',Math.round(newx/canvas.mainSnapSize)*canvas.mainSnapSize);
+    </method>
+    
+    <method name="setFixedGeneralYPosition" args="objRef,defaultWidth,defaultHeight,newy">
+        <![CDATA[
+            //var x = Math.round(objRef.x/(defaultWidth*canvas.gridFixedFactor))*(defaultWidth*canvas.gridFixedFactor);
+            objRef.setAttribute('y',Math.round(newy/canvas.mainSnapSize)*canvas.mainSnapSize);
+        ]]>
+    </method>   
+    
+    <!--- central Function for calculating the Object default Size and Position -->
+    <method name="calcObjectPos" args="_startx,_endx,_starty,_endy,_type,shiftBottom,maxFactor,addItionalFactor">
+        <![CDATA[
+            //if ($debug) Debug.write("_startx,_endx,_starty,_endy,_type,shiftBottom: ",
+                   // _startx,_endx,_starty,_endy,_type,shiftBottom);
+            
+            var width = Math.abs(Math.round(_endx - _startx));
+            var height = Math.abs(Math.round(_endy - _starty));
+            
+            var itemLength = 6;
+
+            //Use default Place
+            if (width < canvas.mainSnapSize || height < canvas.mainSnapSize){
+                //width = 20*2 + ((itemLength+2) * 20) * maxFactor;
+                width = 680;
+                height = 140;
+                
+                //if ($debug) Debug.write("width,_startx: ",width,_startx);
+                
+                if (maxFactor == 1) {
+                    var x = Math.floor(_startx/width) * width;
+                    var y = (Math.round(_starty/height) * height)+20;
+                    var deltaX = _startx - x;
+                    //if ($debug) Debug.write("x,y: ",x,y,"deltaX: ",deltaX);
+                    
+                    //width = ((itemLength+2) * 20) * maxFactor;
+                    width = 160;
+                    height = 100;
+                    
+                    //Does not wrok for 4
+                    if (Math.round(deltaX/width) != 4){
+                        var additionalX = Math.round(deltaX/width)*width;
+                    } else {
+                        var additionalX = 3*width;
+                    }
+                    x += additionalX + 20;
+                    //if ($debug) Debug.write("Math.round(deltaX/width): ",Math.round(deltaX/width),"additionalX: ",additionalX,"x: ",x);
+                    
+                } else {
+                    var x = Math.round(_startx/width) * width;
+                    var y = Math.round(_starty/height) * height;
+                }
+                
+            } else {
+                
+                //Using canvas.mainSnapSize = 20 Pixels as Snap Size
+                var x = Math.round(_startx/canvas.mainSnapSize)*canvas.mainSnapSize;
+                width = Math.round(width/canvas.mainSnapSize)*canvas.mainSnapSize;
+                if (_endx<_startx){
+                    x = _endx;
+                    x = Math.round(x/canvas.mainSnapSize)*canvas.mainSnapSize;
+                    width = Math.abs(width);
+                }
+                height = Math.round(height/canvas.mainSnapSize)*canvas.mainSnapSize;
+                var y = Math.round(_starty/canvas.mainSnapSize)*canvas.mainSnapSize;
+                if (_endy<_starty){
+                    y = _endy;
+                    y = Math.round(y/canvas.mainSnapSize)*canvas.mainSnapSize;
+                    height = Math.abs(height);
+                }
+            }
+            
+            var isFreePosition = false;
+            while (!isFreePosition) {
+                var foundItem = false;
+                
+                for (var i=0;i<this.subviews.length;i++) {
+                    ////if ($debug) Debug.write("typeOfObject: ",this.subviews[i].typeOfObject);
+                    if (this.subviews[i].typeOfObject == _type){
+                        //if ($debug) Debug.write("typeOfObject Found y1,y2,x1,x2: ",this.subviews[i].y,y,this.subviews[i].x,x);
+                        if (this.subviews[i].y == y && this.subviews[i].x == x){
+                            //if ($debug) Debug.write("foundItem ## ");
+                            foundItem = true;
+                        }
+                    }
+                }
+                
+                if (foundItem){
+                    if (shiftBottom){
+                        //if ($debug) Debug.write("shiftBottom ## ");
+                        y += height;
+                    } else {
+                        x += width;
+                    }
+                } else {
+                    //if ($debug) Debug.write("Found Free Position");
+                    isFreePosition = true;
+                }
+            }
+                
+            return {x:x,y:y,width:width,height:height};
+        ]]>
+    </method>
+    
+    <method name="calcSimpleSnapSize">
+        <![CDATA[
+        
+            var width = Math.abs(Math.round(_endx - _startx));
+            var height = Math.abs(Math.round(_endy - _starty));
+            
+            if (width < canvas.mainSnapSize && height < canvas.mainSnapSize){
+                width = 160;
+                height = 100;
+            }
+                
+            //Using canvas.mainSnapSize = 20 Pixels as Snap Size
+            var x = Math.round(_startx/canvas.mainSnapSize)*canvas.mainSnapSize;
+            width = Math.round(width/canvas.mainSnapSize)*canvas.mainSnapSize;
+            if (_endx<_startx){
+                x = _endx;
+                x = Math.round(x/canvas.mainSnapSize)*canvas.mainSnapSize;
+                width = Math.abs(width);
+            }
+            height = Math.round(height/canvas.mainSnapSize)*canvas.mainSnapSize;
+            var y = Math.round(_starty/canvas.mainSnapSize)*canvas.mainSnapSize;
+            if (_endy<_starty){
+                y = _endy;
+                y = Math.round(y/canvas.mainSnapSize)*canvas.mainSnapSize;
+                height = Math.abs(height);
+            }
+            
+            return {x:x,y:y,width:width,height:height};
+        ]]>
+    </method>
+    
+    <method name="setNewPendingAssigneeValue" args="newName,assigneeUser_id,assigneeUserLogin">
+        <![CDATA[
+            ////if ($debug) Debug.write("setNewPendingAssigneeValue",newName,assigneeUser_id,assigneeUserLogin);
+            for (var i=0;i<this.baseactionobjectList.length;i++){
+                var actionObject = this.baseactionobjectList[i];
+                var objName =  actionObject[actionObject.length-1];
+                ////if ($debug) Debug.write("objName,newName: ",objName,newName);
+                if (objName == newName){
+                    actionObject[actionObject.length-11] = assigneeUserLogin;
+                    actionObject[actionObject.length-10] = assigneeUser_id;   
+                    this.baseactionobjectList[i] = actionObject;
+                    break;
+                }
+            }
+            this.onsharedMessage('draw',actionObject);
+        ]]>
+    </method>
+    
+    <!--- central Function for calculating the Object default Size and Position -->
+    <method name="_calcObjectPos" args="_startx,_endx,_starty,_endy,_type,shiftBottom,maxFactor,addItionalFactor">
+        <![CDATA[
+        
+            //if ($debug) Debug.write("_startx,_endx,_starty,_endy,_type,shiftBottom: ",
+                   // _startx,_endx,_starty,_endy,_type,shiftBottom);
+        
+            var width = Math.round(_endx - _startx);
+            var height = Math.round(_endy - _starty);
+            
+            //Use default Place
+            if (width < canvas.mainSnapSize && height < canvas.mainSnapSize){
+                width = canvas.defaultCompanyWidth*maxFactor + addItionalFactor*maxFactor;
+                height = canvas.defaultCompanyHeight+addItionalFactor;
+                
+                var x = Math.round(_startx/(width+canvas.mainSnapSize))*(width+canvas.mainSnapSize);
+                var y = Math.round(_starty/(height+canvas.mainSnapSize))*(height+canvas.mainSnapSize);
+                
+                //if ($debug) Debug.write("canvas.defaultCompanyHeight,y,_starty,height: ",
+                    //canvas.defaultCompanyHeight,y,_starty,height);
+                    
+                var isFreePosition = false;
+                while (!isFreePosition) {
+                    var foundItem = false;
+                    
+                    for (var i=0;i<this.subviews.length;i++) {
+                        if (this.subviews[i].typeOfObject == _type){
+                            if (this.subviews[i].y == y && this.subviews[i].x == x){
+                                foundItem = true;
+                            }
+                        }
+                    }
+                    
+                    if (foundItem){
+                        if (shiftBottom){
+                            y += height+canvas.mainSnapSize;
+                        } else {
+                            x += width+canvas.mainSnapSize;
+                        }
+                    } else {
+                        //if ($debug) Debug.write("Found Free Position");
+                        isFreePosition = true;
+                    }
+                }
+                    
+            } else {
+                //Using canvas.mainSnapSize Pixels as Snap Size
+                var x = Math.round(_startx/canvas.mainSnapSize)*canvas.mainSnapSize;
+                width = Math.round(width/canvas.mainSnapSize)*canvas.mainSnapSize;
+                if (_endx<_startx){
+                    x = _endx;
+                    x = Math.round(x/canvas.mainSnapSize)*canvas.mainSnapSize;
+                    width = Math.abs(width);
+                }
+                height = Math.round(height/canvas.mainSnapSize)*canvas.mainSnapSize;
+                var y = Math.round(_starty/canvas.mainSnapSize)*canvas.mainSnapSize;
+                if (_endy<_starty){
+                    y = _endy;
+                    y = Math.round(y/canvas.mainSnapSize)*canvas.mainSnapSize;
+                    height = Math.abs(height);
+                }
+            }
+            
+            
+            return {x:x,y:y,width:width,height:height};
+           
+        ]]>
+    </method>
+    
+    <method name="checkOrganisationConnection" args="objType,x,y,width,height,objRef">
+        <![CDATA[
+            //if ($debug) Debug.write("checkOrganisationConnection ",objType,x,y,width,height);
+            //canvas.currentDiagramRef.setCurrentSelectedObject(null);
+            
+            var tList = new Array();
+            for (var i=0;i<this.subviews.length;i++) {
+                ////if ($debug) Debug.write("typeOfObject: ",i,this.subviews[i].typeOfObject);
+                if (this.subviews[i].typeOfObject == 'unit' 
+                        || this.subviews[i].typeOfObject == 'departement'
+                        || this.subviews[i].typeOfObject == 'company'
+                        || this.subviews[i].typeOfObject == 'unitFixed'
+                        || this.subviews[i].typeOfObject == 'departementFixed'
+                        || this.subviews[i].typeOfObject == 'companyFixed') {
+                    if (this.subviews[i].x <= x && this.subviews[i].width+this.subviews[i].x >= width+x 
+                            && this.subviews[i].y <= y && this.subviews[i].height+this.subviews[i].y >= height+y) {
+                        ////if ($debug) Debug.write("FOUND ITEM: ",this.subviews[i]);
+                        var baseObject = this.getBaseactionobjectByName(this.subviews[i].name);
+                        var diagramobjectid = baseObject[baseObject.length-7];
+                        var connectedObj = new Array();
+                        connectedObj.push(this.subviews[i].name);
+                        connectedObj.push(diagramobjectid);
+                        connectedObj.push(baseObject[0]);
+                        tList.push(connectedObj);
+                    }
+                }
+            }
+            
+            //FIXME: Why do we set the Selection Object here
+            //canvas.currentDiagramRef.setCurrentSelectedObject(objRef);
+            
+            //if ($debug) Debug.write("tList: ",tList.length,tList);
+            return tList;
+        ]]>
+    </method>
+    
+    <!--
+    	FIXME: This Hit-Test does not work
+      -->
+    <method name="checkPossibleOrganisationConnection" args="objType,x,y,width,height,tempObj">
+        <![CDATA[
+            if ($debug) Debug.write("checkPossibleOrganisationConnection ",tempObj,x,y,width,height);
+            //canvas.currentDiagramRef.setCurrentSelectedObject(null);
+            
+            var mcTarget = tempObj.getMCRef();
+            if ($debug) Debug.write("mcTarget: ",mcTarget._x,mcTarget._y,mcTarget._height,mcTarget._width);
+            
+            var tList = new Array();
+            for (var i=0;i<this.subviews.length;i++) {
+                ////if ($debug) Debug.write("typeOfObject: ",i,this.subviews[i].typeOfObject);
+                if (this.subviews[i].typeOfObject == 'unit' 
+                        || this.subviews[i].typeOfObject == 'departement'
+                        || this.subviews[i].typeOfObject == 'company'
+                        || this.subviews[i].typeOfObject == 'unitFixed'
+                        || this.subviews[i].typeOfObject == 'departementFixed'
+                        || this.subviews[i].typeOfObject == 'companyFixed') {
+                        
+                    //Do Hit-Test from underlaying Flash Engine
+                    var orgObj = this.subviews[i].getMCRef();
+                    if ($debug) Debug.write("orgObj: ",orgObj._x,orgObj._y,orgObj._height,orgObj._width);
+            
+                    if (orgObj.hitTest(mcTarget)) {
+                    	if ($debug) Debug.write("Hit Test To True");
+                    	var baseObject = this.getBaseactionobjectByName(this.subviews[i].name);
+                        var diagramobjectid = baseObject[baseObject.length-7];
+                        var connectedObj = new Array();
+                        connectedObj.push(this.subviews[i].name);
+                        connectedObj.push(diagramobjectid);
+                        connectedObj.push(baseObject[0]);
+                        tList.push(connectedObj);
+                    }
+                }
+            }
+            
+            //FIXME: Why do we set the Selection Object here
+            //canvas.currentDiagramRef.setCurrentSelectedObject(objRef);
+            
+            //if ($debug) Debug.write("tList: ",tList.length,tList);
+            return tList;
+        ]]>
+    </method>
+    
+    <method name="checkOrganisationConnectionByNewOrgObject" args="x,y,width,height,objRef">
+        <![CDATA[
+            canvas.currentDiagramRef.setCurrentSelectedObject(null);
+            ////if ($debug) Debug.write("checkOrganisationConnectionByNewOrgObject ",x,y,width,height);
+            var tList = new Array();
+            for (var i=0;i<this.subviews.length;i++) {
+                ////if ($debug) Debug.write("typeOfObject: ",i,this.subviews[i].typeOfObject);
+                if (this.subviews[i].typeOfObject == 'process' 
+                        || this.subviews[i].typeOfObject == 'outputflow' 
+                        || this.subviews[i].typeOfObject == 'inputflow' 
+                        || this.subviews[i].typeOfObject == 'activity') {
+                    //FIXME: TODO: This Loop may take long in a complex scenario. Maybe we can only check
+                    //the concerned Items later on
+                    //http://www.webbase-design.de:8580/browse/ICH-293
+                    //if (this.subviews[i].x >= x && this.subviews[i].width+this.subviews[i].x <= width+x 
+                    //        && this.subviews[i].y >= y && this.subviews[i].height+this.subviews[i].y <= height+y) {
+                    //    //if ($debug) Debug.write("FOUND INNER ITEM To UPDATE: ",this.subviews[i]);
+                        var connectList = this.checkOrganisationConnection(this.subviews[i].typeOfObject,this.subviews[i].x,this.subviews[i].y,this.subviews[i].width,this.subviews[i].height);
+                        ////if ($debug) Debug.write("Updated Object List Items: ",connectList);
+                        this.updateBaseactionobjectOrganisationConnectionByName(
+                            this.subviews[i].name,connectList);
+                    //}
+                }
+            }
+            
+            canvas.currentDiagramRef.setCurrentSelectedObject(objRef);
+            ////if ($debug) Debug.write("tList: ",tList.length,tList);
+            return tList;
+        ]]>
+    </method>
+    
+    <method name="updateBaseactionobjectOrganisationConnectionByName" args="newName,connectList" >
+        <![CDATA[
+            ////if ($debug) Debug.write("getBaseactionobjectByName",newName);
+            for (var i=0;i<this.baseactionobjectList.length;i++){
+                var actionObject = this.baseactionobjectList[i];
+                var objName =  actionObject[actionObject.length-1];
+                //////if ($debug) Debug.write("objName,newName: ",objName,newName);
+                if (objName == newName){
+                    this.baseactionobjectList[i][this.baseactionobjectList[i].length-9] = connectList;
+                }
+            }
+        ]]>
+    </method>  
+    
+    <method name="getBaseactionobjectByName" args="newName" >
+        <![CDATA[
+            if ($debug) Debug.write("getBaseactionobjectByName",newName,this.baseactionobjectList.length,this.baseactionobjectList);
+            for (var i=0;i<this.baseactionobjectList.length;i++){
+                var actionObject = this.baseactionobjectList[i];
+                var objName =  actionObject[actionObject.length-1];
+                if ($debug) Debug.write("objName,newName: ",objName,newName);
+                if (objName == newName){
+                    return this.baseactionobjectList[i];
+                }
+            }
+            return null;
+        ]]>
+    </method>  
+    
+    <method name="getOrganisationConnectionByOrgObject" args="x,y,width,height,objRef">
+        <![CDATA[
+            //if ($debug) Debug.write("getOrganisationConnectionByOrgObject ",x,y,width,height,objRef);
+            var tList = new Array();
+            for (var i=0;i<this.subviews.length;i++) {
+                ////if ($debug) Debug.write("typeOfObject: ",i,this.subviews[i].typeOfObject);
+                if (this.subviews[i].typeOfObject == 'process' 
+                        || this.subviews[i].typeOfObject == 'outputflow' 
+                        || this.subviews[i].typeOfObject == 'inputflow' 
+                        || this.subviews[i].typeOfObject == 'activity') {
+                    if (this.subviews[i].x >= x && this.subviews[i].width+this.subviews[i].x <= width+x 
+                            && this.subviews[i].y >= y && this.subviews[i].height+this.subviews[i].y <= height+y) {
+                        //if ($debug) Debug.write("FOUND INNER ITEM To UPDATE: ",this.subviews[i]);
+
+                        this.subviews[i].orgObjectDeltaX = this.subviews[i].x - x;
+                        this.subviews[i].orgObjectDeltaY = this.subviews[i].y - y;
+                        
+                        //if ($debug) Debug.write("orgObjectDeltaX,orgObjectDeltaY: ",this.subviews[i].orgObjectDeltaX,this.subviews[i].orgObjectDeltaY);
+                        
+                        tList.push(this.subviews[i]);
+                    }
+                }
+            }
+            
+            ////if ($debug) Debug.write("tList: ",tList.length,tList);
+            return tList;
+        ]]>
+    </method>
+    
+    <method name="updateBaseactionobjectDataCarrierByNameAndIndex" args="newName,index,dataCarrierList" >
+        <![CDATA[
+            ////if ($debug) Debug.write("getBaseactionobjectByName",newName);
+            for (var i=0;i<this.baseactionobjectList.length;i++){
+                var actionObject = this.baseactionobjectList[i];
+                var objName =  actionObject[actionObject.length-1];
+                //////if ($debug) Debug.write("objName,newName: ",objName,newName);
+                if (objName == newName){
+                    this.baseactionobjectList[i][this.baseactionobjectList[i].length-index] = dataCarrierList;
+                }
+            }
+        ]]>
+    </method>  
+    
+    <method name="updateBaseactionobjectPropertyByNameAndIndex" args="newName,index,popertyList" >
+        <![CDATA[
+            ////if ($debug) Debug.write("getBaseactionobjectByName",newName);
+            for (var i=0;i<this.baseactionobjectList.length;i++){
+                var actionObject = this.baseactionobjectList[i];
+                var objName =  actionObject[actionObject.length-1];
+                //////if ($debug) Debug.write("objName,newName: ",objName,newName);
+                if (objName == newName){
+                    this.baseactionobjectList[i][this.baseactionobjectList[i].length-index] = popertyList;
+                }
+            }
+        ]]>
+    </method>  
+        
+
+    <!--
+    var objRefView = null;
+            for (var i=0;i<this.subviews.length;i++) {
+                if (this.subviews[i].name == refBaseObjListObj[refBaseObjListObj.length-1]){
+                    objRefView = this.subviews[i];
+                    break;
+                }
+            }
+    if (objRefView!=null) {
+                ////if ($debug) Debug.write("Obj Found: ",objRefView);
+                
+                var additionalx = objRefView.x;
+                var additionaly = objRefView.y;
+                
+                
+                
+            } else {
+                ////if ($debug) Debug.warn("Could not find connector Object");
+            }
+                if (endName == "w3" ) {     
+                    lastStepx = endx-objectBreakPixels;
+                    lastStepy = endy;
+                } else if (endName == "w4" ) {
+                    lastStepx = endx-objectBreakPixels;
+                    lastStepy = endy;
+                } else if (endName == "w1" ) {
+                    lastStepx = endx;
+                    lastStepy = endy-objectBreakPixels;
+                } else if (endName == "w2" ) {
+                    lastStepx = endx;
+                    lastStepy = endy+objectBreakPixels;
+                }
+     -->
+    
+
+    
+</class>
+
+</library>

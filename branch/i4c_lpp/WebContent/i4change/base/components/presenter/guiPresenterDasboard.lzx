@@ -1,0 +1,323 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library> 
+
+
+<class name="dragitemDashBoard" extends="view" bgcolor="red" opacity="0.5">
+    
+    <attribute name="mousetracker_del" value="$once{ new LzDelegate(this, 'updateIdleFunction' )}" />
+
+    <dragstate name="dragger" />
+    
+    <handler name="oninit">
+        this.mousetracker_del.register(lz.Idle,'onidle');
+        this.dragger.apply();
+    </handler>
+    
+    <method name="close">
+        this.mousetracker_del.unregisterAll();
+        this.dragger.remove();
+        var currentOrder = parent.parent.contentView.removeItem();
+        //if ($debug) Debug.write("close dragitemDashBoard currentOrder: ",currentOrder);
+        this.destroy();
+        return currentOrder;
+    </method>
+    
+    <method name="updateIdleFunction" args="itme">
+        <![CDATA[
+            ////if ($debug) Debug.write("updateIdleFunction: ",this);
+            
+            var thisxMiddle = this.x;
+            var thisyMiddle = this.y;          
+            
+            var minimum = new Array();
+            
+            for (var i=0;i<parent.parent.contentView.subviews.length;i++){
+                var xMiddle = parent.parent.contentView.subviews[i].x;
+                var yMiddle = parent.parent.contentView.subviews[i].y;
+                ////if ($debug) Debug.write("xMiddle,yMiddle,item ",xMiddle,yMiddle,parent.subviews[i]);
+                
+                var distance = Math.sqrt(Math.abs(thisxMiddle-xMiddle)^2 + Math.abs(thisyMiddle-yMiddle)^2);
+                
+                ////if ($debug) Debug.write("item,distance ",parent.parent.contentView.subviews[i].name,distance);
+                
+                if (i==0) {
+                    minimum = {'distance':distance,'item':parent.parent.contentView.subviews[i]};
+                } else if (distance < minimum.distance) {
+                    minimum = {'distance':distance,'item':parent.parent.contentView.subviews[i]};
+                }
+            }
+            
+            ////if ($debug) Debug.write("minimum.item.name,distance: ",minimum.item.name,minimum.distance);
+            parent.parent.contentView.addTempItem(minimum.item.orderVal,this.width,this.height);
+        ]]>
+    </method>
+    
+</class>   
+
+<class name="guiPresenterDasboard" extends="view" width="250" height="400" 
+    clickable="$once{ this.isdragable }"
+    onmousedown="this._startDragState(this)" onmouseup="this._removeDragState(this)" >
+    
+    <handler name="oninit">
+        this.setShadow();
+    </handler>
+
+    <method name="setShadow">
+        <![CDATA[
+        if (this.isinited && this.hasshadow){
+            this.normalMC = this.getMCRef();
+            this.displacementMap = new flash.filters.DropShadowFilter();
+            this.normalMC.filters = [this.displacementMap];
+        }
+        ]]>              
+    </method>	  
+    
+    <!--- @keywords private temp-older of x-distance to docked-Box  -->
+    <attribute name="orderVal" value="0" type="number" />  
+
+    <attribute name="hasshadow" value="true" type="boolean" />
+          
+	<!--- The Title of this Box -->
+	<attribute name="title" value="defaulttitle" type="string" />
+	
+	<!--- if this Box should be closeable -->
+	<attribute name="closable" value="true" type="boolean" />
+    
+    <!--- if this Box should be resizeable  -->
+    <attribute name="resizeable" value="true" type="boolean" />
+	
+	<!--- Hard to explain but its clear if you play around 
+		with that. Its the number of minimum pixels before 
+		the "docking" effect will be there -->
+	<attribute name="dockingbarrier" value="15" type="number" />
+
+	<!---@keywords private the list of connected views -->
+	<attribute name="dockinglist" value="null" />
+	
+	<!--- @keywords private temp-older of x-distance to docked-Box  -->
+	<attribute name="tempXdistance" value="0" type="number" />
+
+	<!--- @keywords private temp-older of y-distance to docked-Box  -->
+	<attribute name="tempYdistance" value="0" type="number" />
+	
+	<!--- @keywords private is the Box minimized  -->
+	<attribute name="isopen" value="true" type="boolean" />
+	
+	<!--- @keywords private is the Box minimized  -->
+	<attribute name="open" value="true" type="boolean" />	
+	
+	<!--- @keywords private  -->
+	<attribute name="initheight" value="0" type="number" />
+    
+    <!--- @keywords private show minimize, maximize, close buttons -->
+    <attribute name="fullToolBar" value="true" type="boolean" />
+    
+    <attribute name="maximazable" value="true" type="boolean" />
+    <attribute name="minimazable" value="true" type="boolean" />
+    
+    <!--- @keywords private if this window is dragable -->
+    <attribute name="isdragable" value="true" type="boolean" />
+    
+    <attribute name="_barmenuButtonRef" value="null" />
+    
+    <!--- if this Box should be resizeable  -->
+    <attribute name="ismaximized" value="false" type="boolean" />    
+    <attribute name="maxi_x" value="0" type="number" />
+    <attribute name="maxi_y" value="0" type="number" />
+    <attribute name="maxi_height" value="0" type="number" />
+    <attribute name="maxi_width" value="0" type="number" />
+    
+    <attribute name="isresizeing" value="false" type="boolean" />
+    
+    <attribute name="currentDragItem" value="null" />
+    
+	<attribute name="labelid" type="number" setter="setLabelId(labelid)" />
+	<method name="setLabelId" args="id">
+		this.labelid=id;
+		this.setAttribute('title',canvas.getLabelName(this.labelid));
+	</method>    
+	
+	<!--- the Event will be thrown if you close the Box -->
+	<event name="onclose" />    
+    
+	<!--- the Event will be thrown if you do click on it and drag -->
+	<event name="onactivate" />   
+    
+    <!--- this Event will be triggered after resizing -->
+    <event name="onresized" />
+    
+	<!--- @keywords private store initial height so toggleopen can reset height  -->
+	<handler name="oninit">
+		this.initheight=this.height;
+		//Debug.write("this.isopen: ",this.isopen);
+		if (!this.open) toggleopen();
+	</handler>
+    
+    <handler name="onwidth" args="w">
+        <![CDATA[
+            if (this.isresizeing){
+                if (w<_titlebar._title.width+70) {
+                    this.setAttribute('width',_titlebar._title.width+71); 
+                    this._resizeview.onmouseup.sendEvent();
+                }
+            }
+        ]]>
+    </handler>
+    
+    <handler name="onheight" args="h">
+        <![CDATA[
+            if (this.isresizeing){
+                if (h<40) {
+                    this.setAttribute('height',41); 
+                    this._resizeview.onmouseup.sendEvent();
+                }
+            }
+        ]]>
+    </handler>
+    
+	<method name="close">
+		if (this.onclose) this.onclose.sendEvent();
+        if (this._barmenuButtonRef!=null){
+            this._barmenuButtonRef.destroy();
+            this._barmenuButtonRef.parent.onwidth.sendEvent();
+        }
+		this.destroy();
+	</method>
+	
+	<method name="toggleopen">
+		//////Debug.write("this.isopen",this.isopen);
+		this.setAttribute('isopen',!this.isopen);
+		if (this.isopen){
+			_calcdockingList();
+					
+			this.setAttribute('height',this.initheight);
+		} else {
+			this.setAttribute('height',22);		
+		}
+	</method>
+    
+    <method name="activate">
+        this.onactivate.sendEvent();
+        this.bringToFront();
+        if (this._barmenuButtonRef!=null) this._barmenuButtonRef.sendActiveWindow(this);
+    </method>
+    
+    <method name="rsapply">
+        this.isresizeing=true;
+        this.rs.apply();
+    </method>
+    
+    <method name="rsremove">
+        this.rs.remove();
+        this.isresizeing=false;
+        //Debug.write("rsremove",this,this.isinited);
+        this.onresized.sendEvent();
+    </method>    
+    	
+	<!--- @keywords private  -->
+	<method name="_removeDragState" args="obj">
+        <![CDATA[
+	        if (!this.ismaximized){
+	            this.setAttribute('visibility','visible');
+	            var newOrder = this.currentDragItem.close();
+	            for (var i=0;i<parent.subviews.length;i++) {
+	                if (parent.subviews[i].orderVal >= newOrder){
+	                    parent.subviews[i].orderVal = i+1;
+	                }
+	            }
+                this.orderVal = newOrder;
+                parent.sortItems();
+                for (var i=0;i<parent.subviews.length;i++) {
+                    parent.subviews[i].orderVal = i;
+                }
+	        }
+        ]]>
+	</method>
+	
+	<!--- @keywords private
+		the arg obj is needed because the dragging can be called by the Box itself
+		or by a Box which is connected to this Box!  -->
+	<method name="_startDragState" args="obj">
+        this.activate();
+        if (!this.ismaximized){
+            this.setAttribute('visibility','hidden');
+            this.currentDragItem = new lz.dragitemDashBoard(parent.parent.dragView,{
+                width:this.width,height:this.height,
+                x:this.getAttributeRelative('x',canvas),
+                y:this.getAttributeRelative('y',canvas)
+            });
+        }
+	</method>
+    
+	<view width="${ this.parent.width }" height="${ this.parent.height }" 
+        bgcolor="$once{ canvas.basebgcolorizer }" > 
+        <view width="${ this.parent.width-2 }" height="${ this.parent.height-2 }"
+             x="1" y="1" bgcolor="0xFFFFFF" />
+    </view>        
+    
+	<view x="1" y="1" width="${ this.parent.width-1 }" height="20" name="_titlebar" >
+		<!-- stretches="width" -->
+		<view width="${ this.parent.parent.width-2 }" y="0" stretches="width"
+            resource="presenter_thumb_rsc" >
+            <handler name="oninit">
+            	<![CDATA[
+            		//this.setTintRGB(canvas.basebgcolorizer,90);
+                    this.setTintRGB(0x3F5B9E,90);
+            	]]>
+            </handler>
+			<method name="setTintRGB" args="color, brightness">
+			    <![CDATA[
+			    if (color != "" && color != null){
+
+			        if (brightness == null) { brightness = 0; }
+			        var rgb = color;
+			        var red=(rgb >> 16) & 0xFF;
+			        var green=(rgb >> 8) & 0xFF;
+			        var blue=rgb & 0xFF;
+		
+			        this.setColorTransform( { ra : red, ga : green, ba : blue,
+			                            		rb : 0, gb : 0, bb : 0 } );
+			                            		
+			        Debug.write(this);
+			        Debug.write( { ra : red, ga : green, ba : blue,
+			                            		rb : 0, gb : 0, bb : 0 } );
+			    }
+			    ]]>
+			</method>            
+        </view>
+		<text fontsize="10" name="_title" height="17" x="6" y="1" text="${ this.parent.parent.title }" 
+			resize="true" fontstyle="bold" fgcolor="0xFFFFFF" />
+	    <view name="_toolbar" visibility="$once{ ((parent.parent.fullToolBar) ? 'visible' : 'hidden' ) }" 
+	        x="${ parent.width-this.width-2 }" layout="axis:x;spacing:2" y="2">  
+            <!--   
+	        <view name="_close"
+	            visibility="$once{ ((parent.parent.parent.closable) ? 'visible' : 'hidden' ) }"
+	            resource="btn_presenter_close"
+	            onmouseover="this.setAttribute('frame',2)"
+	            onmouseout="this.setAttribute('frame',1)"
+	            onmousedown="this.setAttribute('frame',3)"
+	            onmouseup="this.setAttribute('frame',1)" >
+	            <handler name="onclick">
+	                this.setAttribute('frame',2);
+	                this.parent.parent.parent.close();
+	            </handler>
+	            <labelTooltip labelid="430" />
+	        </view>  
+             -->
+	    </view>  			
+	</view>
+    <handler name="onaddsubview" args="v">
+		//Debug.write("onaddsubview",v);
+		if (v.parent.subviews.length>2) this._resizeview.bringToFront();
+    </handler>
+    <view visibility="$once{ ((this.parent.resizeable) ? 'visible' : 'hidden' ) }"
+        name="_resizeview" x="${ this.parent.width - 16 }" 
+        y="${ this.parent.height - 16 }" resource="explorer_resize_rsc" 
+        cursor="explorer_resizemouse_rsc" onmousedown="this.parent.rsapply()"
+        onmouseup="this.parent.rsremove()" >
+        <labelTooltip text="resize" />
+    </view>    
+    <resizestate name="rs"/>
+</class>
+
+</library>

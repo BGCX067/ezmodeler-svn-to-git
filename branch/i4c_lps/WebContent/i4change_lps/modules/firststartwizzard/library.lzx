@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+    
+    <include href="addNewProjectWizzard.lzx" />
+    <include href="addOrganizationWizzard.lzx" />
+    <include href="firstStartWizzard.lzx" />
+    
+</library>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+<class name="boundingBoxConnector" extends="view" opacity="0.7" bgcolor="0xFF3300">
+	
+	<attribute name="typeOfObject" value="boundingBoxConnector" type="string" />
+   
+</class>
+
+</library>

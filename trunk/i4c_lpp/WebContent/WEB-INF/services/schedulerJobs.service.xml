@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:lang="http://www.springframework.org/schema/lang"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+                           http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-2.0.xsd">
+    
+
+	<bean id="quartzSessionClearJob" 
+	  class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+	    <property name="targetObject"><ref bean="i4change.QuartzSessionClear"/></property>
+	    <property name="targetMethod"><value>doIt</value></property>
+	</bean>
+	
+	<bean id="i4change.QuartzSessionClear" parent="txProxyTemplate">
+        <property name="target" ref="i4change.txQuartzSessionClear" />
+    </bean>
+	
+	<bean id="i4change.txQuartzSessionClear"
+        class="org.i4change.app.quartz.scheduler.QuartzSessionClear">
+		<property name="sessionmanagement" ref="i4change.Sessionmanagement" />
+    </bean>
+    
+	<bean id="quartzTransactionCheck" 
+	  class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+	    <property name="targetObject"><ref bean="i4change.QuartzTransactionCheck"/></property>
+	    <property name="targetMethod"><value>doIt</value></property>
+	</bean>
+	 
+	<bean id="i4change.QuartzTransactionCheck"
+        class="org.i4change.app.quartz.scheduler.QuartzTransactionCheck">
+		<property name="transactionsCompleted" ref="i4change.TransactionsCompleted" />
+		<property name="usermanagement" ref="i4change.Usermanagement" />
+    </bean> 
+	
+	<bean id="quartzMailClear" 
+	  class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+	    <property name="targetObject"><ref bean="i4change.QuartzMailClear"/></property>
+	    <property name="targetMethod"><value>doIt</value></property>
+	</bean>
+	
+	<bean id="i4change.QuartzMailClear" parent="txProxyTemplate">
+        <property name="target" ref="i4change.txQuartzMailClear" />
+    </bean>
+	
+	<bean id="i4change.txQuartzMailClear"
+        class="org.i4change.app.quartz.scheduler.QuartzMailClear">
+		<property name="mailmanagement" ref="i4change.Mailmanagement" />
+    </bean> 
+    
+	
+	<bean id="quartzMailPendingOrganizations" 
+	  class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+	    <property name="targetObject"><ref bean="i4change.quartzMailPendingOrganizations"/></property>
+	    <property name="targetMethod"><value>doIt</value></property>
+	</bean>
+	
+	<bean id="i4change.quartzMailPendingOrganizations" parent="txProxyTemplate">
+        <property name="target" ref="i4change.txQuartzMailPendingOrganizations" />
+    </bean>
+	
+    <bean id="i4change.txQuartzMailPendingOrganizations" 
+        class="org.i4change.app.quartz.scheduler.QuartzMailPendingOrganizations">
+    	<property name="usermanagement" ref="i4change.Usermanagement" />
+    </bean> 
+	
+	
+	<!--Trigger für Scheduler -->
+	
+	<bean id="simpleTriggerShortPendingMail" class="org.springframework.scheduling.quartz.SimpleTriggerBean">
+		<property name="jobDetail">
+			<ref bean="quartzMailPendingOrganizations"/>
+		</property>
+		<property name="startDelay">
+			<value>2000</value>
+		</property>
+		<property name="repeatInterval">
+			<value>5000</value>
+		</property>
+	</bean>
+	 
+	<bean id="simpleTriggerShortMail" class="org.springframework.scheduling.quartz.SimpleTriggerBean">
+		<property name="jobDetail">
+			<!-- see the example of method invoking job above -->    
+			<ref bean="quartzMailClear"/>
+		</property>
+		<property name="startDelay">
+			<!-- 5 seconds -->
+			<value>3000</value>
+		</property>
+		<property name="repeatInterval">
+			<!-- repeat every 5000 = 5 seconds -->
+			<value>5000</value>
+		</property>
+	</bean>
+	
+	<bean id="simpleTriggerShort" class="org.springframework.scheduling.quartz.SimpleTriggerBean">
+		<property name="jobDetail">
+			<ref bean="quartzTransactionCheck"/>
+		</property>
+		<property name="startDelay">
+			<!-- 5 seconds -->
+			<value>4000</value>
+		</property>
+		<property name="repeatInterval">
+			<!-- repeat every 5000 = 5 seconds -->
+			<value>5000</value>
+		</property>
+	</bean>
+
+	<bean id="simpleTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerBean">
+		<property name="jobDetail">
+			<!-- see the example of method invoking job above -->    
+			<ref bean="quartzSessionClearJob"/>
+		</property>
+		<property name="startDelay">
+			<!-- 60 seconds -->
+			<!--<value>500</value> -->
+			<value>5000</value>
+		</property>
+		<property name="repeatInterval">
+			<!-- repeat every 300000 seconds == 15 minutes -->
+			<!--<value>250</value> -->
+			<value>300000</value>
+		</property>
+	</bean>
+	
+	
+	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+	  <property name="triggers">
+	    <list>
+	    	
+	      <ref local="simpleTrigger" />
+	      
+	      <!-- -->
+	      <!--
+	      <ref local="simpleTriggerShortMail" />
+	      <ref local="simpleTriggerShortPendingMail" />
+	       -->
+	      
+	      
+	         <!-- -->
+	        <!-- paypal
+	        <ref local="simpleTriggerShort" />
+	         -->
+	      <!--
+	       -->
+	    </list>
+	  </property>
+	</bean>    
+    
+    
+</beans>

@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+    
+<class name="saveCheckBoxes" extends="view" layout="axis:y;spacing:2">
+    <attribute name="read" value="true" type="boolean" />
+    <attribute name="issueOnly" value="true" type="boolean" />
+    <attribute name="write" value="false" type="boolean" />
+    <labelCheckbox name="_read" value="$once{ parent.read }" labelid="727" fontsize="12"/>
+    <labelCheckbox name="_issueOnly" value="$once{ parent.issueOnly }" labelid="729" fontsize="12" >
+        <handler name="onvalue">
+            //parent._read.setValue(true);
+        </handler>
+    </labelCheckbox>
+    <labelCheckbox name="_write" value="$once{ parent.write }" labelid="728" fontsize="12" >
+        <handler name="onvalue">
+            //parent._issueOnly.setValue(true);
+            //parent._read.setValue(true);
+        </handler>
+    </labelCheckbox> 
+</class>
+
+<class name="baseSaveDiagramWindow" extends="guiPresenter" labelid="581"
+    docking="true" closable="true" width="600" resizeable="false"
+    x="$once{ parent.width/2 - this.width/2 }" y="20" height="510">
+    
+    <attribute name="refObj" value="null" />
+    <attribute name="diagramName" value="" type="string" />
+    
+    <attribute name="diagramNo" value="0" type="number" />
+    <attribute name="shortName" value="" type="string" />
+    <attribute name="objectTypeAppName" value="diagram" type="string"/>
+    
+    <!-- reference to the parent DiagramObjectId -->
+    <attribute name="parentDiagramObjectId" value="0" type="number" />
+    <attribute name="parentDiagramObject" value="null" />
+    
+    <!-- Properties of the Diagram -->
+    <attribute name="currentPropertyList" value="null" />
+    <attribute name="currentPropertyCategoryList" value="null" />  
+    
+    <attribute name="currentSavePropertyList" value="null" />
+    
+    <attribute name="currentCategoryId" value="0" type="number" />  
+    
+    <attribute name="projectId" value="0" type="number" />
+    <attribute name="projectName" value="" type="string" />
+    
+    <attribute name="isLoaded" value="false" type="boolean"/>
+    
+    <handler name="oninit">
+    	lz.ModeManager.makeModal(this);
+        if ($debug) Debug.write("THIS: ",this,this.refObj);
+        if (this.refObj.currentDiagram != null) {
+            this.diagramNo = this.refObj.currentDiagram.diagramNo;
+        }
+        this._savefileName1.setAttribute('text',this.diagramName);
+        this._savefileNameShort.setAttribute('text',this.shortName);
+        this.currentSavePropertyList = new Array();
+        this.initDiagramObject();
+    </handler>
+    
+    <handler name="onclose">
+    	lz.ModeManager.release(this);
+    </handler>
+    
+    <method name="initDiagramObject">
+        if (this.parentDiagramObjectId != 0) {
+            //this._savefileName1.setAttribute("enabled",false);
+            this.getDiagramObjectById.doCall();
+        } else {
+            //this._savefileName1.setAttribute("enabled",false);
+            this.getDiagramPropertyByObjectAndCat.doCall();
+        }
+    </method>
+    
+    <method name="loadProperties">
+        ////if ($debug) Debug.write("######## ********** 2 ",this.indexItem);
+        this.content.clearList();
+        this.isLoaded = true;
+        this.content.loadCategories(this.currentPropertyCategoryList,this.currentCategoryId);
+        this.content.loadPropertiesList(null,this.currentPropertyList,this.currentSavePropertyList,false);
+    </method>    
+    
+    <netRemoteCallRPC name="getDiagramObjectById" funcname="getDiagramObjectById" 
+                      remotecontext="$once{  canvas.diagramServiceRPC }" >
+        <netparam><method name="getValue">return canvas.sessionId;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.parentDiagramObjectId;</method></netparam>
+        <handler name="ondata" args="value">
+            //The onResult-Handler will be called be the rtmpconnection
+            //if ($debug) Debug.write("getDiagramObjectById: ",value);
+            if (value != null) {
+                parent.parentDiagramObject = value;
+                parent._parentDiagramObjectName.setAttribute("text",parent.parentDiagramObject.name);
+                parent.getDiagramPropertyByObjectAndCat.doCall();
+            }
+        </handler>  
+    </netRemoteCallRPC>   
+    
+    <method name="reloadContentProperty">
+        if (this.isLoaded) {
+            this.currentSavePropertyList = new Array();
+            this.getDiagramObjectPropertyByObjectAndCat.doCall();
+        }
+    </method>
+    
+    <method name="updatePropValue" args="propertyId,text">
+        <![CDATA[
+            if ($debug) Debug.write("updatePropValue :: ",propertyId,text,this.currentSavePropertyList);
+            
+            var foundItem = false;
+            var doUpdate = true;
+    
+            for (var i=0;i<this.currentSavePropertyList.length;i++) {
+                if (this.currentSavePropertyList[i].propertyId == propertyId) {
+                    if (this.currentSavePropertyList[i].propertyVal == text) {
+                        //Do not udpate in case its the same like before
+                        doUpdate = false;
+                    } else {
+                        this.currentSavePropertyList[i].propertyVal = text;
+                    }
+                    foundItem = true;
+                    break;
+                }
+            }
+            
+            if (!foundItem) {
+                if (text == null || text.length == 0) {
+                    //Do not update in case its an empty entry and there was no previous value
+                    doUpdate = false;
+                } else {
+                    this.currentSavePropertyList.push({'propertyId':propertyId,'propertyVal':text});
+                }
+            }
+            
+        ]]>
+    </method>
+    
+    <method name="loadContentByCategory" args="catId">
+        this.currentCategoryId = catId;
+        this.content.clearList();
+        this.getDiagramPropertyByObjectAndCat.doCall();
+    </method> 
+    
+    <netRemoteCallRPC name="getDiagramPropertyByObjectAndCat" funcname="getDiagramPropertyByObjectAndCat" 
+                          showLoading="false" remotecontext="$once{ canvas.propertyServiceRPC }" >   
+        <attribute name="diagramobjectId" type="number" value="0" />
+        <attribute name="objectTypeAppName" type="string" value="" />
+        <netparam><method name="getValue">return canvas.sessionId;</method></netparam>
+        <netparam><method name="getValue">return canvas.currentdomainObj.organisation_id;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.diagramNo;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.objectTypeAppName;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.currentCategoryId;</method></netparam>
+        <netparam><method name="getValue">return canvas.userlang;</method></netparam> 
+        <handler name="ondata" args="value">
+            if ($debug) Debug.write("getDiagramPropertyByObjectAndCat ",value,parent.currentCategoryId,parent.objectTypeAppName);
+            parent.currentPropertyList = value.properties;
+            parent.currentPropertyCategoryList = value.propertyCategory;
+            parent.loadProperties();
+        </handler>
+    </netRemoteCallRPC>       
+    
+    <labelText y="24" labelid="582" />
+    <customEdittext name="_savefileName1" y="24" x="160" width="$once{ parent.width-this.x-4 }" 
+                    text="$once{ 'Diagram-Name_'+ getStringDateFileSave() }" />
+    
+    <labelText y="54" labelid="1391" />
+    <customEdittext name="_savefileNameShort" y="54" x="160" width="60" text="" />
+      
+    <labelText y="84" labelid="863" />
+    <labelText name="_parentDiagramObjectName" y="84" x="160" height="22" resize="false"
+               width="$once{ parent.width-this.x-38 }" bgcolor="0xCCCCCC" />
+    <view y="86" x="$once{ parent.width-18 }" resource="_delete_parentDiagramObject_rsc"
+          onmouseover="" onmouseout="">
+        <handler name="onclick">
+            new lz.confirmDeleteWindowCustomLabel(canvas.main_content._content.inner,{
+                    refObj:this,messageLabelid:875,
+                    funcNameConfirm:'confirmDelete'
+                });
+        </handler>
+	    <method name="confirmDelete">
+	        parent.parentDiagramObjectId = 0;
+            parent._parentDiagramObjectName.setAttribute("text","");
+            parent.refObj.setAttribute('parentDiagramObjectId',0);
+	    </method>        
+        <labelTooltip labelid="864" />
+    </view>
+    
+    <!--
+    chooseParentObject info text over table (italic and grey)
+    
+    You can only select a Processgroup or Process which is not already Parent Object of another Diagram!
+     -->
+    <view y="86" x="$once{ parent.width-36 }" resource="_add_parentDiagramObject_rsc"
+          onmouseover="" onmouseout="">
+        <handler name="onclick">
+            //if ($debug) Debug.write("type of Parent Diagram Object: ",parent.refObj.diagramType);
+            //TODO: Add Dialog to choose parent Diagram Object
+            if (parent.refObj.diagramType == 1) {
+                //processgroup
+                //check if parent must be a processgroup or can be also a process
+                if (parent.refObj.checkForObjectType("processgroup")) {
+                    //if ($debug) Debug.write("Objecttype Processgroup is available Can only be Processgroup as Parent Object");
+                    new lz.chooseParentObject(parent.parent,{
+                            refObj:parent,infoTextLabelId:878,
+                            showItems:"processGroups"
+                        });
+                } else {
+                    //if ($debug) Debug.write("Objecttype Processgroup is NOT available Can be Process or Processgroup as Parent Object");
+                    new lz.chooseParentObject(parent.parent,{
+                            refObj:parent,infoTextLabelId:877,
+                            showItems:"processesAndProcessGroups"
+                        });
+                }
+            } else if (parent.refObj.diagramType == 2) {
+                //roleview
+                //parent can only be a process
+                //if ($debug) Debug.write("Objecttype Processgroup is NOT available Can only be Process as Parent Object");
+                new lz.chooseParentObject(parent.parent,{
+                        refObj:parent,infoTextLabelId:879,
+                        showItems:"process"
+                    });   
+            } else if (parent.refObj.diagramType == 3) {
+                // hierarchical
+                //if ($debug) Debug.write("Diagramtype Hierarchical as Parent Object");
+                if (parent.refObj.checkForObjectType("company") || 
+                    parent.refObj.checkForObjectType("companyFixed") ) {
+                    //if ($debug) Debug.write("Objecttype Company is available Can only be Company as Parent Object");
+	                new lz.chooseParentObject(parent.parent,{
+	                        refObj:parent,infoTextLabelId:880,
+	                        showItems:"company"
+	                    });     
+                } else {
+                    //if ($debug) Debug.write("Objecttype Company is NOT available Can be Departement or Company as Parent Object");
+                    new lz.chooseParentObject(parent.parent,{
+                            refObj:parent,infoTextLabelId:881,
+                            showItems:"companyAndDepartement"
+                        });   
+                }
+                
+            } else if (parent.refObj.diagramType == 4) {
+                //singleRole
+            }
+        </handler>
+        <labelTooltip labelid="865" />
+    </view>
+    
+    <labelText labelid="1291" width="200" y="114" resize="false" x="2"/>
+    <omComboBox name="_projectsFilter" editable="false" x="160" y="114" width="$once{ parent.width-this.x-2 }" >
+        <handler name="oninit">
+            this.addItem(parent.projectName,parent.projectId);
+            this.selectItemAt(0);
+        </handler>
+        <handler name="onisopen" args="isopen">
+            this.isopen = isopen;
+            if (isopen) {
+                this.reset();
+                this.getProjectsByUser.doCall();
+            }
+        </handler>
+        <handler name="onselect" args="sel">
+            if ($debug) Debug.write("onselect",sel);
+            parent.projectId = Number(sel.value);
+        </handler>
+        <netRemoteCallRPC name="getProjectsByUser" funcname="getProjectsByUser" 
+                          remotecontext="$once{  canvas.projectServiceRPC }" >      
+            <netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+            <netparam><method name="getValue">return canvas.currentdomainObj.organisation_id;</method></netparam>
+            <handler name="ondata" args="value">
+                <![CDATA[
+                    if ($debug) Debug.write("getProjectsByUser: ",value);
+                    parent.addItem(canvas.getLabelName(1290),"0");
+                    for (var i=0;i<value.length;i++) {
+                        parent.addItem(value[i].name,value[i].projectId);
+                    }
+                ]]>
+            </handler>
+        </netRemoteCallRPC>         
+    </omComboBox>
+            
+    <labelText labelid="1292" width="200" y="144" resize="false" x="2"/>
+    <customScrollEdittext name="comment" y="144" x="160" width="$once{ parent.width-this.x-2 }" 
+                          height="130" text="Initial" />  
+                          
+    <propertyInspectorSidebarContent y="278" name="content" x="2" 
+        width="$once{ parent.width-this.x-2 }" height="200">
+                
+    </propertyInspectorSidebarContent>                           
+                                 
+</class>
+
+</library>

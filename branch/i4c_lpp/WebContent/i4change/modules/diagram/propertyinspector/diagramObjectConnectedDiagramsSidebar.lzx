@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<library> 
+
+<class name="diagramObjectConnectedDiagramsItem" extends="baseContentListItem" showhandcursor="false"> 
+
+    <attribute name="obj" value="null" />
+    
+    <handler name="ondblclick">
+        //if ($debug) Debug.write("ondblcick: ",this);
+        canvas.diagramServiceRPC.loadLatestDiagramById(obj.diagram.diagramId);
+    </handler>
+    
+    <turnOverTextItem text="$once{ parent.obj.diagramObject.name }" width="150" />
+    <turnOverTextItem text="$once{ parent.obj.diagram.name }" width="150" />
+    <turnOverTextItem text="$once{ parent.obj.flowType }" width="80" />
+    
+    <attribute name="_tempxValue" type="number" value="0" />
+    <attribute name="_tempyValue" type="number" value="0" />
+    
+    <labelTooltip text="$once{ canvas.getLabelName(810) + 
+        parseDateToStringTime(parent.obj.diagramObject.inserted) }" />
+
+</class>
+
+<class name="diagramObjectConnectedDiagrams" extends="view" y="20" x="16" width="${ parent.width-16 }">
+    
+    <attribute name="baseObject" value="null" />
+    <attribute name="diagramObjectId" value="0" type="number" />
+    
+    <!-- this is only true for the Drill Up Dialog -->
+    <attribute name="activateSingle" value="false" type="boolean" />
+    <event name="loadSingle" />
+    
+    <method name="doInitNewItemList" args="baseObject,diagramObjectId">
+        ////if ($debug) Debug.write("baseObject,diagramObjectId ",baseObject,diagramObjectId,this.width,this);
+        this.baseObject = baseObject;
+        this.diagramObjectId = diagramObjectId;
+        if (this.visibility != "hidden") {
+        	this.getDiagramInstanceObjectsByObjectId.doCall();
+        }
+    </method>
+    
+    <handler name="onvisible">
+    	//if ($debug) Debug.write("onvisible SHOULD UPDATE ",this.visibility,this);
+    	if (this.visibility != "hidden") {
+    		this.getDiagramInstanceObjectsByObjectId.doCall();
+    	}
+    </handler>
+    
+    <handler name="oninit">
+        this.addHeaderItem(834,150);
+        this.addHeaderItem(835,150);
+        this.addHeaderItem(836,80);
+        canvas.addToCurrentDiagramList(this);
+    </handler>    
+    
+    <method name="updateDiagramRevision" args="diagram">
+        if (this.diagramObjectId != 0) {
+            this.getDiagramInstanceObjectsByObjectId.doCall();
+        }
+    </method>
+    
+    <method name="refreshDiagramRevision" >
+        if (this.diagramObjectId != 0) {
+            this.getDiagramInstanceObjectsByObjectId.doCall();
+        }
+    </method>
+    
+    <!--
+    if (this.activateSingle) {
+                    if (value == null || value.length == 0) {
+                        new lz.errorPopup(canvas,{error:canvas.getLabelName(874)});
+                        parent.parent.close();
+                    }
+                    if (value.length == 1) {
+                        parent.loadSingle.sendEvent(value[0]);
+                        canvas.loadDiagramByIdAndObject(value[0].diagram.diagramId,value[0].diagram);
+                        parent.parent.close();
+                    }
+                }
+                -->
+    <netRemoteCallRPC name="getDiagramInstanceObjectsByObjectId" funcname="getDiagramInstanceObjectsByObjectId" 
+                      remotecontext="$once{  canvas.diagramServiceRPC }" >      
+        <netparam><method name="getValue">return canvas.sessionId;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.diagramObjectId;</method></netparam>
+        <netparam><method name="getValue">return canvas.currentdomainObj.organisation_id;</method></netparam>
+        <handler name="ondata" args="value">
+           <![CDATA[
+	            //The onResult-Handler will be called be the rtmpconnection
+	            //if ($debug) Debug.write("getDiagramInstanceObjectsByObjectId: ",value);
+	            if (parent.activateSingle) {
+                    if (value == null || value.length == 0) {
+                        new lz.errorPopup(canvas,{error:canvas.getLabelName(874),closable:true});
+                        parent.parent.close();
+                    } else if (value.length == 1) {
+                        canvas.diagramServiceRPC.loadLatestDiagramById(value[0].diagram.diagramId);
+                        parent.parent.close();
+                    } else {
+                        parent.renderContent(value);
+                    }
+                } else {
+                    parent.renderContent(value);
+                }
+            ]]>
+        </handler>  
+    </netRemoteCallRPC>  
+    
+    <method name="renderContent" args="value">
+        <![CDATA[
+            for (var i=0;i<value.length;i++) {
+                new lz.diagramObjectConnectedDiagramsItem(this._innerlist._inn._inn,{
+                        obj:value[i]
+                    });
+            }
+        ]]>
+    </method>   
+    
+    <event name="onclickedItem" />
+    
+    <method name="clearList">
+        this._innerlist._inn._inn.destroy();
+        new lz.innerList(this._innerlist._inn,{name:'_inn'});
+    </method>
+    
+    <method name="addHeaderItem" args="labelid,width" >
+        new lz.turnOverListHeaderItem(this._innerlisthead._inn,{
+                labelid:labelid,width:width,
+                subviewsid:this._innerlisthead._inn.subviews.length
+            });
+    </method>    
+    
+    <method name="sendWidthUpdate" args="w,subviewsid" >
+        <![CDATA[
+            ////Debug.write(w,subviewsid,this._innerlist._inn);
+	        for (var i=0;i<this._innerlist._inn._inn.subviews.length;i++){
+	            this._innerlist._inn._inn.subviews[i].subviews[subviewsid].setAttribute('width',w);
+	        }
+        ]]>
+    </method>      
+    
+    <!--
+    <labelText x="0" labelid="814" />    
+     -->
+     
+    <view x="${ parent.parent.parent.width - 32 }" y="2"
+          resource="messagebox_warning_rsc" onmouseover="" onmouseout="">
+        <labelTooltip labelid="815" />
+    </view>
+    
+    <!-- =========  List Header area  =========-->
+
+    <view name="_innerlisthead" height="20" width="${ parent._innerlist.width }" 
+        x="${ parent._innerlist.x }" y="24" clip="true">
+        <view name="_inn" layout="axis:x;spacing:0" />
+    </view> 
+    
+    <!-- =========  List Contents area  =========-->
+    <view name="_innerlist" height="140" x="0" width="${ parent.width }"
+        y="44" clip="true">
+        <view name="_inn" >
+            <innerList name="_inn" />
+        </view>
+        <vscrollbar name="_scrollbar" />
+        <hscrollbar />
+    </view>      
+    
+    <!--
+    <view x="80" y="24" name="_infoContent" height="160" clip="true"
+          width="${ parent.parent.parent.width - 90 }" bgcolor="0xDDDDDD">
+        <view name="_inner" layout="axis:y;spacing:2">
+            
+        </view>
+        <vscrollbar name="_scrollbar" />
+    </view>
+     -->
+    
+</class>
+
+
+<class name="diagramObjectConnectedDiagramsSidebar" extends="sideBarPod" labelid="827"
+       iconName="icon_diagram_inspector" contentHeight="184" contentY="20">
+    
+    <attribute name="selectedObj" value="null" />
+    <attribute name="baseObject" value="null" />
+    
+    <method name="setObjectSelectedObj" args="objRef,baseObject,diagramObjectId">
+        <![CDATA[   
+            //init content if not inited yet
+            this.checkContentInitHidden();
+            this.selectedObj = objRef;
+            this.baseObject = baseObject;
+            
+            this.content.clearList();
+            
+            this.content.doInitNewItemList(baseObject,diagramObjectId);
+        ]]>  
+    </method>
+    
+    <method name="checkContentInitHidden">
+        if (!this.contentIsInited){
+            new lz.diagramObjectConnectedDiagrams(this,{name:'content',visibility:'hidden'});
+            this.contentIsInited = true;
+        }
+    </method>       
+    
+    <handler name="contentInit" >
+        new lz.diagramObjectConnectedDiagrams(this,{name:'content'});
+    </handler>
+    
+    <!--
+    <diagramObjectConnectedDiagrams y="20" name="content" x="10"
+                      width="${ parent.width - 10 }"
+                      visibility="hidden" />
+     -->
+</class>
+
+</library>

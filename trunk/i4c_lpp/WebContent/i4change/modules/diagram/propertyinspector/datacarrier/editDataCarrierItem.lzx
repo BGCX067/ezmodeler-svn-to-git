@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<library>
+    
+<class name="editDataCarrierItem" extends="libraryExplorer" height="520" width="420"  
+       x="$once{ canvas.width - this.width - 200 }" y="100" labelid="817">
+	
+	<attribute name="objectTypesByType" value="null" />
+	<attribute name="listObjRef" value="null" />
+	<attribute name="diagramObjectId" value="0" type="number" />
+	<attribute name="targetObjectName" value="" type="string"/>
+     
+     <handler name="oninit">
+        //Add Help Item
+        canvas.addCurrentHelpId(33,this.__constructor__.classname);
+        canvas._hideAll.setAttribute("visibility", "visible");
+        this._inner._processes.addNewItem.diagramobjectId = this.diagramObjectId;
+        this.getObjectTypesByType.doCall();
+    </handler> 
+    
+    <method name="refreshItemByName" args="cName">
+    	this.listObjRef.setAttribute("dataCarrierName",cName);
+    	this.close();
+    </method>
+    
+    <!--
+        public DiagramObject getDiagramObjectById(String SID, Long diagramObjectId)
+     -->
+    <netRemoteCallRPC name="getDiagramObjectCompleteById" funcname="getDiagramObjectCompleteById" 
+                      remotecontext="$once{  canvas.diagramServiceRPC }" >  
+        <attribute name="diagramObjectId" value="0" type="number"/>    
+        <netparam><method name="getValue">return canvas.sessionId;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.diagramObjectId;</method></netparam>
+        <handler name="ondata" args="value">
+            //The onResult-Handler will be called be the rtmpconnection
+            if ($debug) Debug.write("getDiagramObjectById: ",value);
+            parent._inner._processes.addNewItem.setDiagramObject(value);
+        </handler>  
+    </netRemoteCallRPC> 
+    
+    <netRemoteCallRPC name="getObjectTypesByType" funcname="getObjectTypesByType" 
+                      remotecontext="$once{  canvas.propertyServiceRPC }" >      
+        <netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+        <netparam><method name="getValue">return parent.parent.targetObjectName;</method></netparam>
+        <netparam><method name="getValue">return canvas.currentdomainObj.organisation_id;</method></netparam>
+        <netparam><method name="getValue">return true;</method></netparam>
+        <handler name="ondata" args="value">
+            if ($debug) Debug.write("getDiagramObjectTypesPublicAndOrg: ",value);
+            //this.parent.destroy();
+            parent.parent.objectTypesByType = value;
+            parent._inner._processes.addNewItem.setObjectTypes(value);
+            parent.getDiagramObjectCompleteById.doCall();
+        </handler>
+    </netRemoteCallRPC>   
+    
+    <handler name="onclose">
+        canvas._hideAll.setAttribute("visibility", "hidden");
+    </handler>
+    
+    <view y="20" bgcolor="white" name="_inner" x="1" width="$once{ parent.width-2 }" 
+          height="$once{ parent.height-21 }" clip="true" >
+        
+        <view name="_processes" y="0" width="$once{ parent.width }" 
+              height="$once{ parent.height }" bgcolor="white" >  
+            <simpleLabelButton labelid="824" name="_register2" width="100" 
+                               x="$once{ parent.width - this.width }" 
+                               y="$once{ parent.height - 22 }">
+                <handler name="onclick">
+                    parent.parent.parent.close();
+                </handler>
+            </simpleLabelButton>      
+            
+            <newDataCarrierItem name="addNewItem" height="450" isStandAlone="false" />
+            
+        </view>
+        
+    </view>      
+</class>
+
+</library>

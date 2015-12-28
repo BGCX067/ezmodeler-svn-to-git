@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+  <class table="userproperty" lazy="false" name="org.i4change.app.hibernate.beans.user.UserProperty">
+    <id column="userproperty_id" name="userPropertyId">
+      <generator class="increment"/>
+    </id>
+    <property name="user_id" type="long" column="user_id"/>
+    <property name="keyItem" type="string" column="keyItem"/>
+    <property name="value" type="text" column="value"/>
+    <property name="inserted" type="java.util.Date" column="inserted"/>
+  </class>
+</hibernate-mapping>

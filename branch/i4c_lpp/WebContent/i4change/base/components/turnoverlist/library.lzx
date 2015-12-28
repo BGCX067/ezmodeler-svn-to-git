@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+    
+	<resource name="step_back" src="resources/1leftarrow.png" />
+    <resource name="step_back2" src="resources/2leftarrow.png" />
+	<resource name="step_fwd" src="resources/1rightarrow.png" />
+    <resource name="step_fwd2" src="resources/2rightarrow.png" />
+    
+    <resource name="edit_add_existing_rsc" src="resources/_profile_profile_pic4.png" />
+    
+	<include href="turnOverList.lzx" />
+	<include href="turnOverListHeaderItem.lzx" />
+	<include href="turnOverTextItem.lzx" />
+    <include href="baseContentListItem.lzx" />
+    <include href="turnOverListOrdered.lzx" />
+
+</library>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+	
+<include href="incubator/baseedittext.lzx" />
+<!--
+<include href="incubator/lzcombobox.lzx"/>
+ -->
+<include href="incubator/borderinput.lzx"/>
+<include href="stylishbutton.lzx" />
+
+<include href="rich-text/richtexttoolbar.lzx"/>
+<include href="rich-text/richtexteditarea.lzx"/>
+<include href="rich-text/linkdialog.lzx"/>
+<include href="rich-text/formatbtn.lzx"/>
+<include href="rich-text/formatfontcolor.lzx"/>
+<include href="rich-text/formatfontface.lzx"/>
+
+<include href="formatfontsize.lzx" />
+<include href="rte.lzx" />
+    
+</library>

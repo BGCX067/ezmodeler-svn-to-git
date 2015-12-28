@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+<!--- LOGIN panel window -->
+<class name="userValues" extends="view" >
+	
+	<attribute name="showRegisterIng" value="true" type="boolean" />
+	
+	<handler name="oninit">
+		lz.Focus.setFocus(this.username,true);
+	</handler>
+	
+    <netRemoteCallRPC name="allowFrontendRegister" funcname="allowFrontendRegister" 
+                      remotecontext="$once{ canvas.mainServiceRPC }" >   
+        <param><method name="getValue"> return canvas.sessionId; </method></param>     
+        <handler name="oninit">
+        	if ( parent.showRegisterIng ) {
+                this.doCall();
+        	}
+        </handler> 
+        <handler name="ondata" args="value">
+            //The onResult-Handler will be called be the rtmpconnection
+            //Debug.write("allowFrontendRegister: ",value);
+            if (value.conf_value==1){
+            	parent._register.setAttribute('visible',true);
+            }
+        </handler>  
+    </netRemoteCallRPC>  
+
+    <netRemoteCallRPC name="loginUser" funcname="loginUser" activeErrorHandler="true"
+		remotecontext="$once{ canvas.mainServiceRPC }" >
+    	<attribute name="newUserLang" value="0" type="number" />      
+        <param><method name="getValue"> return canvas.sessionId; </method></param>  
+        <param><method name="getValue"> return parent.parent.username.getText();</method></param>  
+        <param><method name="getValue"> return parent.parent.userpass.getText();</method></param>  
+        <param><method name="getValue"> return Number(parent.parent.languages.getValue());</method></param>  
+        <handler name="ondata" args="value">
+			<![CDATA[
+	            //The onResult-Handler will be called be the rtmpconnection
+	            //if ($debug) Debug.write("loginUser ondata: ",value);
+				if (!(value<0) && value != null){
+				
+					lz.Focus.clearFocus();
+					
+					canvas.setAttribute('user_id',value.user_id);
+					canvas.setAttribute('firstName',value.firstname);
+					canvas.setAttribute('lastName',value.lastname);
+					canvas.setAttribute('mail','');
+					canvas.setAttribute('lastLogin','');
+					canvas.setAttribute('official_code','');
+					canvas.setAttribute('picture_uri','');
+					canvas.setAttribute('language','');
+					canvas.setAttribute('currentuser',value.login);
+					
+					if (parent.languages.getText()=='arabic') {
+						canvas.isrtl = true;
+					}
+					//hib.newUserLang = Number(parent.languages.getValue());
+                    this.newUserLang = Number(parent.languages.getValue());
+					canvas.userobject = value;
+                    
+					parent.checkUserStatus.doCall();
+				}
+            ]]>
+        </handler>  
+    </netRemoteCallRPC>
+    
+    <netRemoteCallRPC name="checkUserStatus" funcname="checkUserStatus" 
+		remotecontext="$once{ canvas.userServiceRPC }" activeErrorHandler="true" >
+        <param><method name="getValue"> return canvas.sessionId; </method></param>  
+        <handler name="ondata" args="value">
+			<![CDATA[
+	            //The onResult-Handler will be called be the rtmpconnection
+	            //if ($debug) Debug.write("checkUserStatus ondata: ",value);
+				if (!(value<0) && value != null){
+                    
+                    configServiceRPC.getLicenseDefaultConfiguration.doCall();
+                    
+					if (parent.loginUser.newUserLang == canvas.userlang) {
+                        parent.parent.parent.parent.loadOrgItems();
+                    } else {
+                        canvas.userlang = parent.loginUser.newUserLang;
+                        canvas.loaderVar = new lz.autoLoader(canvas);
+                        canvas.loaderVar.src.setAttribute("text","Loading Language");
+                        parent.getLanguageByIdAndMax.start = 0;
+                        parent.getLanguageByIdAndMax.doCall();
+                    }
+                    
+				}
+            ]]>
+        </handler>  
+    </netRemoteCallRPC>
+    
+    
+    <netRemoteCallRPC name="getLanguageByIdAndMax" funcname="getLanguageByIdAndMax" 
+                      remotecontext="$once{ canvas.languageServiceRPC }" >
+        <attribute name="start" value="0" type="number" />
+        <attribute name="step" value="100" type="number" /> 
+        <attribute name="max" value="3000" type="number" />    
+        <param><method name="getValue">return canvas.userlang;</method></param> 
+        <param><method name="getValue">return parent.start;</method></param> 
+        <param><method name="getValue">return parent.step;</method></param> 
+        <handler name="ondata" args="value">
+            <![CDATA[
+                //if($debug) Debug.write("hibRtmpConnection/getLanguageByIdAndMax:[",value,"]");
+                setLabelObjectByHundred(this.start,value);
+                //The onResult-Handler will be called be the rtmpconnection
+                if (this.start <= max){
+                    this.start += this.step;
+                    canvas.loaderVar.setProgress();
+                    this.doCall();
+                } else {
+                    canvas.loaderVar.close();
+                    parent.parent.parent.parent.loadOrgItems();
+                }
+            ]]>
+        </handler>  
+    </netRemoteCallRPC>
+    
+    <labelText name="_labeldUserName" labelid="109" width="200" y="24" resize="false" x="2"/>
+        <customEdittext name="username" y="24" x="120" width="170">
+            <handler name="onkeyup" args="k">
+                <![CDATA[
+                    if (k==13) {
+                        parent._loginButton.onclick.sendEvent();
+                    }
+                ]]>
+            </handler>
+        </customEdittext>   
+
+    <labelText name="_labelPassword" labelid="110" width="200" y="54" resize="false" x="2"/>
+        <customEdittext name="userpass" y="54" password="true" x="120" width="170">
+        	<handler name="onkeyup" args="k">
+                <![CDATA[
+                    if (k==13) {
+                        parent._loginButton.onclick.sendEvent();
+                    }
+                ]]>
+            </handler>
+        </customEdittext>
+    
+    <labelText name="_labelLanguage" labelid="111" width="200" y="84" resize="false" x="2"/>  
+        
+        <omComboBox name="languages" width="170" y="84" x="120" editable="false" >
+            <textlistitem datapath="languagesSet:/item" text="$path{ 'name/text()' }" 
+                value="$path{ 'language_id/text()' }" />
+            <handler name="oninit">
+                this.selectItemAt(0);
+            </handler>             
+        </omComboBox>
+        
+	    <labelCheckbox x="120" y="144" visible="$once{parent.showRegisterIng}"
+	        name="_savelogindata" labelid="288" >
+	        <handler name="oninit">
+	            var t = new lz.sharedObject();
+	            //if($debug) Debug.write("checkLoginData/t: ",t);
+	            t.getLocal('userdata');
+	            var g = t.getData('userdata');
+	            //if($debug) Debug.write("checkLoginData/g: ",g);
+	            var save = g["rememberme"];
+	            //if($debug) Debug.write("checkLoginData/save: ",save);
+	            if(save) this.setValue(true);
+	        </handler>
+	    </labelCheckbox>        
+
+
+	<simpleLabelButton labelid="123" name="_register" width="120" visible="false" 
+                x="80" y="164" >
+    	<handler name="onclick">
+	    	parent._register.setAttribute('visible',false);
+	    	parent.parent.parent.parent.childObj = new lz.registerWizzard(canvas,{
+	    		refObj:parent.parent.parent.parent});    	
+            parent.parent.parent.parent.showRegForm.doStart();
+    	</handler>
+    </simpleLabelButton>   
+    
+    <simpleLabelButton name="_loginButton" labelid="185" width="120" 
+        x="205" y="164">
+    	<handler name="onclick">
+            this.parent.errormess.setAttribute("text",'');
+            //if ($debug) Debug.write("_loginButton ONCLICK");
+    		this.parent.loginUser.doCall();
+    	</handler>
+    </simpleLabelButton>   
+    
+    <text name="errormess" resize="true" y="168" x="2" fgcolor="red" fontsize="12"/>
+    
+           
+</class>
+
+</library>

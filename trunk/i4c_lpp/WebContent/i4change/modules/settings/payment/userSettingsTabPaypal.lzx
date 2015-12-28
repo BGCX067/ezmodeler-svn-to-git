@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+	
+<dataset name="statesPaypalDS">
+	<item value="selected" text="" />
+    <item value="AK" text="AK" />
+    <item value="AL" text="AL" />
+    <item value="AR" text="AR" />
+    <item value="AZ" text="AZ" />
+    <item value="CA" text="CA" />
+    <item value="CO" text="CO" />
+    <item value="CT" text="CT" />
+    <item value="DC" text="DC" />
+    <item value="DE" text="DE" />
+    <item value="FL" text="FL" />
+    <item value="GA" text="GA" />
+    <item value="HI" text="HI" />
+    <item value="IA" text="IA" />
+    <item value="ID" text="ID" />
+    <item value="IL" text="IL" />
+    <item value="IN" text="IN" />
+    <item value="KS" text="KS" />
+    <item value="KY" text="KY" />
+    <item value="LA" text="LA" />
+    <item value="MA" text="MA" />
+    <item value="MD" text="MD" />
+    <item value="ME" text="ME" />
+    <item value="MI" text="MI" />
+    <item value="MN" text="MN" />
+    <item value="MO" text="MO" />
+    <item value="MS" text="MS" />
+    <item value="MT" text="MT" />
+    <item value="NC" text="NC" />
+    <item value="ND" text="ND" />
+    <item value="NE" text="NE" />
+    <item value="NH" text="NH" />
+    <item value="NJ" text="NJ" />
+    <item value="NM" text="NM" />
+    <item value="NV" text="NV" />
+    <item value="NY" text="NY" />
+    <item value="OH" text="OH" />
+    <item value="OK" text="OK" />
+    <item value="OR" text="OR" />
+    <item value="PA" text="PA" />
+    <item value="RI" text="RI" />
+    <item value="SC" text="SC" />
+    <item value="SD" text="SD" />
+    <item value="TN" text="TN" />
+    <item value="TX" text="TX" />
+    <item value="UT" text="UT" />
+    <item value="VA" text="VA" />
+    <item value="VT" text="VT" />
+    <item value="WA" text="WA" />
+    <item value="WI" text="WI" />
+    <item value="WV" text="WV" />
+    <item value="WY" text="WY" />
+    <item value="AA" text="AA" />
+    <item value="AE" text="AE" />
+    <item value="AP" text="AP" />
+    <item value="AS" text="AS" />
+    <item value="FM" text="FM" />
+    <item value="GU" text="GU" />
+    <item value="MH" text="MH" />
+    <item value="MP" text="MP" />
+    <item value="PR" text="PR" />
+    <item value="PW" text="PW" />
+    <item value="VI" text="VI" />
+</dataset>
+
+<!--- User Profile Setting Panel -->
+<class name="userSettingsTabPaypal" extends="view" >  
+
+    <attribute name="transactionId" value="0" type="number" />
+    
+    <attribute name="overallDiscountPrice" value="0" type="number" />
+    <attribute name="numberOfUsers" value="0" type="number" />
+       
+    <method name="initFields" args="obj">
+        <![CDATA[
+        
+            
+        ]]>
+    </method>
+    
+    <method name="setTransactionId" args="transactionId,price,users">
+    	if ($debug) Debug.write("setTransactionId",transactionId,price,users);
+    	this.transactionId = transactionId;
+    	this.overallDiscountPrice = price;
+    	this.numberOfUsers = users;
+    	this.amountAsString.setAttribute("text",this.overallDiscountPrice+" USD");
+    	this.numberOfUsersInfo.setAttribute("text",this.numberOfUsers);
+    	this._submit.setAttribute("visibility","visible");
+    </method>
+    
+    <handler name="oninit">
+    	this.getUserProfile.doCall();
+    </handler>
+    
+    <!-- public TransactionPaypal getTransactionById(String SID, Long transactionId) -->
+    <netRemoteCallRPC name="getTransactionById" funcname="getTransactionById" 
+        remotecontext="$once{  canvas.userServiceRPC }" > 
+        <netparam><method name="getValue">return canvas.sessionId;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.transactionId;</method></netparam>
+        <handler name="ondata" args="value">
+            <![CDATA[
+                if ($debug) Debug.write("getTransactionById :: ",value);
+            ]]>
+        </handler>
+    </netRemoteCallRPC> 
+    
+    <!-- this.getUserProfile.doCall(); -->
+    <netRemoteCallRPC name="getUserProfile" funcname="getUserProfile" 
+        remotecontext="$once{  canvas.userServiceRPC }" > 
+        <netparam><method name="getValue">return canvas.sessionId;</method></netparam>
+        <handler name="ondata" args="value">
+            <![CDATA[
+                //if ($debug) Debug.write("getUserProfile ",value);
+                parent.firstName.setAttribute("text",value.firstname);
+                parent.lastName.setAttribute("text",value.lastname);
+                parent.firstName2.setAttribute("text",value.firstname);
+                parent.lastName2.setAttribute("text",value.lastname);
+                
+                //var defaultstate = canvas.getCountryRecord(101);
+                parent.countryCode.addAndSelectItem(value.adresses.states.name,value.adresses.states.paypal);
+                
+                parent.adress1.setAttribute("text",value.adresses.street + " " +value.adresses.additionalname);
+                parent.city.setAttribute("text",value.adresses.town);
+                parent.zip.setAttribute("text",value.adresses.zip);
+            ]]>
+        </handler>
+    </netRemoteCallRPC> 
+    
+    <!--
+    public PaymentStatus payLicense(String SID, Long transactionId, String firstName, String lastName, String address1, 
+               String address2, String city, String state, String zip, String countryCode, 
+               String creditCardType, String creditCardNumber, String expDateMonth, 
+               String expDateYear, String cvv2Number, String remoteAddr, String firstName2, String lastName2)
+     -->
+    <netRemoteCallRPC name="payLicense" funcname="payLicense" 
+        remotecontext="$once{  canvas.userServiceRPC }" > 
+        <attribute name="loadingHolder" value="null" />
+        <netparam><method name="getValue">return canvas.sessionId;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.transactionId;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.firstName.text;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.lastName.text;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.adress1.text;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.adress2.text;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.city.text;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.state.getValue();</method></netparam>
+        <netparam><method name="getValue">return parent.parent.zip.text;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.countryCode.getValue();</method></netparam>
+        <netparam><method name="getValue">return parent.parent.creditCardType.getValue();</method></netparam>
+        <netparam><method name="getValue">return parent.parent.creditCardNumber.text;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.expDateMonth.getValue();</method></netparam>
+        <netparam><method name="getValue">return parent.parent.expDateYear.getValue();</method></netparam>
+        <netparam><method name="getValue">return parent.parent.cvv2Number.text;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.firstName2.text;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.lastName2.text;</method></netparam>
+        <method name="prepareCall">
+        	this.loadingHolder = new lz.warningPopup(canvas,{error:canvas.getLabelName(1344),closable:true});
+        	this.doCall();
+        </method>
+        <handler name="ondata" args="value">
+            <![CDATA[
+                if ($debug) Debug.write("payLicense ",value);
+                this.loadingHolder.close();
+                if (value.status) {
+                	new lz.paymentSuccessWin(canvas,{refObj:parent});
+                } else {
+                	new lz.paymentErrorWin(canvas,{paypalResponse:value.paypalResponse});
+                }
+            ]]>
+        </handler>
+    </netRemoteCallRPC> 
+    
+    <method name="close">
+    	this._submit.setAttribute("visibility","hidden");
+    </method>
+    
+    <!--
+    <netRemoteCallRPC name="addTransaction" funcname="addTransaction" 
+                      remotecontext="$once{  canvas.userServiceRPC }"> 
+        <netparam><method name="getValue">return canvas.sessionId;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.overallDiscountPrice;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.numberOfUsers;</method></netparam>
+        <handler name="ondata" args="value">
+            <![CDATA[
+                if ($debug) Debug.write("addTransaction: ",value);
+            ]]>
+        </handler>
+    </netRemoteCallRPC> 
+     -->    
+    
+    
+    <method name="doSaveTemp">
+        //if ($debug) Debug.write("Save Temp License Values");
+        
+    </method>
+	
+    <labelText labelid="1174" fontstyle="bold" />     
+    
+    <labelText labelid="1175" width="120" y="30" resize="false" /> 
+        <customEdittext name="firstName" y="30" x="140" width="270" text="" />
+        
+    <labelText labelid="1176" width="120" y="60" resize="false" /> 
+        <customEdittext name="lastName" y="60" x="140" width="270" text="" />
+        
+    <labelText labelid="1177" width="120" y="90" resize="false" />     
+        <omComboBox name="creditCardType" width="270" y="90" x="140" editable="false">
+            <handler name="oninit" >
+                <![CDATA[
+                    this.addItem(canvas.getLabelName(1178),"Visa");
+                    this.addItem(canvas.getLabelName(1179),"MasterCard");
+                    this.addItem(canvas.getLabelName(1180),"Discover");
+                    this.addItem(canvas.getLabelName(1181),"Amex");
+                    this.selectItemAt(0);
+                ]]>
+            </handler> 
+        </omComboBox> 
+     
+     <labelText labelid="1182" width="120" y="120" resize="false" /> 
+        <customEdittext name="creditCardNumber" y="120" x="140" width="270" text="" />
+      
+     <labelText labelid="1183" width="120" y="150" resize="false" /> 
+        <omComboBox name="expDateMonth" width="100" y="150" x="140" editable="false">
+            <handler name="oninit" >
+                <![CDATA[
+                    for (var i=1;i<=12;i++) {
+                    	this.addItem(i,"0"+i);
+                    }
+                    this.selectItemAt(0);
+                ]]>
+            </handler> 
+        </omComboBox>   
+        
+        <omComboBox name="expDateYear" width="160" y="150" x="250" editable="false">
+            <handler name="oninit" >
+                <![CDATA[
+                    var d = new Date();
+                    var startYear = d.getFullYear();
+                    for (var i=0;i<=6;i++) {
+                        this.addItem(startYear+i,""+(startYear+i));
+                    }
+                    this.selectItemAt(0);
+                ]]>
+            </handler> 
+        </omComboBox>
+     
+     <labelText labelid="1184" width="120" y="180" resize="false" /> 
+         <customEdittext name="cvv2Number" y="180" x="140" width="270" text="" />
+         
+     
+     <labelText labelid="1185" fontstyle="bold" y="220" /> 
+     
+     <labelText labelid="1175" width="120" y="250" resize="false" /> 
+         <customEdittext name="firstName2" y="250" x="140" width="270" text="" />
+      
+     <labelText labelid="1176" width="120" y="280" resize="false" /> 
+         <customEdittext name="lastName2" y="280" x="140" width="270" text="" />   
+         
+    <labelText labelid="1186" width="120" y="310" resize="false" /> 
+         <customEdittext name="adress1" y="310" x="140" width="270" text="" />
+         
+    <labelText labelid="1187" width="120" y="340" resize="false" /> 
+         <customEdittext name="adress2" y="340" x="140" width="270" text="" />  
+    
+    <labelText labelid="1188" width="120" y="370" resize="false" /> 
+         <customEdittext name="city" y="370" x="140" width="270" text="" />  
+    
+    <labelText labelid="1189" width="120" y="400" resize="false" /> 
+        <validText name="countryCode" width="270" y="400" x="140" fontsize="11" 
+            shownitems="7" validate_method="$once{ canvas.validateCountry }" 
+            resultId="paypal" resultName="name" />
+     
+    <labelText labelid="1190" width="120" y="430" resize="false" /> 
+        <omComboBox name="state" width="100" y="430" x="140" editable="false">
+             <textlistitem datapath="statesPaypalDS:/item/" 
+             			  value="$path{ '@value' }" text="$path{ '@text' }" />
+        </omComboBox>   
+        
+    <labelText labelid="1191" width="140" y="460" resize="false" /> 
+        <customEdittext name="zip" y="460" x="140" width="270" text="" /> 
+    
+    <labelText labelid="1192" width="140" y="490" resize="false" /> 
+    <labelText name="amountAsString" width="120" y="490" x="140" resize="false" /> 
+     
+    <labelText labelid="1307" width="140" y="510" resize="false" /> 
+    <labelText name="numberOfUsersInfo" width="120" x="140" y="510" resize="false" /> 
+     
+    <simpleLabelButton name="_submit" height="28" width="170" x="240" y="540">
+    	<view x="4" layout="axis:x;spacing:2" y="2">
+            <view oninit="this.setSource(canvas.getIconPathByName('icon_settings_license_info_buy_rsc'))" />
+            <labelText width="160" y="2" fontsize="12" 
+                       fontstyle="bold" labelid="1193" />
+        </view>
+        <handler name="onclick">
+        	this.setAttribute("visibility","hidden");
+            parent.payLicense.prepareCall();
+        </handler>
+    </simpleLabelButton>
+      
+</class>
+
+</library>

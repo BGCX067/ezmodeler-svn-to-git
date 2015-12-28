@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+    
+<class name="dragitemDashBoardTemp" extends="view" bgcolor="green" opacity="0.5">
+    <attribute name="orderVal" value="0" type="number" />
+</class>    
+
+<!---  modules:dashboard -->
+<class name="mainDashboard" extends="baseContentTabbedView" closeable="false"
+       labelid="807" width="${ canvas.width }" height="${ canvas.height-48 }">	
+        
+    <handler name="oninit">
+        <![CDATA[
+	        if (canvas.currentdomainObj.isPending) {
+	            new lz.pendingOrg(canvas);
+	        }        
+        ]]>
+    </handler>       
+
+    <view name="contentView" width="${ canvas.width }" showhandcursor="false">
+        
+        <attribute name="fadeDelegate" value="null" />
+        <attribute name="loadStepNumber" value="0" type="number" />
+        
+        <wrappinglayout name="_layout"
+            axis="x" spacing="10" xinset="10" yinset="10" />
+            
+        <handler name="onmouseover">
+            setCurrentMouseWheelObject(this.parent._scrollbar);
+        </handler>
+        <handler name="onmouseout">
+            disableCurrentMouseWheelObject();
+        </handler>
+        
+        <attribute name="currentTempItem" value="null" />
+        
+        <method name="addTempItem" args="beforeOrder,width,height">
+            <![CDATA[
+            
+                this.removeItem();
+                
+                for (var i=0;i<this.subviews.length;i++) {
+                    if (this.subviews[i].orderVal >= beforeOrder){
+                        this.subviews[i].orderVal = i+1;
+                    }
+                    
+                }
+                this.currentTempItem = new lz.dragitemDashBoardTemp(this,{
+							                        width:width,height:height,orderVal:beforeOrder
+							                    });
+                    
+                this.sortItems();
+            ]]>
+        </method>
+        
+        <method name="removeItem">
+            <![CDATA[
+            
+                var currentOrder = null;
+                
+                if (this.currentTempItem != null) {
+                    currentOrder = this.currentTempItem.orderVal;
+                    this.currentTempItem.destroy();
+                    this.currentTempItem = null;
+                    
+                    for (var i=0;i<this.subviews.length;i++) {
+                        this.subviews[i].orderVal = i;
+                    }
+                }
+                
+                return currentOrder;
+            ]]>
+        </method>
+        
+        <method name="sortItems">
+            <![CDATA[
+                function sortTable(a,b){
+                    var a1 = a.orderVal;
+                    var b1 = b.orderVal;
+                    if(a1==b1){
+                        return 0;
+                    } else if(a1>b1){
+                        return 1;
+                    } else {
+                        return -1;
+                    }
+                }
+                this.subviews.sort(sortTable);
+                this._layout.subviews.sort(sortTable);
+                this._layout.update(); 
+            ]]>
+        </method>
+        
+	    <handler name="oninit">
+	        //Add Help Item
+	        canvas.addCurrentHelpId(38,this.__constructor__.classname);
+            //if ( canvas.userobject.level_id == 3) {
+            //    new lz.pendingOrgs(this,{name:'_pendingOrgs',orderVal:5});
+            //}
+            this.fadeDelegate = new LzDelegate( this, "doLoadNext" );
+            lz.Timer.addTimer( this.fadeDelegate, 500 );
+
+	    </handler>
+        
+        <method name="doLoadNext">
+            <![CDATA[
+                if (this.loadStepNumber == 0) {
+                    new lz.infosPanel(this,{orderVal:this.loadStepNumber,name:'infosPanel'});
+                } else if (this.loadStepNumber == 1) {
+                    new lz.profilesPanel(this,{orderVal:this.loadStepNumber,name:'profilesPanel'});
+                } else if (this.loadStepNumber == 2) {
+                    //new lz.rssPanel(this,{orderVal:this.loadStepNumber,name:'rssPanel'});
+                } else if (this.loadStepNumber == 3) {
+                    new lz.diagramLoader(this,{orderVal:this.loadStepNumber,name:'diagramLoader'});
+                } else if (this.loadStepNumber == 4) {
+                    new lz.issueExplorer(this,{orderVal:this.loadStepNumber,name:'issueExplorer'});
+                } else if (this.loadStepNumber == 5) {
+                    if ( canvas.userobject.level_id == 3) {
+                        new lz.pendingOrgs(this,{name:'_pendingOrgs',orderVal:5});
+                    }
+                }
+
+                this.loadStepNumber++;
+	            if (this.loadStepNumber < 6) {
+	                lz.Timer.addTimer( this.fadeDelegate, 500 );
+	            }
+            ]]>
+        </method>
+	    <!--
+	    <infosPanel orderVal="0" name="infosPanel" />
+	    
+	    <profilesPanel orderVal="1" name="profilesPanel" />
+        
+        <rssPanel orderVal="2" name="rssPanel" /> 
+	    
+	    <diagramLoader orderVal="3" name="diagramLoader" />
+	    
+	    <issueExplorer orderVal="4" name="issueExplorer" />    
+         -->
+        
+    </view>
+    
+    <view name="dragView" />
+    
+    <vscrollbar name="_scrollbar" />
+
+</class>
+
+</library>

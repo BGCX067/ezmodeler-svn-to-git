@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+    
+	<include href="registerWizzard.lzx" />
+    <include href="registerWizzardStep1.lzx" />
+    <include href="registerWizzardStep2.lzx" />
+    <include href="registerWizzardStep3.lzx" />
+    <include href="registerWizzardStep4.lzx" />
+    <include href="privacyPolicy.lzx" />
+
+</library>

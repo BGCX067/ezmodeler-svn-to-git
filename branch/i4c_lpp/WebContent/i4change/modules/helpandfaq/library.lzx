@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+	
+	<!--
+	<resource name="help_tree_minus_rsc" src="resources/minus.swf" />
+	<resource name="help_tree_plus_rsc" src="resources/plus.swf" />
+	 -->
+	 
+	<resource name="help_tree_plusminus_rsc">
+		<frame src="resources/empty.swf" />
+		<frame src="resources/plus.swf" />
+		<frame src="resources/minus.swf" />
+	</resource>
+	
+    <include href="helpAndFaq.lzx" />
+    <include href="searchHelpItems.lzx" />
+    <include href="searchHelpContentArea.lzx" />
+
+</library>

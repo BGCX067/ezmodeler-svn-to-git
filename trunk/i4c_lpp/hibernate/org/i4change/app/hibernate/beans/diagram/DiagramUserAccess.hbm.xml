@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+  <class table="diagramuseraccess" lazy="false" name="org.i4change.app.hibernate.beans.diagram.DiagramUserAccess">
+    <id column="diagramuseraccess_id" name="diagramuseraccessId">
+      <generator class="increment"/>
+    </id>
+    <property name="inserted" type="java.util.Date" column="inserted"/>
+    <property name="updated" type="java.util.Date" column="updated"/>
+    <property name="insertedBy" type="long" column="insertedby"/>
+    <property name="updatedBy" type="long" column="updatedby"/>
+    <many-to-one outer-join="true" insert="true" column="diagram_id" lazy="false" update="true" name="diagram" class="org.i4change.app.hibernate.beans.diagram.Diagram"/>
+    <many-to-one outer-join="true" insert="true" column="user_id" lazy="false" update="true" name="user" class="org.i4change.app.hibernate.beans.user.Users"/>
+    <property name="deleted" type="string" column="deleted"/>
+    <property name="canRead" type="boolean" column="canread"/>
+    <property name="canWrite" type="boolean" column="canwrite"/>
+    <property name="onlyIssues" type="boolean" column="onlyissues"/>
+  </class>
+</hibernate-mapping>

@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<canvas debug="true" width="100%" height="100%">
+    <debug fontsize="12" oninit="Debug.showInternalProperties = true" />
+    
+    <include href="../../base/mainMethods.lzx" />
+    <include href="../../base/mainAttributes.lzx" />
+    <include href="../../base/navi/navifunctions.lzx" />
+    <include href="../../base/functions.lzx" />
+    <include href="../../base/hibernate/netRemoteCallRPC.lzx" />
+    <include href="../../base/components/text/" />
+    <include href="../../base/components/omcombobox/" />
+    <include href="../../base/components/button/" />
+    <include href="../../base/components/turnoverlist/" />
+    <include href="../../base/components/turnoverlistpaged/" />
+    
+    <silverstyle name="defaultstyle" isdefault="true" 
+             basecolor="${ canvas.basebgcolorizer }" 
+             canvascolor="white" />
+           
+	<silverstyle name="componentStyle" basecolor="0x3F5B9E" textcolor="0xFFFFFF" />
+	
+	<whitestyle name="noStyle" />
+    <!-- get values from icons.xml
+	 secure="$once{ canvas.javaRPCSecure }" secureport="$once{ canvas.httpport }"
+	 -->
+	<dataset type="http" name="myIconSet" 
+	         ondata="canvas.parseIcons()">
+	    <handler name="oninit">
+	        //if ($debug) Debug.write("Init Icons");
+	        this.setAttribute("src","../../icons/icons.xml?random="+(new Date()).getTime());
+	        this.doRequest();
+	    </handler>
+	</dataset>
+	
+	<method name="parseIcons" args="value">
+	    ////if ($debug) Debug.write("Icons ",canvas.myIconSet);
+	    var item = canvas.myIconSet.getPointer().xpathQuery("icons/icon[@name = 'icon_property_inspector']/@path");
+	    ////if ($debug) Debug.write("item: ",item);
+        this.diagramServiceRPC.load();
+	</method>
+	
+	<method name="getIconPathByName" args="iconName">
+	    var iconPath = canvas.myIconSet.getPointer().xpathQuery("icons/icon[@name = '"+iconName+"']/@path");
+	    ////if ($debug) Debug.write("iconPath ",iconPath);
+	    return iconPath;
+	</method>
+    
+    <class name="basePagingListItemRole" extends="basePagingListItem"> 
+
+	    <attribute name="obj" value="null" />
+	    
+	    <attribute name="itemName" type="string" />
+	    <attribute name="objectTypeNameLabel" type="string" />
+	    <attribute name="inserted" type="string" />
+	    <attribute name="itemRef" value="null" />
+        
+        <attribute name="itemId" value="0" type="number" />
+	    
+	    <method name="setItemName" args="itemName">
+	        this.itemName = itemName;
+	        this._itemName.setAttribute("text",itemName)
+	    </method>
+	    <method name="setObjectTypeNameLabel" args="objectTypeNameLabel">
+	        this.objectTypeNameLabel = objectTypeNameLabel;
+	        this._objectTypeNameLabel.setAttribute("text",objectTypeNameLabel);
+	    </method>
+	    <method name="setInserted" args="inserted">
+	        this.inserted = inserted;
+	        this._inserted.setAttribute("text",inserted);
+	    </method>
+	    
+	    <turnOverTextItem name="_itemName" width="160" />
+	    <turnOverTextItem name="_objectTypeNameLabel" width="100" />
+	    <turnOverTextItem name="_inserted" width="120" />
+	    
+	    <!--
+	    <method name="setObj" args="obj">
+	        this.obj = obj;
+	        this.tooltip.listOfRoles = obj.roles;
+	        this.tooltip.userId = obj.insertedby.user_id;
+	        this.tooltip.text = canvas.getLabelName(802) + obj.insertedby.login;
+	    </method>
+	     -->
+	
+	    
+	    
+	    <attribute name="_tempxValue" type="number" value="0" />
+	    <attribute name="_tempyValue" type="number" value="0" />
+	    
+	    <!--
+	    <labelTooltip name="tooltip" />
+	    
+	    <labelTooltip text="$once{ canvas.getLabelName(802) + parent.obj.insertedby.login }" />
+	     -->
+	
+	</class>
+    
+    <security>
+        <allow>
+            <pattern>^org.i4change.app.http.javarpc\.DiagramServiceRPC</pattern>
+        </allow>
+    </security>
+    
+    <!-- See WEB-INF/classes/TypesExample.java for java source. -->
+    <javaCallRPC name="diagramServiceRPC" scope="webapp" 
+             autoload="false" objectreturntype="javabean"
+             remoteclassname="org.i4change.app.http.javarpc.DiagramServiceRPC">
+
+        <handler name="onload">
+            // Set buttons visible only after JavaRPC object loads
+            if ($debug) Debug.write('onload:', this);
+        </handler>
+
+        <handler name="ondata" args="res">
+            if ($debug) Debug.write('(types ondata) response is:', res);
+        </handler>
+    
+    </javaCallRPC>
+    
+    <class name="testItems" extends="turnOverListOrderedPaged" y="60" listItemName="basePagingListItemRole"
+        width="390" height="300" orderby="c.name" step="25" asc="true">  
+        
+        <attribute name="currentObjects" value="null" />
+        
+        <attribute name="departementFixedLabel" value="" type="string"/>
+        <attribute name="unitFixedLabel" value="" type="string"/>
+        <attribute name="companyFixedLabel" value="" type="string"/>
+        
+        
+        <attribute name="renderList" value="null"/>
+          
+        <handler name="oninit">
+            this.setDiagramObjectTypes();
+            this.addHeaderItemOrdered(605,160,"c.name",true,true);
+            this.addHeaderItemOrdered(794,100,"c.objectTypeName",true,false);
+            this.addHeaderItemOrdered(606,120,"c.inserted",true,false);
+            this.getDiagramObjectsFastPath.doCall();
+            this.departementFixedLabel = "Department";
+            this.unitFixedLabel = "Unit";
+            this.companyFixedLabel = "Company";
+        </handler>  
+        
+        <method name="setDiagramObjectTypes">
+            ////if ($debug) Debug.write("setDiagramObjectTypes ",parent.showCompanies);
+            this.currentObjects = new Array();
+            this.currentObjects.push("unitFixed");
+            this.currentObjects.push("departementFixed");
+            this.currentObjects.push("companyFixed");
+        </method>
+        
+        <handler name="onUpdateOrder">
+            //if ($debug) Debug.write("onUpdateOrder");
+            this.getDiagramObjectsFastPath.doCall();
+        </handler>
+        
+        <handler name="onclickedItem" args="obj">
+            //if ($debug) Debug.write("obj",obj);
+        </handler>
+        
+        <handler name="oncallnext" >
+            this.getDiagramObjectsFastPath.doCall();
+        </handler>
+        
+        <handler name="oncallpre" >     
+            this.getDiagramObjectsFastPath.doCall();
+        </handler>
+        
+        <handler name="onclickedItem" args="obj">
+            //if ($debug) Debug.write("onclickedItem",obj,obj.obj);
+            parent._useradminvalueform.initValueFieldsByObject(obj.obj);
+        </handler>
+        
+        <netRemoteCallRPC name="getDiagramObjectsFastPath" funcname="getDiagramObjectsFastPath" 
+                          remotecontext="$once{  canvas.diagramServiceRPC }" showLoading="false">      
+            <netparam><method name="getValue">return ""; </method></netparam>
+            <netparam><method name="getValue">return 1;</method></netparam>
+            <netparam><method name="getValue">return parent.parent.start; </method></netparam>
+            <netparam><method name="getValue">return parent.parent.step; </method></netparam>
+            <netparam><method name="getValue">return parent.parent.currentObjects;</method></netparam>
+            <netparam><method name="getValue">return parent.parent.orderby;</method></netparam>
+            <netparam><method name="getValue">return parent.parent.asc;</method></netparam>
+            <netparam><method name="getValue">return "";</method></netparam>
+            <handler name="ondata" args="value">
+                //if ($debug) Debug.write("getDiagramObjectsFastPath: ",value);
+                //if ($debug) Debug.write("getDiagramObjectsFastPath: ",value.result);
+                //if ($debug) Debug.write("getDiagramObjectsFastPath: ",value.result.length);
+                //this.parent.destroy();
+                this.parent.initValues(value.records);
+                this.parent.renderContent(value.result);
+            </handler>
+        </netRemoteCallRPC> 
+        
+        <!--
+        <method name="renderContent" args="records">
+            <![CDATA[
+            this.clearList();
+            for (var i=0;i<records.length;i++){
+                new lz.roleExplorerListItem(this._innerlist._inn._inn,{obj:records[i],
+                    itemName:records[i].name,
+                    objectTypeNameLabel:this.getLabelIdForObjectType(records[i].objectTypeName),
+                    inserted:parseDateToStringTime(records[i].inserted)});
+            }
+            ]]>
+        </method>
+         -->
+        <method name="renderContent" args="records">
+            <![CDATA[
+                //this.clearList();
+                var list = this._innerlist._inn._inn;
+                this.renderList = records;
+                
+                this._innerlist._inn.setAttribute("y",0);
+                this._innerlist._inn._inn.setAttribute("height",records.length*20);
+                
+                this._innerlist._inn.resetItems();
+                
+                for (var i=0;i<list.subviews.length;i++){
+                    if (records.length > i) {
+                        list.subviews[i].setAttribute("clickable",true);
+                        list.subviews[i].obj = records[i];
+                        list.subviews[i].setItemName(records[i].name);
+                        list.subviews[i].setObjectTypeNameLabel(this.getLabelIdForObjectType(records[i].objectTypeName));
+                        list.subviews[i].setInserted(parseDateToStringTime(records[i].inserted));
+                    } else {
+                        list.subviews[i].obj = null;
+                        list.subviews[i].setItemName("");
+                        list.subviews[i].setObjectTypeNameLabel("");
+                        list.subviews[i].setInserted("");
+                        list.subviews[i].setAttribute("clickable",false);
+                    }
+                }
+                
+            ]]>
+        </method>
+        
+        <handler name="onScrollItem" args="item">
+            <![CDATA[
+                if (this.renderList.length > item.itemId) {
+                    item.setAttribute("clickable",true);
+                    item.obj = this.renderList[item.itemId];
+                    item.setItemName(this.renderList[item.itemId].name);
+                    item.setObjectTypeNameLabel(this.getLabelIdForObjectType(this.renderList[item.itemId].objectTypeName));
+                    item.setInserted(parseDateToStringTime(this.renderList[item.itemId].inserted));
+                } else {
+                    item.obj = null;
+                    item.setItemName("");
+                    item.setObjectTypeNameLabel("");
+                    item.setInserted("");
+                    item.setAttribute("clickable",false);
+                }
+            ]]>
+        </handler>
+        
+        <method name="getLabelIdForObjectType" args="objectTypeName">
+            if (objectTypeName == "departementFixed") {
+                return this.departementFixedLabel;
+            } else if (objectTypeName == "unitFixed") {
+                return this.unitFixedLabel;
+            } else if (objectTypeName == "companyFixed") {
+                return this.companyFixedLabel;
+            }
+        </method>
+        
+    </class>
+    
+    <button text="load table">
+        <handler name="onclick">
+            new lz.testItems(canvas);
+        </handler>
+    </button> 
+    
+</canvas>

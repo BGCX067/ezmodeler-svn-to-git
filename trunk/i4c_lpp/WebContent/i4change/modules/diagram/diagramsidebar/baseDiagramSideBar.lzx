@@ -1,0 +1,430 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<library>
+    
+<class name="baseContentElementsSidebar" extends="view" y="0" layout="axis:y;spacing:1" 
+          width="${ parent.currentMaxWidth }" showhandcursor="false" clickable="true">
+    <method name="showClosedSideBarTabButton">
+        <![CDATA[
+            for (var i=0;i<this.subviews.length;i++) {
+                if (this.subviews[i].isSideBarMainItem)
+                    this.subviews[i].showClosedSideBarTabButton();
+            }
+        ]]>
+    </method>
+    <method name="hideClosedSideBarTabButton">
+        <![CDATA[
+            for (var i=0;i<this.subviews.length;i++) {
+                if (this.subviews[i].isSideBarMainItem)
+                    this.subviews[i].hideClosedSideBarTabButton();
+            }
+        ]]>
+    </method>
+    <method name="showOpenSideBarTabButton">
+        <![CDATA[
+            for (var i=0;i<this.subviews.length;i++) {
+                if (this.subviews[i].isSideBarMainItem)
+                    this.subviews[i].showOpenSideBarTabButton();
+            }
+            if (parent.currentOpenitem != null) {
+                parent.currentOpenitem.showOpen();
+            }
+            //parent._sideBarGripper.setAttribute('visibility','visible');
+        ]]>
+    </method>
+    <method name="hideOpenSideBarTabButton">
+        <![CDATA[
+            if (parent.currentOpenitem != null) {
+                parent.currentOpenitem.showClose();
+            }
+            //parent._sideBarGripper.setAttribute('visibility','hidden');
+            for (var i=0;i<this.subviews.length;i++) {
+               if (this.subviews[i].isSideBarMainItem)
+                     this.subviews[i].hideOpenSideBarTabButton();
+            }
+        ]]>
+    </method>
+</class>
+  
+<class name="baseDiagramSideBar" extends="view" height="$once{ parent.height }" bgcolor="0xEDEDED"
+       width="66" x="${ canvas.width-this.width }" showhandcursor="false" clickable="true">
+    
+    <attribute name="currentOpenitem" value="null" />
+    <attribute name="currentMaxWidth" value="410" type="number" />
+    <attribute name="isOpen" type="boolean" value="false" />
+    <attribute name="userSidebarPropertyId" value="0" type="number" />
+    <attribute name="sideBarPropMap" value="null" />
+    <attribute name="currentDrawArea" value="null" />
+    <attribute name="fadeDelegate" value="null" />
+    
+    <attribute name="currentBoard" value="null" />
+    
+    <handler name="oninit">
+        this._sideBarGripper.bringToFront();
+        
+        if (canvas.currentDiagram != null) {
+            this.saveOrUpdateUserSidebarPropertyByDiagram.diagramNo = canvas.currentDiagram.diagramNo;
+            this.getUserSidebarPropertyByDiagram.diagramNo = canvas.currentDiagram.diagramNo;
+            this.getUserSidebarPropertyByDiagram.doCall();
+        }
+        
+        this.fadeDelegate = new LzDelegate( this, "setCurrentDrawArea" );
+        lz.Timer.addTimer( this.fadeDelegate, 100 );
+    </handler>
+    
+    <method name="setCurrentDrawArea" args="item">
+        this.currentDrawArea = canvas.currentDiagramRef._scrollcontent.dragArea.contentArea;
+        this.currentBoard = this.currentDrawArea._currentBoard;
+        canvas.currentDiagramRef.zoombar._zoombox.updateZoom(this.currentDrawArea._currentBoard.currentZoom);
+    </method>
+
+    <method name="updateSidebar">
+        <![CDATA[
+        
+            this.sideBarPropMap = new Object();
+            sideBarPropMap["isOpen"] = this.isOpen;
+            sideBarPropMap["currentMaxWidth"] = this.currentMaxWidth;
+            if (this.currentOpenitem != null) {
+                sideBarPropMap["currentOpenitem"] = this.currentOpenitem.name;
+            } else {
+                sideBarPropMap["currentOpenitem"] = '';
+            }
+ 
+            sideBarPropMap["diagramWidth"] = this.currentDrawArea.parent.width;
+            sideBarPropMap["diagramHeight"] = this.currentDrawArea.parent.height;
+            sideBarPropMap["diagramX"] = this.currentDrawArea.parent.x;
+            sideBarPropMap["diagramY"] = this.currentDrawArea.parent.y;
+            sideBarPropMap["currentZoom"] = this.currentDrawArea._currentBoard.currentZoom;
+            sideBarPropMap["saveItemStatus"] = this.currentDrawArea.parent.parent.parent._autoSaveItem._checkBox.getValue();
+            sideBarPropMap["showPreNextDiagramsOnFlows"] = this.currentDrawArea.parent.parent.parent._autoSaveItem._checkBoxDiagramShowFlowText.getValue();
+            
+            //if ($debug) Debug.write("sideBarPropMap: ",sideBarPropMap,this.currentDrawArea.parent.parent);
+            
+            if (this.saveOrUpdateUserSidebarPropertyByDiagram.diagramNo != 0) {
+                this.saveOrUpdateUserSidebarPropertyByDiagram.doCall();
+            }
+            
+        ]]>
+    </method>
+    
+    <method name="setDefaultValuesOfSidebar" args="value">
+        <![CDATA[
+        
+            if (value != null) {
+            	if ($debug) Debug.write("setDefaultValuesOfSidebar: ",value);
+            	
+		        var sideBarPropMapRemote = value;
+		        
+		        this.currentDrawArea.parent.setAttribute("width",sideBarPropMapRemote["diagramWidth"]);
+		        this.currentDrawArea.parent.setAttribute("height",sideBarPropMapRemote["diagramHeight"]);
+		        this.currentDrawArea.parent.setAttribute("x",sideBarPropMapRemote["diagramX"]);
+		        this.currentDrawArea.parent.setAttribute("y",sideBarPropMapRemote["diagramY"]);
+		        this.currentDrawArea._currentBoard.currentZoom = sideBarPropMapRemote["currentZoom"];
+		        
+		        this.currentDrawArea.parent.parent.parent._autoSaveItem._checkBox.sendUpdates = false;
+		        if (!sideBarPropMapRemote["saveItemStatus"]) {
+	        	   this.currentDrawArea.parent.parent.parent._autoSaveItem._checkBox.setValue(false);
+		        } else {
+		        	this.currentDrawArea.parent.parent.parent._autoSaveItem._checkBox.setValue(true);
+		        }
+		        this.currentDrawArea.parent.parent.parent._autoSaveItem._checkBox.sendUpdates = true;
+		          
+		        this.currentDrawArea.parent.parent.parent._autoSaveItem._checkBoxDiagramShowFlowText.sendUpdates = false;
+                if (!sideBarPropMapRemote["showPreNextDiagramsOnFlows"]) {
+                   this.currentDrawArea.parent.parent.parent._autoSaveItem._checkBoxDiagramShowFlowText.setValue(false);
+                } else {
+                    this.currentDrawArea.parent.parent.parent._autoSaveItem._checkBoxDiagramShowFlowText.setValue(true);
+                }
+                this.currentDrawArea.parent.parent.parent._autoSaveItem._checkBoxDiagramShowFlowText.sendUpdates = true;
+                 
+                
+		        var mcRef = this.currentDrawArea.getMCRef();
+		        mcRef._xscale = sideBarPropMapRemote["currentZoom"];
+		        mcRef._yscale = sideBarPropMapRemote["currentZoom"];
+		        
+		        this.setAttribute("currentMaxWidth",sideBarPropMapRemote["currentMaxWidth"]);
+		        this.isOpen = sideBarPropMapRemote["isOpen"];
+		        
+		        //if ($debug) Debug.write("this.currentDrawArea: ",this.currentDrawArea);
+	            if ($debug) Debug.write("Item to isOpen: ",sideBarPropMapRemote["isOpen"]);
+	            
+	            for (var i=0;i<this._innerSideBar.subviews.length;i++) {
+	                if (this._innerSideBar.subviews[i].name == sideBarPropMapRemote["currentOpenitem"]) {
+	                    if ($debug) Debug.write("Found Item to Open: ",this._innerSideBar.subviews[i]);
+	                    this.setSelection(this._innerSideBar.subviews[i]);
+	                    break;
+	                }
+	            }
+	            
+		        if (this.isOpen) {
+		        	this._sideBarGripper._inner._bg.open_sidebar.onclick.sendEvent();
+		        }
+            
+                this.currentDrawArea.parent.parent.parent.zoombar._zoombox.updateZoom(this.currentDrawArea._currentBoard.currentZoom);
+            
+            }
+        ]]>
+    </method>
+    
+    <method name="updateSidebarByDiagramNo" args="diagramNo">
+        this.saveOrUpdateUserSidebarPropertyByDiagram.diagramNo = diagramNo;
+        this.getUserSidebarPropertyByDiagram.diagramNo = diagramNo;
+        this.updateSidebar();
+    </method>
+    
+    <method name="setSelection" args="item">
+        if (this.currentOpenitem != null) {
+            if (this.currentOpenitem.isOpen) {
+                this.currentOpenitem.isOpen = false;
+                this.currentOpenitem.close();
+            }
+        }
+        this.currentOpenitem = item;
+        this.currentOpenitem.open();
+        this.currentOpenitem.isOpen = true;
+        //if ($debug) Debug.write("this: ",this,this.x,parent.width);
+        this.updateSidebar();
+    </method>
+        
+    <method name="setSelectionAndOpen" args="item">
+        this._sideBarGripper._inner._bg.open_sidebar.onclick.sendEvent();
+        this.setSelection(item);
+    </method>
+    
+    <method name="deSelection" args="item">
+        this.currentOpenitem = item;
+        this.currentOpenitem.close();
+        this.currentOpenitem.isOpen = false;
+        this.updateSidebar();
+    </method>
+    
+    <method name="setCurrentSelectedObject" args="itemRef" >
+        //if ($debug) Debug.write("setCurrentSelectedObject: ",itemRef.name);
+        ////if ($debug) Debug.write("setCurrentSelectedObject: ",arguments.callee);
+        
+        if (itemRef == null) {
+            this.clearContent();
+        } else {
+	        var baseObject = this.currentBoard.getBaseObjectListItemByName(itemRef.name);
+            ////if ($debug) Debug.write("baseObject: ",baseObject);
+            if (baseObject == null) {
+                //if ($debug) Debug.write("baseObject IS NULL ",itemRef.name)
+                return;
+            }
+	        var diagramObjectId = baseObject[baseObject.length-7];
+
+	        //FIXME: ICH-741
+	        this._innerSideBar._propertyInspector.setObjectSelectedObj(itemRef,baseObject,diagramObjectId);
+	        this._innerSideBar._documentsSidebar.setObjectSelectedObj(itemRef,baseObject,diagramObjectId);
+	        this._innerSideBar._dataCarrier.setObjectSelectedObj(itemRef,baseObject,diagramObjectId);
+	        this._innerSideBar._diagramObjectConnectedDiagrams.setObjectSelectedObj(itemRef,baseObject,diagramObjectId);
+	        
+	        ////if ($debug) Debug.write("currentBoard.diagramType: ",currentBoard.diagramType);
+	        if (this.currentBoard.diagramType == 3){
+	            //There is not connected Org Object for Hierarchical Objects
+	            this._innerSideBar._organisationObjectItemsSidebar.setObjectSelectedObj(itemRef,baseObject,diagramObjectId);
+	        } else  if (this.currentBoard.diagramType == 1) {
+	            this._innerSideBar._objectOrgItemsSidebar.setObjectSelectedObj(itemRef,baseObject,diagramObjectId);
+	            //There is not connected Org Object for Process Objects
+	            //this._innerSideBar._organisationObjectItemsSidebar.setObjectSelectedObj(itemRef,baseObject,diagramObjectId);
+	        } else {
+	            this._innerSideBar._objectOrgItemsSidebar.setObjectSelectedObj(itemRef,baseObject,diagramObjectId);
+	            this._innerSideBar._organisationObjectItemsSidebar.setObjectSelectedObj(itemRef,baseObject,diagramObjectId);
+	        }
+        }
+    </method>
+    <!--
+    
+	        this._innerSideBar._propertyInspector.setObjectSelectedObj(itemRef,baseObject,diagramObjectId);
+	        this._innerSideBar._dataCarrier.setObjectSelectedObj(itemRef,baseObject,diagramObjectId);
+	        this._innerSideBar._diagramObjectConnectedDiagrams.setObjectSelectedObj(itemRef,baseObject,diagramObjectId);
+	        
+	        ////if ($debug) Debug.write("currentBoard.diagramType: ",currentBoard.diagramType);
+	        if (this.currentBoard.diagramType == 3){
+	            //There is not connected Org Object for Hierarchical Objects
+	            this._innerSideBar._organisationObjectItemsSidebar.setObjectSelectedObj(itemRef,baseObject,diagramObjectId);
+	        } else  if (this.currentBoard.diagramType == 1) {
+	            this._innerSideBar._objectOrgItemsSidebar.setObjectSelectedObj(itemRef,baseObject,diagramObjectId);
+	            //There is not connected Org Object for Process Objects
+	            //this._innerSideBar._organisationObjectItemsSidebar.setObjectSelectedObj(itemRef,baseObject,diagramObjectId);
+	        } else {
+	            this._innerSideBar._objectOrgItemsSidebar.setObjectSelectedObj(itemRef,baseObject,diagramObjectId);
+	            this._innerSideBar._organisationObjectItemsSidebar.setObjectSelectedObj(itemRef,baseObject,diagramObjectId);
+	        }
+     -->
+    
+    <method name="clearContent">
+    	this._innerSideBar._propertyInspector.clearList();
+    	this._innerSideBar._documentsSidebar.clearList();
+        this._innerSideBar._dataCarrier.clearList();
+        this._innerSideBar._diagramObjectConnectedDiagrams.clearList();
+        
+        if (this.currentBoard.diagramType == 3){
+            //There is not connected Org Object for Hierarchical Objects
+            this._innerSideBar._organisationObjectItemsSidebar.clearList();
+        } else if (this.currentBoard.diagramType == 1){
+            //There is not connected Process Object for Process Objects
+            this._innerSideBar._objectOrgItemsSidebar.clearList();
+        } else {
+            this._innerSideBar._objectOrgItemsSidebar.clearList();
+            this._innerSideBar._organisationObjectItemsSidebar.clearList();
+        }
+    </method>
+    
+    <netRemoteCallRPC name="saveOrUpdateUserSidebarPropertyByDiagram" funcname="saveOrUpdateUserSidebarPropertyByDiagram" 
+                      remotecontext="$once{  canvas.userServiceRPC }" showLoading="false" >      
+        <attribute name="diagramNo" value="0" type="number" />
+        <netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+        <netparam><method name="getValue">return parent.parent.userSidebarPropertyId;</method></netparam> 
+        <netparam><method name="getValue">return parent.diagramNo;</method></netparam> 
+        <netparam><method name="getValue">return parent.parent.sideBarPropMap;</method></netparam> 
+        <handler name="ondata" args="value">
+            <![CDATA[
+                //if ($debug) Debug.write("saveOrUpdateUserSidebarPropertyByDiagram: ",value);
+                parent.userSidebarPropertyId = value;
+            ]]>
+        </handler>
+    </netRemoteCallRPC>
+    
+    <netRemoteCallRPC name="getUserSidebarPropertyByDiagram" funcname="getUserSidebarPropertyByDiagram" 
+                      remotecontext="$once{  canvas.userServiceRPC }" showLoading="false" >      
+        <attribute name="diagramNo" value="0" type="number" />
+        <netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+        <netparam><method name="getValue">return parent.diagramNo;</method></netparam> 
+        <handler name="ondata" args="value">
+            <![CDATA[
+                //if ($debug) Debug.write("getUserSidebarPropertyByDiagram: ",value);
+                if (value != null) {
+	                parent.userSidebarPropertyId = value.userSidebarPropertyId;
+                }
+	            parent.setDefaultValuesOfSidebar(value);
+            ]]>
+        </handler>
+    </netRemoteCallRPC>     
+    
+    <view name="_sideBarGripper"
+          cursor="width_gripper_rsc" width="16" height="${ parent.height }" >
+        <attribute name="sideBarItem" value="null" />
+        <handler name="onmousedown">
+            if (parent.width == 66) {
+                _inner._bg.open_sidebar.onclick.sendEvent();
+            } else {
+	            this.sideBarItem = new lz.sideBarDraggingPod(canvas,{
+	                            x:this.getAttributeRelative('x',canvas),
+	                            y:this.getAttributeRelative('y',canvas)+60,
+	                            refObj:this
+	                        });
+                this.sideBarItem.dragger.apply();
+            }
+        </handler>
+        
+        <handler name="ondblclick">
+            //if ($debug) Debug.write("ondblclick ",this);
+            if (parent.width != 66) {
+                _inner._bg.close_sidebar.onclick.sendEvent();
+            }
+        </handler>
+        
+        <handler name="onmouseup">
+            if (this.sideBarItem != null) {
+	            this.sideBarItem.dragger.remove();
+	            this.sideBarItem.destroy();
+	            this.sideBarItem = null;
+	            parent.updateSidebar();
+            }
+        </handler>
+        <method name="setNewX" args="itemRef">
+            <![CDATA[
+	            //var x = this.getAttributeRelative('x',itemRef);
+	            var newWidth = canvas.width - itemRef.x;
+                
+	            if (newWidth <= 100) {
+	                newWidth = 140;
+                    parent.setAttribute("width",newWidth);
+                    parent.setAttribute("currentMaxWidth",newWidth);
+                    this.sideBarItem.dragger.remove();
+                    this.sideBarItem.destroy();
+                    _inner._bg.close_sidebar.onclick.sendEvent();
+	            } else {
+                    parent.setAttribute("width",newWidth);
+                    parent.setAttribute("currentMaxWidth",newWidth);
+                }
+            ]]>
+        </method>
+        
+        <view resource="resize_bg_sidebar" 
+              height="${ parent.height }" stretches="height" />
+        
+        <view name="_inner" layout="axis:y;spacing:2" valign="middle">
+            <view name="_bg" width="16" height="200" >
+		        <view name="open_sidebar" x="0" resource="open_sidebar">
+		            <handler name="onclick">
+		                parent.parent.parent.parent._open.setAttribute("to",parent.parent.parent.parent.currentMaxWidth);
+		                parent.parent.parent.parent._open.doStart();
+		                this.setAttribute('visibility','hidden'); 
+		                parent.close_sidebar.setAttribute('visibility','visible'); 
+		            </handler>
+		            <labelTooltip labelid="828" />
+		        </view>
+		        <view name="close_sidebar" x="0" resource="close_sidebar" visibility="hidden">
+		            <handler name="onclick">
+		                parent.parent.parent.parent._close.doStart();
+		                this.setAttribute('visibility','hidden'); 
+		                parent.open_sidebar.setAttribute('visibility','visible'); 
+		            </handler>
+		            <labelTooltip labelid="829" />
+		        </view>
+                
+            </view>
+        </view>
+        
+        <labelTooltip labelid="830" />
+    </view>
+    
+    <!--
+    <view name="_sidebarIcons" x="1" y="${ parent.height/2 - 30 }">
+        <view name="open_sidebar" resource="open_sidebar" width="10" stretches="both" height="60">
+            <handler name="onclick">
+                parent.parent._open.setAttribute("to",parent.parent.currentMaxWidth);
+                parent.parent._open.doStart();
+                this.setAttribute('visibility','hidden'); 
+                parent.close_sidebar.setAttribute('visibility','visible'); 
+            </handler>
+            <labelTooltip labelid="828" />
+        </view>
+        <view name="close_sidebar" resource="close_sidebar" width="10" stretches="both" 
+              height="60" visibility="hidden">
+            <handler name="onclick">
+                parent.parent._close.doStart();
+                this.setAttribute('visibility','hidden'); 
+                parent.open_sidebar.setAttribute('visibility','visible'); 
+            </handler>
+            <labelTooltip labelid="829" />
+        </view>
+    </view>
+     -->
+    
+    <animator name="_open" attribute="width" start="false" duration="450">
+        <handler name="onstart">
+            parent._innerSideBar.hideClosedSideBarTabButton();
+        </handler>
+        <handler name="onstop">
+            parent._innerSideBar.showOpenSideBarTabButton();
+            parent.isOpen = true;
+            parent.updateSidebar();
+        </handler>
+    </animator>
+    
+    <animator name="_close" attribute="width" start="false" to="66" duration="350">
+        <handler name="onstart">
+            parent._innerSideBar.hideOpenSideBarTabButton();
+        </handler>
+        <handler name="onstop">
+            parent._innerSideBar.showClosedSideBarTabButton();
+            parent.isOpen = false;
+            parent.updateSidebar();
+        </handler>
+    </animator>    
+    
+</class>
+
+</library>

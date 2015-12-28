@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+	
+<class name="connectorArea" extends="view" >
+	
+	<attribute name="trackgroup" type="string" value="${parent.parent.trackgroup}" />
+	<handler name="oninit">
+		<![CDATA[
+			//if($debug)  Debug.write(this.parent.parent, this.parent.parent.trackgroup);
+			this._tint.setSource("objects/poly_point.swf");
+		]]>
+	</handler>
+	<method name="registerToTrack">
+		LzTrack.register(this._trackarea, this.trackgroup);
+	</method>
+	<method name="unRegisterFromTrack">
+		LzTrack.unregister(this._trackarea, this.trackgroup);
+	</method>
+	
+	<method name="doPress">
+		//if ($debug) Debug.write("doPress",this);
+		this._labeltooltip.destroyLabel();
+		parent.parent.startDrawConnector(this);
+		LzTrack.activate('mymenu');
+	</method>	
+	<method name="doRelease">
+		//if ($debug) Debug.write("doRelease",this);
+		parent.parent.endDrawConnector(this);
+		LzTrack.deactivate('mymenu');
+	</method>
+	
+	<handler name="onmousedown">
+		this.doPress();
+	</handler>
+	<handler name="onmouseup">
+		this.doRelease();
+	</handler>
+	
+	<handler name="onmouseover">
+		this._tint.setAttribute('frame',2);
+		this._labeltooltip_track.destroyLabel();
+		//this._labeltooltip.initLabel();
+	</handler>
+	<handler name="onmouseout">
+		this._tint.setAttribute('frame',1);
+		this._labeltooltip.destroyLabel();
+		this._labeltooltip_track.destroyLabel();
+	</handler>
+	
+	<view x="0" y="0" width="20" height="20" name="_trackarea" >
+	     <handler name="onmousetrackover">
+	         //if ($debug) Debug.write("onmousetrackover",this);
+	         parent._labeltooltip_track.destroyLabel();
+	         parent._labeltooltip_track.initLabel();
+	         parent._tint.setAttribute('frame',2);
+	         parent.parent.parent.setEndPointConnector(this.parent);
+	     </handler>
+	     <handler name="onmousetrackout">
+	         //if ($debug) Debug.write("onmousetrackout",this);
+	         parent._labeltooltip_track.destroyLabel();
+	         parent._tint.setAttribute('frame',1);
+	         parent.parent.parent.setEndPointConnector(null);
+	     </handler>
+	     <handler name="onmousetrackup">
+	         //if ($debug) Debug.write("onmousetrackup",this);
+	         parent._labeltooltip_track.destroyLabel();
+	         parent._tint.setAttribute('frame',1);
+			 LzTrack.deactivate('mymenu');
+	         parent.parent.parent.drawFinalLine(this.parent);
+	         //parent.parent.parent.setEndPointConnector(null);
+	     </handler>		
+	</view>
+	
+	<view name="_tint" x="3" y="3">
+		<handler name="onload">
+			<![CDATA[
+				//if($debug)  Debug.write("resource Loaded");
+				//if($debug)  Debug.write("this: ",this);
+				this.setAttribute('frame',1);
+				this.setTint(canvas.connectorPointColor,0);
+			]]>
+		</handler>	
+		<method name="setTint" args="color, brightness">
+		    <![CDATA[
+		    if (color != "" && color != null){
+		        if (brightness == null) { brightness = 0; }
+		        var rgb = color;
+		        var red=(rgb >> 16) & 0xFF;
+		        var green=(rgb >> 8) & 0xFF;
+		        var blue=rgb & 0xFF;
+	
+		        this.setColorTransform( { ra : red, ga : green, ba : blue,
+		                            		rb : 0, gb : 0, bb : 0 } );
+		    }
+		    ]]>
+		</method>				
+	</view>
+
+	<labelTooltip name="_labeltooltip_track" labelid="549" />	
+	<labelTooltip name="_labeltooltip" labelid="548" />	
+
+</class>	
+
+</library>	

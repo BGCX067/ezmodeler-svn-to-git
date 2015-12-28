@@ -1,0 +1,328 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<library>
+    
+<class name="innerDrawView" extends="drawViewNewItem" />    
+    
+<class name="dragViewDiagramObjects" extends="view" opacity="0.6" width="20" height="20" bgcolor="red">
+    
+    <attribute name="objectType" value="default" type="string" />
+    
+    <attribute name="lineWidth" value="2" type="number" />
+    <attribute name="strokeColor" value="null" />
+    <attribute name="fillColor" value="null" />
+    <attribute name="strokeColor2" value="null" />
+    <attribute name="fillColor2" value="null" />
+    
+    <attribute name="targetwidth" value="2" type="number" />
+    <attribute name="targetheight" value="2" type="number" />
+    <attribute name="targetx" value="2" type="number" />
+    <attribute name="targety" value="2" type="number" />
+    
+    <handler name="oninit">
+        this.dragger.apply();
+        ////if ($debug) Debug.write(this,this.targetwidth,this.targetheight);
+        //this.drawRect(0,0,this.targetwidth,this.targetheight);
+    </handler>
+    
+    <method name="close">
+        //if ($debug) Debug.write("Remove IT ",this,this.dragger);
+        this.dragger.remove();
+        this.destroy();
+    </method>
+    
+    <handler name="onmouseup">
+        //if ($debug) Debug.write("onmouseup: ",this);
+    </handler>
+    
+    <method name="drawRect" args="x1,y1,x2,y2">
+        <![CDATA[
+        	//Don't do anything before the View is not completely inited
+        	if (!this.isinited){
+        		return;
+        	}
+            
+            this.animatedView._inner.destroy();
+            new lz.innerDrawView(this.animatedView,{name:'_inner'});
+        
+            this.animatedView._inner.lineWidth = this.lineWidth;
+            this.animatedView._inner.strokeStyle = this.strokeColor;
+            this.animatedView._inner.fillStyle = this.fillColor;
+            
+            this.animatedView._inner.beginPath();
+            this.animatedView._inner.moveTo(x1,y1);
+            this.animatedView._inner.lineTo(x1,y2);
+            this.animatedView._inner.lineTo(x2,y2);
+            this.animatedView._inner.lineTo(x2,y1);
+            this.animatedView._inner.lineTo (x1,y1);
+            this.animatedView._inner.closePath();
+            
+            
+            this.animatedView._inner.stroke();
+            this.animatedView._inner.fill();
+            
+        ]]>   
+    </method>      
+    
+    <method name="drawFlow" args="x1,y1,x2,y2">
+        <![CDATA[
+        	//Don't do anything before the View is not completely inited
+        	if (!this.isinited){
+        		return;
+        	}
+            ////if ($debug) Debug.write(this,x1,y1,x2,y2);
+            
+            this.animatedView._inner.destroy();
+            this.animatedView._inner2.destroy();
+            new lz.innerDrawView(this.animatedView,{name:'_inner'});
+            new lz.innerDrawView(this.animatedView,{name:'_inner2'});
+            
+            var mx1 = x1+((Math.abs(x1-x2)/3)*2);
+            var my1 = y1+(Math.abs(y1-y2)/2);
+            
+            var mx2 = x1+((Math.abs(x1-x2)/3));
+            var my2 = y1+(Math.abs(y1-y2)/2);
+            
+            //Input Green
+            this.animatedView._inner.strokeStyle = this.strokeColor;
+            this.animatedView._inner.fillStyle = this.fillColor;
+            this.animatedView._inner.lineWidth = 2;
+            this.animatedView._inner.beginPath();
+            this.animatedView._inner.moveTo(mx2,y1);
+            this.animatedView._inner.lineTo(mx1,y1);
+            this.animatedView._inner.lineTo(x2,my1);
+            this.animatedView._inner.lineTo(mx1,y2);
+            //this.animatedView._inner.lineTo(x1,y2);
+            this.animatedView._inner.lineTo (mx2,y1);            
+            
+            this.animatedView._inner.stroke();
+            this.animatedView._inner.fill();
+
+            //Output Red
+            this.animatedView._inner2.strokeStyle = this.strokeColor2;
+            this.animatedView._inner2.fillStyle = this.fillColor2;
+            this.animatedView._inner2.lineWidth = 2;
+            this.animatedView._inner2.beginPath();
+            //this.animatedView._inner2.moveTo(x2,y1);
+            this.animatedView._inner2.moveTo(mx2,y1);
+            this.animatedView._inner2.lineTo(x1,my2);
+            this.animatedView._inner2.lineTo(mx2,y2);
+            this.animatedView._inner2.lineTo(mx1,y2);
+            this.animatedView._inner2.lineTo (mx2,y1);     
+            
+            
+            this.animatedView._inner2.stroke();
+            this.animatedView._inner2.fill();
+            
+        ]]>   
+    </method>   
+    
+    <method name="drawInputflowFlow" args="x1,y1,x2,y2">
+        <![CDATA[
+        	//Don't do anything before the View is not completely inited
+        	if (!this.isinited){
+        		return;
+        	}
+            ////if ($debug) Debug.write(this,x1,y1,x2,y2);
+            
+            this.animatedView._inner.destroy();
+            new lz.innerDrawView(this.animatedView,{name:'_inner'});
+            
+            var mx1 = x1+((Math.abs(x1-x2)/3)*2);
+            var my1 = y1+(Math.abs(y1-y2)/2);
+            
+            var mx2 = x1+((Math.abs(x1-x2)/3));
+            
+            //Input Green
+            this.animatedView._inner.fillStyle = this.fillColor;
+            this.animatedView._inner.strokeStyle = this.strokeColor;
+            this.animatedView._inner.lineWidth = 2;
+            this.animatedView._inner.beginPath();
+            this.animatedView._inner.moveTo(x1,y1);
+            this.animatedView._inner.lineTo(mx1,y1);
+            this.animatedView._inner.lineTo(x2,my1);
+            this.animatedView._inner.lineTo(mx1,y2);
+            this.animatedView._inner.lineTo(x1,y2);
+            this.animatedView._inner.lineTo(x1,y1);   
+            
+            
+            this.animatedView._inner.stroke();
+            this.animatedView._inner.fill();
+
+            
+        ]]>   
+    </method>   
+    
+    <method name="drawOutputflowFlow" args="x1,y1,x2,y2">
+        <![CDATA[
+        	//Don't do anything before the View is not completely inited
+        	if (!this.isinited){
+        		return;
+        	}
+            ////if ($debug) Debug.write(this,x1,y1,x2,y2);
+            
+            this.animatedView._inner2.destroy();
+            new lz.innerDrawView(this.animatedView,{name:'_inner2'});
+            
+            var mx1 = x1+((Math.abs(x1-x2)/3));
+            var my1 = y1+(Math.abs(y1-y2)/2);
+            
+            //Output Red
+            this.animatedView._inner2.strokeStyle = this.strokeColor2;
+            this.animatedView._inner2.fillStyle = this.fillColor2;
+            this.animatedView._inner2.lineWidth = 2;
+            this.animatedView._inner2.beginPath();
+            this.animatedView._inner2.moveTo(x2,y1);
+            this.animatedView._inner2.lineTo(mx1,y1);
+            this.animatedView._inner2.lineTo(x1,my1);
+            this.animatedView._inner2.lineTo(mx1,y2);
+            this.animatedView._inner2.lineTo(x2,y2);
+            this.animatedView._inner2.lineTo(x2,y1);    
+            this.animatedView._inner2.closePath();
+            
+            this.animatedView._inner2.stroke();
+
+            this.animatedView._inner2.fill();
+            
+        ]]>   
+    </method>   
+    
+    <method name="drawIssueFlow" args="x1,y1,x2,y2">
+        <![CDATA[
+        	//Don't do anything before the View is not completely inited
+        	if (!this.isinited){
+        		return;
+        	}
+            ////if ($debug) Debug.write(this,x1,y1,x2,y2);
+            
+            this.animatedView._inner2.destroy();
+            new lz.innerDrawView(this.animatedView,{name:'_inner2'});
+            
+            var mx1 = ((Math.abs(x1-x2)/6));
+            var my1 = y1+(Math.abs(y1-y2)/2);
+            
+            //Output Red
+            this.animatedView._inner2.strokeStyle = 0x000000;
+            this.animatedView._inner2.fillStyle = 0x9D97DF;
+            this.animatedView._inner2.lineWidth = 2;
+            this.animatedView._inner2.beginPath();
+            this.animatedView._inner2.moveTo(x2-mx1,y1);
+            this.animatedView._inner2.lineTo(x1+mx1,y1);
+            this.animatedView._inner2.lineTo(x1,my1);
+            this.animatedView._inner2.lineTo(x1+mx1,y2);
+            this.animatedView._inner2.lineTo(x2-mx1,y2);
+            this.animatedView._inner2.lineTo(x2,my1);
+            this.animatedView._inner2.lineTo(x2-mx1,y1);
+            //this.animatedView._inner2.closePath();
+            
+            this.animatedView._inner2.fill();
+            this.animatedView._inner2.stroke();
+            
+        ]]>   
+    </method>   
+    
+    <method name="drawUnitPending" args="x1,y1,x2,y2">
+        <![CDATA[
+        	//Don't do anything before the View is not completely inited
+        	if (!this.isinited){
+        		return;
+        	}
+            ////if ($debug) Debug.write(this,x1,y1,x2,y2);
+            
+            this.animatedView._inner.destroy();
+            new lz.innerDrawView(this.animatedView,{name:'_inner'});
+        
+            this.animatedView._inner.lineWidth = this.lineWidth;
+            this.animatedView._inner.fillStyle = this.fillColor;
+            this.animatedView._inner.beginPath();
+            this.animatedView._inner.moveTo(x1,y1);
+            this.animatedView._inner.lineTo(x1,y2);
+            this.animatedView._inner.lineTo(x2,y2);
+            this.animatedView._inner.lineTo(x2,y1);
+            this.animatedView._inner.lineTo (x1,y1);
+            this.animatedView._inner.closePath();
+            
+            this.drawDottedLine(this.animatedView._inner,x1,y1,x1,y2,this.strokeColor,this.lineWidth);
+            this.drawDottedLine(this.animatedView._inner,x1,y2,x2,y2,this.strokeColor,this.lineWidth);
+            this.drawDottedLine(this.animatedView._inner,x2,y2,x2,y1,this.strokeColor,this.lineWidth);
+            this.drawDottedLine(this.animatedView._inner,x2,y1,x1,y1,this.strokeColor,this.lineWidth);
+
+            this.animatedView._inner.fill();
+            
+        ]]>   
+    </method>  
+    
+    <method name="drawDottedLine" args="targetObj,startx,starty,endx,endy,stroke,lineWidth">
+        <![CDATA[
+            var drawObj = new lz.drawViewNewItem(targetObj,{width:this.width,height:this.height});        
+            
+            ////if ($debug) Debug.write("drawDottedLine startx,starty,endx,endy: ",startx,starty,endx,endy);
+            
+            Math.linearTween = function (t, b, c, d) {
+                return c*t/d + b;
+            };
+
+            //if($debug)  Debug.write("drawDashLine: ",tObject);
+            var tx = endx;
+            var ty = endy;
+            var sx = startx;
+            var sy = starty;
+            var distance = Math.sqrt(Math.pow(tx-sx,2)+Math.pow(ty-sy,2)); 
+            var steps = Math.floor(distance  / 5 ); 
+            //if($debug)  Debug.write("steps: ",steps);
+            var gap = false;
+            //if($debug)  Debug.write("gap1: ",gap);
+            for (var i = 1; i<=steps; ++i) {
+                var ctx = Math.linearTween(i, sx, tx-sx,steps);    //equations by R.Penner!
+                var cty = Math.linearTween(i, sy, ty-sy,steps);
+                //if($debug)  Debug.write("gap2: ",gap);
+                gap = !gap;    //abwechselnd lücke/nichtlücke
+                if(!gap) {
+                    //if($debug)  Debug.write(csx,csy,"|",ctx,cty);
+                    drawObj.strokeStyle = stroke;
+                    drawObj.lineWidth = lineWidth;
+                    drawObj.beginPath();                                
+                    drawObj.moveTo(csx,csy);
+                    drawObj.lineTo(ctx,cty);
+                    drawObj.stroke();
+                }
+                csx =ctx;
+                csy = cty;
+            }                       
+        ]]>
+    </method> 
+    
+    <view name="animatedView" width="0" height="0" >
+        <handler name="onwidth" args="w">
+            this.width = w;
+            if (parent.objectType == 'default') {
+                parent.drawRect(0,0,this.width,this.height);
+            } else if (parent.objectType == 'flow') {
+                parent.drawFlow(0,0,this.width,this.height);
+            } else if (parent.objectType == 'inputflow') {
+                parent.drawInputflowFlow(0,0,this.width,this.height);
+            } else if (parent.objectType == 'outputflow') {
+                parent.drawOutputflowFlow(0,0,this.width,this.height);
+            } else if (parent.objectType == 'issueflow') {
+                parent.drawIssueFlow(0,0,this.width,this.height);
+            } else if (parent.objectType == 'unitPending' 
+                    || parent.objectType == 'departementPending'
+                    || parent.objectType == 'companyPending' ) {
+                parent.drawUnitPending(0,0,this.width,this.height);
+            }
+        </handler>
+        <animator attribute="x" to="$once{ -parent.parent.targetx }" duration="750"/>
+        <animator attribute="y" to="$once{ -parent.parent.targety }" duration="750"/>
+        <animator attribute="width" to="$once{ parent.parent.targetwidth }" duration="750"/>
+        <animator attribute="height" to="$once{ parent.parent.targetheight }" duration="750"/>
+        
+
+        <innerDrawView name="_inner" />
+        <innerDrawView name="_inner2" />
+
+    </view>
+    
+    <dragstate name="dragger" />
+    
+</class>
+
+</library>

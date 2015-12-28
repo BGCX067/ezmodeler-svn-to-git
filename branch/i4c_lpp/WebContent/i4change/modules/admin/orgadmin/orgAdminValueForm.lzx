@@ -1,0 +1,327 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+    
+<class name="textListItemToDelete" extends="textlistitem">
+    <view resource="button_cancel_rsc" onmouseover="" onmouseout="" y="1" 
+          x="$once{ parent.width - this.width - 2 }"
+          onclick="new lz.confirmDeleteWindow(canvas,{refObj:this});" >      
+        <method name="confirmDelete">
+            //if ($debug) Debug.write("Confirm Delete Action");
+            parent.parent.removeItem(parent.getValue());
+        </method>
+        <labelTooltip labelid="898" />
+    </view>
+</class>    
+
+<class name="orgAdminValueForm" extends="baseContentSaveView">
+	
+	<!--- recordContent id -->
+	<attribute name="organisation_id" value="0" type="number" />	
+
+	<!-- handler -->
+    <handler name="oninit">
+        //Add Help Item
+        canvas.addCurrentHelpId(25,this.__constructor__.classname);
+    </handler> 
+	<handler name="onsavecompleted" >
+		this.getOrganisationDetailedById.doCall();
+	</handler>
+	
+	<handler name="onreload" >
+		if (this.organisation_id!=0) {
+            this.getOrganisationDetailedById.doCall();
+        }
+	</handler>	
+
+	<handler name="onnew">
+		this.organisation_id=0;
+        this.orgname.setAttribute("text",'');
+        this._userlist.clearList();
+        this._orgPatternlist.clearList();
+	</handler>
+	
+	<!--
+	this.isPending.setValue(false);
+
+        this.workdaysCheckbox.setValue(false);
+        this.workdays.setAttribute('text',"");
+        this.workdaysCheckbox.setValue(true);
+
+        this.maxUserCheckbox.setValue(false);
+        this.maxUser.setAttribute('text',"");
+        this.maxUserCheckbox.setValue(true);
+
+        this.expireDateCheckbox.setValue(false);
+        this.expireDate.setAttribute('text',parseDateToString(new Date()));
+        this.expireDateCheckbox.setValue(true);
+         -->
+	
+    <handler name="ondelete" >
+		if (this.organisation_id!=0){
+			this.deleteOrganisation.doCall();
+		}
+    </handler>	
+	
+	<!-- methods -->
+	
+    <method name="initValueFieldsByObject" args="obj">
+        <![CDATA[
+            //if ($debug) Debug.write("initValueFieldsByObject: ",obj);
+			this.organisation_id = obj.organisation_id;
+			if (this.organisation_id!=0){
+	            this._orgPatternlist.clearList();
+	            ////if ($debug) Debug.write("initValueFieldsByObject: ",obj);
+				this.getOrganisationDetailedById.doCall();
+			}
+        ]]>
+    </method>	
+	
+  	<netRemoteCallRPC name="getOrganisationDetailedById" funcname="getOrganisationDetailedById" 
+  		remotecontext="$once{  canvas.organisationServiceRPC }" > 
+  		<netparam><method name="getValue"> return canvas.sessionId; </method></netparam>
+    	<netparam><method name="getValue">return parent.parent.organisation_id;</method></netparam>
+    	<handler name="ondata" args="value">
+    		parent.initFields(value);
+    	</handler>
+  	</netRemoteCallRPC>	
+	
+	
+    
+    <method name="initFields" args="obj">
+    	<![CDATA[
+	    	this.organisation_id = obj.organisation_id;
+	        this.orgname.setAttribute("text",obj.name);
+            this._orgPatternlist.clearList();
+	        if (obj.orgPatternsMap != null) {
+	            for (var i = 0;i<obj.orgPatternsMap.length;i++) {
+	                this._orgPatternlist.addItemDelete(obj.orgPatternsMap[i],obj.orgPatternsMap[i]);
+	            }
+	        }     
+            this._userlist.renderContent(obj.user);
+        ]]>
+    </method>
+    
+    <!--
+    this.isPending.setValue(obj.isPending);
+            if (obj.maxWorkDays != null){
+                this.workdaysCheckbox.setValue(false);
+                this.workdays.setAttribute('text',obj.maxWorkDays);
+            } else {
+                this.workdaysCheckbox.setValue(false);
+                this.workdays.setAttribute('text',"");
+                this.workdaysCheckbox.setValue(true);
+            }
+            if (obj.maxUsers != null){
+                this.maxUserCheckbox.setValue(false);
+                this.maxUser.setAttribute('text',obj.maxUsers);
+            } else {
+                this.maxUserCheckbox.setValue(false);
+                this.maxUser.setAttribute('text',"");
+                this.maxUserCheckbox.setValue(true);
+            }
+            if (obj.expireDate != null){
+                this.expireDateCheckbox.setValue(false);
+                this.expireDate.setAttribute('text',parseDateToString(obj.expireDate));
+            } else {
+                this.expireDateCheckbox.setValue(false);
+                this.expireDate.setAttribute('text',"");
+                this.expireDateCheckbox.setValue(true);
+            }      
+            -->
+	
+	<!-- remotecalls -->
+
+	<netRemoteCallRPC name="deleteOrganisation" funcname="deleteOrganisation" 
+					  remotecontext="$once{  canvas.organisationServiceRPC }" >      
+		<netparam><method name="getValue"> return canvas.sessionId; </method></netparam>
+		<netparam><method name="getValue"> return parent.parent.organisation_id; </method></netparam>
+		<handler name="ondata" args="value">
+			//Debug.write("deleteOrganisation ",value);
+			//this.parent.destroy();
+			if (value>0){
+				this.parent.parent._turnoverlist.oncallnext.sendEvent();
+				this.parent.onnew.sendEvent();
+			}
+		</handler>
+	</netRemoteCallRPC>	
+	
+  	<netRemoteCallRPC name="saveOrUpdateOrganisation" funcname="saveOrUpdateOrganisation" 
+  		remotecontext="$once{  canvas.organisationServiceRPC }" registerObject="true" activeErrorHandler="true" >   
+		<attribute name="sendObject" value="null" />
+		<!-- gets called by Observer -->
+  		<method name="prepareCall">
+  			this.sendObject=new Object();
+            
+            this.sendObject["orgPatternMap"] = parent._orgPatternlist.getValuesForUpdate();
+  			this.sendObject["organisation_id"] = this.parent.organisation_id;
+  			this.sendObject["orgname"] = this.parent.orgname.getText();
+
+  			//if ($debug) Debug.write("prepareCall: ",this.sendObject);
+  		</method>
+  		<!--
+  		if (this.parent.maxUserCheckbox.getValue() || this.parent.maxUser.getText().length==0){
+                this.sendObject["maxUsers"] = null;
+            } else {
+                this.sendObject["maxUsers"] = this.parent.maxUser.getText();
+            }
+            -->
+  		<netparam><method name="getValue"> return canvas.sessionId; </method></netparam>
+    	<netparam><method name="getValue">return parent.sendObject;</method></netparam>	  		
+    	<handler name="ondata" args="val">
+			<![CDATA[
+    		//if ($debug) Debug.write("saveOrUpdateOrganisation: ",val);
+			if (val>0){
+				//Debug.write("saveOrUpdateUser val greater 0: ",val);
+				this.parent.parent._turnoverlist.oncallnext.sendEvent();
+                parent.organisation_id = val;
+				parent.getOrganisationDetailedById.doCall();
+			}
+			]]>
+    	</handler>
+  	</netRemoteCallRPC>		
+	
+	<!-- content -->	
+    
+    <labelText labelid="170" width="200" y="40" resize="false" fontstyle="bold" />	
+	
+    <labelText labelid="171" width="200" y="70" resize="false" x="2"/>
+        <customEdittext name="orgname" y="70" x="120" width="270" text="" />	
+	
+    <labelText labelid="273" width="200" y="100" resize="false" x="2" fontstyle="bold" />   
+    
+    <labelText labelid="177" width="200" y="130" resize="false" x="2"/>
+         
+    <recordValueList name="_userlist" y="130" x="120" width="300" height="200" >
+        
+        <attribute name="usersId" value="0" type="number" />
+        
+		<handler name="oninit">
+			this.addHeaderItem(177,226);    
+            this.addHeaderItem(275,60);   
+        </handler>
+            
+        <handler name="deleteItem" args="obj">
+            Debug.write("deleteItem: ",obj.value);
+            this.usersId = Number(obj.value);
+            this.deleteUserFromOrganisation.doCall();
+        </handler>  
+	
+	    <method name="renderContent" args="records">
+	    	<![CDATA[
+	    	this.clearList();
+	    	for (var i=0;i<records.length;i++){
+                var v = records[i].login+' ['+records[i].lastname+', '+records[i].firstname+']';
+	    		new lz.recordListItem(this._innerlist._inn._inn,{valueName:v,value:records[i].user_id});
+	    	}
+	    	]]>
+	    </method>
+                
+        <netRemoteCallRPC name="deleteUserFromOrganisation" remotecontext="$once{  canvas.organisationServiceRPC }" 
+            funcname="deleteUserFromOrganisation" >      
+            <netparam><method name="getValue"> return canvas.sessionId; </method></netparam>
+            <netparam><method name="getValue"> return parent.parent.parent.organisation_id; </method></netparam>
+            <netparam><method name="getValue"> return parent.parent.usersId; </method></netparam>
+            <netparam><method name="getValue"> return ''; </method></netparam>
+            <handler name="ondata" args="value">
+                Debug.write("deleteUserFromOrganisation ",value);
+                //this.parent.destroy();
+                if (value>0){
+                    this.parent.parent.onreload.sendEvent();
+                } else {
+                    new lz.rpcErrorDialog(canvas.main_content._content.inner,{errorid:value});
+                }
+            </handler>
+        </netRemoteCallRPC>	        
+    </recordValueList>    
+    
+	<baseChooseIcon resourceN="edit_add_rsc" labelid="178" y="100" x="400"
+		onclick="this.parent.addOrganisationToUser()" />		
+	<method name="addOrganisationToUser">
+		if (this.organisation_id!=0) {
+			new lz.orgAdminChooseUserWindow(canvas.main_content._content.inner,{refObj:this,organisation_id:this.organisation_id});
+        } else {
+            new lz.errorPopupWithLabel(canvas,{labelerrorid:887});
+        }
+	</method>
+    
+     <!--
+    <baseChooseIcon resourceN="button_cancel_rsc" labelid="179" y="100" x="430"
+        onclick="new lz.confirmDeleteWindow(canvas.main_content._content.inner,{refObj:this});" >      
+        <method name="confirmDelete">
+            if (this.parent._userlist._selected!=null)
+                for (var i in this.parent._userlist._selected) this.parent._userlist.removeItem(this.parent._userlist._selected[i].value);
+        </method>
+    </baseChooseIcon>   
+    -->	
+    
+    <labelText labelid="891" width="200" y="340" resize="false" x="2" fontstyle="bold" />   
+    
+    <labelText labelid="893" width="200" y="370" resize="false" x="2" />   
+    
+    <list name="_orgPatternlist" y="370" x="120" width="300" height="200" >
+        <method name="clearList">
+            <![CDATA[
+	            var currentCount = this.getNumItems();
+	            for (var i = 0; i < currentCount; i++) {
+	                this.removeItemAt(0);
+	            }
+	        ]]>
+        </method>
+        <method name="getValuesForUpdate">
+            <![CDATA[
+                var itemList = new Array();
+                var currentCount = this.getNumItems();
+                for (var i = 0; i < currentCount; i++) {
+                    var item = this.getItemAt(i);
+                    var v = item.getValue();
+                    itemList.push(v);
+                }
+                return itemList;
+            ]]>
+        </method>
+        <method name="addItemDelete" args="txt,val">
+            new lz.textListItemToDelete(this,{
+	                text:txt,value:val
+	            });
+        </method>
+    </list>
+    
+    <baseChooseIcon resourceN="edit_add_rsc" labelid="890" y="340" x="400"
+        onclick="this.parent.addNewPattern()" />        
+    <method name="addNewPattern">
+        if (this.organisation_id!=0) {
+            new lz.addOrgProperties(this,{
+                x:120,y:370,refObj:this
+            })
+        } else {
+            new lz.errorPopupWithLabel(canvas,{labelerrorid:887});
+        }
+    </method>
+    <method name="addDomainToList" args="newDomainName">
+        this._orgPatternlist.addItemDelete(newDomainName,newDomainName);
+    </method>
+    
+    <!--
+   <labelText labelid="920" width="200" y="590" resize="false" 
+           x="2" fontstyle="bold" />   
+    
+   <labelCheckbox name="isPending" labelid="917" y="620" x="6" />   
+   
+   <labelText labelid="913" width="200" y="650" resize="false" x="2" />  
+        <dateField name="expireDate" y="650" x="120" width="140" text="" enabled="${ !parent.expireDateCheckbox.value }" />
+        <labelCheckbox name="expireDateCheckbox" labelid="914" y="650" x="270" />   
+
+   <labelText labelid="915" width="200" y="680" resize="false" x="2" />  
+        <customEdittext name="maxUser" y="680" x="120" width="140" enabled="${ !parent.maxUserCheckbox.value }"
+                        text="" regexpType="number" />
+        <labelCheckbox name="maxUserCheckbox" labelid="916" y="680" x="270" /> 
+    
+   <labelText labelid="918" width="200" y="710" resize="false" x="2" />  
+        <customEdittext name="workdays" y="710" x="120" width="140" enabled="${ !parent.workdaysCheckbox.value }"
+                        text="" regexpType="number" />
+        <labelCheckbox name="workdaysCheckbox" labelid="919" y="710" x="270" />
+         -->
+                 
+</class>
+	
+</library>

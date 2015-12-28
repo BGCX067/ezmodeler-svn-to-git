@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<library>
+	<include href="../../base/components/text/labelTooltip.lzx" />
+
+<class name="infoSimpleSourceBoardButton" extends="simpleLabelButton" text_x="10"
+    x="2" height="47" fontsize="12" width="$once{parent.parent.width-4}">
+    <attribute name="toolTiplabelid" value="0" type="number" />
+    <attribute name="iconPath" value="" type="string" />
+    <view oninit="this.setSource(canvas.getIconPathByName(parent.iconPath))" align="center" valign="middle" />
+    <attribute name="quicklinkAction" type="string" value=""/>
+    <labelTooltip labelid="$once{ parent.toolTiplabelid }" />
+</class>
+       
+<class name="infoSimpleBoardButton" extends="button" style="noStyle"
+       fontstyle="bold" x="2" height="47" 
+       fontsize="12" width="$once{parent.parent.width-4}">
+
+    <attribute name="labelid" type="number" value="0" />
+    
+    <attribute name="toolTiplabelid" value="0" type="number" />
+    <view resource="add_diagram_icon" align="right" valign="middle" />
+    <attribute name="quicklinkAction" type="string" value=""/>
+    <attribute name="mytext" value="" type="string" />
+    
+    <labelText labelid="${ parent.labelid }" width="$once{ parent.width - 60 }" x="10"
+               multiline="true" resize="false" valign="middle" />
+    
+    <labelTooltip labelid="$once{ parent.toolTiplabelid }" />
+    
+</class>
+
+<class name="infoBoardButton" extends="infoSimpleBoardButton" >
+    <handler name="onclick">
+        canvas.currentDiagram = null; 
+        
+        quicklinkAct(this.quicklinkAction);  
+        
+        parent.parent.close();
+    </handler>
+</class>
+
+<class name="newDiagramButtons" extends="view" layout="axis:y;spacing:2" y="0">
+	
+	<!--
+		In case this is a Dialog we need to close it
+	 -->
+	<attribute name="isDialog" value="false" type="boolean"/>
+
+    <view x="2" layout="axis:x;spacing:2">
+        <infoSimpleBoardButton labelid="713" height="62" width="$once{parent.parent.parent.width-55}"
+                         toolTiplabelid="714" quicklinkAction="hierarchical"  >
+            <handler name="onclick">
+		        canvas.currentDiagram = null; 
+		        quicklinkAct(this.quicklinkAction);  
+		        if (parent.parent.isDialog) {
+		        	parent.parent.parent.close();
+		        }
+		    </handler>
+        </infoSimpleBoardButton> 
+        <infoSimpleSourceBoardButton iconPath="icon_diagramloader_changeororg_rsc"
+                                     height="62" width="49" toolTiplabelid="1095" >
+            <handler name="onclick">
+                //if ($debug) Debug.write("Fill Function");
+            </handler>
+        </infoSimpleSourceBoardButton>
+    </view>
+    
+    <infoBoardButton labelid="715" height="62"
+                     toolTiplabelid="716" quicklinkAction="processgroup" />
+    <infoBoardButton labelid="717" height="62"
+                     toolTiplabelid="718" quicklinkAction="roleView" />
+    <view x="2" layout="axis:x;spacing:2">
+        <infoSimpleBoardButton labelid="719" height="62" width="$once{parent.parent.parent.width-55}"
+                         toolTiplabelid="720" quicklinkAction="singleRole" >
+            <handler name="onclick">
+            	//if ($debug) Debug.write("canvas.currentRole : ",canvas.currentRole);
+                if (canvas.currentRole==null) {
+                    new lz.changeAndAddRole(canvas);
+                } else {
+                	//if ($debug) Debug.write(" canvas.currentRole.roleObject: ",
+            			 // canvas.currentRole.roleObject);
+            		//Pending Roles need first approval ICH-566
+            		if ( canvas.currentRole.roleObject.pending) {
+            			new lz.errorPopupWithLabel(canvas,{labelerrorid:1110});
+            		} else {
+                    	canvas.currentDiagram = null; 
+                    	
+                    	quicklinkAct(this.quicklinkAction);  
+                    	if (parent.parent.isDialog) {
+                    		parent.parent.parent.close();
+                    	}
+            		}
+                }
+		    </handler>
+        </infoSimpleBoardButton> 
+        <infoSimpleSourceBoardButton iconPath="icon_diagramloader_changeoradd_role_rsc"
+                                     height="62" width="49" toolTiplabelid="1094" >
+            <handler name="onclick">
+            	//if ($debug) Debug.write(" canvas.currentRole.roleObject: ",
+            			// canvas.currentRole.roleObject)	
+                if (canvas.currentRole != null) {
+                    new lz.changeAndAddRole(canvas,{
+                            currentRoleName: canvas.currentRole.roleObject.name
+                        });
+                } else {
+                	new lz.changeAndAddRole(canvas);
+                }
+            </handler>
+        </infoSimpleSourceBoardButton>
+    </view>
+                         
+</class>
+
+<!--- "System" panel on the dashboard -->
+<class name="infosPanel" extends="guiPresenterDasboard" resizeable="false"
+    width="280" height="280" closable="true" labelid="374" y="10"><!-- 374:System -->
+    <handler name="oninit">
+        //Add Help Item
+        canvas.addCurrentHelpId(37,this.__constructor__.classname);
+    </handler>    
+	<view y="20" bgcolor="white" x="1" width="$once{ parent.width-2 }" 
+		  height="$once{ parent.height-21 }" >
+  
+        <!-- 278:Quicklinks 
+        
+        -->
+        <!--
+	    <labelText fontstyle="bold" y="10" labelid="278" x="10" />
+	     -->
+	    
+	    <newDiagramButtons name="_newDiagramButtons" />
+	    
+	    
+	    <!--
+                             enabled="$once{ (canvas.currentRole==null) ? false : ((canvas.currentRole.roleObject.pending) ? false : true) }"
+                              -->
+	    <!-- 
+	    <view layout="axis:y;spacing:2" x="274" y="0">
+            <view height="62">
+                <infoIconToolTip visibility="$once{ (canvas.userobject.userlevel.level_id==1) ? 'visible' : 'hidden' }"
+                    align="right" valign="middle" labelid="722" />  
+            </view>
+            <view height="62">
+                <infoIconToolTip visibility="$once{ (canvas.userobject.userlevel.level_id==1) ? 'visible' : 'hidden' }"
+                    align="right" valign="middle" labelid="722" />  
+            </view>
+            <view height="62">
+                <infoIconToolTip visibility="$once{ (canvas.userobject.userlevel.level_id==1) ? 'visible' : 'hidden' }"
+                    align="right" valign="middle" labelid="722" />  
+            </view>
+	        <view height="62">
+	            <infoIconToolTip iconResourceName="messagebox_warning_rsc" 
+                    visibility="$once{ (canvas.currentRole==null) ? 'visible' : 'hidden' }"
+	                align="right" valign="middle" labelid="721">
+                    <handler name="oninit">
+                        if (canvas.currentRole==null) {
+                            new lz.errorPopup(canvas,{
+                                labelid:841,closable:true,
+                                error:canvas.getLabelName(840)
+                            });
+                        } else if (canvas.currentRole.roleObject.pending) {
+                            new lz.errorPopup(canvas,{
+                                labelid:841,closable:true,
+                                error:canvas.getLabelName(953)
+                            });
+                        }
+                    </handler>
+                </infoIconToolTip> 
+	        </view>
+	    </view>
+         -->
+        
+    </view>
+</class> 
+
+</library>

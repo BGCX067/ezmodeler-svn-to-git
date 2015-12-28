@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+	<include href="resources/" />
+	<include href="boxInitEffect.lzx" />
+	<include href="guiPresenter.lzx" />
+    <include href="barmenu.lzx" />
+    <include href="presenterminibtn.lzx" />
+    <include href="guiPresenterDasboard.lzx" />
+
+    
+</library>

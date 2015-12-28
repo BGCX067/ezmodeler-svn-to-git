@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!-- all datasets for main.lzx -->
+
+<library>
+    
+<attribute name="iconList" value="null" />
+
+<!-- get values from config.xml -->
+<dataset type="http" name="myConfigSet" src="config.xml" request="true" ondata="canvas.myinit()" />
+
+<!-- get values from icons.xml -->
+<dataset type="http" name="myIconSet" ondata="canvas.parseIcons()">
+    <handler name="oninit">
+        if ($debug) Debug.write("Init Icons");
+        this.setSrc("icons/icons.xml?random="+(new Date()));
+        this.doRequest();
+    </handler>
+</dataset>
+
+<method name="parseIcons" args="value">
+    if ($debug) Debug.write("Icons ",canvas.myIconSet);
+    
+    
+    var item = canvas.myIconSet.getPointer().xpathQuery("icons/icon[@name = 'icon_property_inspector']/@path");
+    if ($debug) Debug.write("item: ",item);
+</method>
+
+<method name="getIconPathByName" args="iconName">
+    var iconPath = canvas.myIconSet.getPointer().xpathQuery("icons/icon[@name = '"+iconName+"']/@path");
+    if ($debug) Debug.write("iconPath ",iconPath);
+    return iconPath;
+</method>
+
+</library>

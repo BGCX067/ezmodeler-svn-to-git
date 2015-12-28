@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE hibernate-configuration PUBLIC "-//Hibernate/Hibernate Configuration DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+
+<hibernate-configuration>
+  <session-factory>
+    <!-- User  / Password -->
+        <property name="connection.username">root</property>
+        <property name="connection.password">admin</property>
+        
+        <!-- Database Settings -->
+        <property name="connection.driver_class">com.mysql.jdbc.Driver</property>
+        <property name="dialect">org.hibernate.dialect.MySQLMyISAMDialect</property>
+        <property name="connection.url">jdbc:mysql://localhost/i4change_lps3?autoReconnect=true&amp;useUnicode=true&amp;createDatabaseIfNotExist=true&amp;characterEncoding=utf-8</property> 
+        
+        <property name="hibernate.connection.CharSet">utf8</property>
+        <property name="hibernate.connection.characterEncoding">utf8</property>
+        <property name="hibernate.connection.useUnicode">true</property>
+
+        
+        <!-- Database Scheme Auto Update -->
+        <property name="hbm2ddl.auto">update</property>         
+
+        <!-- properties -->
+        
+        <property name="show_sql">false</property>
+        <property name="format_sql">false</property>
+        <property name="use_outer_join">false</property>
+        <property name="hibernate.query.factory_class">org.hibernate.hql.ast.ASTQueryTranslatorFactory</property>
+        <property name="hibernate.connection.provider_class">org.hibernate.connection.C3P0ConnectionProvider</property>
+        <property name="hibernate.cache.provider_class">org.hibernate.cache.NoCacheProvider</property>
+        <property name="hibernate.cache.use_query_cache">false</property>
+        <property name="hibernate.cache.use_second_level_cache">false</property>
+        <property name="hibernate.generate_statistics">false</property>
+        <property name="hibernate.cache.use_structured_entries">false</property>
+
+
+        <property name="c3p0.max_size">20</property>
+        <property name="c3p0.min_size">2</property>
+        <property name="c3p0.idle_test_period">100</property>
+        <property name="c3p0.max_statements">100</property>
+        <property name="c3p0.timeout">100</property>
+    <mapping resource="org/i4change/app/hibernate/beans/adresses/Adresses.hbm.xml"/>
+    <mapping resource="org/i4change/app/hibernate/beans/adresses/Adresses_Emails.hbm.xml"/>
+    <mapping resource="org/i4change/app/hibernate/beans/adresses/Country.hbm.xml"/>
+    <mapping resource="org/i4change/app/hibernate/beans/adresses/Emails.hbm.xml"/>
+    <mapping resource="org/i4change/app/hibernate/beans/basic/Configuration.hbm.xml"/>
+    <mapping resource="org/i4change/app/hibernate/beans/basic/DownloadHash.hbm.xml"/>
+    <mapping resource="org/i4change/app/hibernate/beans/basic/ErrorType.hbm.xml"/>
+    <mapping resource="org/i4change/app/hibernate/beans/basic/ErrorValues.hbm.xml"/>
+    <mapping resource="org/i4change/app/hibernate/beans/basic/Naviglobal.hbm.xml"/>
+    <mapping resource="org/i4change/app/hibernate/beans/basic/Navimain.hbm.xml"/>
+    <mapping resource="org/i4change/app/hibernate/beans/basic/Navisub.hbm.xml"/>
+    <mapping resource="org/i4change/app/hibernate/beans/basic/ObjectIdentifier.hbm.xml"/>
+    <mapping resource="org/i4change/app/hibernate/beans/basic/Sessiondata.hbm.xml"/>
+    <mapping resource="org/i4change/app/hibernate/beans/diagram/Assignee.hbm.xml"/>
+    <mapping resource="org/i4change/app/hibernate/beans/diagram/DataCarrierDiagramObject.hbm.xml"/>
+    <mapping resource="org/i4change/app/hibernate/beans/diagram/Diagram.hbm.xml"/>
+    <mapping resource="org/i4change/app/hibernate/beans/diagram/DiagramInstanceObject.hbm.xml"/>
+    <mapping resource="org/i4change/app/hibernate/beans/diagram/DiagramObject.hbm.xml"/>
+    <mapping resource="org/i4change/app/hibernate/beans/diagram/DiagramObjectOrganisation.hbm.xml"/>
+    <mapping resource="org/i4change/app/hibernate/beans/diagram/DiagramObjectProperty.hbm.xml"/>
+    <mapping resource="org/i4change/app/hibernate/beans/diagram/DiagramType.hbm.xml"/>
+    <mapping resource="org/i4change/app/hibernate/beans/diagram/DiagramUserAccess.hbm.xml"/>
+    <mapping resource="org/i4change/app/hibernate/beans/diagram/Diagramrevision.hbm.xml"/>
+    <mapping resource="org/i4change/app/hibernate/beans/diagram/IssueAssignee.hbm.xml"/>
+    <mapping resource="org/i4change/app/hibernate/beans/diagram/Property.hbm.xml"/>
+    <mapping resource="org/i4change/app/hibernate/beans/diagram/PropertyValidationType.hbm.xml"/>
+    <mapping resource="org/i4change/app/hibernate/beans/diagram/Role.hbm.xml"/>
+    <mapping resource="org/i4change/app/hibernate/beans/domain/Organisation.hbm.xml"/>
+    <mapping resource="org/i4change/app/hibernate/beans/domain/Organisation_Users.hbm.xml"/>
+    <mapping resource="org/i4change/app/hibernate/beans/export/PresentationTemplate.hbm.xml"/>
+    <mapping resource="org/i4change/app/hibernate/beans/help/HelpTopic.hbm.xml"/>
+    <mapping resource="org/i4change/app/hibernate/beans/lang/FieldLanguage.hbm.xml"/>
+    <mapping resource="org/i4change/app/hibernate/beans/lang/Fieldlanguagesvalues.hbm.xml"/>
+    <mapping resource="org/i4change/app/hibernate/beans/lang/Fieldvalues.hbm.xml"/>
+    <mapping resource="org/i4change/app/hibernate/beans/mail/MailItem.hbm.xml"/>
+    <mapping resource="org/i4change/app/hibernate/beans/project/Project.hbm.xml"/>
+    <mapping resource="org/i4change/app/hibernate/beans/project/ProjectRelation.hbm.xml"/>
+    <mapping resource="org/i4change/app/hibernate/beans/report/Report.hbm.xml"/>
+    <mapping resource="org/i4change/app/hibernate/beans/report/ReportType.hbm.xml"/>
+    <mapping resource="org/i4change/app/hibernate/beans/user/Discount.hbm.xml"/>
+    <mapping resource="org/i4change/app/hibernate/beans/user/Invoice.hbm.xml"/>
+    <mapping resource="org/i4change/app/hibernate/beans/user/Salutations.hbm.xml"/>
+    <mapping resource="org/i4change/app/hibernate/beans/user/TransactionPaypal.hbm.xml"/>
+    <mapping resource="org/i4change/app/hibernate/beans/user/UserSidebarProperty.hbm.xml"/>
+    <mapping resource="org/i4change/app/hibernate/beans/user/Userdata.hbm.xml"/>
+    <mapping resource="org/i4change/app/hibernate/beans/user/Usergroups.hbm.xml"/>
+    <mapping resource="org/i4change/app/hibernate/beans/user/Userlevel.hbm.xml"/>
+    <mapping resource="org/i4change/app/hibernate/beans/user/Users.hbm.xml"/>
+    <mapping resource="org/i4change/app/hibernate/beans/user/Users_Usergroups.hbm.xml"/>
+    <mapping resource="org/i4change/app/hibernate/beans/website/WebItem.hbm.xml"/>
+    <mapping resource="org/i4change/app/hibernate/beans/website/WebItemRelation.hbm.xml"/>
+    <mapping resource="org/i4change/app/hibernate/beans/website/WebItemType.hbm.xml"/>
+  </session-factory>
+</hibernate-configuration>

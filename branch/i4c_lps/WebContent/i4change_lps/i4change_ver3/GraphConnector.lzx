@@ -1,0 +1,87 @@
+
+<library>
+  
+  <!-- 
+    this class implements a single connection between to boxes. you can derive
+    from this class.
+    -->
+  <class name="GraphConnector" extends="drawview" clickable="true">
+    
+    <attribute name="hSize" value="6"/>
+    
+    <attribute name="box1" value="null"/>
+    <attribute name="box2" value="null"/>
+    
+    <attribute name="con_box1_x" value="0" type="number"/>
+    <attribute name="con_box1_y" value="0" type="number"/>
+    <attribute name="con_box2_x" value="0" type="number"/>
+    <attribute name="con_box2_y" value="0" type="number"/>
+    
+    <method name="isConnector">
+      // just for checking if connector
+    </method>
+    
+    <method name="update">
+      <![CDATA[
+        var wx1 = box1.x + box1.width / 2;
+        var wy1 = box1.y + box1.height / 2;
+        var wx2 = box2.x + box2.width / 2;
+        var wy2 = box2.y + box2.height / 2;
+        
+        box1.findNextHandle(wx2, wy2);
+        box2.findNextHandle(wx1, wy1);
+        
+        this.con_box1_x = box1.getNextHandleX();
+        this.con_box1_y = box1.getNextHandleY();
+        this.con_box2_x = box2.getNextHandleX();
+        this.con_box2_y = box2.getNextHandleY();
+        
+        this.setX((this.con_box1_x + this.con_box2_x - this.hSize) / 2);
+        this.setY((this.con_box1_y + this.con_box2_y - this.hSize) / 2);
+        this.setWidth(this.hSize);
+        this.setHeight(this.hSize);
+        this.setVisible(true);
+        
+        this.redraw();
+		parent.redraw();
+      ]]>
+    </method>
+    
+    <method name="redraw">
+      <![CDATA[
+        this.clear();
+        this.fillStyle = 0xa0f0a0;
+        this.strokeStyle = 0x000000;
+        this.lineWidth = 1;
+        this.globalAlpha = 1.0;
+        this.rect(0, 0, this.width, this.height, 0);
+        this.fill();
+        this.stroke();
+      ]]>
+    </method>
+
+<!-- Removes the connector as well as the small control panel even from the database -->
+    <method name="remove">
+      Debug.write("Removing :: " + this["classname"]);
+      parent.remove(this);
+
+	this.setVisible( false );
+      LzFocus.clearFocus();
+      LzModeManager.release( this );
+      Debug.write("what is the parent parent in connector", mydp);
+      parent.parent.parent.sendConnector("delete",box2.id,box1.id,1);
+      Debug.write("What are boxes in delete::", box1.id, box2.id);
+      
+    </method>
+    
+    <method event="onmouseover">
+      parent.connectorPanel.popIn(this);
+    </method>
+    
+    <method event="onmouseout">
+      parent.connectorPanel.popOut(this);
+    </method>
+    
+  </class>
+  
+</library>

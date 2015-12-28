@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+	<security>
+        <allow>
+            <pattern>^org.i4change.app.http.javarpc\.HelpServiceRPC</pattern>
+        </allow>
+    </security>
+    
+    <!-- See WEB-INF/classes/TypesExample.java for java source. -->
+    <javaCallRPC name="helpServiceRPC" scope="webapp" secure="$once{ canvas.javaRPCSecure }" secureport="$once{ canvas.httpport }"
+    		 autoload="false" objectreturntype="javabean"
+    		 remoteclassname="org.i4change.app.http.javarpc.HelpServiceRPC">
+
+        <handler name="onload">
+            // Set buttons visible only after JavaRPC object loads
+            //if ($debug) Debug.write('onload:', this);
+            diagramServiceRPC.load();
+        </handler>
+
+        <handler name="ondata" args="res">
+            //if ($debug) Debug.write('(types ondata) response is:', res);
+        </handler>
+        
+    </javaCallRPC>
+
+</library>

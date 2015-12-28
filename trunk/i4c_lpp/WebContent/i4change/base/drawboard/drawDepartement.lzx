@@ -1,0 +1,808 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+<class name="drawDepartement" extends="drawCompany">
+	
+  	<attribute name="currentdepartementstroke" value="0x2D56FD" />
+  	<attribute name="currentdepartementstrokeDis" value="1" type="number" />
+  	<attribute name="currentdepartementstrokeFill" value="0x89A2FE" />
+  	<attribute name="currentdepartementstrokeFillDis" value="1" type="number" />
+  	<attribute name="currentdepartementlineWidth" value="2" type="number" />
+	
+    <!-- ###########################
+    Companygroup
+     -->
+	<method name="startDepartement">
+		//Debug.write("startRect");
+    	this.currentlayer = new lz.drawViewContainerNew(this,{name:'departement'+this.getCounter(),typeOfObject:'departementTemp',width:this.width+2,height:this.height+2});
+    	new lz.drawViewNew(this.currentlayer,{name:'_departement',typeOfObject:'departement',width:this.width+2,height:this.height+2});
+		this.drawlineOnObject(this.currentlayer._departement,-1,-1,0,0);
+		this.drawlineOnObject(this.currentlayer._departement,this.width,this.height,this.width+1,this.height+1);
+  	</method>  
+    
+    
+    <!-- only used in Flow Diagram -->
+    <method name="endDepartement">
+        <![CDATA[
+            //if ($debug) Debug.write("endDepartement this.startx, this.starty , this.endx, this.endy ",this.startx, this.starty , this.endx, this.endy);
+            this.currentlayer.destroy();
+            
+            //see drawBoardConnector.lzx
+            var posObject = this.calcObjectPos(this.startx,this.endx,this.starty,this.endy,"unit",true,4,40);
+            var x = posObject.x;
+            var y = posObject.y;
+            var width = posObject.width-20;
+            var height = posObject.height-20;
+            
+            //if ($debug) Debug.write("posObject: ",posObject);
+            
+            this.currentlayer = new lz.drawViewContainerNew(this,{name:'departement'+this.getCounter(),
+                    typeOfObject:'departementTemp',labelid:572,doUpdate:false,
+                    x:x,y:y,width:width,height:height});
+            this.currentlayer.sendToBack();
+            ////if ($debug) Debug.write(this.currentlayer,width,height);  
+            new lz.drawViewNewItem(this.currentlayer,{name:'_departement',
+                    typeOfObject:'departement',x:0,y:0,
+                    width:width,height:height});
+            ////if ($debug) Debug.write(this.currentlayer._departement,width,height);
+            //this.currentlayer = new lz.drawViewNew(this,{name:'departement'+this.getCounter(),typeOfObject:'departement',x:x,y:y,width:width,height:height});
+            this.drawDepartementHistory(this.currentlayer,0,0,width,height,this.currentdepartementstroke,this.currentdepartementlineWidth,this.currentdepartementstrokeFill,this.currentdepartementstrokeDis,this.currentdepartementstrokeFillDis);
+            
+            //this.currentlayer._departement.setAttribute('stretches','both');
+            this.drawDepartementFinal(this.currentlayer.name,this.currentdepartementstroke,
+                this.currentdepartementlineWidth,this.currentdepartementstrokeFill,
+                this.currentdepartementstrokeDis,this.currentdepartementstrokeFillDis,
+                x,y,width,height,'',0,null,null,false,new Array(),null);
+            this.checkStepLayers();
+            this.currentlayer.loadObjectIdentifier();
+            this.currentlayer.typeOfObject = "departement";
+            this.currentlayer.doUpdate = true;
+            
+            //check for new Process/Activity/Flow Connections
+            this.checkOrganisationConnectionByNewOrgObject(x,y,width,height,this.currentlayer);
+            this.currentlayer.isOrgObjectItem = true;
+            ////if ($debug) Debug.write("newPositionsObject: ",this.currentlayer.x,this.currentlayer.y);
+        ]]>
+    </method> 
+    
+    <method name="endDepartementDragFlowDiagram" args="x,y">
+        <![CDATA[
+            //if ($debug) Debug.write("endDepartement this.startx, this.starty , this.endx, this.endy ",this.startx, this.starty , this.endx, this.endy);
+            
+            //see drawBoardConnector.lzx
+            var posObject = this.calcObjectPos(x,x,y,y,"unit",true,4,40);
+            var x = posObject.x;
+            var y = posObject.y;
+            var width = posObject.width-20;
+            var height = posObject.height-20;
+            
+            //if ($debug) Debug.write("posObject: ",posObject);
+            
+            this.currentlayer = new lz.drawViewContainerNew(this,{name:'departement'+this.getCounter(),
+                    typeOfObject:'departementTemp',labelid:572,doUpdate:false,
+                    x:x,y:y,width:width,height:height});
+            this.currentlayer.sendToBack();
+            ////if ($debug) Debug.write(this.currentlayer,width,height);  
+            new lz.drawViewNewItem(this.currentlayer,{name:'_departement',
+                    typeOfObject:'departement',x:0,y:0,
+                    width:width,height:height});
+            ////if ($debug) Debug.write(this.currentlayer._departement,width,height);
+            //this.currentlayer = new lz.drawViewNew(this,{name:'departement'+this.getCounter(),typeOfObject:'departement',x:x,y:y,width:width,height:height});
+            this.drawDepartementHistory(this.currentlayer,0,0,width,height,this.currentdepartementstroke,this.currentdepartementlineWidth,this.currentdepartementstrokeFill,this.currentdepartementstrokeDis,this.currentdepartementstrokeFillDis);
+            
+            //this.currentlayer._departement.setAttribute('stretches','both');
+            this.drawDepartementFinal(this.currentlayer.name,this.currentdepartementstroke,
+                this.currentdepartementlineWidth,this.currentdepartementstrokeFill,
+                this.currentdepartementstrokeDis,this.currentdepartementstrokeFillDis,
+                x,y,width,height,'',0,null,null,false,new Array(),null);
+            this.checkStepLayers();
+            this.currentlayer.loadObjectIdentifier();
+            this.currentlayer.typeOfObject = "departement";
+            this.currentlayer.doUpdate = true;
+            
+            //check for new Process/Activity/Flow Connections
+            this.checkOrganisationConnectionByNewOrgObject(x,y,width,height,this.currentlayer);
+            this.currentlayer.isOrgObjectItem = true;
+            ////if ($debug) Debug.write("newPositionsObject: ",this.currentlayer.x,this.currentlayer.y);
+        ]]>
+    </method> 
+
+	<method name="endDepartementPending">
+		<![CDATA[
+			//if ($debug) Debug.write("endDepartement this.startx, this.starty , this.endx, this.endy ",this.startx, this.starty , this.endx, this.endy);
+			this.currentlayer.destroy();
+            
+            //see drawBoardConnector.lzx
+            var posObject = this.calcObjectPos(this.startx,this.endx,this.starty,this.endy,"unit",true,4,40);
+            var x = posObject.x;
+            var y = posObject.y;
+            var width = posObject.width-20;
+            var height = posObject.height-20;
+            
+            //if ($debug) Debug.write("posObject: ",posObject);
+			
+			this.currentlayer = new lz.drawViewContainerNew(this,{name:'departement'+this.getCounter(),
+					typeOfObject:'departementTemp',labelid:572,doUpdate:false,
+					x:x,y:y,width:width,height:height});
+            this.currentlayer.sendToBack();
+			////if ($debug) Debug.write(this.currentlayer,width,height);	
+    		new lz.drawViewNewItem(this.currentlayer,{name:'_departement',
+    				typeOfObject:'departement',x:0,y:0,
+    				width:width,height:height});
+			////if ($debug) Debug.write(this.currentlayer._departement,width,height);
+			//this.currentlayer = new lz.drawViewNew(this,{name:'departement'+this.getCounter(),typeOfObject:'departement',x:x,y:y,width:width,height:height});
+			this.drawDepartementPendingHistory(this.currentlayer,0,0,width,height,
+                this.currentdepartementstroke,this.currentdepartementlineWidth,
+                this.currentdepartementstrokeFill,this.currentdepartementstrokeDis,
+                this.currentdepartementstrokeFillDis);
+			
+			
+			this.checkStepLayers();
+            this.currentlayer.pending = true;
+            this.currentlayer.loadObjectIdentifier();
+            
+            var assigneName = "";
+            var assignee_userId = 0;
+            
+            //Assign the Issue to a User with at least Moderation Rights
+            if (canvas.userobject.level_id > 1){
+                assigneName = canvas.userobject.login;
+                assignee_userId = canvas.userobject.user_id;
+                new lz.styleableTextAssigneePending(this.currentlayer,{
+                    name:'_assignee',
+                    text:canvas.userobject.login,
+                    lastAssigneeUser_id:canvas.userobject.user_id
+                });  
+            } else {
+                var foundMod = false;
+                //for (var eg=0;eg<canvas.orgUserList.length;eg++) {
+                //    if (canvas.orgUserList[eg].level_id > 1){
+                //        foundMod = true;
+                //        assigneName = canvas.orgUserList[eg].login;
+                //        assignee_userId = canvas.orgUserList[eg].user_id;
+                //        new lz.styleableTextAssigneePending(this.currentlayer,{
+                //            name:'_assignee',
+                //            text:canvas.orgUserList[eg].login,
+                //            lastAssigneeUser_id:canvas.orgUserList[eg].user_id
+                //        });  
+                //        break;
+                //    }
+                //}
+                for (var eg=0;eg<canvas.orgUserList.length;eg++) {
+                    ////if ($debug) Debug.write("canvas.orgUserList[eg].orgUser.isModerator: ",canvas.orgUserList[eg].orgUser.isModerator);
+                    if (canvas.orgUserList[eg].orgUser.isModerator){
+                        foundMod = true;
+                        assigneName = canvas.orgUserList[eg].login;
+                        assignee_userId = canvas.orgUserList[eg].user_id;
+                        new lz.styleableTextAssigneePending(this.currentlayer,{
+                            name:'_assignee',
+                            text:canvas.orgUserList[eg].login,
+                            lastAssigneeUser_id:canvas.orgUserList[eg].user_id
+                        });  
+                        break;
+                    } else if (canvas.orgUserList[eg].level_id > 1) {
+                        foundMod = true;
+                        assigneName = canvas.orgUserList[eg].login;
+                        assignee_userId = canvas.orgUserList[eg].user_id;
+                        new lz.styleableTextAssigneePending(this.currentlayer,{
+                            name:'_assignee',
+                            text:canvas.orgUserList[eg].login,
+                            lastAssigneeUser_id:canvas.orgUserList[eg].user_id
+                        });  
+                        break;
+                    }
+                }
+                if (!foundMod) {
+                    //TODO: Throw warning that there is no Moderator available and that you are able
+                    //to make this Role Fixed on your own
+                    assigneName = canvas.userobject.login;
+                    assignee_userId = canvas.userobject.user_id;
+                    new lz.styleableTextAssigneePending(this.currentlayer,{
+                        name:'_assignee',
+                        text:canvas.userobject.login,
+                        lastAssigneeUser_id:canvas.userobject.user_id
+                    });  
+                }
+            }
+            
+            //this.currentlayer._departement.setAttribute('stretches','both');
+            this.drawDepartementFinal(this.currentlayer.name,this.currentdepartementstroke,
+                this.currentdepartementlineWidth,this.currentdepartementstrokeFill,
+                this.currentdepartementstrokeDis,this.currentdepartementstrokeFillDis,
+                x,y,width,height,'',0,assigneName,assignee_userId,true,new Array(),null);
+            
+			this.currentlayer.typeOfObject = "departement";
+            this.currentlayer.doUpdate = true;
+            
+            //check for new Process/Activity/Flow Connections
+            this.checkOrganisationConnectionByNewOrgObject(x,y,width,height,this.currentlayer);
+            this.currentlayer.isOrgObjectItem = true;
+            ////if ($debug) Debug.write("newPositionsObject: ",this.currentlayer.x,this.currentlayer.y);
+		]]>
+	</method> 
+    
+    <method name="endDepartementPendingDrag" args="x,y">
+        <![CDATA[
+            //if ($debug) Debug.write("endDepartement this.startx, this.starty , this.endx, this.endy ",this.startx, this.starty , this.endx, this.endy);
+            
+            //see drawBoardConnector.lzx
+            var posObject = this.calcObjectPos(x,x,y,y,"departement",true,4,40);
+            var x = posObject.x;
+            var y = posObject.y;
+            var width = posObject.width-20;
+            var height = posObject.height-20;
+            
+            //if ($debug) Debug.write("posObject: ",posObject);
+            
+            this.currentlayer = new lz.drawViewContainerNew(this,{name:'departement'+this.getCounter(),
+                    typeOfObject:'departementTemp',labelid:572,doUpdate:false,
+                    x:x,y:y,width:width,height:height});
+            this.currentlayer.sendToBack();
+            ////if ($debug) Debug.write(this.currentlayer,width,height);  
+            new lz.drawViewNewItem(this.currentlayer,{name:'_departement',
+                    typeOfObject:'departement',x:0,y:0,
+                    width:width,height:height});
+            ////if ($debug) Debug.write(this.currentlayer._departement,width,height);
+            //this.currentlayer = new lz.drawViewNew(this,{name:'departement'+this.getCounter(),typeOfObject:'departement',x:x,y:y,width:width,height:height});
+            this.drawDepartementPendingHistory(this.currentlayer,0,0,width,height,
+                this.currentdepartementstroke,this.currentdepartementlineWidth,
+                this.currentdepartementstrokeFill,this.currentdepartementstrokeDis,
+                this.currentdepartementstrokeFillDis);
+            
+            
+            this.checkStepLayers();
+            this.currentlayer.pending = true;
+            this.currentlayer.loadObjectIdentifier();
+            
+            var assigneName = "";
+            var assignee_userId = 0;
+            
+            //Assign the Issue to a User with at least Moderation Rights
+            if (canvas.userobject.level_id > 1){
+                assigneName = canvas.userobject.login;
+                assignee_userId = canvas.userobject.user_id;
+                new lz.styleableTextAssigneePending(this.currentlayer,{
+                    name:'_assignee',
+                    text:canvas.userobject.login,
+                    lastAssigneeUser_id:canvas.userobject.user_id
+                });  
+            } else {
+                var foundMod = false;
+                for (var eg=0;eg<canvas.orgUserList.length;eg++) {
+                    ////if ($debug) Debug.write("canvas.orgUserList[eg].orgUser.isModerator: ",canvas.orgUserList[eg].orgUser.isModerator);
+                    if (canvas.orgUserList[eg].orgUser.isModerator){
+                        foundMod = true;
+                        assigneName = canvas.orgUserList[eg].login;
+                        assignee_userId = canvas.orgUserList[eg].user_id;
+                        new lz.styleableTextAssigneePending(this.currentlayer,{
+                            name:'_assignee',
+                            text:canvas.orgUserList[eg].login,
+                            lastAssigneeUser_id:canvas.orgUserList[eg].user_id
+                        });  
+                        break;
+                    } else if (canvas.orgUserList[eg].level_id > 1) {
+                        foundMod = true;
+                        assigneName = canvas.orgUserList[eg].login;
+                        assignee_userId = canvas.orgUserList[eg].user_id;
+                        new lz.styleableTextAssigneePending(this.currentlayer,{
+                            name:'_assignee',
+                            text:canvas.orgUserList[eg].login,
+                            lastAssigneeUser_id:canvas.orgUserList[eg].user_id
+                        });  
+                        break;
+                    }
+                }
+                if (!foundMod) {
+                    //TODO: Throw warning that there is no Moderator available and that you are able
+                    //to make this Role Fixed on your own
+                    assigneName = canvas.userobject.login;
+                    assignee_userId = canvas.userobject.user_id;
+                    new lz.styleableTextAssigneePending(this.currentlayer,{
+                        name:'_assignee',
+                        text:canvas.userobject.login,
+                        lastAssigneeUser_id:canvas.userobject.user_id
+                    });  
+                }
+            }
+            
+            //this.currentlayer._departement.setAttribute('stretches','both');
+            this.drawDepartementFinal(this.currentlayer.name,this.currentdepartementstroke,
+                this.currentdepartementlineWidth,this.currentdepartementstrokeFill,
+                this.currentdepartementstrokeDis,this.currentdepartementstrokeFillDis,
+                x,y,width,height,'',0,assigneName,assignee_userId,true,new Array(),null);
+            
+            this.currentlayer.typeOfObject = "departement";
+            this.currentlayer.doUpdate = true;
+            
+            //check for new Process/Activity/Flow Connections
+            this.checkOrganisationConnectionByNewOrgObject(x,y,width,height,this.currentlayer);
+            this.currentlayer.isOrgObjectItem = true;
+            ////if ($debug) Debug.write("newPositionsObject: ",this.currentlayer.x,this.currentlayer.y);
+        ]]>
+    </method>
+    
+    <method name="loadDepartement" args="txt,objectId,x,y,width,height,newName,pending,assigneUserId,assigneeName,dataCarrierList,propertyMap">
+        <![CDATA[
+            this.currentlayer = new lz.drawViewContainerNew(this,{name:newName,
+                    typeOfObject:'departementTemp',labelid:572,doUpdate:false,
+                    x:x,y:y,width:width,height:height});
+            this.currentlayer.sendToBack();
+            ////if ($debug) Debug.write(this.currentlayer,width,height);  
+            new lz.drawViewNewItem(this.currentlayer,{name:'_departement',
+                    typeOfObject:'departement',x:0,y:0,
+                    width:width,height:height});
+                    
+            if (pending) {
+                this.drawDepartementPendingHistory(this.currentlayer,0,0,width,height,
+                        this.currentdepartementstroke,this.currentdepartementlineWidth,
+                        this.currentdepartementstrokeFill,this.currentdepartementstrokeDis,
+                        this.currentdepartementstrokeFillDis);
+            } else {
+                ////if ($debug) Debug.write(this.currentlayer._departement,width,height);
+                //this.currentlayer = new lz.drawViewNew(this,{name:'departement'+this.getCounter(),typeOfObject:'departement',x:x,y:y,width:width,height:height});
+                this.drawDepartementHistory(this.currentlayer,0,0,width,height,
+                        this.currentdepartementstroke,this.currentdepartementlineWidth,
+                        this.currentdepartementstrokeFill,this.currentdepartementstrokeDis,
+                        this.currentdepartementstrokeFillDis);
+            }
+            
+            //this.currentlayer._departement.setAttribute('stretches','both');
+            this.drawDepartementFinal(this.currentlayer.name,this.currentdepartementstroke,
+                this.currentdepartementlineWidth,this.currentdepartementstrokeFill,
+                this.currentdepartementstrokeDis,this.currentdepartementstrokeFillDis,
+                x,y,width,height,txt,objectId,assigneeName,assigneUserId,pending,dataCarrierList,propertyMap);
+                
+            this.checkStepLayers();
+            //this.currentlayer.initEditableText(txt);
+            this.currentlayer.typeOfObject = "departement";
+            this.currentlayer.pending = pending;
+            if (pending){
+                this.completedObjectTextObjByLoadingPending(this.currentlayer,txt);
+                new lz.styleableTextAssigneePending(this.currentlayer,{
+                    name:'_assignee',
+                    text:assigneeName,
+                    lastAssigneeUser_id:assigneUserId
+                });    
+            } else {
+                this.completedObjectTextObjByLoading(this.currentlayer,txt);
+            }
+            this.currentlayer.doUpdate = true;
+            //this.autoConnectionHorizontalLines(this.currentlayer);
+            
+        ]]>
+    </method>       
+    
+    <!-- used by the Library in Flow Diagram -->
+    <method name="loadDepartementDragFlowDiagram" args="txt,objectId,x,y,width,height,newName,dataCarrierList,propertyMap">
+        <![CDATA[
+        
+            //see drawBoardConnector.lzx
+            var posObject = this.calcObjectPos(x,x,y,y,"unit",true,4,40);
+            var x = posObject.x;
+            var y = posObject.y;
+            var width = posObject.width-20;
+            var height = posObject.height-20;
+        
+            this.currentlayer = new lz.drawViewContainerNew(this,{name:newName,
+                    typeOfObject:'departementTemp',labelid:572,doUpdate:false,
+                    x:x,y:y,width:width,height:height});
+            this.currentlayer.sendToBack();
+            ////if ($debug) Debug.write(this.currentlayer,width,height);  
+            new lz.drawViewNewItem(this.currentlayer,{name:'_departement',
+                    typeOfObject:'departement',x:0,y:0,
+                    width:width,height:height});
+                    
+
+            ////if ($debug) Debug.write(this.currentlayer._departement,width,height);
+            //this.currentlayer = new lz.drawViewNew(this,{name:'departement'+this.getCounter(),typeOfObject:'departement',x:x,y:y,width:width,height:height});
+            this.drawDepartementHistory(this.currentlayer,0,0,width,height,
+                    this.currentdepartementstroke,this.currentdepartementlineWidth,
+                    this.currentdepartementstrokeFill,this.currentdepartementstrokeDis,
+                    this.currentdepartementstrokeFillDis);
+
+            //this.currentlayer._departement.setAttribute('stretches','both');
+            this.drawDepartementFinal(this.currentlayer.name,this.currentdepartementstroke,
+                this.currentdepartementlineWidth,this.currentdepartementstrokeFill,
+                this.currentdepartementstrokeDis,this.currentdepartementstrokeFillDis,
+                x,y,width,height,txt,objectId,"",0,false,dataCarrierList,propertyMap);
+                
+            this.checkStepLayers();
+            //this.currentlayer.initEditableText(txt);
+            this.currentlayer.typeOfObject = "departement";
+            this.currentlayer.pending = false;
+            this.completedObjectTextObjByLoading(this.currentlayer,txt);
+            this.currentlayer.doUpdate = true;
+            //this.autoConnectionHorizontalLines(this.currentlayer);
+            
+        ]]>
+    </method>      
+    
+  	<method name="drawDepartement" args="x1,y1,x2,y2">
+   		<![CDATA[
+   		
+   			currentlayer._departement.strokeStyle = this.currentdepartementstroke;
+    		currentlayer._departement.fillStyle = this.currentdepartementstrokeFill;
+    		currentlayer._departement.lineWidth = this.currentdepartementlineWidth;
+    		currentlayer._departement.beginPath();
+    		currentlayer._departement.moveTo(x1,y1);
+    		currentlayer._departement.lineTo(x1,y2);
+    		currentlayer._departement.lineTo(x2,y2);
+    		currentlayer._departement.lineTo(x2,y1);
+    		currentlayer._departement.lineTo (x1,y1);
+    		//currentlayer._departement.closePath();
+    		
+    		if (this.currentrectanglestrokeDis!=-1){
+	    		currentlayer._departement.stroke();
+    		}
+
+    		if (this.currentrectanglestrokeFillDis!=-1){
+	    		currentlayer._departement.fill();
+    		}
+    		
+    	]]>   
+  	</method>  
+    
+    <method name="drawDepartementPending" args="x1,y1,x2,y2">
+        <![CDATA[
+            
+            currentlayer._departement.lineWidth = this.currentdepartementlineWidth;
+            currentlayer._departement.fillStyle = this.currentdepartementstrokeFill;
+            currentlayer._departement.beginPath();
+            currentlayer._departement.moveTo(x1,y1);
+            currentlayer._departement.lineTo(x1,y2);
+            currentlayer._departement.lineTo(x2,y2);
+            currentlayer._departement.lineTo(x2,y1);
+            currentlayer._departement.lineTo (x1,y1);
+            //currentlayer._departement.closePath();
+            
+            if (this.currentrectanglestrokeFillDis!=-1){
+                currentlayer._departement.fill();
+            }
+            
+            this.drawDottedLine(currentlayer._departement,x1,y1,x1,y2,this.currentdepartementstroke,this.currentdepartementlineWidth);
+            this.drawDottedLine(currentlayer._departement,x1,y2,x2,y2,this.currentdepartementstroke,this.currentdepartementlineWidth);
+            this.drawDottedLine(currentlayer._departement,x2,y2,x2,y1,this.currentdepartementstroke,this.currentdepartementlineWidth);
+            this.drawDottedLine(currentlayer._departement,x2,y1,x1,y1,this.currentdepartementstroke,this.currentdepartementlineWidth);
+            
+        ]]>   
+    </method> 
+    
+    <!-- only used in hierarchy Diagram -->
+    <method name="endDepartementFixedDrag" args="x,y">
+        <![CDATA[
+            //if ($debug) Debug.write("endDepartement this.startx, this.starty , this.endx, this.endy ",this.startx, this.starty , this.endx, this.endy);
+            var width = canvas.defaultDepartementWidth;
+            var height = canvas.defaultDepartementHeight;
+            
+            var newPositionsObject = this.calcDefaultObjectPositionHierarchical(x,y,width,height);
+            ////if ($debug) Debug.write("newPositionsObject: ",newPositionsObject.x,newPositionsObject.y);
+            var x = newPositionsObject.x;
+            var y = newPositionsObject.y;
+            
+            this.currentlayer = new lz.drawViewContainerNew(this,{name:'departement'+this.getCounter(),
+                    typeOfObject:'departementTemp',labelid:572,doUpdate:false,
+                    x:x,y:y,width:width,height:height});
+            ////if ($debug) Debug.write(this.currentlayer,width,height);  
+            new lz.drawViewNewItem(this.currentlayer,{name:'_departement',
+                    typeOfObject:'departement',x:0,y:0,
+                    width:width,height:height});
+            ////if ($debug) Debug.write(this.currentlayer._departement,width,height);
+            //this.currentlayer = new lz.drawViewNew(this,{name:'departement'+this.getCounter(),typeOfObject:'departement',x:x,y:y,width:width,height:height});
+            this.drawDepartementHistory(this.currentlayer,0,0,width,height,this.currentdepartementstroke,this.currentdepartementlineWidth,this.currentdepartementstrokeFill,this.currentdepartementstrokeDis,this.currentdepartementstrokeFillDis);
+            
+            //this.currentlayer._departement.setAttribute('stretches','both');
+            this.drawFixedDepartementFinal(this.currentlayer.name,this.currentdepartementstroke,
+                this.currentdepartementlineWidth,this.currentdepartementstrokeFill,
+                this.currentdepartementstrokeDis,this.currentdepartementstrokeFillDis,
+                x,y,width,height,'',0,new Array(),null);
+            this.checkStepLayers();
+            this.currentlayer.loadObjectIdentifier();
+            this.currentlayer.typeOfObject = "departementFixed";    
+            this.currentlayer.doUpdate = true;
+            
+            //check for new Process/Activity/Flow Connections
+            this.checkOrganisationConnectionByNewOrgObject(x,y,width,height,this.currentlayer);
+            this.currentlayer.isOrgObjectItem = true;
+            ////if ($debug) Debug.write("newPositionsObject: ",this.currentlayer.x,this.currentlayer.y);
+        ]]>
+    </method> 
+  
+ 	<method name="loadFixedDepartement" args="txt,objectId,x,y,width,height,newName,dataCarrierList,propertyMap">
+		<![CDATA[
+        
+            var width = canvas.defaultUnitWidth;
+            var height = canvas.defaultUnitHeight;
+            
+            var newPositionsObject = this.calcDefaultObjectPositionHierarchical(x,y,width,height);
+            ////if ($debug) Debug.write("newPositionsObject: ",newPositionsObject.x,newPositionsObject.y);
+            var x = newPositionsObject.x;
+            var y = newPositionsObject.y;
+        
+			this.currentlayer = new lz.drawViewContainerNew(this,{name:newName,
+					typeOfObject:'departementTemp',labelid:572,doUpdate:false,
+					x:x,y:y,width:width,height:height});
+			////if ($debug) Debug.write(this.currentlayer,width,height);	
+    		new lz.drawViewNewItem(this.currentlayer,{name:'_departement',
+    				typeOfObject:'departement',x:0,y:0,
+    				width:width,height:height});
+			////if ($debug) Debug.write(this.currentlayer._departement,width,height);
+			//this.currentlayer = new lz.drawViewNew(this,{name:'departement'+this.getCounter(),typeOfObject:'departement',x:x,y:y,width:width,height:height});
+			this.drawDepartementHistory(this.currentlayer,0,0,width,height,this.currentdepartementstroke,this.currentdepartementlineWidth,this.currentdepartementstrokeFill,this.currentdepartementstrokeDis,this.currentdepartementstrokeFillDis);
+			
+			//this.currentlayer._departement.setAttribute('stretches','both');
+			this.drawFixedDepartementFinal(this.currentlayer.name,this.currentdepartementstroke,
+                this.currentdepartementlineWidth,this.currentdepartementstrokeFill,
+                this.currentdepartementstrokeDis,this.currentdepartementstrokeFillDis,
+                x,y,width,height,txt,objectId,dataCarrierList,propertyMap);
+			this.checkStepLayers();
+            this.completedObjectTextObjByLoading(this.currentlayer,txt);
+			//this.currentlayer.initEditableText(txt);
+			this.currentlayer.typeOfObject = "departementFixed";
+            this.currentlayer.doUpdate = true;
+			//this.autoConnectionHorizontalLines(this.currentlayer);
+			
+		]]>
+	</method> 	
+
+<!--
+var x = Math.round(this.startx/(canvas.defaultDepartementWidth*canvas.gridFixedFactor))*(canvas.defaultDepartementWidth*canvas.gridFixedFactor);
+var width = canvas.defaultDepartementWidth;
+
+var y = Math.round(this.starty/(canvas.defaultDepartementHeight*canvas.gridFixedFactor))*(canvas.defaultDepartementHeight*canvas.gridFixedFactor);
+var height = canvas.defaultDepartementHeight;
+
+//if ($debug) Debug.write("x,y,height,width: ",x,y,height,width);
+
+var isFreePosition = false;
+
+while (!isFreePosition) {
+    var foundItem = false;
+    
+    for (var i=0;i<this.subviews.length;i++) {
+        if (this.subviews[i].x == x && this.subviews[i].y == y){
+            foundItem = true;
+        }
+    }
+    
+    if (foundItem){
+        y += (canvas.defaultDepartementHeight*canvas.gridFixedFactor);
+    } else {
+        isFreePosition = true;
+    }
+}
+ -->
+            
+ 	<method name="drawFixedDepartement">
+		<![CDATA[
+			//if ($debug) Debug.write(" this.startx, this.starty , this.endx, this.endy ",this.startx, this.starty , this.endx, this.endy);
+
+            var width = canvas.defaultDepartementWidth;
+            var height = canvas.defaultDepartementHeight;
+            
+            var newPositionsObject = this.calcDefaultObjectPositionHierarchical(this.startx,this.starty,width,height);
+            ////if ($debug) Debug.write("newPositionsObject: ",newPositionsObject.x,newPositionsObject.y);
+            var x = newPositionsObject.x;
+            var y = newPositionsObject.y;
+			
+			this.currentlayer = new lz.drawViewContainerNew(this,{name:'departement'+this.getCounter(),
+					typeOfObject:'departementTemp',labelid:572,doUpdate:false,
+					x:x,y:y,width:width,height:height});
+			////if ($debug) Debug.write(this.currentlayer,width,height);	
+    		new lz.drawViewNewItem(this.currentlayer,{name:'_departement',
+    				typeOfObject:'departement',x:0,y:0,
+    				width:width,height:height});
+			////if ($debug) Debug.write(this.currentlayer._departement,width,height);
+			//this.currentlayer = new lz.drawViewNew(this,{name:'departement'+this.getCounter(),typeOfObject:'departement',x:x,y:y,width:width,height:height});
+			this.drawDepartementHistory(this.currentlayer,0,0,width,height,this.currentdepartementstroke,this.currentdepartementlineWidth,this.currentdepartementstrokeFill,this.currentdepartementstrokeDis,this.currentdepartementstrokeFillDis);
+			
+			//this.currentlayer._departement.setAttribute('stretches','both');
+			this.drawFixedDepartementFinal(this.currentlayer.name,this.currentdepartementstroke,
+                this.currentdepartementlineWidth,this.currentdepartementstrokeFill,
+                this.currentdepartementstrokeDis,this.currentdepartementstrokeFillDis,
+                x,y,width,height,'',0, new Array(),null);
+			this.checkStepLayers();
+			this.currentlayer.loadObjectIdentifier();
+			this.currentlayer.typeOfObject = "departementFixed";	
+            this.currentlayer.doUpdate = true;
+			//this.autoConnectionHorizontalLines(this.currentlayer);
+			
+		]]>
+	</method> 
+  	
+  	<method name="drawDepartementOnTarget" args="targetOBj,x1,y1,x2,y2">
+   		<![CDATA[
+    		
+   			targetOBj._departement.fillStyle = this.currentdepartementstrokeFill;
+   			targetOBj._departement.strokeStyle = this.currentdepartementstroke;
+    		targetOBj._departement.lineWidth = this.currentdepartementlineWidth;
+    		targetOBj._departement.beginPath();
+    		targetOBj._departement.moveTo(x1,y1);
+    		targetOBj._departement.lineTo(x1,y2);
+    		targetOBj._departement.lineTo(x2,y2);
+    		targetOBj._departement.lineTo(x2,y1);
+    		targetOBj._departement.lineTo (x1,y1);
+    		//currentlayer._departement.closePath();
+    		
+    		if (this.currentrectanglestrokeDis!=-1){
+	    		targetOBj._departement.stroke();
+    		}
+
+    		if (this.currentrectanglestrokeFillDis!=-1){
+	    		targetOBj._departement.fill();
+    		}
+    		
+    	]]>   
+  	</method>    
+  	
+  	<method name="drawDepartementToHistory" args="lastActionObject,parentView">
+		this.currentlayer = new lz.drawViewContainerNew(parentView,{name:lastActionObject[lastActionObject.length-1],
+			typeOfObject:'departement',
+			x:lastActionObject[lastActionObject.length-5],y:lastActionObject[lastActionObject.length-4],
+			width:lastActionObject[lastActionObject.length-3],height:lastActionObject[lastActionObject.length-2]});
+		new lz.drawViewNewItem(this.currentlayer,{name:'_departement',typeOfObject:'departement',x:lastActionObject[lastActionObject.length-5],y:lastActionObject[lastActionObject.length-4],width:lastActionObject[lastActionObject.length-3],height:lastActionObject[lastActionObject.length-2]});
+   		this.drawDepartementHistory(this.currentlayer._departement,0,0,lastActionObject[lastActionObject.length-3],lastActionObject[lastActionObject.length-2],lastActionObject[1],lastActionObject[2],lastActionObject[3],lastActionObject[4],lastActionObject[5]);
+  	</method>
+    
+  	<method name="drawDepartementHistory" args="parentObj,x1,y1,x2,y2,stroke,line,fill,strokeDis,fillDis">
+   		<![CDATA[
+    		////if ($debug) Debug.write("drawDepartementHistory",parentObj,x1,y1,x2,y2,stroke,line,fill,strokeDis,fillDis);
+    		parentObj._departement.lineWidth = line;
+    		parentObj._departement.strokeStyle = stroke;
+    		parentObj._departement.fillStyle = fill;
+    		parentObj._departement.beginPath();
+    		parentObj._departement.moveTo(x1,y1);
+    		parentObj._departement.lineTo(x1,y2);
+    		parentObj._departement.lineTo(x2,y2);
+    		parentObj._departement.lineTo(x2,y1);
+    		parentObj._departement.lineTo (x1,y1);
+    		//parentObj._departement.closePath();
+    		
+    		if (strokeDis!=-1){
+	    		parentObj._departement.stroke();
+    		}
+    		
+    		if (fillDis!=-1){
+	    		parentObj._departement.fill();
+    		}
+		
+    	]]>   
+  	</method>  
+    
+    <method name="drawDepartementPendingHistory" args="parentObj,x1,y1,x2,y2,stroke,line,fill,strokeDis,fillDis">
+        <![CDATA[
+            //if ($debug) Debug.write("drawDepartementHistory",parentObj,x1,y1,x2,y2,stroke,line,fill,strokeDis,fillDis);
+            parentObj._departement.lineWidth = line;
+            parentObj._departement.fillStyle = fill;
+            parentObj._departement.beginPath();
+            parentObj._departement.moveTo(x1,y1);
+            parentObj._departement.lineTo(x1,y2);
+            parentObj._departement.lineTo(x2,y2);
+            parentObj._departement.lineTo(x2,y1);
+            parentObj._departement.lineTo (x1,y1);
+            //parentObj._departement.closePath();
+            
+            this.drawDottedLine(currentlayer._departement,x1,y1,x1,y2,stroke,line);
+            this.drawDottedLine(currentlayer._departement,x1,y2,x2,y2,stroke,line);
+            this.drawDottedLine(currentlayer._departement,x2,y2,x2,y1,stroke,line);
+            this.drawDottedLine(currentlayer._departement,x2,y1,x1,y1,stroke,line);
+            
+            if (fillDis!=-1){
+                parentObj._departement.fill();
+            }
+        
+        ]]>   
+    </method>  
+  	
+  	<method name="drawDepartementFinal" args="newName,stroke,line,fill,strokeDis,fillDis,x,y,width,height,currentText,diagramobjectid,assignee,assigneId,pending,dataCarrierList,propertyList" >
+  		//if ($debug) Debug.write("drawrectregisterFinal",newName,stroke,line,fill,strokeDis,fillDis,x,y,width,height);
+		var actionObject = new Array();
+	    actionObject[0] = 'departement';
+	    actionObject[1] = stroke;
+	    actionObject[2] = line;
+	    actionObject[3] = fill;
+	    actionObject[4] = strokeDis;
+	    actionObject[5] = fillDis;
+        actionObject[6] = propertyList;
+        actionObject[7] = dataCarrierList;
+        actionObject[8] = assignee;
+        actionObject[9] = assigneId;
+        actionObject[10] = pending;
+        actionObject[11] = currentText;
+        actionObject[12] = diagramobjectid;     
+        actionObject[13] = this.counter;
+	    actionObject[14] = x;
+	    actionObject[15] = y;
+	    actionObject[16] = width;
+	    actionObject[17] = height;	    
+	    actionObject[18] = newName;
+	    //this.baseactionobjectList.push(actionObject);
+        this.baseactionobjectList.splice(0,0,actionObject);
+	    this.onsharedMessage('draw',actionObject);
+  	</method>
+  	
+  	<method name="drawFixedDepartementFinal" args="newName,stroke,line,fill,strokeDis,fillDis,x,y,width,height,currentText,diagramobjectid,dataCarrierList,propertyList" >
+  		//if ($debug) Debug.write("drawrectregisterFinal",newName,stroke,line,fill,strokeDis,fillDis,x,y,width,height);
+		var actionObject = new Array();
+	    actionObject[0] = 'departementFixed';
+	    actionObject[1] = stroke;
+	    actionObject[2] = line;
+	    actionObject[3] = fill;
+	    actionObject[4] = strokeDis;
+	    actionObject[5] = fillDis;
+        actionObject[6] = propertyList;
+        actionObject[7] = dataCarrierList;
+        actionObject[8] = currentText;
+        actionObject[9] = diagramobjectid;        
+        actionObject[10] = this.counter;
+	    actionObject[11] = x;
+	    actionObject[12] = y;
+	    actionObject[13] = width;
+	    actionObject[14] = height;	    
+	    actionObject[15] = newName;
+	    this.baseactionobjectList.push(actionObject);
+	    this.onsharedMessage('draw',actionObject);
+  	</method>
+  	
+  	<method name="editDepartementTextByValues" args="obj">
+		<![CDATA[
+			if (!this.letterObjectIsActive){
+				//obj._departement.destroy();
+				
+				//this.drawDepartementOnTarget()
+			    if (this.boundingref!=null) {
+                    //if ($debug) Debug.write("REMOVE BOUNDING REF");
+                    this.boundingref.removeIt();
+                }
+                
+			    var txt = obj._textview.getText();
+			    
+			    var _txt = obj._textview.getText();
+				var _fontstyle = obj._textview.fontstyle;
+				var _fontsize = obj._textview.fontsize;
+				var _fgcolor = obj._textview.fgcolor;
+				var _width = obj._textview.width;
+				var _height = obj._textview.height;
+				obj._textview.destroy();
+		        var t = new lz.styleableInputDrawBoard(obj,{name:'_textview',
+					text:_txt,
+					fontstyle:_fontstyle,
+					fontsize:_fontsize,
+					fgcolor:_fgcolor,
+					width:_width,height:_height});
+	        }	
+		]]>
+	</method>
+	
+	<method name="completedDepartementObj" args="obj">
+		//if ($debug) Debug.write("completedDepartementObj: ",obj);
+		var _parentObj = obj.parent;
+		var _txt = obj.getText();
+		var _fontstyle = obj.fontstyle;
+		var _fontsize = obj.fontsize;
+		var _fgcolor = obj.fgcolor;
+		var _width = obj.width;
+		var _height = obj.height;
+		obj.destroy();
+		var t = new lz.styleableTextDrawBoard(_parentObj,{name:'_textview',
+				text:_txt,
+				fontstyle:_fontstyle,
+				fontsize:_fontsize,
+				fgcolor:_fgcolor,
+				width:_width,height:_height});
+        this.updateObjTextByName(_parentObj.name,_txt);
+	</method>
+	
+	<method name="redrawDepartementItemByScaling" args="refObj">
+		//if ($debug) Debug.write("redrawDepartementItemByScaling: ",refObj,refObj.width,refObj.height);
+		refObj._departement.destroy();
+		new lz.drawViewNewItem(refObj,{name:'_departement',
+    				typeOfObject:'departement',x:0,y:0,
+    				width:refObj.width,height:refObj.height});
+    	refObj._departement.sendToBack();
+    	this.drawDepartementOnTarget(refObj,0,0,refObj.width,refObj.height);		
+	</method>
+	
+	
+</class>
+
+</library>

@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<library>
+    
+<class name="helpCenterItemsTable" extends="view" >
+    <attribute name="helpIdsArray" value="null" />
+    <handler name="oninit">
+        <![CDATA[
+            var helpList = canvas.checkCurrentHelpIds();
+            //if ($debug) Debug.write("HelpObjects: ",canvas.checkCurrentHelpIds());
+            this.helpIdsArray = new Array()
+            for (var i=0;i<helpList.length;i++) {
+                helpIdsArray.push(helpList[i][0]);
+            }
+            this.getHelpTopicByHelpIdRange.doCall();
+        ]]>
+    </handler>
+    <method name="reload">
+        <![CDATA[
+	        this.clearContent();
+	        var helpList = canvas.checkCurrentHelpIds();
+	        //if ($debug) Debug.write("HelpObjects: ",canvas.checkCurrentHelpIds());
+	        this.helpIdsArray = new Array()
+	        for (var i=0;i<helpList.length;i++) {
+	            helpIdsArray.push(helpList[i][0]);
+	        }
+	        this.getHelpTopicByHelpIdRange.doCall();
+        ]]>
+    </method>
+    
+    <netRemoteCallRPC name="getHelpTopicByHelpIdRange" funcname="getHelpTopicByHelpIdRange" 
+                      remotecontext="$once{  canvas.helpServiceRPC }" >      
+        <netparam><method name="getValue"> return canvas.sessionId; </method></netparam>
+        <netparam><method name="getValue">return parent.parent.helpIdsArray;</method></netparam>
+        <handler name="ondata" args="value">
+            <![CDATA[
+                //if ($debug) Debug.write("getHelpTopicByHelpIdRange: ",value);
+                parent.resultCount.setAttribute('text',canvas.getLabelName(772) 
+                            + value.length + " " + canvas.getLabelName(773) );
+                for (var i=0;i<value.length;i++) {
+                    parent.doAddItem(value[i]);
+                }
+            ]]>
+        </handler>
+    </netRemoteCallRPC>   
+    <netRemoteCallRPC name="searchHelp" funcname="searchHelp" 
+                      remotecontext="$once{  canvas.helpServiceRPC }" >      
+        <netparam><method name="getValue"> return canvas.sessionId; </method></netparam>
+        <netparam><method name="getValue">return "%"+parent.parent.search.getText()+"%";</method></netparam>
+        <netparam><method name="getValue">return  canvas.userlang;</method></netparam>
+        <handler name="ondata" args="value">
+            <![CDATA[
+                //if ($debug) Debug.write("getHelpTopicByHelpIdRange: ",value);
+                parent.resultCount.setAttribute('text',canvas.getLabelName(772) 
+                            + value.length + " " + canvas.getLabelName(773) );
+                for (var i=0;i<value.length;i++) {
+                    parent.doAddItem(value[i]);
+                }  
+            ]]>
+        </handler>
+    </netRemoteCallRPC>     
+    <method name="doAddItem" args="helpItem">
+        new lz.helpCenterItem(this.inner._inn,{helpItem:helpItem});
+    </method>     
+    <method name="clearContent">
+        for (var eg in this.inner._inn.subviews) {
+            this.inner._inn.subviews[eg].destroy();
+        }
+    </method>
+    
+    <!--
+    <labelText x="2" labelid="770" y="4" />
+    <customEdittext name="search" x="120" width="${ parent.width - 120 }" />
+    <simpleLabelButton labelid="771" x="${ parent.width - 120 }" y="26" width="120">
+        <handler name="onclick">
+            parent.clearContent();
+            parent.searchHelp.doCall();
+        </handler>
+    </simpleLabelButton>  
+    
+    <view width="${ parent.width }" y="48" height="2" bgcolor="0xE0E0E0" />
+     -->
+    
+    <view y="5" height="20" width="182" x="99" bgcolor="0xE0E0E0" />
+    <inputtext name="search" x="100" width="180" bgcolor="0xFFFFFF"
+               height="18" fontsize="10" y="6">
+        <handler name="onkeydown" args="k">
+            ////if ($debug) Debug.write("onkeydown: ",k)
+            if (k == 13) {
+                parent.clearContent();
+                parent.searchHelp.doCall();
+            }
+        </handler>
+    </inputtext>
+    
+    <view y="6" x="282" bgcolor="0xFFFFFF" width="18" height="18">
+        <view resource="search_help_item_rsc" y="1" x="1" />
+        <handler name="onclick">
+            parent.clearContent();
+            parent.searchHelp.doCall();
+        </handler>
+        <labelTooltip labelid="771" />
+    </view>
+    
+    <view width="${ parent.width }" y="39" height="1" bgcolor="0xE0E0E0" />
+    <view name="inner" width="${ parent.width }"  y="40" clip="true"
+          height="${ parent.height - 56 }">
+        <method name="closeAllItems">
+	        <![CDATA[
+	            for (var i=0;i<this._inn.subviews.length;i++) {
+	                this._inn.subviews[i].closeItem();
+	            }
+	        ]]>
+        </method>    
+        <view name="_inn" layout="axis:y;spacing:1" />
+        <vscrollbar name="_scrollbar" />
+    </view>
+    
+    <view height="1" width="${ parent.width }" 
+          y="${ parent.height - 18 }" bgcolor="0xE0E0E0" />
+    
+    <labelText x="2" name="resultCount" fontsize="10" fontstyle="italic"
+               y="${ parent.height - this.height - 1 }" />
+</class>
+
+</library>

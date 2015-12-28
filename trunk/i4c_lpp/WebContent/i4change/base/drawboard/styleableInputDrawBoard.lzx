@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+    
+<class name="baseStyleableInput" extends="inputtext" x="1" y="1" multiline="true" >
+
+    <!-- TODO: check if needed -->
+    <attribute name="startAdjustHight" value="false" type="boolean" />
+    
+    <attribute name="pending" value="false" type="boolean" />
+    
+    <handler name="oninit">
+        <![CDATA[
+            lz.Focus.setFocus(this); 
+            if (lz.Keys.downKeysArray.length != 1
+                && lz.Keys.downKeysArray[0] != canvas.continousCreationKey ) { 
+                ////if ($debug) Debug.write("Is continous Tool Menu 1");
+                parent.parent.parent.parent.parent.parent._toolBar.doSelectItem("hand_single");
+            }
+        ]]>
+    </handler>
+    
+    <handler name="onkeyup" args="k">
+        if (k==27){
+            ////if ($debug) Debug.write("onkeyup 27: ",k);
+            lz.Focus.clearFocus();
+        }
+    </handler>
+    
+    <handler name="onfocus" args="obj">
+        ////if ($debug) Debug.write("##### onfocus obj",this,parent.name,this.text);
+        parent.parent.updateObjTextByName(parent.name,this.text);
+    </handler>
+
+    <handler name="onblur" args="obj">
+        ////if ($debug) Debug.write("##### onblur obj",this);
+        if (pending){
+            parent.parent.completedObjectTextObjPending(this);
+        } else {
+            parent.parent.completedObjectTextObj(this);
+        }
+    </handler>
+</class>   
+
+<class name="styleableInputDrawBoard" extends="baseStyleableInput"
+		width="${ parent.width-2 }" height="${ parent.height-2 }" />
+        
+<class name="styleableInputDrawBoardPending" extends="baseStyleableInput" pending="true"
+        width="${ parent.width-2 }" height="${ parent.height-20 }" />
+        
+<class name="styleableTextDrawBoard" extends="text" x="1" y="1" multiline="true" 
+		width="${ parent.width-2 }" height="${ parent.height-2 }" >
+
+
+</class>
+
+</library>

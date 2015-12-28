@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+<class name="basePagingListItem" extends="baseContentListItem" height="20"> 
+
+	<attribute name="itemId" value="0" type="number" />
+	
+</class>
+
+</library>

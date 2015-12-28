@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<library>
+
+<class name="myPropertyItem" extends="view">
+    <attribute name="propValue" type="string" value="" />
+    <attribute name="propObj" value="null" />
+    <labelText labelid="$once{ parent.propObj.labelid }" width="140"
+               onmouseover="" onmouseout="" resize="false" >
+        <labelTooltip labelid="$once{ parent.parent.propObj.toolTip }" />
+    </labelText>
+    <customEdittext name="_value" x="140" width="160" 
+                    regexpType="$once{ parent.propObj.propertyValidationType.validationValue }"
+                    text="$once{ parent.propValue }">
+        <handler name="onblur">
+            parent.parent.parent.parent.parent.updatePropValue(parent);
+        </handler>
+    </customEdittext>
+</class>
+
+<class name="objectPropertyDetails" extends="view" height="300" >
+    
+    <method name="saveTemp">
+        <![CDATA[
+            ////if ($debug) Debug.write("objectPropertyDetails saveTemp ############## ");
+	        for (var i=0;i<this._innerlist._inn._inn.subviews.length;i++) {
+                this._innerlist._inn._inn.subviews[i]._value.onblur.sendEvent();
+	        }
+        ]]>
+    </method>
+    
+    <labelText x="2" labelid="659" />   
+    
+    <method name="addItem" args="item,propValue">
+        <![CDATA[
+            new lz.myPropertyItem(this._innerlist._inn._inn,{propObj:item,propValue:propValue});
+        ]]>
+    </method>
+    
+    <method name="updatePropValue" args="objRef">
+        parent.parent.parent.parent.updatePropValue(objRef);
+    </method>
+    
+    <view name="_innerlist" x="80">
+        <view name="_inn" >
+            <innerList name="_inn" />
+        </view>
+    </view>
+    
+</class>
+
+</library>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+    
+    <resource name="_delete_parentDiagramObject_rsc" src="resources/cancel.png" />
+    <resource name="_add_parentDiagramObject_rsc" src="resources/add.png" />
+    
+    <include href="baseSaveDiagramWindow.lzx" />
+    <include href="saveDiagramWindow.lzx" />
+    <include href="updateDiagramWindow.lzx" />
+    <include href="saveAllDiagramWindow.lzx" />
+    
+</library>

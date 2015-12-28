@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<library>
+
+<!--- "System" panel on the dashboard -->
+<class name="pendingOrgs" extends="guiPresenterDasboard" resizeable="true"
+       width="360" height="330" closable="true" labelid="981">
+    <handler name="oninit">
+        //Add Help Item
+        canvas.addCurrentHelpId(49,this.__constructor__.classname);
+    </handler>     
+	<view y="20" bgcolor="white" name="_inner" x="1" width="${ parent.width-2 }" 
+		  height="${ parent.height-21 }" />
+        
+        <view name="regress_issuelist" resource="_regress_issuelist_rsc" x="100" y="22">
+            <handler name="onclick">
+                parent._turnoverlist.getPendingOrganisations.doCall();
+            </handler>
+            <labelTooltip labelid="954" />
+        </view>
+
+        <turnOverList name="_turnoverlist" width="${ parent.width-2 }" height="${ parent.height-22 }" 
+            x="2" y="22" orderby="organisation_id" step="50" asc="true">
+     
+            <handler name="oninit">
+                this.addHeaderItem(164,120);
+                this.addHeaderItem(165,170);
+                this.addHeaderItem(982,54);
+                this.getPendingOrganisations.doCall();
+            </handler>
+            
+            <handler name="oncallnext" >
+                this.getPendingOrganisations.doCall();
+            </handler>
+            
+            <handler name="oncallpre" >     
+                this.getPendingOrganisations.doCall();
+            </handler>
+            
+            <handler name="onclickedItem" args="obj">
+                //Debug.write("onclickedItem",obj,obj.obj);
+                parent._orgadminvalueform.initValueFieldsByObject(obj.obj);
+            </handler>
+            
+            <netRemoteCallRPC name="getPendingOrganisations" 
+                              funcname="getPendingOrganisations" 
+                              remotecontext="$once{  canvas.organisationServiceRPC }" >      
+                <netparam><method name="getValue"> return canvas.sessionId; </method></netparam>
+                <netparam><method name="getValue"> return parent.parent.start; </method></netparam>
+                <netparam><method name="getValue"> return parent.parent.step; </method></netparam>
+                <netparam><method name="getValue"> return parent.parent.orderby; </method></netparam>
+                <netparam><method name="getValue"> return parent.parent.asc; </method></netparam>
+                <handler name="ondata" args="value">
+                    //Debug.write("getOrganisations ",value);
+                    //this.parent.destroy();
+                    this.parent.initValues(value.records);
+                    this.parent.renderContent(value.result);
+                </handler>
+            </netRemoteCallRPC> 
+            
+            <method name="renderContent" args="records">
+                <![CDATA[
+                    this.clearList();
+                    for (var i=0;i<records.length;i++){
+                        new lz.pendingOrgAdminListItem(this._innerlist._inn._inn,{
+                            obj:records[i],organisation_id:records[i].organisation_id,
+                            orgname:records[i].name,userNumber:records[i].user.length});
+                    }
+                ]]>
+            </method>
+    
+        </turnOverList>
+    
+</class> 
+
+</library>

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+    
+<class name="topNavigation" extends="view" x="${ parent.width - this.width }" 
+       layout="axis:x;spacing:2">
+    
+    <attribute name="projectText" value="" type="string" />
+    <attribute name="text" value="" type="string" />
+    
+    <handler name="ontext">
+        this.info_help.setAttribute('visibility','visible');
+        this.info_help.setSource(canvas.getIconPathByName('icon_topbar_help_rsc')); //Former resource="info_help_rsc" 
+        this.info_role.setAttribute('visibility','visible');
+        this.info_role.setSource(canvas.getIconPathByName('icon_topbar_changeoradd_role_rsc'));
+        this.info_org.setAttribute('visibility','visible');
+        this.info_org.setSource(canvas.getIconPathByName('icon_organization_add_rsc'));
+    </handler>
+    
+    <labelText text="${ parent.text }" y="2">
+        <handler name="onclick">
+            quicklinkAct('userSettings')
+        </handler>
+        <labelTooltip labelid="1099" inittwice="true" />
+    </labelText>
+    
+    <labelText text="${ parent.projectText }" y="2" onclick="">
+        <!--
+        <handler name="onclick">
+            quicklinkAct('userSettings')
+        </handler>
+         -->
+        <labelTooltip labelid="1242" inittwice="true" />
+    </labelText>
+    
+    <view name="info_role" width="24" >
+        <handler name="onclick">
+            new lz.changeAndAddRole(canvas,{
+                    currentRoleName:canvas.thishib.currentRole.roleObject.name
+                });
+        </handler>
+        <labelTooltip labelid="1094" inittwice="true" />
+    </view>
+    
+    <view name="info_org" width="24" >
+        <handler name="onclick">
+            
+        </handler>
+        <labelTooltip labelid="1095" inittwice="true" />
+    </view>
+    
+    <view name="info_help" width="24" visibility="hidden">
+        <handler name="onclick">
+            if ($debug) Debug.write("info_help_rsc: ",this);
+            if (hib.userobject.userlevel.level_id == 1){
+                new helpCenter(canvas);
+            } else {
+                new modHelpCenter(canvas);
+            }
+        </handler>
+        <labelTooltip labelid="750" inittwice="true" />
+    </view>
+	
+</class>
+
+</library>

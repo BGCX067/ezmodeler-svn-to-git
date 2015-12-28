@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:lang="http://www.springframework.org/schema/lang"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+                           http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-2.0.xsd">
+    
+    
+    <!-- Class for Methods which can be invoked by the client -->
+    <bean id="websiteservice.service" 
+        class="org.i4change.app.remote.WebsiteService">
+        <property name="application" ref="web.handler" />
+        <property name="webItemDaoImpl" ref="i4change.WebItemDaoImpl" />
+        <property name="webItemTypeDaoImpl" ref="i4change.WebItemTypeDaoImpl" />
+        <property name="webItemRelationDaoImpl" ref="i4change.WebItemRelationDaoImpl" />
+    </bean> 
+    
+    <bean id="i4change.WebItemRelationDaoImpl"
+        class="org.i4change.app.data.website.daos.WebItemRelationDaoImpl">
+        <property name="webItemDaoImpl" ref="i4change.WebItemDaoImpl" />
+    </bean>  
+    
+    <bean id="i4change.WebItemDaoImpl"
+        class="org.i4change.app.data.website.daos.WebItemDaoImpl">
+        <property name="webItemRelationDaoImpl" ref="i4change.WebItemRelationDaoImpl" />
+    </bean>   
+    
+    <bean id="i4change.WebItemTypeDaoImpl"
+        class="org.i4change.app.data.website.daos.WebItemTypeDaoImpl">
+    </bean>   
+    
+    
+    
+</beans>

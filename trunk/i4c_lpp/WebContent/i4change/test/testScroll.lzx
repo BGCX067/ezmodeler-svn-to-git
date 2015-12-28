@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+ <canvas debug="true">
+ 	
+ 	<handler name="oninit">
+ 		this._scrollcontent.dragArea.contentArea.setAttribute('x',-(1200-(canvas.width/2)));
+ 		this._scrollcontent.dragArea.contentArea.setAttribute('y',-(800-(canvas.height/2)));
+ 	</handler>
+ 	
+	<view name="_scrollcontent" width="${ canvas.width }"
+		  height="${ canvas.height }">
+		
+		<view name="contentArea" >
+			<handler name="onx" args="x">
+				Debug.write("x: ",x);
+			</handler>
+			<handler name="ony" args="x">
+				Debug.write("y: ",y);
+			</handler>
+			<view name="_currentBoard" 
+				width="2400" bgcolor="green"
+				height="1600">
+				<view name="_currentBoard" 
+				width="2300" bgcolor="red"
+				height="1500" x="50" y="50" />
+			</view>
+				
+		    <view name="boundboxesView"
+		    	  width="${ parent._currentBoard.width }" 
+		    	  height="${ parent._currentBoard.height }" />
+		</view>		
+		
+		<vscrollbar name="_vscrollbar" />
+    	<hscrollbar name="_hscrollbar" />
+	</view>
+
+ </canvas>
+ 

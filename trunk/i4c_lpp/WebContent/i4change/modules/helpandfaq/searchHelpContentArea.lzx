@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+	
+<class name="searchHelpContentArea" extends="view" >
+	
+	<handler name="oninit">
+		this.getHelpMasterRoot.doCall();
+	</handler>
+	
+	<!--
+	   public WebItemDTO getHelpMasterRoot(String SID) 
+	 -->
+	<netRemoteCallRPC name="getHelpMasterRoot" funcname="getHelpMasterRoot" 
+                      remotecontext="$once{  canvas.websiteServiceRPC }" > 
+        <netparam><method name="getValue">return canvas.sessionId;</method></netparam>
+        <handler name="ondata" args="value">
+            if ($debug) Debug.write("getHelpMasterRoot: ",value);
+            parent.loadContent(value);
+        </handler>
+    </netRemoteCallRPC> 
+	
+	<method name="loadContentByWebItemId" args="webItemId">
+		if ($debug) Debug.write("loadContentByWebItemId ",webItemId);
+		this.getWebItemById.webItemId = webItemId;
+		this.getWebItemById.doCall();
+	</method>
+	
+	<!--
+	public WebItemDTO getWebItemById(String SID, long webItemId)
+	 -->
+    <netRemoteCallRPC name="getWebItemById" funcname="getWebItemById" 
+                      remotecontext="$once{  canvas.websiteServiceRPC }" > 
+        <attribute name="webItemId" value="0" type="number"/>
+        <netparam><method name="getValue">return canvas.sessionId;</method></netparam>
+        <netparam><method name="getValue">return parent.webItemId;</method></netparam>
+        <handler name="ondata" args="value">
+            if ($debug) Debug.write("getWebItemById: ",value);
+            parent.loadContent(value);
+        </handler>
+    </netRemoteCallRPC>
+	 
+	<method name="loadContent" args="dObject">
+		<![CDATA[
+    		this._content._content.destroy();
+    		
+    		if (dObject.webItemType.webItemTypeId == 1) {
+    			
+    			//Don't show arrow to the left
+    			dObject.isRoot = true;
+    			
+                new lz.kaleidoscopeTextBox(this._content,{name:'_content',
+                        headerText:dObject.webItemName,bodyText:dObject.webItemText,
+                        obj:dObject,showMore:false,refRootObj:this
+                    });
+                    
+            } else if (dObject.webItemType.webItemTypeId == 2) {
+                
+            	//Don't show arrow to the left
+                dObject.isRoot = true;
+                
+                new lz.kaleidoscopeImageBox(this._content,{name:'_content',
+                        headerText:dObject.webItemName,
+                        imageURL:dObject.webItemImagepath,
+                        bodyText:dObject.webItemText,
+                        obj:dObject,showMore:false,refRootObj:this
+                    });
+                    
+            } else if (dObject.webItemType.webItemTypeId == 4) {
+                
+                if ($debug) Debug.write("INIT NEW User Defnied ",dObject.userDefiniedType);
+                new lz[dObject.userDefiniedType](this._content,{name:'_content',
+                        headerText:dObject.webItemName,bodyText:dObject.webItemText,
+                        obj:dObject,showMore:false,refRootObj:this
+                    });
+                    
+            } else {
+            	
+            	if ($debug) Debug.warn("Not Handled WebItemType: ",dObject.webItemType.webItemTypeId);
+            	
+            }
+        ]]>
+	</method>
+	
+	<view name="_content" width="${ parent.width }" height="${ parent.height }">
+		<handler name="onwidth" args="w">
+			this._content.setAttribute("width",w);
+		</handler>
+		<handler name="onheight" args="h">
+            this._content.setAttribute("height",h);
+        </handler>
+		<view name="_content" />
+	</view>
+	
+</class>
+
+</library>

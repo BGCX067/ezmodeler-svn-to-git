@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+    
+<class name="addHierarchyOrganization" extends="view" >
+	
+	<method name="doNext">
+		//this.register();
+	</method>
+	
+	<handler name="oninit">
+		canvas._hideAll.setAttribute("visibility","hidden");
+        canvas.currentDiagram = null; 
+        quicklinkAct("hierarchical"); 
+	</handler>
+    
+    <infoIconBox y="0" x="10" width="400"
+                             labelid="1243" /> 
+                             
+    <labelText labelid="1244" width="400" multiline="true"
+                  x="10" y="40" resize="false" />
+    
+                
+</class>
+
+</library>

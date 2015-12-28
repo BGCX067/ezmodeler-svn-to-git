@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+    
+    <resource name="menu_item_availible_rsc" src="resources/apply.png" />
+	
+	<include href="menuItems.lzx" />
+
+</library>

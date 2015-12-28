@@ -1,0 +1,445 @@
+
+<library>
+  
+  <include href="Tools.lzx" />
+  <resource name="right_side" src="resources/right_.png"/>
+
+  <!-- 
+    Implements a panel for drawing and modifying graphs
+    -->
+  <class name="GraphPanel" extends="drawview">
+    <!-- for pooling graph elements -->
+    <BoxPoolManager name="poolmanager"/>
+    
+    <!-- This panel show options for a connection -->
+    <GraphConnectorPanel name="connectorPanel" visible="false"/>
+    
+    <!-- This view is used for dragging connections -->
+    <view name="dragview" x="0" y="0" width="1" height="1" opacity="0.0" bgcolor="blue">
+      <dragstate name="dragging"/>
+      <method event="onx">
+        parent.redraw();
+      </method>
+      <method event="ony">
+        parent.redraw();
+      </method>
+    </view>
+    
+    <!-- Initializing the panel with defaults -->
+    <method name="doinit">
+      this.connections = new Array();
+      this.boxUnderMouse = null;
+      this.boxConnecting = null;
+    </method>
+    
+    <!-- clears and restarts the panel -->
+    <method name="restart">
+      this.connections = new Array();
+      poolmanager.reclaimAll();
+      redraw();
+    </method>
+    
+    <!-- redraws the panel connections, the boxes are drawviews of their own -->
+    <method name="redraw">
+      <![CDATA[
+        this.clear();
+        this.beginPath();
+        
+        this.fillStyle = 0xaaaaaa;
+        this.strokeStyle = 0x000000;
+        this.lineWidth = 2;
+        this.globalAlpha = 1.0;
+  
+        for(var i = 0; i < connections.length; i++) {
+
+/*		var diff=0;
+		diff = this.connections[i].con_box2_x - this.connections[i].con_box1_x;
+
+            Debug.write( " X1 :: " + this.connections[i].con_box1_x);
+            Debug.write( " Y1 :: " + this.connections[i].con_box1_y);
+            Debug.write( " X2 :: " + this.connections[i].con_box2_x);
+            Debug.write( " Y2 :: " + this.connections[i].con_box2_y);
+            Debug.write( " Di :: " + diff);
+            Debug.write( " ======================= ");
+
+          this.moveTo(this.connections[i].con_box1_x, this.connections[i].con_box1_y);
+          this.lineTo(this.connections[i].con_box2_x, this.connections[i].con_box2_y);
+*/
+
+	      var diff=0;
+		var arrowwidth=5;
+		var margin=2;
+		var delta_y = 10;
+		var diff_y = 0;
+		var height_y = 90; // to be in sync with the box width
+
+		diff = this.connections[i].con_box2_x - this.connections[i].con_box1_x;
+
+		diff_y =  this.connections[i].con_box2_y - this.connections[i].con_box1_y;
+
+	    this.moveTo(this.connections[i].con_box1_x, this.connections[i].con_box1_y);
+          this.lineTo(this.connections[i].con_box1_x+diff/2, this.connections[i].con_box1_y);
+	
+          this.moveTo(this.connections[i].con_box1_x+diff/2, this.connections[i].con_box1_y);
+          this.lineTo(this.connections[i].con_box1_x+diff/2, this.connections[i].con_box2_y);
+
+          this.moveTo(this.connections[i].con_box1_x+diff/2, this.connections[i].con_box2_y);
+          this.lineTo(this.connections[i].con_box2_x, this.connections[i].con_box2_y);
+
+          if( diff < 0 )
+		{
+		 	this.moveTo(this.connections[i].con_box2_x+margin, this.connections[i].con_box2_y);
+		      this.lineTo(this.connections[i].con_box2_x + arrowwidth, this.connections[i].con_box2_y - arrowwidth);
+		      this.lineTo(this.connections[i].con_box2_x + arrowwidth, this.connections[i].con_box2_y + arrowwidth);
+		      this.lineTo(this.connections[i].con_box2_x+margin, this.connections[i].con_box2_y);
+
+		}
+	    else 
+		{
+		 	this.moveTo(this.connections[i].con_box2_x-margin, this.connections[i].con_box2_y);
+		      this.lineTo(this.connections[i].con_box2_x- arrowwidth, this.connections[i].con_box2_y - arrowwidth);
+		      this.lineTo(this.connections[i].con_box2_x- arrowwidth, this.connections[i].con_box2_y + arrowwidth);
+		      this.lineTo(this.connections[i].con_box2_x-margin, this.connections[i].con_box2_y);
+
+		}				
+
+	
+        }
+        
+
+        if ( this.boxConnecting != null ) {
+
+          this.boxConnecting.findNextHandle(getMouse('x'), getMouse('y'));
+          this.moveTo(this.boxConnecting.getNextHandleX(), this.boxConnecting.getNextHandleY());
+          this.lineTo(dragview.x, dragview.y);
+
+        }
+	  
+	  
+
+        this.stroke();
+
+
+      ]]>
+    </method>
+    
+    <!-- tests of the two specified boxes are overlapping -->
+    <method name="testIntersection" args="ax1,ay1,ax2,ay2,bx1,by1,bx2,by2">
+      <![CDATA[
+        // test line intersections
+        
+        if ( ax1<=bx1 && bx1<=ax2 && by1<=ay1 && ay1<=by2 ) {
+          return true;
+        }
+        if ( ax1<=bx1 && bx1<=ax2 && by1<=ay2 && ay2<=by2 ) {
+          return true;
+        }
+        if ( ax1<=bx2 && bx2<=ax2 && by1<=ay1 && ay1<=by2 ) {
+          return true;
+        }
+        if ( ax1<=bx2 && bx2<=ax2 && by1<=ay2 && ay2<=by2 ) {
+          return true;
+        }
+        
+        // test contains dots
+        
+        if ( ax1<=bx1 && bx1<=ax2 && ay1<=by1 && by1<=ay2 ) {
+          return true;
+        }
+        if ( bx1<=ax1 && ax1<=bx2 && by1<=ay1 && ay1<=by2 ) {
+          return true;
+        }
+        
+        return false;
+      ]]>
+    </method>
+    
+    <!-- this moves the overlapping boxes -->
+    <method name="adjustDistances">
+      <![CDATA[
+        var changed = true;
+        var subs = this.subviews;
+        var dist = 10;
+        
+        for (var i = 0; i < subs.length; i++) {
+          if ( !subs[i].visible || typeof(subs[i]['checkCursor']) == 'undefined' ) {
+            continue;
+          }
+          subs[i].nx = subs[i].x;
+          subs[i].ny = subs[i].y;
+        }
+      
+        while ( changed ) {
+          changed = false;
+        
+          for (var i = 0; i < subs.length; i++) {
+            if ( !subs[i].visible || typeof(subs[i]['checkCursor']) == 'undefined' ) {
+              continue;
+            }
+        
+            var x1 = subs[i].nx - dist;
+            var y1 = subs[i].ny - dist;
+            var x2 = subs[i].nx + subs[i].width + dist;
+            var y2 = subs[i].ny + subs[i].height + dist;
+        
+            for (var j = 0; j < subs.length; j++) {
+              if ( !subs[j].visible || typeof(subs[j]['checkCursor']) == 'undefined' || i == j ) {
+                continue;
+              }
+
+              var b = testIntersection(x1, y1, x2, y2, subs[j].nx - dist, subs[j].ny - dist,
+                subs[j].nx + subs[j].width + dist, subs[j].ny + subs[j].height + dist);
+              if ( b ) {
+                changed = true;
+                var subX = subs[i].nx < subs[j].nx ? 5 : -5;
+                var subY = subs[i].ny < subs[j].ny ? 5 : -5;
+                subs[i].nx -= subs[i].dragYOnly ? 0 : subX;
+                subs[j].nx += subs[i].dragYOnly ? 0 : subX;
+                subs[i].ny -= subY;
+                subs[j].ny += subY;
+              }
+            }
+          }
+        }
+        
+        var minX = 5;
+        var minY = 5;
+        for (var i = 0; i < subs.length; i++) {
+          if ( !subs[i].visible || typeof(subs[i]['checkCursor']) == 'undefined' ) {
+            continue;
+          }
+          if ( subs[i].nx < minX ) {
+            minX = subs[i].nx;
+          }
+          if ( subs[i].ny < minY ) {
+            minY = subs[i].ny;
+          }
+        }
+        
+        if ( minX < 5 || minY < 5 ) {
+          var offsetX = minX < 5 ? 5-minX : 0;
+          var offsetY = minY < 5 ? 5-minY : 0;
+          for (var i = 0; i < subs.length; i++) {
+            if ( !subs[i].visible || typeof(subs[i]['checkCursor']) == 'undefined' ) {
+              continue;
+            }
+            subs[i].nx = subs[i].nx + offsetX;
+            subs[i].ny = subs[i].ny + offsetY;
+          }
+        }
+        
+        for (var i = 0; i < subs.length; i++) {
+          if ( !subs[i].visible || typeof(subs[i]['checkCursor']) == 'undefined' ) {
+            continue;
+          }
+          if ( subs[i].nx != subs[i].x ) {
+            subs[i].animate("x", subs[i].nx, 300);
+          }
+          if ( subs[i].ny != subs[i].y ) {
+            subs[i].animate("y", subs[i].ny, 300);
+          }
+        }
+      ]]>
+    </method>
+    
+    <!-- this has to be called by boxes, if the mouse cursor is over the box -->
+    <method name="boxUnderMouse" args="box">
+      this.boxUnderMouse = box;
+      Debug.write("Entered box");
+    </method>
+    
+    <!-- this has to be called by boxes, if the mouse leaved the box -->
+    <method name="boxLeftUnderMouse" args="box">
+      if ( box == this.boxUnderMouse ) {
+        Debug.write("Left box");
+        this.boxUnderMouse = null;
+      }
+    </method>
+    
+    <!-- this has to be called by boxes, if the box is dragged with the mouse -->
+    <method name="boxMoving" args="box">
+      for(var i = 0; i &lt; connections.length; i++) {
+        if ( this.connections[i].box1 == box || this.connections[i].box2 == box ) {
+          this.connections[i].update();
+        }
+ 
+      }
+      redraw();
+    </method>
+    
+    <!-- this has to be called by boxes, if dragging the box finished -->
+    <method name="boxMoved" args="box">
+     // adjustDistances();
+    </method>
+    
+    <!-- this is called by boxes, if a connecting process should be started -->
+    <method name="startConnecting" args="from">
+      this.boxConnecting = from;
+      dragview.setX(getMouse('x'));
+      dragview.setY(getMouse('y'));
+      dragview.dragging.apply();
+      Debug.write("Start");
+    </method>
+    
+    <!-- this is called by boxes, if the connecting process stopped -->
+    <method name="endConnecting" args="from">
+      <![CDATA[
+        if ( this.boxConnecting == from ) {
+          dragview.dragging.remove();
+          var cx = getMouse('x');
+          var cy = getMouse('y');
+          var subs = this.subviews;
+          var from_obj=from.id;
+
+          for(var i = 0; i < subs.length; i++) {
+
+            if ( subs[i].visible && subs[i].x <= cx && cx <= subs[i].x + subs[i].width && subs[i].y <= cy && cy <= subs[i].y + subs[i].height ) {
+              if ( typeof(subs[i]['checkConnectFrom']) != 'undefinied' && subs[i].checkConnectFrom(this.boxConnecting) && subs[i] != this.boxConnecting ) {
+                if ( checkConnection(from, subs[i]) == null ) {
+                  var clazz = this.getConnectionClass(from, subs[i]);
+                  if ( clazz != null && clazz != '' ) {
+                    var pool = poolmanager.getPool(this, clazz);
+                    var con = pool.getView();
+                    con.box1 = from;
+                    con.box2 = subs[i];
+                    con.update();
+                    this.connections[this.connections.length] = con;
+                    Debug.write("What are connecting boxes :: ", from.id,subs[i].id);
+                    var to_obj=subs[i].id;
+                    parent.parent.sendConnector("insert",subs[i].id,from.id,1);
+                  }
+                }
+                
+              }
+            }
+          }
+          //Debug.write("what is the parent parent", parent.parent.datasets.mydata);
+          
+          this.boxConnecting = null;
+          redraw();
+
+        }
+      ]]>
+    </method>
+    
+    <!-- this has to return the classname of a newly created connection, if it is empty the connection
+      is not created -->
+    <method name="getConnectionClass" args="box1,box2">
+      return "GraphConnector";
+    </method>
+
+    <!-- this checks, if a connection between two boxes exist. the connection is returned. -->    
+    <method name="checkConnection" args="box1,box2">
+      <![CDATA[
+        var subs = this.subviews;
+        for(var i = 0; i < subs.length; i++) {
+          if ( subs[i].visible && typeof(subs[i]['isConnector']) != 'undefined' ) {
+            if ( (subs[i].box1 == box1 && subs[i].box2 == box2) || (subs[i].box1 == box2 && subs[i].box2 == box1) ) {
+            	Debug.write("What is subs in checkConnection ::" ,subs[i].box1);
+              return subs[i];
+            }
+          }
+        }
+        return null;
+      ]]>
+    </method>
+    
+    <!-- this removes all connections to the specified box -->
+    <method name="removeConnectors" args="to">
+      <![CDATA[
+        var subs = this.subviews;
+        for(var i = 0; i < subs.length; i++) {
+          if ( subs[i].visible && typeof(subs[i]['isConnector']) != 'undefined' ) {
+            if ( subs[i].box1 == to || subs[i].box2 == to ) {
+              remove(subs[i]);
+            this.setVisible( false );
+            LzFocus.clearFocus();
+            LzModeManager.release(this);
+
+	      }
+          }
+        }
+      ]]>
+    </method>
+    
+    <!-- this removes an object (box, connection) from the graph -->
+    <method name="remove" args="o">
+      <![CDATA[
+        if ( typeof(o['isConnector']) != 'undefined' ) {
+          for (var i = 0; i < this.connections.length; i++) {
+            if ( this.connections[i] == o ) {
+              this.connections[i] = this.connections[this.connections.length - 1];
+              this.connections.pop();
+            }
+          }
+        }
+        
+        var pool = poolmanager.getPool(this, o["classname"]);
+        pool.reclaim(o);
+        
+        removeConnectors(o);
+
+        redraw();
+      ]]>
+    </method>
+    
+    <!-- this creates a new box of the specified class and with the given arguments -->
+    <method name="addBoxByClass" args="className,args">
+      var pool = poolmanager.getPool(this, className);
+      var view = pool.getView(args);
+      view.materialize();
+     // adjustDistances();
+      return view;
+    </method>
+    
+    <!-- this opens a dialog with the given name -->
+    <method name="openDialog" args="name,params,okdelegate">
+      if ( typeof(canvas.getAttribute("aspDialogs")) == 'undefined' ) {
+        canvas.setAttribute("aspDialogs", new LzNode());
+      }
+      if ( typeof(canvas.aspDialogs.getAttribute(name)) == 'undefined' ) {
+        var n = new global[name](canvas);
+        canvas.aspDialogs.setAttribute(name, n);
+      }
+      canvas.aspDialogs.getAttribute(name).setOkDelegate(okdelegate);
+      canvas.aspDialogs.getAttribute(name).show(params);
+    </method>
+
+
+      <method name="drawarrowhead" args="x, y">
+        <![CDATA[
+        this.setAttribute( 'x', x );
+        this.setAttribute( 'y', y );
+        
+        // degree to radians && radians to degrees
+     /*   var rad2deg = 180 / Math.PI;
+        var deg2rad = Math.PI / 180;
+*/
+        // draw an arrowhead
+        this.clear();
+        this.linewidth   = 2;
+        this.strokeStyle = 0x000000;
+        this.globalAlpha = 1.0; 
+        
+        this.beginPath();
+        this.moveTo( 0, 0 );
+        this.lineTo( 0, 5 );
+        this.lineTo( 5, 0 );
+        this.lineTo( 5, 0 );
+        this.closePath();
+        this.stroke();
+
+        // Fill it in
+        this.fillStyle = 0x000000;
+        this.fill();
+
+        // rotate it to match line
+        this.setRotation( -1 * ( theta + 135 ) );
+        ]]>
+      </method>
+
+
+
+  </class>
+  
+</library>

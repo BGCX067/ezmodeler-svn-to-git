@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<library> 
+
+<class name="objectOrgItem" extends="baseContentListItem" showhandcursor="false"> 
+
+    <attribute name="obj" value="null" />
+    <attribute name="currentDiagram" value="null" />
+    
+    <handler name="ondblclick">
+        //if ($debug) Debug.write("ondblcick: ",this);
+        canvas.diagramServiceRPC.loadLatestDiagramByIdAndObject(obj.diagramInstanceObject.diagram.diagramId,
+            obj.diagramInstanceObject.diagram);
+    </handler>
+    
+    <turnOverTextItem text="$once{ parent.obj.diagramObject.name }" width="190" />
+    <turnOverTextItem text="$once{ parent.obj.diagramInstanceObject.diagram.name }" width="200" />
+    
+    <attribute name="_tempxValue" type="number" value="0" />
+    <attribute name="_tempyValue" type="number" value="0" />
+    
+    <labelTooltip text="$once{ canvas.getLabelName(810) + 
+        parseDateToStringTime(parent.obj.diagramObject.inserted) }" />
+
+</class>
+
+<class name="objectOrgSelfItem" extends="baseContentListItem" showhandcursor="false"> 
+
+    <attribute name="obj" value="null" />
+    
+    <turnOverTextItem text="$once{ parent.obj.name }" width="150" />
+    <turnOverTextItem text="$once{ parent.obj.diagram }" width="150" />
+
+    <labelTooltip labelid="811" />
+
+</class>
+
+<class name="baseOrgItems" extends="view" y="20" x="16" width="${ parent.width-16 }">
+    
+    <attribute name="baseObject" value="null" />
+    <attribute name="diagramObjectId" value="0" type="number" />
+    
+    <handler name="oninit">
+        this.addHeaderItem(834,190);
+        this.addHeaderItem(835,200);
+    </handler>    
+    
+    <event name="onclickedItem" />
+    
+    <method name="clearList">
+        this._innerlist._inn._inn.destroy();
+        new lz.innerList(this._innerlist._inn,{name:'_inn'});
+    </method>
+    
+    <method name="addHeaderItem" args="labelid,width" >
+        new lz.turnOverListHeaderItem(this._innerlisthead._inn,{
+                labelid:labelid,width:width,
+                subviewsid:this._innerlisthead._inn.subviews.length
+            });
+    </method>    
+    
+    <method name="sendWidthUpdate" args="w,subviewsid" >
+        <![CDATA[
+            ////Debug.write(w,subviewsid,this._innerlist._inn);
+            for (var i=0;i<this._innerlist._inn._inn.subviews.length;i++){
+                this._innerlist._inn._inn.subviews[i].subviews[subviewsid].setAttribute('width',w);
+            }
+        ]]>
+    </method>  
+    
+    <!-- =========  List Header area  =========-->
+
+    <view name="_innerlisthead" height="20" width="${ parent._innerlist.width }" 
+        x="${ parent._innerlist.x }" y="24" clip="true">
+        <view name="_inn" layout="axis:x;spacing:0" />
+    </view> 
+    
+    <!-- =========  List Contents area  =========-->
+    <view name="_innerlist" height="140" x="0" width="${ parent.width }"
+        y="44" clip="true">
+        <view name="_inn" >
+            <innerList name="_inn" />
+        </view>
+        <vscrollbar name="_scrollbar" />
+        <hscrollbar />
+    </view>        
+    
+</class>
+
+<class name="objectOrgItems" extends="baseOrgItems" >
+
+    <method name="doInitNewItemList" args="baseObject,diagramObjectId">
+        this.baseObject = baseObject;
+        this.diagramObjectId = diagramObjectId;
+        if (this.visibility != "hidden") {
+        	this.getOrganizationsByObjects.doCall();
+        }
+    </method>
+    
+    <handler name="onvisible">
+    	if (this.visibility != "hidden") {
+    		this.getOrganizationsByObjects.doCall();
+    	}
+    </handler>
+    
+    <netRemoteCallRPC name="getOrganizationsByObjects" funcname="getOrganizationsByObjects" 
+                      remotecontext="$once{  canvas.diagramServiceRPC }" >      
+        <netparam><method name="getValue"> return canvas.sessionId;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.diagramObjectId;</method></netparam>
+        <netparam><method name="getValue">return canvas.currentdomainObj.organisation_id;</method></netparam>
+        <handler name="ondata" args="value">
+            //The onResult-Handler will be called be the rtmpconnection
+            //if ($debug) Debug.write("getOrganizationsByObjects: ",value);
+            parent.renderContent(value);
+        </handler>  
+    </netRemoteCallRPC>  
+    
+    <method name="renderContent" args="value">
+        <![CDATA[
+            for (var i=0;i<value.length;i++) {
+                new lz.objectOrgItem(this._innerlist._inn._inn,{
+                        obj:value[i]
+                    });
+            }
+
+            var connectList = this.baseObject[this.baseObject.length-9];
+            
+            //if ($debug) Debug.write("connectList: ",connectList);
+            for (var k=0;k<connectList.length;k++) {
+                var found = false;
+                var connectItem = connectList[k];
+                //if ($debug) Debug.write("connectItem",connectItem);
+                var oid = connectItem[0];
+                var diagramObjectId = connectItem[1];
+                //if ($debug) Debug.write("diagramObjectId",diagramObjectId);
+                
+                if (diagramObjectId != 0){
+                    for (var l=0;l<value.length;l++) {
+                        if (value[l].diagramObject.diagramObjectId == diagramObjectId){
+                            found = true;
+                            break;
+                        }
+                    } 
+                }
+                
+                if (!found) {
+                    //if ($debug) Debug.write("diagramObjectId",diagramObjectId);
+                    var obj = new Array();
+                    var baseObject = canvas.currentDiagramRef._scrollcontent.
+                            contentArea._currentBoard.getBaseObjectListItemByName(oid);
+                    obj["name"] = "*"+baseObject[baseObject.length-8];
+                    obj["diagram"] = canvas.currentDiagramRef.currentDiagramMini.btnName;
+                    new lz.objectOrgSelfItem(this._innerlist._inn._inn,{
+	                        obj:obj
+	                    });
+                }
+                
+            }
+        ]]>
+    </method>   
+    
+    <!--
+    <labelText x="0" labelid="809" /> 
+     -->
+    
+    <view x="${ parent.parent.parent.width - 38 }"   resource="messagebox_warning_rsc" onmouseover="" onmouseout="">
+        <labelTooltip labelid="812" />
+    </view>      
+    
+</class>
+
+<class name="objectOrgItemsSidebar"  extends="sideBarPod" labelid="837"
+       iconName="icon_connectedFlows_inspector" contentHeight="184" contentY="20">
+    
+    <attribute name="selectedObj" value="null" />
+    <attribute name="baseObject" value="null" />
+    
+    <method name="setObjectSelectedObj" args="objRef,baseObject,diagramObjectId">
+        <![CDATA[   
+            //init content if not inited yet
+            this.checkContentInitHidden();
+            this.selectedObj = objRef;
+            this.baseObject = baseObject;
+            
+            this.content.clearList();
+            if (this.selectedObj.typeOfObject == "process" 
+                || this.selectedObj.typeOfObject == "activity" 
+                || this.selectedObj.typeOfObject == "inputflow" 
+                || this.selectedObj.typeOfObject == "outputflow"
+                || this.selectedObj.typeOfObject == "processtree") {
+                //if ($debug) Debug.write("setObjectSelectedObj: ",this.baseObject);
+                this.content.doInitNewItemList(baseObject,diagramObjectId);
+            }
+        ]]>  
+    </method>
+    
+    <method name="checkContentInitHidden">
+        if (!this.contentIsInited){
+            new lz.objectOrgItems(this,{name:'content',visibility:'hidden'});
+            this.contentIsInited = true;
+        }
+    </method>       
+    
+    <handler name="contentInit" >
+        new lz.objectOrgItems(this,{name:'content'});
+    </handler>
+    
+</class>
+
+</library>

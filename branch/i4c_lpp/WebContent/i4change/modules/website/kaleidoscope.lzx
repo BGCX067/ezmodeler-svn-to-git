@@ -1,0 +1,539 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<library>
+    
+<!--
+<class name="kaleidoscopeImageBox" extends="view" 
+       width="${ parent.width }" height="$once{ parent.height }">
+    
+    <attribute name="imageName" value="logo_central_rsc" type="string" />
+    
+    <attribute name="showMore" value="true" type="boolean" />
+    
+    <view x="1" y="1" width="${ parent.width-2 }" height="${ parent.height-2 }" stretches="both"
+          resource="$once{ parent.imageName }">
+        
+    </view>
+    
+    <view align="right" 
+        visibility="$once{ (parent.showMore) ? 'visible' : 'hidden' }" 
+          valign="bottom" width="30" height="26">
+        <view resource="enter_next_step"></view>
+    </view>
+    
+</class>
+ -->
+
+<class name="kaleidoscopeTextBox" extends="view" 
+       width="${ parent.width }" height="$once{ parent.height }">
+    
+    <attribute name="headerText" value="" type="string" />
+    <attribute name="bodyText" value="" type="string" />
+    <attribute name="obj" value="null" />
+    <attribute name="refRootObj" value="null" />
+    
+    <attribute name="showMore" value="true" type="boolean" />
+    
+    <view name="_head" x="1" y="2" width="${ parent.width-2 }" height="34" bgcolor="0x3F5B9E">
+        
+        <text x="10" fontstyle="bold" fontsize="14" fgcolor="0xFFFFFF" 
+              text="$once{ parent.parent.headerText }" valign="middle"></text>
+        
+        <view resource="kaleidoscope_textbox_milk" width="${ parent.width }" height="30"
+              stretches="width">
+            
+        </view>
+        
+    </view>
+    
+    <view x="1" width="${ parent.width-2 }" y="34"
+          resource="background_box_shadow" stretches="width" />
+    
+    <view x="1" y="34" width="${ parent.width-2 }" height="${ parent.height-35 }">
+        
+        <text width="${ parent.width }" multiline="true" text="${ parent.parent.bodyText }">
+			
+        </text>
+        
+    </view>
+    
+    <view align="left" 
+          visibility="$once{ (parent.obj.isRoot) ? 'hidden' : 'visible' }" 
+          valign="bottom" width="30" height="26">
+        <view x="4" resource="enter_pre_step">
+            <handler name="onclick">
+                parent.parent.refRootObj.reloadPreContentByObject(parent.parent.obj);
+            </handler>
+            <labelTooltip labelid="1222" />
+        </view>
+    </view>
+    
+    <view align="right" 
+          visibility="$once{ (parent.showMore) ? 'visible' : 'hidden' }" 
+          valign="bottom" width="30" height="26">
+        <view resource="enter_next_step">
+            <handler name="onclick">
+                parent.parent.refRootObj.reloadContentByObject(parent.parent.obj);
+            </handler>
+            <labelTooltip labelid="1222" />
+        </view>
+    </view>
+    
+</class>
+
+<class name="kaleidoscopeImageBox" extends="view" 
+       width="${ parent.width }" height="$once{ parent.height }">
+    
+    <attribute name="headerText" value="" type="string" />
+    <attribute name="bodyText" value="" type="string" />
+    <attribute name="imageURL" value="" type="string" />
+    <attribute name="obj" value="null" />
+    <attribute name="refRootObj" value="null" />
+    
+    <attribute name="showMore" value="true" type="boolean" />
+
+    <view name="_head" x="1" y="2" width="${ parent.width-2 }" height="34" bgcolor="0x3F5B9E">
+        
+        <text x="10" fontstyle="bold" fontsize="14" fgcolor="0xFFFFFF" 
+              text="$once{ parent.parent.headerText }" valign="middle"></text>
+        
+        <view resource="kaleidoscope_textbox_milk" width="${ parent.width }" height="30"
+              stretches="width">
+            
+        </view>
+        
+    </view>
+    
+    <view x="1" width="${ parent.width-2 }" y="34"
+          resource="background_box_shadow" stretches="width" />
+    
+    <selfLoadingImage x="1" y="34" loadingImage="$once{ parent.imageURL }"
+    				  width="${ parent.width-2 }" height="${ parent.height-35 }" />
+    
+    <view align="left" 
+          visibility="$once{ (parent.obj.isRoot) ? 'hidden' : 'visible' }" 
+          valign="bottom" width="30" height="26">
+        <view x="4" resource="enter_pre_step">
+            <handler name="onclick">
+                parent.parent.refRootObj.reloadPreContentByObject(parent.parent.obj);
+            </handler>
+            <labelTooltip labelid="1222" />
+        </view>
+    </view>
+    
+    <view align="right" 
+          visibility="$once{ (parent.showMore) ? 'visible' : 'hidden' }" 
+          valign="bottom" width="30" height="26">
+        <view resource="enter_next_step">
+            <handler name="onclick">
+                parent.parent.refRootObj.reloadContentByObject(parent.parent.obj);
+            </handler>
+            <labelTooltip labelid="1222" />
+        </view>
+    </view>
+    
+</class>
+	
+<class name="kaleidoscopeBaseBox" width="$once{ parent.width/3 }" height="${ parent.height }" 
+	   bgcolor="$once{ canvas.basebgcolorizer }" extends="view">
+	
+	<view bgcolor="0xFFFFFF" x="1" y="1" 
+		  width="${ parent.width - 2 }" height="${ parent.height - 2 }"></view>
+	
+	<attribute name="cellNo" value="0" type="number" />
+	
+    <method name="clear">
+        <![CDATA[
+            if (this.subviews.length != 1) {
+                this.subviews[1].destroy();
+            }
+        ]]>
+    </method>
+</class>	
+
+<!--- "System" panel on the dashboard -->
+<class name="kaleidoscope" extends="view" 
+	  height="${ parent.height }" 
+	  width="$once{ ((canvas.width > 1200 ) ? 1200 : canvas.width )  }" >
+	
+	<!--
+	width="${ ((canvas.width > 1200 ) ? 1200 : canvas.width )  }"
+	 -->
+    
+    <attribute name="webItemId" value="0" type="number" />
+    
+    <attribute name="parentItem" value="null"/>
+    
+    <attribute name="changeOnlyNeeded" value="false" type="boolean" />
+    
+    <attribute name="isAlreadyLoaded" value="false" type="boolean"/>
+    
+    <handler name="oninit">
+    	<![CDATA[
+        	if ($debug) Debug.warn("canvas.websiteServiceRPC: ",canvas.websiteServiceRPC);
+        	
+        	if ($debug) Debug.info("(this.width / this.height)",(this.width / this.height));
+        	
+        	if ( (this.width / this.height) > 1.7) {
+        		
+        		var newWidth = this.height * 1.7;
+        		
+        		if ($debug) Debug.info("Set new width ",newWidth)
+        		this.setAttribute("width", newWidth);
+        		
+        	}
+        	
+            this.getFrontendItems.doCall();
+        ]]>
+    </handler>
+    
+    <method name="initFields" args="parentItem">
+        <![CDATA[
+        
+            this.parentItem = parentItem;
+            this.isAlreadyLoaded = false;
+            
+            if (canvas.loaderVar != null) {
+                canvas.loaderVar.close();
+            }
+        
+	        if (!this.changeOnlyNeeded) {
+	            this.clearAll();
+	        }
+	        
+	        if (this.parentItem.webItemLayout == null || this.parentItem.webItemLayout == "") {
+	        	
+	        	this._content.grip1._animated_x.setAttribute("to",((this._content.width/3))-10);
+                this._content.grip1._animated_y.setAttribute("to",((this._content.height/3))-10);
+                this._content.grip1._animated_x.doStart();
+                this._content.grip1._animated_y.doStart();
+	        	
+                this._content.grip4._animated_x.setAttribute("to",((this._content.width/3)*2)-10);
+                this._content.grip4._animated_y.setAttribute("to",((this._content.height/3)*2)-10);
+                this._content.grip4._animated_x.doStart();
+                this._content.grip4._animated_y.doStart();
+                
+                
+	        } else if (this.parentItem.webItemLayout == "bottomLeftSquare") {
+	        	
+	        	this._content.grip3._animated_x.setAttribute("to",((this._content.width/3)*2)-10);
+	        	this._content.grip3._animated_y.setAttribute("to",((this._content.height/3))-10);
+	        	this._content.grip3._animated_x.doStart();
+	        	this._content.grip3._animated_y.doStart();
+	        	
+	        }
+	        
+	        
+	     ]]>   
+	 </method>
+	 
+	 <method name="doFinishAnimation">
+	 	if (!this.isAlreadyLoaded) {
+	 		this.isAlreadyLoaded = true;
+	 	    this.doLoadValues();
+	 	}
+	 </method>
+	 
+	 <method name="doLoadValues">
+	     <![CDATA[   
+	        var webItems = this.parentItem.childs;
+	        
+	        for (var i=0;i<webItems.length;i++) {
+                
+                if ($debug) Debug.write("webItems[i] ",webItems[i].webItemType.webItemTypeId,webItems[i]);
+                //Text Item
+                var position = webItems[i].position;
+                
+                if (position < 4) {
+                    var parentView = this._content._row1["_cell"+position];
+                } else if (position < 7) {
+                    var parentView = this._content._row2["_cell"+position];
+                } else {
+                    var parentView = this._content._row3["_cell"+position];
+                }
+                
+                var showMore = false;
+                if (webItems[i].childItems != null && webItems[i].childItems.length != 0) {
+                    showMore = true;
+                }
+                
+                parentView.clear();
+                    
+                if (webItems[i].webItemType.webItemTypeId == 1) {
+                    
+                    new lz.kaleidoscopeTextBox(parentView,{
+                            headerText:webItems[i].webItemName,bodyText:webItems[i].webItemText,
+                            obj:webItems[i],showMore:showMore,refRootObj:this
+                        });
+                        
+                } else if (webItems[i].webItemType.webItemTypeId == 2) {
+                
+                    new lz.kaleidoscopeImageBox(parentView,{name:'_content',
+                            headerText:webItems[i].webItemName,
+                            imageURL:webItems[i].webItemImagepath,
+                            bodyText:webItems[i].webItemText,
+                            obj:webItems[i],showMore:showMore,refRootObj:this
+                        });
+                        
+                } else if (webItems[i].webItemType.webItemTypeId == 4) {
+                	
+                	if ($debug) Debug.write("INIT NEW User Defnied ",webItems[i].userDefiniedType);
+                	
+                	new lz[webItems[i].userDefiniedType](parentView,{
+                            headerText:webItems[i].webItemName,bodyText:webItems[i].webItemText,
+                            obj:webItems[i],showMore:showMore,refRootObj:this
+                        });
+                	
+                }
+                
+            }
+        ]]>
+    </method>
+    
+    <method name="reloadContentByObject" args="obj">
+        <![CDATA[
+            //if ($debug) Debug.write("reloadContentByObject: ",obj);
+            if (obj.changeOnlyNeeded) {
+                this.changeOnlyNeeded = true;
+            } else {
+                this.changeOnlyNeeded = false;
+            }
+            this.webItemId = obj.webItemId;
+            this.getWebItemsChilds.doCall();
+        ]]>
+    </method>
+    
+    <method name="reloadPreContentByObject" args="obj">
+        this.clearAll();
+        this.webItemId = obj.parentItems[0].parent_webitem_id;
+        this.getWebItemsParentChilds.doCall();
+    </method>
+    
+    <method name="clearAll">
+        this._content._row1._cell1.clear();
+        this._content._row1._cell2.clear();
+        this._content._row1._cell3.clear();
+        this._content._row2._cell4.clear();
+        this._content._row2._cell5.clear();
+        this._content._row2._cell6.clear();
+        this._content._row3._cell7.clear();
+        this._content._row3._cell8.clear();
+        this._content._row3._cell9.clear();
+    </method>
+    
+    <!-- remotecalls -->
+    
+    <netRemoteCallRPC name="getFrontendItems" funcname="getFrontendItems" 
+        remotecontext="$once{ canvas.websiteServiceRPC }" > 
+        <param><method name="getValue">return canvas.sessionId;</method></param>
+        <handler name="ondata" args="value">
+            if ($debug) Debug.write("webItemId: getFrontendItems ",parent.webItemId,value);
+            parent.initFields(value);
+        </handler>
+    </netRemoteCallRPC>
+    
+    <netRemoteCallRPC name="getWebItemsChilds" funcname="getWebItemsChilds" 
+        remotecontext="$once{ canvas.websiteServiceRPC }" > 
+        <param><method name="getValue">return canvas.sessionId; </method></param>
+        <param><method name="getValue">return parent.parent.webItemId;</method></param>
+        <handler name="ondata" args="value">
+            //if ($debug) Debug.write("webItemId: ",parent.webItemId,value);
+            parent.initFields(value);
+        </handler>
+    </netRemoteCallRPC>  
+    
+    <netRemoteCallRPC name="getWebItemsParentChilds" funcname="getWebItemsParentChilds" 
+        remotecontext="$once{ canvas.websiteServiceRPC }" > 
+        <param><method name="getValue">return canvas.sessionId; </method></param>
+        <param><method name="getValue">return parent.parent.webItemId;</method></param>
+        <handler name="ondata" args="value">
+            //if ($debug) Debug.write("webItemId: ",parent.webItemId,value);
+            parent.initFields(value);
+        </handler>
+    </netRemoteCallRPC>  
+    
+    
+    <view name="_content" height="${ parent.height }" width="${ parent.width }" >
+    	
+    	<handler name="oninit">
+    		this.grip1.handlerUpdate = true;
+    		this.grip2.handlerUpdate = true;
+    		this.grip3.handlerUpdate = true;
+    		this.grip4.handlerUpdate = true;
+    	</handler>
+    	
+	    <view name="_row1" height="$once{ parent.height/3 }"
+	    	  width="${ parent.width }" layout="axis:x;spacing:0">
+	    	
+	    	<kaleidoscopeBaseBox name="_cell1" cellNo="1">
+                <!--
+                <kaleidoscopeTextBox name="_kaleidoscopeTextBox" headerText="Education">
+                    <handler name="oninit">
+                        <![CDATA[
+                        this.setAttribute("bodyText",
+                                "Aqua Button mit Photoshop erstellen « Zopy Blog<br/>" +
+                                "2 Antworten zu “Aqua Button mit Photoshop erstellen”. Andy sagt: ... Photoshop Tutorials Online » Aqua und Chrom Buttons mit Photoshop erstellen sagt: ..." +
+                                "blog.zopy.de/photoshop/aqua-button-mit-photoshop-erstellen/ - 11k - Im Cache - Ähnliche Seiten<br/>" +
+                                "<br/><br/>" +
+                                "Photoshop: Buttons - Aqua Button - ulf-theis.de<br/>" +
+                                "Photoshop » Buttons » Aqua Button Step 1 Neue Datei über + mit beliebigem Hintergrund erstellen. Eine neue Ebene erstellen.<br/>" +
+                                "www.ulf-theis.de/tutorials/photoshop/buttons/aqua-button - 26k - Im Cache - Ähnliche Seiten<br/>"
+                                );
+                       ]]>
+                    </handler>
+                </kaleidoscopeTextBox> 
+                 -->
+            </kaleidoscopeBaseBox> 
+		    
+		    <kaleidoscopeBaseBox name="_cell2" cellNo="2">
+		    	<!--
+                <kaleidoscopeImageBox name="_kaleidoscopeImageBox" imageName="logo_where_rsc" />
+                 -->
+            </kaleidoscopeBaseBox>
+		    
+		    <kaleidoscopeBaseBox name="_cell3" cellNo="3" >
+                <!--
+                <kaleidoscopeTextBox name="_kaleidoscopeTextBox" headerText="Frequently Asked">
+                    <handler name="oninit">
+                        <![CDATA[
+                        this.setAttribute("bodyText",
+                                "Aqua Button mit Photoshop erstellen « Zopy Blog<br/>" +
+                                "2 Antworten zu “Aqua Button mit Photoshop erstellen”. Andy sagt: ... Photoshop Tutorials Online » Aqua und Chrom Buttons mit Photoshop erstellen sagt: ..." +
+                                "blog.zopy.de/photoshop/aqua-button-mit-photoshop-erstellen/ - 11k - Im Cache - Ähnliche Seiten<br/>" +
+                                "<br/><br/>" +
+                                "Photoshop: Buttons - Aqua Button - ulf-theis.de<br/>" +
+                                "Photoshop » Buttons » Aqua Button Step 1 Neue Datei über + mit beliebigem Hintergrund erstellen. Eine neue Ebene erstellen.<br/>" +
+                                "www.ulf-theis.de/tutorials/photoshop/buttons/aqua-button - 26k - Im Cache - Ähnliche Seiten<br/>"
+                                );
+                       ]]>
+                    </handler>
+                </kaleidoscopeTextBox> 
+                 -->
+            </kaleidoscopeBaseBox>
+		    
+	    </view>
+	    
+	    <view name="_row2" height="$once{ parent.height/3 }" y="$once{ parent.height/3 }"
+	    	  width="${ parent.width }" layout="axis:x;spacing:0">
+	    	
+	    	<kaleidoscopeBaseBox name="_cell4" cellNo="4">
+                <!--
+                <kaleidoscopeImageBox name="_kaleidoscopeImageBox" imageName="logo_who_rsc" />
+                 -->
+            </kaleidoscopeBaseBox>
+		    
+		    <kaleidoscopeBaseBox name="_cell5" cellNo="5">
+                <!--
+                <kaleidoscopeImageBox name="_kaleidoscopeImageBox" showMore="false" imageName="logo_central_rsc" />
+                 -->
+            </kaleidoscopeBaseBox>
+		    
+		    <kaleidoscopeBaseBox name="_cell6" cellNo="6">
+                <!--
+                <kaleidoscopeImageBox name="_kaleidoscopeImageBox" imageName="logo_how_rsc" />
+                 -->
+            </kaleidoscopeBaseBox>
+		    
+	    </view>
+	    
+	    <view name="_row3" height="$once{ parent.height/3 }" y="$once{ (parent.height/3)*2 }" 
+	    	  width="${ parent.width }" layout="axis:x;spacing:0">
+	    	
+	    	<kaleidoscopeBaseBox name="_cell7" cellNo="7" >
+                <!--
+                <kaleidoscopeTextBox name="_kaleidoscopeTextBox" headerText="Hang around">
+                    <handler name="oninit">
+                        <![CDATA[
+                        this.setAttribute("bodyText",
+                                "Aqua Button mit Photoshop erstellen « Zopy Blog<br/>" +
+                                "2 Antworten zu “Aqua Button mit Photoshop erstellen”. Andy sagt: ... Photoshop Tutorials Online » Aqua und Chrom Buttons mit Photoshop erstellen sagt: ..." +
+                                "blog.zopy.de/photoshop/aqua-button-mit-photoshop-erstellen/ - 11k - Im Cache - Ähnliche Seiten<br/>" +
+                                "<br/><br/>" +
+                                "Photoshop: Buttons - Aqua Button - ulf-theis.de<br/>" +
+                                "Photoshop » Buttons » Aqua Button Step 1 Neue Datei über + mit beliebigem Hintergrund erstellen. Eine neue Ebene erstellen.<br/>" +
+                                "www.ulf-theis.de/tutorials/photoshop/buttons/aqua-button - 26k - Im Cache - Ähnliche Seiten<br/>"
+                                );
+                       ]]>
+                    </handler>
+                </kaleidoscopeTextBox> 
+                 -->
+            </kaleidoscopeBaseBox>
+		    
+		    <kaleidoscopeBaseBox name="_cell8" cellNo="8">
+                <!--
+                <kaleidoscopeImageBox name="_kaleidoscopeImageBox" imageName="logo_why_rsc" />
+                 -->
+            </kaleidoscopeBaseBox>
+		    
+		    <kaleidoscopeBaseBox name="_cell9" cellNo="9" >
+                <!--
+                <kaleidoscopeTextBox name="_kaleidoscopeTextBox" showMore="false" headerText="Frequently Asked">
+                    <handler name="oninit">
+                        <![CDATA[
+                        this.setAttribute("bodyText",
+                                "Aqua Button mit Photoshop erstellen « Zopy Blog<br/>" +
+                                "2 Antworten zu “Aqua Button mit Photoshop erstellen”. Andy sagt: ... Photoshop Tutorials Online » Aqua und Chrom Buttons mit Photoshop erstellen sagt: ..." +
+                                "blog.zopy.de/photoshop/aqua-button-mit-photoshop-erstellen/ - 11k - Im Cache - Ähnliche Seiten<br/>" +
+                                "<br/><br/>" +
+                                "Photoshop: Buttons - Aqua Button - ulf-theis.de<br/>" +
+                                "Photoshop » Buttons » Aqua Button Step 1 Neue Datei über + mit beliebigem Hintergrund erstellen. Eine neue Ebene erstellen.<br/>" +
+                                "www.ulf-theis.de/tutorials/photoshop/buttons/aqua-button - 26k - Im Cache - Ähnliche Seiten<br/>"
+                                );
+                       ]]>
+                    </handler>
+                </kaleidoscopeTextBox>  
+                 -->
+            </kaleidoscopeBaseBox>
+		    
+	    </view>
+	    
+	    
+	    <kaleidoscopeGripper name="grip1" x="${ (parent.width/3)-10 }" 
+	    					 y="$once{ (parent.height/3)-10 }" />
+        
+        <kaleidoscopeGripper name="grip2" cell_x="1" x="${ ((parent.width/3)*2)-10 }" 
+        					 y="$once{ (parent.height/3)-10 }" />
+        
+        <kaleidoscopeGripper name="grip3" cell_y="1" x="${ (parent.width/3)-10 }" 
+                             y="$once{ ((parent.height/3)*2)-10 }" />
+        
+        <kaleidoscopeGripper name="grip4" cell_x="1" cell_y="1" x="${ ((parent.width/3)*2)-10 }" 
+                             y="$once{ ((parent.height/3)*2)-10 }" />
+    
+    </view>
+    
+    <!--
+    <view resource="background_login_website" align="right" width="173">
+    	
+	    <handler name="oninit">
+	        this.setShadow();
+	    </handler>
+	
+	    <method name="setShadow">
+	        <![CDATA[
+	        if (this.isinited ){
+	            this.normalMC = this.getMCRef();
+	            this.displacementMap = new flash.filters.DropShadowFilter();
+	            this.normalMC.filters = [this.displacementMap];
+	        }
+	        ]]>              
+	    </method>	
+	    
+	    <simpleLabelButton align="right" labelid="1197" width="100" height="24" y="2" >
+	    	<handler name="onmouseover">
+	    		//if ($debug) Debug.write("onmouseover");
+	    	</handler>
+            <handler name="onclick">
+                <![CDATA[
+                    new lz.checkLoginData(canvas);
+                ]]>
+            </handler>
+        </simpleLabelButton>  
+        
+    </view>
+     -->
+    
+    
+    
+</class>
+
+</library>

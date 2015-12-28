@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+    
+    <resource name="drill_down_rsc" src="resources/arrow_down_blue.png" />
+    
+    <resource name="drill_right_rsc" src="resources/arrow_right_blue.png" />
+    <resource name="drill_left_rsc" src="resources/arrow_left_blue.png" />
+
+    <include href="dragView.lzx" />
+    <include href="boundingBoxAll.lzx" />
+    <include href="boundingBoxConnector.lzx" />
+    <include href="boundingBoxReadOnly.lzx" />
+    
+    <include href="zoomBox.lzx" />
+
+</library>

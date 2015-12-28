@@ -1,0 +1,80 @@
+#summary How to checkout, build run and deploy ezModeler
+
+<wiki:toc max_depth="3" /> 
+
+= 1) Requirements =
+
+  * Eclipse
+  * Subclipse or Subversive Plugin for Eclipse
+  * Apache Tomcat 6
+  * Java JDK6
+  * MySQL 5
+  * In order to export diagrams you need additionally !ImageMagick installed and [http://code.google.com/p/openmeetings/wiki/OpenOfficeConverter OpenOffice running as a service]
+
+= 2) Getting the Sourcecode =
+
+=== a) Open perspective "Repository Exploring" in Eclipse ===
+http://ezmodeler.googlecode.com/svn/docu/howtobuild/build_screen1.png
+
+=== b) Add new Repository location ===
+http://ezmodeler.googlecode.com/svn/docu/howtobuild/build_screen2.png
+
+=== c) Navigate to trunk/i4c_lpp and right click/checkout ===
+http://ezmodeler.googlecode.com/svn/docu/howtobuild/build_screen3.png
+
+=== d) Follow the wizzard and checkout ===
+http://ezmodeler.googlecode.com/svn/docu/howtobuild/build_screen4.png
+
+=== e) Progress on downloading ===
+http://ezmodeler.googlecode.com/svn/docu/howtobuild/build_screen5.png
+
+Now you have the code in your workspace. You could now start running the code...
+
+= 3) Deploy the code in Eclipse =
+
+=== a) Open view "Servers" in Eclipse  ===
+http://ezmodeler.googlecode.com/svn/docu/howtobuild/build_screen6.png
+
+=== b) Add new Server  ===
+http://ezmodeler.googlecode.com/svn/docu/howtobuild/build_screen7.png
+
+=== c) Select Apache Tomcat 6  ===
+http://ezmodeler.googlecode.com/svn/docu/howtobuild/build_screen8.png
+
+=== d) Show Eclipse where you have unpacked Apache Tomcat on you disk  ===
+http://ezmodeler.googlecode.com/svn/docu/howtobuild/build_screen9.png
+
+=== e) Add i4c_lpp to the webapps on the right  ===
+http://ezmodeler.googlecode.com/svn/docu/howtobuild/build_screen10.png
+
+=== f) Change user/pass/db in WebContent/WEB-INF/applicationContext.xml  ===
+http://ezmodeler.googlecode.com/svn/docu/howtobuild/build_screen11.png
+
+=== g) Right click on server and publish  ===
+http://ezmodeler.googlecode.com/svn/docu/howtobuild/build_screen12.png
+
+=== h) Right click on server and run/start  ===
+http://ezmodeler.googlecode.com/svn/docu/howtobuild/build_screen14.png
+
+=== i) Open view console and control output  ===
+If everything is OK then see the last lines of code like in that screen here. Your database tables should be automatically created when starting ezModeler.
+http://ezmodeler.googlecode.com/svn/docu/howtobuild/build_screen15.png
+
+=== j) Import Labels and default values  ===
+If this is the first time you run the code you want to import language labels and default values. Goto: http://localhost:8080/i4c_lpp/install
+http://ezmodeler.googlecode.com/svn/docu/howtobuild/build_screen16.png
+
+=== k) Run ezModeler in Web-Browser  ===
+The first time you open the URL the Client will be compiled so it might take some time. You might also give Tomcat more memory: -Xms512m -Xmx1024m (Run->RunConfigurations->Apache Tomcat -> Arguments) compare with this [http://openmeetings.googlecode.com/svn/docs/buildFromSource/deploy_10.png screen] 
+URL to enter to run the client:
+Normal: http://localhost:8080/i4c_lpp/i4change/main.lzx?swf=swf8&lzproxied=solo
+Debug: http://localhost:8080/i4c_lpp/i4change/maindebug.lzx?swf=swf8&lzproxied=solo
+
+http://ezmodeler.googlecode.com/svn/docu/howtobuild/build_screen18.png
+
+
+= 4) Export as .war =
+
+=== a) Right click on project > export > war  ===
+You can use this war to deploy in any Application Server like Tomcat, JBoss, Geronimo, Jetty, ...
+http://ezmodeler.googlecode.com/svn/docu/howtobuild/build_screen17.png

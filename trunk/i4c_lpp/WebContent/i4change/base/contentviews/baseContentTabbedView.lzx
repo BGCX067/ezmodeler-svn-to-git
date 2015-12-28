@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+ 
+<class name="baseContentTabbedView" extends="baseContentView" bgcolor="white"
+       width="${ canvas.width }" height="${ canvas.height-48 }" showhandcursor="false" >
+    
+    <attribute name="labelid" type="number" setter="setLabelId(labelid)" />
+    <attribute name="text" value="" type="string" />
+    <attribute name="currentDiagramMini" value="null" />
+    <attribute name="closeable" value="true" type="boolean" />
+    
+    <attribute name="notifyScrollWheel" value="true" type="boolean" />
+    
+    <method name="setLabelId" args="_labelid" >
+        this.labelid = _labelid;
+        this.setAttribute('text',canvas.getLabelName(this.labelid));
+    </method>
+    
+    <handler name="onmouseover">
+        if (this.notifyScrollWheel) setCurrentMouseWheelObject(this._scrollbar);
+    </handler>
+    <handler name="onmouseout">
+        if (this.notifyScrollWheel) disableCurrentMouseWheelObject();
+    </handler>
+    
+    <handler name="onMenu">
+        canvas._dashboardMenubar.setAttribute('visibility','visible');
+        canvas._roleViewMenubar.setAttribute('visibility','hidden');
+        canvas._processgroupMenubar.setAttribute('visibility','hidden');
+        canvas._hierarchicalMenubar.setAttribute('visibility','hidden');
+        canvas._singleRoleMenubar.setAttribute('visibility','hidden');        
+    </handler>
+    <handler name="oninit">
+        <![CDATA[
+            parent.parent.setActivate(this);
+            var tempWidth = canvas.currentbarmenu.getCurrentSize();
+            this.currentDiagramMini = new lz.presenterminibtn(canvas.currentbarmenu,{objRef:this,
+                                            width:tempWidth,btnName:this.text,closeable:this.closeable});
+            this.onMenu.sendEvent();
+            lz.Browser.loadJS('changeTitle("'+this.text+'")');
+        ]]>
+    </handler>  
+    
+    <method name="activate">
+        //if ($debug) Debug.write("activate: ",this);
+        this.setAttribute('visibility','visible');
+        this.bringToFront();
+        canvas.currentDiagramRef = null;
+       
+        this.onMenu.sendEvent();
+
+        if (this.currentDiagramMini!=null) {
+            ////if ($debug) Debug.write("this.currentDiagramMini.btnName: "+this.currentDiagramMini.btnName);
+            lz.Browser.loadJS('changeTitle("'+this.text+'")');
+        }
+    </method>
+    
+    <handler name="ondestroyByMethod">
+        if (this.destroyByMethod) {
+            if (this._scrollcontent.dragArea.contentArea._currentBoard.currentDiagram != null) {
+                this.currentDiagramTempName = this._scrollcontent.dragArea.contentArea._currentBoard.currentDiagram.name;
+            }
+            this.currentDiagramMini.setAttribute('btnName','*'+this.currentDiagramTempName);
+        } else {
+            if (this._scrollcontent.dragArea.contentArea._currentBoard.currentDiagram != null) {
+                this.currentDiagramTempName = this._scrollcontent.dragArea.contentArea._currentBoard.currentDiagram.name;
+            }
+            this.currentDiagramMini.setAttribute('btnName',this.currentDiagramTempName);
+        }
+    </handler>
+    
+    <handler name="ontabcontentleave">
+        if (this.destroyByMethod){
+            this._scrollcontent.dragArea.contentArea._currentBoard.closeAfterUpdate = true;
+            this._scrollcontent.dragArea.contentArea._currentBoard.showExitDialog();
+        } else {
+            this.doCloseAfterSaveEvent();
+        }
+    </handler>
+    
+    <method name="doCloseAfterSaveEvent">
+        this.currentDiagramMini.destroy();
+        this.destroy();
+        //if ($debug) Debug.write("doCloseAfterSaveEvent: ");
+        if (this.currentDiagramMini.parent.subviews.length!=0){
+            this.currentDiagramMini.parent.subviews[0].onclick.sendEvent();
+        } else {
+            quicklinkAct('mainDashboard');
+        }
+    </method>   
+    
+    <method name="doCheckForBulkUpdates">
+        return this.destroyByMethod;
+    </method>
+    
+    <method name="startCheckForBulkUpdates">
+        if (this.destroyByMethod){
+            this._scrollcontent.dragArea.contentArea._currentBoard.bulkcloseAfterUpdate = true;
+            this._scrollcontent.dragArea.contentArea._currentBoard.showExitDialog();
+            return true;
+        } else {
+            this.currentDiagramMini.destroy();
+            this.destroy();
+            return false;
+        }
+    </method> 
+    
+    <method name="doBulkCloseAfterSaveEvent">
+        this.currentDiagramMini.destroy();
+        this.destroy();
+        ////if ($debug) Debug.write("doBulkCloseAfterSaveEvent: ",parent.parent);
+        parent.parent.confirmSaveEachAsObjectToDatabase();
+    </method>   
+    
+    <!--
+        Loads the Attributes to the Property Inspectors
+     -->
+    <method name="setCurrentSelectedObject" args="refObj">
+        //if ($debug) Debug.write("### setCurrentSelectedObject ### ",refObj);
+        if (this._propertyInspector){
+            this._propertyInspector.setObjectSelectedObj(refObj);
+        }
+    </method>
+    
+</class>
+
+</library>

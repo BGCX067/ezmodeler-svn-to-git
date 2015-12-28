@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:lang="http://www.springframework.org/schema/lang"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+                           http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-2.0.xsd">
+    
+    
+    <!-- Class for Methods which can be invoked by the client -->
+    <bean id="projectservice.service" 
+        class="org.i4change.app.remote.ProjectService">
+        <property name="application" ref="web.handler" />
+        <property name="projectDaoImpl" ref="i4change.ProjectDaoImpl" />
+        <property name="projectRelationDaoImpl" ref="i4change.ProjectRelationDaoImpl" />
+        <property name="organisationDaoImpl" ref="i4change.OrganisationDaoImpl" />
+    </bean> 
+    
+    <bean id="i4change.ProjectDaoImpl"
+        class="org.i4change.app.data.project.daos.ProjectDaoImpl">
+    </bean> 
+    
+    <bean id="i4change.ProjectRelationDaoImpl"
+        class="org.i4change.app.data.project.daos.ProjectRelationDaoImpl">
+    </bean> 
+    
+</beans>

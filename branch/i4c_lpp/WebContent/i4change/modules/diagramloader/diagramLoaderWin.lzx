@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<library>
+
+<!--- "System" panel on the dashboard -->
+<class name="diagramLoaderWin" extends="guiPresenter" resizeable="false"
+       x="$once{ canvas.width/2-this.width/2 }" y="40"
+       width="600" height="400" closable="true" labelid="630" >
+    
+    <handler name="oninit">
+        lz.ModeManager.makeModal(this);
+        canvas.addToCurrentDiagramList(this);
+    </handler>
+    
+    <handler name="onclose">
+        lz.ModeManager.release(this);
+        canvas.removeFromCurrentDiagramList(this);
+    </handler>
+    
+    <method name="updateDiagramRevision" args="diagram">
+        this._diagrams.updateDiagramRevision(diagram);
+    </method>
+    
+    <method name="refreshDiagramRevision" >
+        this._diagrams.refreshDiagramRevision();
+    </method>
+    
+    <view clickable="true" showhandcursor="false" y="20" x="1" width="${ parent.width-2 }" 
+          height="${ parent.height-21 }" ></view>
+    
+    <baseDiagramLoader name="_diagrams" y="22" x="1" width="${ parent.width-2 }" 
+          height="${ parent.height-48 }" >
+        <handler name="onopen">
+            parent.close();
+        </handler>
+    </baseDiagramLoader>
+          
+    <!--
+    <simpleLabelButton name="_ok" labelid="631" width="100" 
+                       x="$once{ parent.width-210 }" y="$once{ parent.height-30 }">
+        <handler name="onclick">
+            
+        </handler>
+    </simpleLabelButton>   
+     --> 
+
+    
+    <simpleLabelButton name="_cancel" labelid="632" width="100" 
+                       x="${ parent.width-104 }" y="${ parent.height-22 }">
+        <handler name="onclick">
+            parent.close();
+        </handler>
+    </simpleLabelButton>           
+        
+</class> 
+
+</library>

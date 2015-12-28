@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+  <class table="presentationtemplate" lazy="false" name="org.i4change.app.hibernate.beans.export.PresentationTemplate">
+    <id column="presentationtemplate_id" name="presentationTemplateId">
+      <generator class="increment"/>
+    </id>
+    <property name="templateName" type="string" column="templateName"/>
+    <property name="templateKey" type="string" column="templateKey"/>
+    <property name="preview" type="string" column="preview"/>
+    <property name="isPublic" type="boolean" column="isPublic"/>
+    <property name="organisationId" type="long" column="organisation_id"/>
+    <property name="insertedby" type="long" column="insertedby"/>
+    <property name="updatedby" type="long" column="updatedby"/>
+    <property name="deleted" type="string" column="deleted"/>
+    <property name="imageWidth" type="double" column="imageWidth"/>
+    <property name="imageHeight" type="double" column="imageHeight"/>
+    <property name="imageX" type="double" column="imageX"/>
+    <property name="imageY" type="double" column="imageY"/>
+    <property name="headSlide" type="text" column="headslide"/>
+    <property name="midSlide" type="text" column="midslide"/>
+    <property name="footSlide" type="text" column="footslide"/>
+    <property name="imagePre" type="text" column="imagepre"/>
+    <property name="graphicStyleIndent" type="int" column="graphicstyleindent"/>
+    <property name="textStyleIndent" type="int" column="textstyleindent"/>
+    <property name="textSpanStyleIndent" type="int" column="textspanstyleindent"/>
+    <property name="footery" type="double" column="footery"/>
+  </class>
+</hibernate-mapping>

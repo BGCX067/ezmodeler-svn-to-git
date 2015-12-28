@@ -1,0 +1,23 @@
+#summary ezModeler Demo Videos
+
+<wiki:toc max_depth="2" />
+
+== Introduction == 
+
+<wiki:video url="http://www.youtube.com/watch?v=UqDywCxfW5Y" />
+
+== Create diagrams and start modeling ==
+
+<wiki:video url="http://www.youtube.com/watch?v=jUEKx05VrEw" />
+
+== Create and finetune a process diagram ==
+
+<wiki:video url="http://www.youtube.com/watch?v=dMXYN8nWbuA" />
+
+== Reuse created graphs, deep-search, browse diagrams ==
+
+<wiki:video url="http://www.youtube.com/watch?v=EopWmAqsYDM" />
+
+== See the HOLE history of all versions of a diagram ==
+
+<wiki:video url="http://www.youtube.com/watch?v=K3xqVEzPAqg" />

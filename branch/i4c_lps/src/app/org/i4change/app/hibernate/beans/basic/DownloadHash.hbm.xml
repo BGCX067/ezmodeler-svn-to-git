@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+  <class table="downloadhash" name="org.i4change.app.hibernate.beans.basic.DownloadHash">
+    <id column="downloadhash_id" name="downloadHashId">
+      <generator class="increment"/>
+    </id>
+    <property name="hash" type="string" column="hash"/>
+    <property name="inserted" type="java.util.Date" column="inserted"/>
+    <property name="downloaded" type="java.util.Date" column="downloaded"/>
+    <property name="absoluteFilePath" type="string" column="absolutefilepath"/>
+    <property name="used" type="boolean" column="used"/>
+    <property name="ip" type="string" column="ip"/>
+  </class>
+</hibernate-mapping>

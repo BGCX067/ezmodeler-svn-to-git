@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+  <class table="project_user" name="org.i4change.app.hibernate.beans.project.ProjectUser">
+    <id column="project_user_id" name="projectUserId">
+      <generator class="increment"/>
+    </id>
+    <property name="projectId" type="long" column="project_id"/>
+    <property name="userId" type="long" column="user_id"/>
+    <property name="inserted" type="java.util.Date" column="inserted"/>
+    <property name="deleted" type="string" column="deleted"/>
+  </class>
+</hibernate-mapping>

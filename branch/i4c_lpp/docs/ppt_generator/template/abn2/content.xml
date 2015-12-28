@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<office:document-content xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0" xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0" xmlns:table="urn:oasis:names:tc:opendocument:xmlns:table:1.0" xmlns:draw="urn:oasis:names:tc:opendocument:xmlns:drawing:1.0" xmlns:fo="urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:meta="urn:oasis:names:tc:opendocument:xmlns:meta:1.0" xmlns:number="urn:oasis:names:tc:opendocument:xmlns:datastyle:1.0" xmlns:presentation="urn:oasis:names:tc:opendocument:xmlns:presentation:1.0" xmlns:svg="urn:oasis:names:tc:opendocument:xmlns:svg-compatible:1.0" xmlns:chart="urn:oasis:names:tc:opendocument:xmlns:chart:1.0" xmlns:dr3d="urn:oasis:names:tc:opendocument:xmlns:dr3d:1.0" xmlns:math="http://www.w3.org/1998/Math/MathML" xmlns:form="urn:oasis:names:tc:opendocument:xmlns:form:1.0" xmlns:script="urn:oasis:names:tc:opendocument:xmlns:script:1.0" xmlns:ooo="http://openoffice.org/2004/office" xmlns:ooow="http://openoffice.org/2004/writer" xmlns:oooc="http://openoffice.org/2004/calc" xmlns:dom="http://www.w3.org/2001/xml-events" xmlns:xforms="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:smil="urn:oasis:names:tc:opendocument:xmlns:smil-compatible:1.0" xmlns:anim="urn:oasis:names:tc:opendocument:xmlns:animation:1.0" xmlns:rpt="http://openoffice.org/2005/report" xmlns:of="urn:oasis:names:tc:opendocument:xmlns:of:1.2" xmlns:rdfa="http://docs.oasis-open.org/opendocument/meta/rdfa#" office:version="1.2">
+    <office:scripts/>
+    <office:automatic-styles>
+        <style:style style:name="dp1" style:family="drawing-page">
+            <style:drawing-page-properties presentation:background-visible="true" presentation:background-objects-visible="true" presentation:display-footer="false" presentation:display-page-number="true" presentation:display-date-time="true"/>
+        </style:style>
+        <style:style style:name="dp2" style:family="drawing-page">
+            <style:drawing-page-properties presentation:display-header="true" presentation:display-footer="true" presentation:display-page-number="false" presentation:display-date-time="true"/>
+        </style:style>
+        <style:style style:name="gr1" style:family="graphic">
+            <style:graphic-properties draw:stroke="none" draw:fill="none" draw:fill-color="#80c9c3" draw:textarea-horizontal-align="justify" draw:textarea-vertical-align="bottom" draw:auto-grow-height="false" fo:padding-top="0.128cm" fo:padding-bottom="0.128cm" fo:padding-left="0cm" fo:padding-right="0.256cm" fo:wrap-option="wrap" draw:shadow="hidden" draw:shadow-color="#999999"/>
+        </style:style>
+        <style:style style:name="gr2" style:family="graphic">
+            <style:graphic-properties draw:stroke="none" draw:fill="none" draw:fill-color="#80c9c3" draw:textarea-horizontal-align="justify" draw:textarea-vertical-align="top" draw:auto-grow-height="true" fo:padding-top="0.13cm" fo:padding-bottom="0.13cm" fo:padding-left="0.3cm" fo:padding-right="0.26cm" fo:wrap-option="no-wrap" draw:shadow="hidden" draw:shadow-color="#999999"/>
+        </style:style>
+        <style:style style:name="gr3" style:family="graphic" style:parent-style-name="standard">
+            <style:graphic-properties draw:stroke="none" draw:fill="none" draw:textarea-horizontal-align="center" draw:textarea-vertical-align="middle" draw:color-mode="standard" draw:luminance="0%" draw:contrast="0%" draw:gamma="100%" draw:red="0%" draw:green="0%" draw:blue="0%" fo:clip="rect(0cm, 0cm, 0cm, 0cm)" draw:image-opacity="100%" style:mirror="none"/>
+        </style:style>
+        <style:style style:name="gr4" style:family="graphic">
+            <style:graphic-properties style:protect="size"/>
+        </style:style>
+        <style:style style:name="pr1" style:family="presentation" style:parent-style-name="Standard-notes">
+            <style:graphic-properties draw:fill-color="#ffffff" fo:min-height="11.216cm"/>
+        </style:style>
+        <style:style style:name="P1" style:family="paragraph">
+            <style:paragraph-properties fo:margin-left="0cm" fo:margin-right="0cm" style:line-height-at-least="0.846cm" fo:text-indent="0cm"/>
+        </style:style>
+        <style:style style:name="P2" style:family="paragraph">
+            <style:paragraph-properties style:writing-mode="lr-tb"/>
+        </style:style>
+        <style:style style:name="P3" style:family="paragraph">
+            <style:paragraph-properties fo:margin-left="0cm" fo:margin-right="0cm" fo:line-height="100%" fo:text-align="center" fo:text-indent="0cm"/>
+        </style:style>
+        <style:style style:name="P4" style:family="paragraph">
+            <style:paragraph-properties fo:text-align="center"/>
+        </style:style>
+        <style:style style:name="T1" style:family="text">
+            <style:text-properties fo:color="#004c4c" fo:font-family="Arial" style:font-family-generic="swiss" style:font-pitch="variable" fo:font-size="24pt" fo:language="en" fo:country="US" fo:font-weight="normal" style:font-size-asian="24pt" style:font-weight-asian="normal" style:font-size-complex="24pt" style:font-weight-complex="normal"/>
+        </style:style>
+        <style:style style:name="T2" style:family="text">
+            <style:text-properties fo:color="#004c4c" fo:font-family="Arial" style:font-family-generic="swiss" style:font-pitch="variable" fo:font-size="9pt" fo:language="en" fo:country="US" style:font-size-asian="9pt" style:font-size-complex="9pt"/>
+        </style:style>
+        <text:list-style style:name="L1">
+            <text:list-level-style-bullet text:level="1" text:bullet-char="●">
+                <style:list-level-properties/>
+                <style:text-properties fo:font-family="StarSymbol" style:use-window-font-color="true" fo:font-size="45%"/>
+            </text:list-level-style-bullet>
+            <text:list-level-style-bullet text:level="2" text:bullet-char="●">
+                <style:list-level-properties text:space-before="0.6cm" text:min-label-width="0.6cm"/>
+                <style:text-properties fo:font-family="StarSymbol" style:use-window-font-color="true" fo:font-size="45%"/>
+            </text:list-level-style-bullet>
+            <text:list-level-style-bullet text:level="3" text:bullet-char="●">
+                <style:list-level-properties text:space-before="1.2cm" text:min-label-width="0.6cm"/>
+                <style:text-properties fo:font-family="StarSymbol" style:use-window-font-color="true" fo:font-size="45%"/>
+            </text:list-level-style-bullet>
+            <text:list-level-style-bullet text:level="4" text:bullet-char="●">
+                <style:list-level-properties text:space-before="1.8cm" text:min-label-width="0.6cm"/>
+                <style:text-properties fo:font-family="StarSymbol" style:use-window-font-color="true" fo:font-size="45%"/>
+            </text:list-level-style-bullet>
+            <text:list-level-style-bullet text:level="5" text:bullet-char="●">
+                <style:list-level-properties text:space-before="2.4cm" text:min-label-width="0.6cm"/>
+                <style:text-properties fo:font-family="StarSymbol" style:use-window-font-color="true" fo:font-size="45%"/>
+            </text:list-level-style-bullet>
+            <text:list-level-style-bullet text:level="6" text:bullet-char="●">
+                <style:list-level-properties text:space-before="3cm" text:min-label-width="0.6cm"/>
+                <style:text-properties fo:font-family="StarSymbol" style:use-window-font-color="true" fo:font-size="45%"/>
+            </text:list-level-style-bullet>
+            <text:list-level-style-bullet text:level="7" text:bullet-char="●">
+                <style:list-level-properties text:space-before="3.6cm" text:min-label-width="0.6cm"/>
+                <style:text-properties fo:font-family="StarSymbol" style:use-window-font-color="true" fo:font-size="45%"/>
+            </text:list-level-style-bullet>
+            <text:list-level-style-bullet text:level="8" text:bullet-char="●">
+                <style:list-level-properties text:space-before="4.2cm" text:min-label-width="0.6cm"/>
+                <style:text-properties fo:font-family="StarSymbol" style:use-window-font-color="true" fo:font-size="45%"/>
+            </text:list-level-style-bullet>
+            <text:list-level-style-bullet text:level="9" text:bullet-char="●">
+                <style:list-level-properties text:space-before="4.8cm" text:min-label-width="0.6cm"/>
+                <style:text-properties fo:font-family="StarSymbol" style:use-window-font-color="true" fo:font-size="45%"/>
+            </text:list-level-style-bullet>
+            <text:list-level-style-bullet text:level="10" text:bullet-char="●">
+                <style:list-level-properties text:space-before="5.4cm" text:min-label-width="0.6cm"/>
+                <style:text-properties fo:font-family="StarSymbol" style:use-window-font-color="true" fo:font-size="45%"/>
+            </text:list-level-style-bullet>
+        </text:list-style>
+    </office:automatic-styles>
+    <office:body>
+        <office:presentation>
+            <presentation:footer-decl presentation:name="ftr1">STRICTLY PRIVATE &amp; CONFIDENTIAL</presentation:footer-decl>
+            <presentation:date-time-decl presentation:name="dtd1" presentation:source="fixed">Cost centre</presentation:date-time-decl>
+            <draw:page draw:name="Slide 1" draw:style-name="dp1" draw:master-page-name="Standard" presentation:use-footer-name="ftr1" presentation:use-date-time-name="dtd1">
+                <office:forms form:automatic-focus="false" form:apply-design-mode="false"/>
+                <draw:custom-shape draw:style-name="gr1" draw:text-style-name="P2" draw:layer="layout" svg:width="25.025cm" svg:height="1.693cm" svg:x="1.548cm" svg:y="0.891cm">
+                    <text:p text:style-name="P1">
+                        <text:span text:style-name="T1">O0 Company Organization (Arial 24 pts bold RGB 0 76 76)</text:span> 
+                    </text:p>
+                    <draw:enhanced-geometry svg:viewBox="0 0 21600 21600" draw:type="rectangle" draw:enhanced-path="M 0 0 L 21600 0 21600 21600 0 21600 0 0 Z N"/>
+                </draw:custom-shape>
+                <draw:custom-shape draw:style-name="gr2" draw:text-style-name="P2" draw:layer="layout" svg:width="8.174cm" svg:height="1.197cm" svg:x="9.281cm" svg:y="18.371cm">
+                    <text:p text:style-name="P3">
+                        <text:span text:style-name="T2">i4Change export to ppt Test 001 v1msp 23mar09.ppt</text:span> 
+                    </text:p>
+                    <draw:enhanced-geometry svg:viewBox="0 0 21600 21600" draw:type="rectangle" draw:enhanced-path="M 0 0 L 21600 0 21600 21600 0 21600 0 0 Z N"/>
+                </draw:custom-shape>
+                <draw:frame draw:style-name="gr3" draw:text-style-name="P4" draw:layer="layout" svg:width="25.6cm" svg:height="14.5cm" svg:x="1.2cm" svg:y="2.8cm">
+                    <draw:image xlink:href="Pictures/1000020100000350000001A8048B372E.png" xlink:type="simple" xlink:show="embed" xlink:actuate="onLoad">
+                        <text:p/>
+                    </draw:image>
+                </draw:frame>
+                <presentation:notes draw:style-name="dp2">
+                    <draw:page-thumbnail draw:style-name="gr4" draw:layer="layout" svg:width="13.445cm" svg:height="9.31cm" svg:x="3.452cm" svg:y="2.349cm" draw:page-number="1" presentation:class="page"/>
+                    <draw:frame presentation:style-name="pr1" draw:layer="layout" svg:width="14.888cm" svg:height="11.474cm" svg:x="2.716cm" svg:y="12.682cm" presentation:class="notes" presentation:placeholder="true">
+                        <draw:text-box/>
+                    </draw:frame>
+                </presentation:notes>
+            </draw:page>
+            <presentation:settings presentation:force-manual="true" presentation:mouse-visible="false"/>
+        </office:presentation>
+    </office:body>
+</office:document-content>

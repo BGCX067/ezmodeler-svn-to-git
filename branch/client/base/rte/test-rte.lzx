@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<canvas debug="true" width="100%" height="100%" >
+    <debug fontsize="12" oninit="Debug.showInternalProperties = true" />
+
+<include href="incubator/lzcombobox.lzx" />
+<include href="library.lzx" />
+
+<button text="hashahsas">
+    <handler name="onclick">
+        new rte(canvas.myRTE,{y:80});
+    </handler>
+</button>
+
+<view name="myRTE" width="200" height="200" clip="true">
+    
+</view>
+
+<!--
+<rte y="80" name="_rte" />
+ -->
+ 
+</canvas>

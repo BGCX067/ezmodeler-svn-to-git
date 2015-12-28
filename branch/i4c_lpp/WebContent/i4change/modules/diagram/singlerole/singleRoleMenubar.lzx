@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+	
+    <class name="singleRoleMenubar" extends="_menubar" height="28" clickable="true"
+           showhandcursor="false">
+        
+        <handler name="oninit">
+	        //Add Help Item
+	        canvas.addCurrentHelpId(17,this.__constructor__.classname);
+	    </handler>
+        
+	    <!-- save menu -->
+	    <fileMenuBar />
+	    <!-- file menu
+	    <_labelMenu labelid="624" width="250">
+	        <_labelMenuItemView labelid="604" command="cmd_showRoleExplorer" 
+                                id="menu_showRoleExplorerSingleRole" />
+            <_labelMenuItemView labelid="626" command="cmd_showRevisionHistory" 
+                                id="menu_showRevisionHistorySingleRole" />
+            <_labelMenuItemView labelid="657" command="cmd_showPropertyInspector" 
+                                id="menu_showPropertyInspectorSingleRole" />
+	    </_labelMenu>  
+         -->  
+	</class>   
+    
+    <class name="singleRoleMenubarAdmin" extends="singleRoleMenubar">
+        <modMenuBarItems />    
+        <adminMenuBarItems />  
+        <usermenuBarItems />
+    </class>    
+    
+    <class name="singleRoleMenubarMod" extends="singleRoleMenubar">
+        <modMenuBarItems />    
+        <usermenuBarItems />
+    </class>    
+    
+    <class name="singleRoleMenubarUser" extends="singleRoleMenubar">
+        <usermenuBarItems />
+    </class>    
+    
+</library>

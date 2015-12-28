@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<library>
+    
+<class name="helpCenterItem" extends="view" bgcolor="0xE0E0E0" 
+       width="${ parent.parent.width }" x="2" height="20">
+    
+    <attribute name="helpItem" value="" type="string" />
+    <attribute name="isOpen" value="false" type="boolean" />
+    
+    <method name="closeItem">
+        if (this.isOpen) {
+            this.doClose.doStart();
+        }
+    </method>
+
+    <labelText labelid="$once{ parent.helpItem.topicLabelId }" y="1"
+               fgcolor="0x2D2DFd" bgcolor="0xE0E0E0" width="${ parent.width }" >
+        <handler name="onmouseover">
+	        this.setAttribute('bgcolor',0xEAEAEA);
+	    </handler>
+	    <handler name="onmouseout">
+	        this.setAttribute('bgcolor',0xE0E0E0);
+	    </handler>
+        <handler name="onclick">
+	        //if ($debug) Debug.write("helpdName: ",this);
+	        if (parent.isOpen) {
+	            parent.doClose.doStart();
+	        } else {
+	            parent.parent.parent.closeAllItems();
+	            parent.doOpen.setAttribute("to",parent._inner.height+22);
+	            parent.doClose.setAttribute('from',parent._inner.height+22);
+	            parent.doOpen.doStart();
+	        }
+	    </handler>
+    </labelText>
+    <labelTooltip labelid="$once{ parent.helpItem.topicLabelId }" />
+    
+    <!--
+    <view bgcolor="0xEFEFEF" height="${ parent.height - 22 }" y="20" width="${ parent.width - 16 }" />
+     -->
+    <labelText name="_inner" bgcolor="0xEFEFEF" 
+               visibility="hidden" multiline="true" width="${ parent.width - 16 }"
+               y="20" labelid="$once{ parent.helpItem.labelId }" />
+    
+    <animator name="doOpen" attribute="height" from="20" to="500" start="false" duration="250" >
+        <handler name="onstop">
+            parent._inner.setAttribute('visibility','visible');
+            parent.isOpen = true;
+            //new lz.rte(this,{y:80});
+        </handler>
+    </animator>
+    <animator name="doClose" attribute="height" from="500" to="20" start="false" duration="250"  >
+        <handler name="onstart">
+            parent._inner.setAttribute('visibility','hidden');
+        </handler>
+        <handler name="onstop">
+            parent.isOpen = false;
+        </handler>
+    </animator>
+    
+</class>
+ 
+</library>

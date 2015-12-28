@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<library>
+
+<class name="diagramSideBarHierarchical" extends="baseDiagramSideBar" >
+    
+    <baseContentElementsSidebar name="_innerSideBar">
+        <propertyInspectorSidebar name="_propertyInspector" />
+        <documentsSidebar name="_documentsSidebar" />
+        <revisionhistorySidebar name="_version" />
+        <diagramObjectConnectedDiagramsSidebar name="_diagramObjectConnectedDiagrams" />
+        <!--
+        //There is not connected Org Object for Hierarchical Objects
+        <objectOrgItemsSidebar name="_objectOrgItemsSidebar" />
+         -->
+        <organisationObjectItemsSidebar name="_organisationObjectItemsSidebar" />
+        <hierarchicalExplorerSidebar name="_libraryObjects" >
+            <handler name="oninit">
+                this.setDiagramObjects(canvas.currentDiagram);
+            </handler>    
+                      
+        </hierarchicalExplorerSidebar>
+        <dataCarrierItemsSidebar name="_dataCarrier" />
+    </baseContentElementsSidebar>
+    
+</class> 
+
+
+</library>

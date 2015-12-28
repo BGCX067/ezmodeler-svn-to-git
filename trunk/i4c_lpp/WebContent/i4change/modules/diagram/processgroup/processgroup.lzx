@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+<!--- Language editor module. You can edit the label for your language. -->
+<class name="processgroup" extends="baseContentDiagramView" 
+       helpId="3" diagramType="processgroup" >
+	
+ 	<handler name="oninit">
+ 		<![CDATA[
+	 		this._scrollcontent.dragArea.contentArea.setAttribute('x',-(canvas.defaultDiagramWidth/2-600));
+	 		this._scrollcontent.dragArea.contentArea.setAttribute('y',-(canvas.defaultDiagramHeight/2-260));
+	 	
+	 		if (canvas.initObjectDiagram!=null){
+	 			//if ($debug) Debug.write("canvas.initObjectDiagram: ",canvas.initObjectDiagram);
+				if (canvas.initObjectDiagram[0] == 'processgroup'){
+					this._scrollcontent.dragArea.contentArea._currentBoard.loadFixedProcessgroup(
+						canvas.initObjectDiagram,
+						canvas.defaultDiagramWidth/2+canvas.defaultProcessGroupWidth/2-canvas.width/2+100,
+						canvas.defaultDiagramHeight/2+canvas.defaultProcessGroupHeight/2-(canvas.height-canvas.naviHeight)/2
+					);
+				}
+	 		}
+ 		]]>
+ 	</handler>
+    
+    <handler name="onMenu">
+        canvas._dashboardMenubar.setAttribute('visibility','hidden');
+        canvas._roleViewMenubar.setAttribute('visibility','hidden');
+        canvas._processgroupMenubar.setAttribute('visibility','visible');
+        canvas._hierarchicalMenubar.setAttribute('visibility','hidden');
+        canvas._singleRoleMenubar.setAttribute('visibility','hidden');
+    </handler>
+    
+    <method name="initWriteDialogs" >
+        this.initWriteDialogsByDiagram(canvas.currentDiagram);
+    </method>
+    
+    <method name="initWriteDialogsByDiagram" args="currentDiagram" >
+        //if its a new Diagram, check if this is created by Drill-Down from another Object
+        if (currentDiagram == null) {
+            //currentDrillDownType is only checked for NEW Diagrams, existing ones check the
+            //if the Attribute *parentDaigramObejctId* is set 
+            if (canvas.currentDrillDownType == null) { 
+                new lz.processGroupToolBar(this,{name:"_toolBar",x:"0",y:"4"});
+            } else if (canvas.currentDrillDownType == "process"){ 
+                //in this case the ProcessGroups are not allowed
+                new lz.processGroupToolBarDrilledDownByProcess(this,{name:"_toolBar",x:"0",y:"4"});
+            } else if (canvas.currentDrillDownType == "processgroup"){ 
+                //in this case the ProcessGroups are allowed
+                new lz.processGroupToolBar(this,{name:"_toolBar",x:"0",y:"4"});
+            } else {
+                //if ($debug) Debug.warn("UNKOWN currentDrillDownType 1: ",canvas.currentDrillDownType);
+                new lz.processGroupToolBar(this,{name:"_toolBar",x:"0",y:"4"});
+            }
+        } else { 
+            //Check if and type of parentDiagramObject
+            if (currentDiagram.parentDiagramObject != null) {
+                if (currentDiagram.parentDiagramObject.objectTypeName == "processtree") {
+                    //in this case the ProcessGroups are not allowed
+                    new lz.processGroupToolBarDrilledDownByProcess(this,{name:"_toolBar",x:"0",y:"4"});
+                } else if(currentDiagram.parentDiagramObject.objectTypeName == "processgroup") {
+                    //in this case the ProcessGroups are allowed
+                    new lz.processGroupToolBar(this,{name:"_toolBar",x:"0",y:"4"});
+                } else {
+                    //if ($debug) Debug.warn("UNKOWN parentDiagramObject objectTypeName 2: ",currentDiagram.parentDiagramObject.objectTypeName);
+                    new lz.processGroupToolBar(this,{name:"_toolBar",x:"0",y:"4"});
+                }
+            } else {
+                //Has no Parent Object so use all Objects
+                new lz.processGroupToolBar(this,{name:"_toolBar",x:"0",y:"4"});
+            }
+        }        
+        
+        //new lz.processExplorer(this,{name:"_processExplorer"});
+    </method>
+    
+    <baseDrawContent name="_scrollcontent" width="${ canvas.width - parent._diagramSideBar.width }"
+          height="${ canvas.height-canvas.naviHeight-20 }">
+		
+        <view name="dragArea">
+            <dragstate name="dragger" />
+            
+            <view name="contentArea" >
+    			<remoteDrawBoard name="_currentBoard" diagramType="1"
+    				width="$once{ canvas.defaultDiagramWidth }" 
+    				height="$once{ canvas.defaultDiagramHeight }" />
+    				
+    		    <view name="boundboxesView"
+    		    	  width="${ parent._currentBoard.width }" 
+    		    	  height="${ parent._currentBoard.height }" />
+    		</view>	
+    			
+		</view>
+		
+		<!--
+        <hEventScrollbar name="_vscrollbar">
+            <handler name="onFinishedDrag">
+                ////if ($debug) Debug.write("onblur: ",this);
+                parent.parent._diagramSideBar.updateSidebar();
+            </handler>
+        </hEventScrollbar>
+        <vEventScrollbar name="_hscrollbar">
+            <handler name="onFinishedDrag">
+                ////if ($debug) Debug.write("onblur: ",this);
+                parent.parent._diagramSideBar.updateSidebar();
+            </handler>
+        </vEventScrollbar>
+         -->
+	</baseDrawContent>
+	
+	<zoomBox name="zoombar" />
+   
+    <diagramSideBarProcess name="_diagramSideBar" />
+
+</class>
+
+</library>

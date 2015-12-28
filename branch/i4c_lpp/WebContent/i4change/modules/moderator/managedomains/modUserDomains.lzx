@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+<!--- User administration module for ADMIN.-->
+<class name="modUserDomains"  extends="baseContentTabbedView" labelid="966">  
+
+    <handler name="oninit">
+        //Add Help Item
+        canvas.addCurrentHelpId(46,this.__constructor__.classname);
+    </handler> 
+    
+    <view>
+        
+        <modUserDomainsValueForm name="_modUserDomainsValueForm" x="0" />
+
+    </view>
+    
+    <vscrollbar name="_scrollbar" />
+    
+</class>
+
+</library>

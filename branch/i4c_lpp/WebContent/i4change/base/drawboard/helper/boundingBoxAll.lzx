@@ -1,0 +1,981 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+<include href="utils/states/resizestatemin.lzx"/>
+
+<!--
+    The order of views is important in this class
+    otherwise the scrollbar of the swfPresentation would be not visible or partly overlayed
+ -->
+ 
+<resource name="edit_s_rsc" src="resources/edit_s.png" />
+    
+<class name="boundingBoxAll" extends="view" focusable="true">
+<!-- 
+    <method name="removeIt">
+        _drawarea.setAttribute('boundingIsActive',true);
+    </method>
+ -->    
+    <method name="removeIt">
+        //Debug.write("removeIt +**********",this.isinited);
+        this.whiteboardRef.setAttribute('boundingIsActive',false);
+        this.whiteboardRef.boundingref = null;
+        if (this.rs) this.rs.remove();
+        if (this.dragger) this.dragger.remove();
+        this._innerDrag._label.destroyLabel();
+        if ($debug) Debug.write("removeIt clearFocus");
+        lz.Focus.clearFocus();
+        this.whiteboardRef.parent.parent.parent.parent.setCurrentSelectedObject(null);
+        if (this.dragZoneContainer != null) {
+        	this.dragZoneContainer.close();
+        	this.dragZoneContainer = null;
+        }
+        this.destroy();
+    </method>
+
+    <attribute name="ex" value="0" type="number" />
+    <attribute name="ey" value="0" type="number" />
+    <attribute name="ewidth" value="0" type="number" />
+    <attribute name="eheight" value="0" type="number" />
+    
+    <attribute name="startdragX" value="0" type="number" />
+    <attribute name="startdragY" value="0" type="number" />
+    <attribute name="startdragWidth" value="0" type="number" />
+    <attribute name="startdragHeight" value="0" type="number" />
+    
+    <!--
+     Reference to the Connector Object with all the Drag Zones
+     -->
+    <attribute name="dragZoneContainer" value="null" />
+    
+    <attribute name="objRef" value="null" />
+    <attribute name="whiteboardRef" value="null" />
+    <attribute name="doHandlerUpdates" value="false" type="boolean" />  
+    <attribute name="boundingDoUpdateOnInit" value="false" type="boolean" />  
+    
+    <attribute name="snapWidth" value="0" type="number" />
+    <attribute name="snapHeight" value="0" type="number" />
+    
+    <attribute name="multiselect" value="false" type="boolean" /> 
+    
+    <!-- Items of the Update list for Org-Obejcts -->
+    <attribute name="processObjects" value="null" />
+    
+    <attribute name="previousx" value="0" type="number" />
+    <attribute name="previousy" value="0" type="number" />
+    
+    <attribute name="mousetracker_del" value="$once{ new LzDelegate(this, 'updateIdleFunction' )}" />
+
+    <!--- Minimum width for the windowy, default: 60.
+          @keywords final -->
+    <attribute name="minwidth" value="2"/>
+
+    <!--- Minimum height for the window, default: 50.
+          @keywords final -->
+    <attribute name="minheight" value="2"/>    
+    
+    <!-- Shows if the Item was really moved -->
+    <attribute name="wasChanged" value="false" type="boolean" />
+    
+    <method name="__LZRemoveItem" args="item">
+        //Debug.write("__LZRemoveItem");
+    </method>
+    
+    <attribute name="isDragable" value="true" type="boolean" />
+    
+    <!-- indicates if there is any connection line for the 
+    selected object that needs to be updated -->
+    <attribute name="hasConnections" value="false" type="boolean" />
+    
+    <method name="updateIdleFunction" args="item">
+    	<![CDATA[
+    	
+            ////if ($debug) Debug.write("updateIdleFunction -1- x|y: ",this.objRef.x,this.objRef.y);
+
+            if (this.wasChanged) {
+            	
+            	if (this.hasConnections) {
+        	    	if (!this.multiselect){
+        	    		this.whiteboardRef.checkObjConnections(this.objRef);
+        	    	} else {
+        	    		for (var i=0;i<this.objRef.length;i++) {
+        	    			this.whiteboardRef.checkObjConnections(this.objRef[i]);
+        	    		}
+        	    	}
+            	}
+                
+                if (this.processObjects != null) {
+                    for (var i=0;i<this.processObjects.length;i++) {
+                        ////if ($debug) Debug.write("this.processObjects[i]: ",this.processObjects[i]);
+                        this.processObjects[i].setAttribute('x',
+                                this.objRef.x+this.processObjects[i].orgObjectDeltaX);
+                        this.processObjects[i].setAttribute('y',
+                                this.objRef.y+this.processObjects[i].orgObjectDeltaY);
+                        this.processObjects[i].parent.checkObjConnections(this.processObjects[i]);
+                    }
+                }
+            }
+            ////if ($debug) Debug.write("updateIdleFunction -2- x|y: ",this.objRef.x,this.objRef.y);
+	        //this.objRef.parent.checkScreenCanvasPosition(this.objRef,this);
+        ]]>
+    </method>
+    
+    <handler name="oninit">
+        <![CDATA[
+
+	        this.previousx = this.x;
+	        this.previousy = this.y;
+	        
+	        //if ($debug) Debug.write("onninit BOUNDINGBOX: ",this.objRef.typeOfObject);
+	        
+	        this.snapWidth = Math.round(canvas.snapWidth/4);
+	        this.snapHeight = Math.round(canvas.snapHeight/4)
+	        
+	        
+	        this.setStartValues();  
+	        
+	        lz.Focus.setFocus(this,true);
+	        
+	        if (!this.multiselect){
+                var t = this.whiteboardRef.checkHasObjConnections(this.objRef);
+                if (t > 0){
+                    this.hasConnections = true;
+                }
+            } else {
+                for (var i=0;i<this.objRef.length;i++) {
+                    var t = this.whiteboardRef.checkHasObjConnections(this.objRef[i]);
+                    if (t > 0){
+                    	this.hasConnections = true;
+                    	break;
+                    }
+                }
+            }
+	        
+	        if (this.multiselect){
+	            this._boundingBoxPointerUR.destroy();
+	            this._boundingBoxPointerUR_noresize.setAttribute('visibility','visible');
+	            this.doUpdateAction();
+	            this._drilldown.destroy();
+		        for (var i=0;i<this.objRef.length;i++){
+		            this.objRef[i].deltaXToBoundBox = this.objRef[i].x - this.x;
+                    this.objRef[i].deltaYToBoundBox = this.objRef[i].y - this.y;
+		        }
+	        } else {
+	        	////if ($debug) Debug.write("oninit -7- ",this.objRef.x);
+	        	if (this.objRef.typeOfObject=="connectorText"){
+	        	    this._baseEditIconsObject._drilldown.destroy();
+	        	    this.doUpdateAction();
+	        	    this._drilldown.destroy();
+	        	    this._drillacross_left.destroy();
+                    this._drillacross_right.destroy();
+	        	} else if (this.objRef.typeOfObject == "connector"){
+	        		this.isDragable = false;
+	        		this._drilldown.destroy();
+	        		this._drillacross_left.destroy();
+                    this._drillacross_right.destroy();
+	        		
+		            this._boundingBoxPointerUR.destroy();
+		            this._boundingBoxPointerUR_noresize.setAttribute('visibility','visible');
+		            //Where did the _boundingBoxPointer goto?
+		            //this._boundingBoxPointer.destroy();
+		            this._innerDrag.destroy();
+		            this._baseEditIconsObject.setAttribute("y",-24);
+		            
+		            ////if ($debug) Debug.write("IS connector");
+	                this.whiteboardRef.parent.parent.parent.parent.setCurrentSelectedObject(this.objRef);
+	                this.dragZoneContainer = this.whiteboardRef.setConnectorDragZones(this.objRef);
+		        
+		        } else {
+		        	
+		        	if (this.objRef.typeOfObject == "inputflow") {
+		        		this._drillacross_right.destroy();
+		        		this._drilldown.destroy();
+		        	} else if (this.objRef.typeOfObject == "outputflow") {
+		        		this._drillacross_left.destroy();
+		        		this._drilldown.destroy();
+		        	} else {
+		        		this._drillacross_left.destroy();
+		        		this._drillacross_right.destroy();
+		        	}
+		        	
+		            this.doUpdateAction();
+		        }
+		    }
+		    ////if ($debug) Debug.write("oninit -8- ",this.objRef.x);
+        ]]>
+    </handler>
+    
+    <!--
+    } else if (this.objRef.typeOfObject=="processgroup"
+	            || this.objRef.typeOfObject=="processtree"){
+	            this._boundingBoxPointerUR.destroy();
+	            this._boundingBoxPointerUR_noresize.setAttribute('visibility','visible');
+	            this.doUpdateAction();
+	        } else if (this.objRef.typeOfObject=="companyFixed"
+	            || this.objRef.typeOfObject=="departementFixed"
+	            || this.objRef.typeOfObject=="unitFixed"){
+	            this._boundingBoxPointerUR.destroy();
+	            this._boundingBoxPointerUR_noresize.setAttribute('visibility','visible');
+	            this.doUpdateAction();
+	 -->
+    
+    <method name="resetValues">
+        this.ex = this.objRef.x;
+        this.ey = this.objRef.y;
+        this.ewidth = this.objRef.width;
+        this.eheight = this.objRef.height;          
+        this.setAttribute('x',this.objRef.x);
+        this.setAttribute('y',this.objRef.y);
+        this.setAttribute('width',this.objRef.width);
+        this.setAttribute('height',this.objRef.height); 
+        this.setStartValues();  
+    </method>
+
+    <!-- 
+    <animatorgroup start="false" process="simultaneous" duration="100" onstop="parent.doUpdateAction()">
+      <animator attribute="x" to="${ parent.parent.ex }" />
+      <animator attribute="y" to="${ parent.parent.ey }" />
+      <animator attribute="width" to="${ parent.parent.ewidth }" />
+      <animator attribute="height" to="${ parent.parent.eheight }" />            
+    </animatorgroup>    
+     -->
+     
+    <method name="doUpdateAction" >
+        this.setAttribute('doHandlerUpdates',true);
+        if (this.boundingDoUpdateOnInit) this._innerDrag.onmousedown.sendEvent();
+    </method>
+    
+    <handler name="onheight">
+    	<![CDATA[
+	        if(this.doHandlerUpdates){
+	        	this.wasChanged = true;
+	        	//if ($debug) Debug.write("onheight");
+	        	if (!this.multiselect){
+	        		this.objRef.setAttribute('height',
+                        Math.round(this.height/canvas.mainSnapSize)*canvas.mainSnapSize);
+	        	}
+	        }
+        ]]>
+    </handler>
+    
+    <handler name="onwidth">
+    	<![CDATA[
+	        if(this.doHandlerUpdates){
+	        	this.wasChanged = true;
+	        	//if ($debug) Debug.write("onwidth");
+	        	if (!this.multiselect){
+	        		this.objRef.setAttribute('width',
+                        Math.round(this.width/canvas.mainSnapSize)*canvas.mainSnapSize);
+	        	}
+	        }
+        ]]>    	
+    </handler>
+    
+    <method name="setVisibleConnector" args="visible">
+    	<![CDATA[
+    	    //Only do that in case there is really a connection line
+    	    if (this.hasConnections) {
+    	    	if (!this.multiselect){
+    	    		this.whiteboardRef.setVisibleConnector(this.objRef,visible);
+    	    	} else {
+    	    		for (var i=0;i<this.objRef.length;i++) {
+    	    			this.whiteboardRef.setVisibleConnector(this.objRef[i],visible);
+    	    		}
+    	    	}
+    	        
+    	        if (this.processObjects != null) {
+    	            for (var i=0;i<this.processObjects.length;i++) {
+    	                ////if ($debug) Debug.write("this.processObjects[i]: ",this.processObjects[i]);
+    	                this.processObjects[i].setAttribute('x',
+    	                        this.objRef.x+this.processObjects[i].orgObjectDeltaX);
+    	                this.processObjects[i].setAttribute('y',
+    	                        this.objRef.y+this.processObjects[i].orgObjectDeltaY);
+    	                this.whiteboardRef.setVisibleConnector(this.processObjects[i],visible);
+    	            }
+    	        }
+    	    }
+        ]]>
+    </method>
+    
+    <handler name="onx" args="x">
+    	<![CDATA[
+	        if(this.doHandlerUpdates){
+	        	if (this.previousx != x) {
+	        		this.wasChanged = true;
+	        		this.previousx = x;
+		        	if (this.multiselect){
+		        		for (var i=0;i<this.objRef.length;i++){
+		        			//this.objRef[i].setAttribute('x',this.getAttributeRelative('x',objRef[i])+objRef[i].deltaXToBoundBox);
+		        			this.objRef[i].updatex(this.x+objRef[i].deltaXToBoundBox);
+		        			////if ($debug) Debug.write(" -multi- x: ",this.objRef[i].x,this.objRef[i],new Date());
+		        		}
+		        	} else {
+		        		////if ($debug) Debug.write(" -single- -1- x: ",this,this.x);
+		        		////if ($debug) Debug.write(" -single- -1- x: ",this.objRef.x,this.getAttributeRelative('x',objRef));
+		        		//this.objRef.setAttribute('x',this.getAttributeRelative('x',objRef));
+		        		//if ($debug) Debug.write(this.objRef);
+		        		this.objRef.updatex(this.x);
+		        		////if ($debug) Debug.write(" -single- -2- x: ",this.objRef.x,this.getAttributeRelative('x',objRef));
+		        	}
+	        	}
+	        }
+        ]]>       	
+    </handler>
+    
+    <handler name="ony" args="y">
+    	<![CDATA[
+	        if(this.doHandlerUpdates){
+	        	if (this.previousy != y) {
+	        		this.wasChanged = true;
+	        		this.previousy = y;
+		        	if (this.multiselect){
+		        		for (var i=0;i<this.objRef.length;i++){
+		        			//this.objRef[i].setAttribute('y',this.getAttributeRelative('y',objRef[i])+objRef[i].deltaYToBoundBox);
+		        			this.objRef[i].updatey(this.y+objRef[i].deltaYToBoundBox);
+		        		}
+		        	} else {
+		        	    //this.objRef.setAttribute('y',this.getAttributeRelative('y',objRef));
+		        	    this.objRef.updatey(this.y);
+		        	}
+	        	}
+	        }
+        ]]>     	
+    </handler>
+    
+    <method name="setStartValues">
+        this.startdragX = this.x;
+        this.startdragY = this.y;
+        this.startdragWidth = this.width;
+        this.startdragHeight = this.height;   
+    </method>
+    
+    <method name="setFixedValues">
+    	//Do not send this back to the Object
+    	this.doHandlerUpdates = false;
+    	this.setAttribute('x',this.objRef.x);
+    	this.setAttribute('y',this.objRef.y);
+        this.setAttribute('width',this.objRef.width);
+        this.setAttribute('height',this.objRef.height);   
+        this.doHandlerUpdates = true;
+    </method>
+
+    <method name="_applyResizestateFromThis">
+        if (this.objRef.typeOfObject!="connector"){
+            this.setStartValues();  
+            if (this.objRef.isOrgConnectionItem){
+                this.objRef.setStartValues();
+            }
+            this.setVisibleConnector("hidden");
+            this.rs.apply();
+            this.objRef.startResize();
+        }
+    </method>
+    
+    <method name="_removeResizestateFromThis">
+        <![CDATA[
+        if (this.objRef.typeOfObject!="connector"){
+            this.rs.remove();
+            
+            this.objRef.stopResize();
+            
+            if (this.startdragX != this.x || this.startdragY != this.y || this.startdragWidth != this.width || this.startdragHeight != this.height){
+                //Debug.write("value changed 1");
+                
+                //Update the corresponding BaseObject
+                this.objRef.parent.UpdateByObject(this.objRef);
+                //this.whiteboardRef.parent._drawareaalterposition.updateVal(this.objRef.name);
+                
+                this.setStartValues();
+                
+                //if its a Process,Activity, Flow then check for underlaying Objects
+                ////if ($debug) Debug.write("this.objRef: ",this.objRef);
+                if (this.objRef.isOrgConnectionItem){
+	                this.objRef.checkStartValues();
+	            }
+                this.setFixedValues();
+                
+                //if its a Org-Object for overlaying Process,Activity, Flow
+                if (this.objRef.isOrgObjectItem){
+                    this.objRef.checkOrgObjectValues();
+                }
+                
+            }
+            
+            this.setVisibleConnector("visible");
+            this.updateIdleFunction(null);
+        }   
+        ]]>
+    </method>
+    
+    <!--
+    <method name="_applyDragstateFromThis">
+    	//if ($debug) Debug.write("***** _applyDragstateFromThis");
+    	//return;
+    	if (this.multiselect){
+    		this.setStartValues();
+            this.dragger.apply();
+            //FIXME: TODO: Fix for Multi-Selection the check for Role-Object
+    	} else if (this.objRef.typeOfObject!="connector"){
+            this.setStartValues();
+            this.dragger.apply();
+            
+            this.setVisibleConnector("hidden");
+            
+            //if its a Process,Activity, Flow then check for underlaying Objects
+            if (this.objRef.isOrgConnectionItem){
+                this.objRef.setStartValues();
+            }
+        }
+    </method>   
+     -->
+    
+	<method name="_applyClickDragstateFromThis">
+		////if ($debug) Debug.write("###### _applyClickDragstateFromThis ",this.y,this.objRef.y);
+		
+		var foundBounding = null;
+	    	
+		if (!this.boundingDoUpdateOnInit) {
+			////if ($debug) Debug.write("doSetHandModus CurrentLy Focusing: ",this.objRef);
+			//This is for underlaying Objects?
+    		foundBounding = parent.parent._currentBoard.doSetHandModusByObject(this.objRef);
+		} else {
+			this.boundingDoUpdateOnInit = false;
+		}
+		////if ($debug) Debug.write("FIRST STEP -2- ",this.boundingDoUpdateOnInit,foundBounding);
+		if (foundBounding == null){
+	    	if (this.multiselect){
+	    		this.setStartValues();
+	            this.dragger.apply();
+                //FIXME: TODO: Fix for Multi-Selection the check for Role-Object
+	    	} else if (this.objRef.typeOfObject!="connector"){
+	    		////if ($debug) Debug.write("FIRST STEP -2a- ",this.y,this.objRef.y);
+	            this.setStartValues();
+	            ////if ($debug) Debug.write("FIRST STEP -2b- ",this.y,this.objRef.y);
+	            this.dragger.apply();
+	            ////if ($debug) Debug.write("FIRST STEP -2c- ",this.y,this.objRef.y);
+                //if its a Process,Activity, Flow then check for underlaying Objects
+                if (this.objRef.isOrgConnectionItem){
+	                this.objRef.setStartValues();
+	            }
+	            ////if ($debug) Debug.write("FIRST STEP -2d- ",this.y,this.objRef.y);
+	        }
+		}
+		this.setVisibleConnector("hidden");
+		////if ($debug) Debug.write("FIRST STEP -3- ",this.objRef.y);
+    </method>      
+    
+    <method name="_removeDragstateFromThis">
+        <![CDATA[
+	        ////if ($debug) Debug.write("############# _removeDragstateFromThis onmouseup invoke");
+            
+            if (this.processObjects != null) {
+                for (var i=0;i<this.processObjects.length;i++) {
+                    this.processObjects[i].parent.UpdateByObject(this.processObjects[i]);
+                }
+            }       
+            
+	        if (this.multiselect){
+	        	this.dragger.remove();
+	        	this.objRef[0].parent.UpdateByObjectList(this.objRef);
+	            this.setStartValues();
+	        } else if (this.objRef.typeOfObject!="connector"){
+                this.whiteboardRef.parent.parent.parent.parent.setCurrentSelectedObject(this.objRef);
+                
+	            ////if ($debug) Debug.write("onmouseup invoke");
+	            this.dragger.remove();
+	            
+	            if (this.startdragX != this.x || this.startdragY != this.y 
+                        || this.startdragWidth != this.width || this.startdragHeight != this.height){
+                            
+	                //Debug.write("value changed 2");
+                    
+                	//if ($debug) Debug.write("FINAL STEP -1a- ",this.objRef.y);
+                    //Update the corresponding BaseObject
+	                this.objRef.parent.UpdateByObject(this.objRef);
+	                //this.whiteboardRef.parent._drawareaalterposition.updateVal(this.objRef.name);
+	                this.setStartValues();
+	                
+                    //if its a Process,Activity, Flow then check for underlaying Objects
+	                if (this.objRef.isOrgConnectionItem){
+		                this.objRef.checkStartValues();
+		            }
+                    this.setFixedValues();
+                    
+                    //if its a Org-Object for overlaying Process,Activity, Flow
+	                if (this.objRef.isOrgObjectItem){
+	                    this.objRef.checkOrgObjectValues();
+	                }
+	                
+	            }
+	        }
+	        this.setVisibleConnector("visible");
+	        this.updateIdleFunction(null);
+            
+        ]]>         
+    </method>
+
+    <method name="doSetInnerObjectsBounds" args="w,h">
+        this._inner._inner.setAttribute('width',w);
+        this._inner._inner.setAttribute('height',h);
+    </method>
+        
+    <resizestatemin name="rs">
+        <handler name="onapply">
+            if (parent.objRef.typeOfObject=="processgroup"
+                || parent.objRef.typeOfObject=="process"
+                || parent.objRef.typeOfObject=="activity"
+                || parent.objRef.typeOfObject=="issueflow"
+                || parent.objRef.typeOfObject=="company"
+                || parent.objRef.typeOfObject=="departement"
+                || parent.objRef.typeOfObject=="unit"
+                || parent.objRef.typeOfObject=="companyFixed"
+                || parent.objRef.typeOfObject=="departementFixed"
+                || parent.objRef.typeOfObject=="unitFixed"
+                || parent.objRef.typeOfObject=="inputflow"
+                || parent.objRef.typeOfObject=="outputflow"){
+                //parent.mousetracker_del.register(lz.Idle,'onidle');
+            }
+        </handler>
+        <handler name="onremove">
+            if (parent.objRef.typeOfObject=="processgroup"
+                || parent.objRef.typeOfObject=="process"
+                || parent.objRef.typeOfObject=="activity"
+                || parent.objRef.typeOfObject=="issueflow"
+                || parent.objRef.typeOfObject=="company"
+                || parent.objRef.typeOfObject=="departement"
+                || parent.objRef.typeOfObject=="unit"
+                || parent.objRef.typeOfObject=="companyFixed"
+                || parent.objRef.typeOfObject=="departementFixed"
+                || parent.objRef.typeOfObject=="unitFixed"
+                || parent.objRef.typeOfObject=="inputflow"
+                || parent.objRef.typeOfObject=="outputflow"){
+                //parent.mousetracker_del.unregisterAll();
+            }
+        </handler>
+        <text x="2" y="2" text="${ 'w: '+parent.width+' h: '+parent.height }" bgcolor="white"/>
+    </resizestatemin>
+    
+    <dragstate name="dragger">  
+        <handler name="onapply">
+            ////if ($debug) Debug.write("parent.objRef.typeOfObject: ",parent.objRef.typeOfObject);
+            
+            ////if ($debug) Debug.write("onapply STEP -1- ",parent.y,parent.objRef.y);
+            parent.processObjects = null;
+            
+            ////if ($debug) Debug.write("onapply STEP -2- ",parent.y,parent.objRef.y);
+            if (canvas.currentDiagramRef._scrollcontent.dragArea.contentArea._currentBoard.diagramType == 2 || 
+                            canvas.currentDiagramRef._scrollcontent.dragArea.contentArea._currentBoard.diagramType == 4) {
+                if (parent.objRef.typeOfObject == "unit" || 
+                    parent.objRef.typeOfObject == "departement" ||
+                    parent.objRef.typeOfObject=="company"){
+                    
+                    parent.processObjects = canvas.currentDiagramRef._scrollcontent.dragArea.contentArea.
+                                                _currentBoard.getOrganisationConnectionByOrgObject(
+                                                        parent.objRef.x,
+                                                        parent.objRef.y,
+                                                        parent.objRef.width,
+                                                        parent.objRef.height,
+                                                        parent.objRef
+                                                    )
+                    ////if ($debug) Debug.write("parent.processObjects: ",parent.processObjects);
+                    
+                }              
+            }
+            ////if ($debug) Debug.write("onapply STEP -3- ",parent.y,parent.objRef.y);
+            ////if ($debug) Debug.write("onapply STEP -3- ",parent.y,parent.objRef.y);
+        </handler>
+        
+        <!--
+        ////if ($debug) Debug.write("onapply STEP -2- ",parent.y,parent.objRef.y);       
+        	if (parent.multiselect){
+        		parent.mousetracker_del.register(lz.Idle,'onidle');
+        	} else if (parent.objRef.typeOfObject=="processgroup"
+                || parent.objRef.typeOfObject=="process"
+                || parent.objRef.typeOfObject=="activity"
+                || parent.objRef.typeOfObject=="issueflow"
+                || parent.objRef.typeOfObject=="company"
+                || parent.objRef.typeOfObject=="departement"
+                || parent.objRef.typeOfObject=="unit"
+                || parent.objRef.typeOfObject=="companyFixed"
+                || parent.objRef.typeOfObject=="departementFixed"
+                || parent.objRef.typeOfObject=="unitFixed"
+                || parent.objRef.typeOfObject=="inputflow"
+                || parent.objRef.typeOfObject=="outputflow"
+                || parent.objRef.typeOfObject=="processtree"){
+                parent.mousetracker_del.register(lz.Idle,'onidle');
+            }
+             -->
+        <!--
+        <handler name="onremove">
+            if (parent.multiselect){
+        		parent.mousetracker_del.unregisterAll();
+        	} else if (parent.objRef.typeOfObject=="processgroup"
+                || parent.objRef.typeOfObject=="process"
+                || parent.objRef.typeOfObject=="activity"
+                || parent.objRef.typeOfObject=="issueflow"
+                || parent.objRef.typeOfObject=="company"
+                || parent.objRef.typeOfObject=="departement"
+                || parent.objRef.typeOfObject=="unit"
+                || parent.objRef.typeOfObject=="companyFixed"
+                || parent.objRef.typeOfObject=="departementFixed"
+                || parent.objRef.typeOfObject=="unitFixed"
+                || parent.objRef.typeOfObject=="inputflow"
+                || parent.objRef.typeOfObject=="outputflow"
+                || parent.objRef.typeOfObject=="processtree"){
+                parent.mousetracker_del.unregisterAll();
+                //parent.setAttribute('x',parent.objRef.x);
+                //parent.setAttribute('y',parent.objRef.y);
+            }
+        </handler>
+         -->
+        <!--
+        <text x="2" y="2" text="${ 'x: '+parent.getAttributeRelative('x',parent.objRef)+' y: '+parent.getAttributeRelative('y',parent.objRef) }" bgcolor="white"/>      
+    	 -->
+    </dragstate>
+    
+    <view name="_innerDrag" width="${ parent.width }" height="${ parent.height }">
+    	<handler name="onmousedown">
+    		//if ($debug) Debug.write("onmousedown ",this);
+    		if (parent.isDragable) {
+    		  parent._applyClickDragstateFromThis();
+    		}
+    	</handler>
+    	<handler name="onmouseup">
+    		//if ($debug) Debug.write("onmouseup ",this);
+    		if (parent.isDragable) {
+    		  parent._removeDragstateFromThis();
+    		}
+    	</handler>
+    	<!--
+        <handler name="oninit">
+            var newMenu = new LzContextMenu();
+            newMenu.hideBuiltInItems();
+            var item1 = newMenu.makeMenuItem('remove Item', new LzDelegate(this.parent, "__LZRemoveItem"));
+            newMenu.addItem(item1);
+            this.setAttribute("contextmenu",newMenu);   
+        </handler>  
+         -->
+        <handler name="ondblclick">
+            if (!this.parent.multiselect){
+            	//if ($debug) Debug.write("ondblclick: ",this.parent.objRef.typeOfObject);
+	            if (this.parent.objRef.typeOfObject=="text"){
+	                var x = this.parent.objRef.getAttributeRelative('x',canvas);
+	                var y = this.parent.objRef.getAttributeRelative('y',canvas);
+	                //Debug.write("x,y ",x,y);
+	                this.parent.whiteboardRef.editTextByValues(this.parent.objRef,this.parent.objRef.name,this.parent.objRef.text,x,y,this.parent.objRef.width,this.parent.objRef.height);
+	            } else if (this.parent.objRef.typeOfObject=="processgroup"){
+	                var x = this.parent.objRef.getAttributeRelative('x',canvas);
+	                var y = this.parent.objRef.getAttributeRelative('y',canvas);
+	                ////if ($debug) Debug.write("x,y ",x,y);
+	                this.parent.whiteboardRef.editProcessGroupTextByValues(this.parent.objRef);
+	            } else if (this.parent.objRef.typeOfObject=="process"){
+	                var x = this.parent.objRef.getAttributeRelative('x',canvas);
+	                var y = this.parent.objRef.getAttributeRelative('y',canvas);
+	                ////if ($debug) Debug.write("x,y ",x,y);
+	                this.parent.whiteboardRef.editProcessTextByValues(this.parent.objRef);
+	            } else if (this.parent.objRef.typeOfObject=="processtree"){
+	                var x = this.parent.objRef.getAttributeRelative('x',canvas);
+	                var y = this.parent.objRef.getAttributeRelative('y',canvas);
+	                ////if ($debug) Debug.write("x,y ",x,y);
+	                this.parent.whiteboardRef.editProcessTextByValues(this.parent.objRef);
+	            } else if (this.parent.objRef.typeOfObject=="activity"){
+	                var x = this.parent.objRef.getAttributeRelative('x',canvas);
+	                var y = this.parent.objRef.getAttributeRelative('y',canvas);
+	                ////if ($debug) Debug.write("x,y ",x,y);
+	                this.parent.whiteboardRef.editActivityTextByValues(this.parent.objRef);
+	            } else if (this.parent.objRef.typeOfObject=="company"){
+	                var x = this.parent.objRef.getAttributeRelative('x',canvas);
+	                var y = this.parent.objRef.getAttributeRelative('y',canvas);
+	                ////if ($debug) Debug.write("x,y ",x,y);
+	                this.parent.whiteboardRef.editCompanyTextByValues(this.parent.objRef);
+	            } else if (this.parent.objRef.typeOfObject=="departement"){
+	                var x = this.parent.objRef.getAttributeRelative('x',canvas);
+	                var y = this.parent.objRef.getAttributeRelative('y',canvas);
+	                ////if ($debug) Debug.write("x,y ",x,y);
+	                this.parent.whiteboardRef.editDepartementTextByValues(this.parent.objRef);
+	            } else if (this.parent.objRef.typeOfObject=="unit"){
+	                var x = this.parent.objRef.getAttributeRelative('x',canvas);
+	                var y = this.parent.objRef.getAttributeRelative('y',canvas);
+	                ////if ($debug) Debug.write("x,y ",x,y);
+	                this.parent.whiteboardRef.editUnitTextByValues(this.parent.objRef);
+	            } else if (this.parent.objRef.typeOfObject=="companyFixed"){
+	                var x = this.parent.objRef.getAttributeRelative('x',canvas);
+	                var y = this.parent.objRef.getAttributeRelative('y',canvas);
+	                ////if ($debug) Debug.write("x,y ",x,y);
+	                this.parent.whiteboardRef.editCompanyTextByValues(this.parent.objRef);
+	            } else if (this.parent.objRef.typeOfObject=="departementFixed"){
+	                var x = this.parent.objRef.getAttributeRelative('x',canvas);
+	                var y = this.parent.objRef.getAttributeRelative('y',canvas);
+	                ////if ($debug) Debug.write("x,y ",x,y);
+	                this.parent.whiteboardRef.editDepartementTextByValues(this.parent.objRef);
+	            } else if (this.parent.objRef.typeOfObject=="unitFixed"){
+	                var x = this.parent.objRef.getAttributeRelative('x',canvas);
+	                var y = this.parent.objRef.getAttributeRelative('y',canvas);
+	                ////if ($debug) Debug.write("x,y ",x,y);
+	                this.parent.whiteboardRef.editUnitTextByValues(this.parent.objRef);
+	            } else if (this.parent.objRef.typeOfObject=="inputflow"){
+	                var x = this.parent.objRef.getAttributeRelative('x',canvas);
+	                var y = this.parent.objRef.getAttributeRelative('y',canvas);
+	                ////if ($debug) Debug.write("x,y ",x,y);
+	                this.parent.whiteboardRef.editInputflowTextByValues(this.parent.objRef);
+	            } else if (this.parent.objRef.typeOfObject=="outputflow"){
+	                var x = this.parent.objRef.getAttributeRelative('x',canvas);
+	                var y = this.parent.objRef.getAttributeRelative('y',canvas);
+	                ////if ($debug) Debug.write("x,y ",x,y);
+	                this.parent.whiteboardRef.editOutputflowTextByValues(this.parent.objRef);
+	            } else if (this.parent.objRef.typeOfObject=="issueflow"){
+                    var x = this.parent.objRef.getAttributeRelative('x',canvas);
+                    var y = this.parent.objRef.getAttributeRelative('y',canvas);
+                    ////if ($debug) Debug.write("x,y ",x,y);
+                    this.parent.whiteboardRef.editIssueflowTextByValues(this.parent.objRef);
+                } else if (this.parent.objRef.typeOfObject=="connectorText"){
+                    this.parent.whiteboardRef.editConnectorTextByTextObj(this.parent.objRef);
+                }
+            }
+        </handler>      
+        <labelTooltip name="_label" labelid="558" />
+    </view>
+    
+    <!--
+    <view name="_boundingBoxPointer" resource="_boundingBoxPointer" 
+          x="${ parent.width/2-this.width/2 }" y="${ parent.height/2-this.height/2 }"
+        onmousedown="parent._applyDragstateFromThis()" onmouseup="parent._removeDragstateFromThis()"
+        onmouseover="this.parent.applyScrollbarToObject()" onmouseout="this.parent.removeScrollbarToObject()">      
+        <handler name="oninit">
+            var newMenu = new LzContextMenu();
+            newMenu.hideBuiltInItems();
+            var item1 = newMenu.makeMenuItem('remove Item', new LzDelegate(this.parent, "__LZRemoveItem"));
+            newMenu.addItem(item1);
+            this.setContextMenu(newMenu);       
+        </handler>                  
+        <labelTooltip labelid="558" />
+    </view>     
+     -->
+    
+    <!-- -->
+    <view name="_baseEditIconsObject" x="${ parent.width-this.width }" layout="axis:x;spacing:0">
+        <baseChooseIcon resourceN="edit_s_rsc" 
+                        labelid="816" >
+            <handler name="onclick">
+                //Debug.write("this.parent.objRef.name: ",this.parent.objRef.name);
+                if (!parent.parent.multiselect){
+                	if (this.parent.parent.objRef.typeOfObject=="connectorText") {
+                        if ($debug) Debug.write("IS CONNECTOR EDIT TEXT OF CONNECTOR-TEXT");
+                        this.parent.parent.whiteboardRef.editConnectorTextByTextObj(parent.parent.objRef);
+                    } else if (this.parent.parent.objRef.typeOfObject=="connector") {
+                        //if ($debug) Debug.write("IS CONNECTOR EDIT TEXT OF CONNECTOR");
+                        this.parent.parent.whiteboardRef.editConnectorText(parent.parent.objRef);
+                	} else {
+                		this.parent.parent._innerDrag.ondblclick.sendEvent();
+                	}
+                } else {
+                	//Not possible to edit more then One Item the Text at the same time
+                	new lz.warningPopup(canvas,{error:canvas.getLabelName(1298),closable:true})
+                }
+            </handler>
+        </baseChooseIcon>
+        
+        <!--
+        <baseChooseIcon name="_drilldown" resourceN="drill_down_rsc" 
+                        labelid="850" >
+            <handler name="onclick">
+                <![CDATA[
+	                var typeOfObject = this.parent.parent.objRef.typeOfObject;
+	                ////if ($debug) Debug.write("typeOfObject: ",typeOfObject);
+	                if (typeOfObject == "process" || typeOfObject == "processtree" 
+                            || typeOfObject == "processgroup"
+                            || typeOfObject == "departement"
+                            || typeOfObject == "departementFixed"
+                            || typeOfObject == "company"
+                            || typeOfObject == "companyFixed"){
+                                
+	                    var baseObject = this.parent.parent.whiteboardRef.getBaseactionobjectByName(this.parent.parent.objRef.name);
+	                    ////if ($debug) Debug.write("baseObject: ",baseObject);
+                        canvas.tempNewlyCreatedBaseObject = baseObject;
+                        
+	                    var diagramObjectId = baseObject[baseObject.length-7];
+	                    ////if ($debug) Debug.write("diagramObjectId: ",diagramObjectId);
+                        
+	                    if (diagramObjectId != 0){
+                             diagramServiceRPC.getDiagramDrillDownByDiagramObjectIdAndType.
+                                    checkAndLoadDiagram(diagramObjectId);
+	                    } else {
+	                        new lz.errorPopup(canvas,{error:canvas.getLabelName(857),closable:true});
+	                    }
+                        
+	                } else {
+	                    new lz.errorPopup(canvas,{error:canvas.getLabelName(851),closable:true});
+	                }
+                ]]>
+            </handler>
+        </baseChooseIcon>    
+         -->
+	    <baseChooseIcon resourceN="whiteboard_item_delete" 
+	                    labelid="557" >
+	        <handler name="onclick">
+	            //Debug.write("this.parent.objRef.name: ",this.parent.objRef.name);
+	            if (parent.parent.multiselect){
+	                this.parent.parent.whiteboardRef.deleteItemByItemList(this.parent.parent.objRef);
+	            } else {
+	                this.parent.parent.whiteboardRef.deleteItemByName(this.parent.parent.objRef.name);
+	            }
+	        </handler>
+	    </baseChooseIcon>   
+    </view>
+    
+    <baseChooseIcon name="_drillacross_left" resourceN="drill_left_rsc" labelid="1387"
+                    x="0" y="${ parent.height - this.height }">
+        <handler name="onclick">
+            <![CDATA[
+                var typeOfObject = this.parent.objRef.typeOfObject;
+                ////if ($debug) Debug.write("typeOfObject: ",typeOfObject);
+                var baseObject = this.parent.whiteboardRef.getBaseactionobjectByName(this.parent.objRef.name);
+                ////if ($debug) Debug.write("baseObject: ",baseObject);
+                canvas.tempNewlyCreatedBaseObject = baseObject;
+                
+                var diagramObjectId = baseObject[baseObject.length-7];
+                ////if ($debug) Debug.write("diagramObjectId: ",diagramObjectId);
+                
+                if (diagramObjectId != 0){
+                	//this is an Input Flow so search for Outputflows
+                    diagramServiceRPC.getDiagramSurfAcrossByDiagramObjectIdAndType.
+                            checkAndLoadDiagram(diagramObjectId, "outputflow",parent.objRef);
+                } else {
+                    new lz.errorPopup(canvas,{error:canvas.getLabelName(857),closable:true});
+                }
+            ]]>
+        </handler>
+    </baseChooseIcon> 
+      
+    <baseChooseIcon name="_drilldown" resourceN="drill_down_rsc" labelid="850"
+        x="${ parent.width/2 - this.width/2 }" y="${ parent.height - this.height }">
+        <handler name="onclick">
+            <![CDATA[
+                var typeOfObject = this.parent.objRef.typeOfObject;
+                ////if ($debug) Debug.write("typeOfObject: ",typeOfObject);
+                if (typeOfObject == "process" || typeOfObject == "processtree" 
+                        || typeOfObject == "processgroup"
+                        || typeOfObject == "departement"
+                        || typeOfObject == "departementFixed"
+                        || typeOfObject == "company"
+                        || typeOfObject == "companyFixed"){
+                            
+                    var baseObject = this.parent.whiteboardRef.getBaseactionobjectByName(this.parent.objRef.name);
+                    ////if ($debug) Debug.write("baseObject: ",baseObject);
+                    canvas.tempNewlyCreatedBaseObject = baseObject;
+                    
+                    var diagramObjectId = baseObject[baseObject.length-7];
+                    ////if ($debug) Debug.write("diagramObjectId: ",diagramObjectId);
+                    
+                    if (diagramObjectId != 0){
+                         diagramServiceRPC.getDiagramDrillDownByDiagramObjectIdAndType.
+                                checkAndLoadDiagram(diagramObjectId);
+                    } else {
+                        new lz.errorPopup(canvas,{error:canvas.getLabelName(857),closable:true});
+                    }
+                    
+                } else {
+                    new lz.errorPopup(canvas,{error:canvas.getLabelName(851),closable:true});
+                }
+            ]]>
+        </handler>
+    </baseChooseIcon>          
+    
+    <baseChooseIcon name="_drillacross_right" resourceN="drill_right_rsc" labelid="1390"
+                    x="${ parent.width - this.width }" y="${ parent.height - this.height }">
+        <handler name="onclick">
+            <![CDATA[
+                var typeOfObject = this.parent.objRef.typeOfObject;
+                ////if ($debug) Debug.write("typeOfObject: ",typeOfObject);
+                var baseObject = this.parent.whiteboardRef.getBaseactionobjectByName(this.parent.objRef.name);
+                ////if ($debug) Debug.write("baseObject: ",baseObject);
+                canvas.tempNewlyCreatedBaseObject = baseObject;
+                
+                var diagramObjectId = baseObject[baseObject.length-7];
+                ////if ($debug) Debug.write("diagramObjectId: ",diagramObjectId);
+                
+                if (diagramObjectId != 0){
+                    //this is an Output Flow so search for Inputflows
+                    diagramServiceRPC.getDiagramSurfAcrossByDiagramObjectIdAndType.
+                            checkAndLoadDiagram(diagramObjectId, "inputflow");
+                } else {
+                    new lz.errorPopup(canvas,{error:canvas.getLabelName(857),closable:true});
+                }
+            ]]>
+        </handler>
+    </baseChooseIcon> 
+    
+    <!--
+    <view name="_inner" y="22" width="${ parent.width }"
+        height="${ parent.height-22 }" visible="false">    
+        <view name="_inner">
+            
+            <attribute name="timeisInited" value="false" type="boolean" />
+            <attribute name="sendObjectDel" value="null" />
+            
+            <handler name="oninit">
+            	if (!this.parent.parent.multiselect){
+            		if (this.parent.parent.objRef.typeOfObject=='swf') {
+	                    this.sendObjectDel = new LzDelegate( this, "sendObject" );
+	                }
+            	}
+            </handler>
+            <handler name="onx" args="x">
+            	if (!this.parent.parent.multiselect){
+	                if (this.parent.parent.objRef.typeOfObject=='swf'){
+	                    this.parent.parent.objRef._swfView.setAttribute('x',x);
+	                    if (!this.timeisInited){
+	                        this.timeisInited=true;
+	                        lz.Timer.addTimer( this.sendObjectDel, 250 );
+	                    } else {
+	                        lz.Timer.resetTimer( this.sendObjectDel, 250 );
+	                    }
+	                }
+            	}
+            </handler>
+            <handler name="ony" args="y">
+            	if (!this.parent.parent.multiselect){
+	                if (this.parent.parent.objRef.typeOfObject=='swf'){
+	                    this.parent.parent.objRef._swfView.setAttribute('y',y);
+	                    if (!this.timeisInited){
+	                        this.timeisInited=true;
+	                        lz.Timer.addTimer( this.sendObjectDel, 250 );
+	                    } else {
+	                        lz.Timer.resetTimer( this.sendObjectDel, 250 );
+	                    }
+	                }
+            	}
+            </handler>        
+            
+            <method name="sendObject">
+                //Debug.write("sendObject");
+                this.parent.parent.whiteboardRef.sendCurrentSWFObject(this.parent.parent.objRef);
+                this.timeisInited=false;
+            </method>    
+            
+        </view>
+        <vscrollbar name="_scrollstv" /> 
+        <hscrollbar name="_scrollsth" />     
+    </view>
+     -->
+     
+    <view resource="_boundingBoxPointerTL" x="0" y="0" />
+    <view resource="_boundingBoxPointerTR" x="${ parent.width-this.width }" y="0" />
+    <view name="_boundingBoxPointerUR" resource="explorer_resize_rsc" x="${ parent.width-this.width }" 
+          y="${ parent.height-this.height }" cursor="explorer_resizemouse_rsc"  visibility="visible" >
+        <handler name="onmousedown">
+            parent._applyResizestateFromThis();
+        </handler>
+        <handler name="onmouseup">
+            parent._removeResizestateFromThis();
+        </handler>
+        <labelTooltip name="_labelTooltip" labelid="559" />
+    </view>
+    <view name="_boundingBoxPointerUR_noresize" resource="_boundingBoxPointerUR_noresize" 
+          x="${ parent.width-this.width }" y="${ parent.height-this.height }"
+          visibility="hidden" />
+    <view resource="_boundingBoxPointerUL" x="0" y="${ parent.height-this.height }" />
+    
+</class>
+
+
+</library>

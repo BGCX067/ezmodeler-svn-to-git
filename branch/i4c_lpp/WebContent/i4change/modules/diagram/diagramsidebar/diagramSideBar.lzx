@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<library>
+  
+<class name="diagramSideBar" extends="view" height="$once{ parent.height }" bgcolor="0xEDEDED"
+       width="80" x="${ canvas.width-this.width }">
+    
+    <attribute name="currentOpenitem" value="null" />
+    <attribute name="currentMaxWidth" value="410" type="number" />
+    
+    <method name="setSelection" args="item">
+        if (this.currentOpenitem != null) {
+            if (this.currentOpenitem.isOpen) {
+                this.currentOpenitem.isOpen = false;
+                this.currentOpenitem.close();
+            }
+        }
+        this.currentOpenitem = item;
+        this.currentOpenitem.open();
+        this.currentOpenitem.isOpen = true;
+        //if ($debug) Debug.write("this: ",this,this.x,parent.width);
+    </method>
+    
+    <method name="setSelectionAndOpen" args="item">
+        this._sidebarIcons.open_sidebar.onclick.sendEvent();
+        this.setSelection(item);
+    </method>
+    
+    <method name="deSelection" args="item">
+        this.currentOpenitem = item;
+        this.currentOpenitem.close();
+        this.currentOpenitem.isOpen = false;
+    </method>
+    
+    <view name="_sidebarIcons" x="1">
+        <view name="open_sidebar" resource="open_sidebar">
+            <handler name="onclick">
+                parent.parent._open.setAttribute("to",parent.parent.currentMaxWidth);
+	            parent.parent._open.doStart();
+                this.setAttribute('visibility','hidden'); 
+	            parent.close_sidebar.setAttribute('visibility','visible'); 
+            </handler>
+        </view>
+        <view name="close_sidebar" resource="close_sidebar" visibility="hidden">
+            <handler name="onclick">
+                parent.parent._close.doStart();
+                this.setAttribute('visibility','hidden'); 
+                parent.open_sidebar.setAttribute('visibility','visible'); 
+            </handler>
+        </view>
+    </view>
+    
+    <view name="_innerSideBar" y="20" layout="axis:y;spacing:0" 
+          width="${ parent.currentMaxWidth }">
+        <method name="showClosedSideBarTabButton">
+            <![CDATA[
+                for (var i=0;i<this.subviews.length;i++) {
+                    if (this.subviews[i].isSideBarMainItem)
+                        this.subviews[i].showClosedSideBarTabButton();
+                }
+            ]]>
+        </method>
+        <method name="hideClosedSideBarTabButton">
+            <![CDATA[
+                for (var i=0;i<this.subviews.length;i++) {
+                    if (this.subviews[i].isSideBarMainItem)
+                        this.subviews[i].hideClosedSideBarTabButton();
+                }
+            ]]>
+        </method>
+        <method name="showOpenSideBarTabButton">
+            <![CDATA[
+                for (var i=0;i<this.subviews.length;i++) {
+                    if (this.subviews[i].isSideBarMainItem)
+                        this.subviews[i].showOpenSideBarTabButton();
+                }
+                if (parent.currentOpenitem != null) {
+                    parent.currentOpenitem.showOpen();
+                }
+            ]]>
+        </method>
+        <method name="hideOpenSideBarTabButton">
+            <![CDATA[
+                if (parent.currentOpenitem != null) {
+                    parent.currentOpenitem.showClose();
+                }
+                for (var i=0;i<this.subviews.length;i++) {
+                   if (this.subviews[i].isSideBarMainItem)
+                         this.subviews[i].hideOpenSideBarTabButton();
+                }
+            ]]>
+        </method>
+        <sideBarPodTest name="_pod1" />
+        <sideBarPodTest name="_pod3" />
+        <sideBarPodTest name="_pod4" />
+        <sideBarPodTest name="_pod5" />
+        <sideBarPodTest name="_pod6" />
+    </view>
+    
+    <animator name="_open" attribute="width" start="false" duration="450">
+        <handler name="onstart">
+            parent._innerSideBar.hideClosedSideBarTabButton();
+        </handler>
+        <handler name="onstop">
+            parent._innerSideBar.showOpenSideBarTabButton();
+        </handler>
+    </animator>
+    
+    <animator name="_close" attribute="width" start="false" to="80" duration="350">
+        <handler name="onstart">
+            parent._innerSideBar.hideOpenSideBarTabButton();
+        </handler>
+        <handler name="onstop">
+            parent._innerSideBar.showClosedSideBarTabButton();
+        </handler>
+    </animator>    
+    
+</class>
+
+</library>

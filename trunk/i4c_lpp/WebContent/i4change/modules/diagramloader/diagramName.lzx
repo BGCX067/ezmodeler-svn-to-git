@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<library>
+
+<!--- "System" panel on the dashboard -->
+<class name="diagramName" extends="view" align="right" y="2">
+    
+    <handler name="oninit">
+        this.doInitDiagram();
+    </handler>
+	
+    <method name="doInitDiagram">
+        if (canvas.currentDiagram != null) {
+            this._currentText.setAttribute('text',canvas.currentDiagram.name);
+        }
+    </method>
+    
+    <labelText name="_currentText" resize="true" fontstyle="italic" />
+
+</class>
+
+</library>

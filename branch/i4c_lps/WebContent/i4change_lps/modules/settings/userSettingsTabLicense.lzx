@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+	
+<class name="transactionListItem" extends="baseContentListItem">
+	
+	<attribute name="transactionId" value="0" type="number" />
+	<attribute name="paidDate" value="" type="string" />
+    <attribute name="amount" value="" type="string" />
+    <attribute name="status" value="" type="string" />
+    <attribute name="numberOfLicenses" value="" type="string" />
+    <attribute name="isControlled" value="" type="string" />
+    <attribute name="labelText" value="" type="string" />
+	
+	<turnOverTextItem text="$once{ parent.paidDate }" width="200" />
+	<turnOverTextItem text="$once{ parent.amount }" width="106" />
+    <turnOverTextItem text="$once{ parent.status }" width="106" />
+    <turnOverTextItem text="$once{ parent.numberOfLicenses }" width="106" />
+    <turnOverTextItem text="$once{ parent.isControlled }" width="106" />
+    <turnOverTextItem text="$once{ parent.labelText }" width="100" >
+    	<handler name="onclick">
+    		this.generateDownLoadLinkInvoiceSelf.doCall();
+    	</handler>
+        <netRemoteCallRPC name="generateDownLoadLinkInvoiceSelf" 
+        				  funcname="generateDownLoadLinkInvoiceSelf" 
+                          remotecontext="$once{  canvas.downloadServiceRPC }"> 
+	        <netparam><method name="getValue">return canvas.sessionId;</method></netparam>
+            <netparam><method name="getValue">return parent.parent.parent.obj.invoiceId;</method></netparam>
+	        <handler name="ondata" args="value">
+	            <![CDATA[
+	                if ($debug) Debug.write("generateDownLoadLinkInvoiceSelf: ",value);
+	                
+			        var downloadurl = canvas.httpprotocol+'://'+canvas.rtmphostlocal+':'+canvas.httpport
+			        		+'/'+canvas.webAppRootKey+'/DownloadHashHandler?hash='+value
+			        		+'&sid='+canvas.sessionId;	                
+                    if ($debug) Debug.write(downloadurl);
+                    LzBrowser.loadURL(downloadurl,"_PARENT");
+	            ]]>
+	        </handler>
+	        <!--
+
+                     -->
+	    </netRemoteCallRPC>    	
+    </turnOverTextItem>
+	
+</class>
+	
+
+<!--- User Profile Setting Panel -->
+<class name="userSettingsTabLicense" extends="view">  
+       
+	<!-- content -->	
+    
+    <method name="initFields" args="obj">
+        <![CDATA[
+        
+            
+        ]]>
+    </method>
+    
+    <method name="doSaveTemp">
+	    if ($debug) Debug.write("Save Temp License Values");
+        
+	</method>
+    
+    <!-- 143:userdata -->
+    <labelText labelid="1139" width="200" y="0" resize="false" fontstyle="bold" />            
+
+	<labelText labelid="1145" width="200" y="30" resize="false" fontstyle="bold" /> 
+	
+	<labelText labelid="1146" width="600" y="50" /> 
+	
+	<view y="70">
+	
+	    <turnOverList name="_turnoverlist" width="740" height="300" x="2" y="0" 
+			orderby="c.transactionPaypal.transactionId" step="25" asc="true">
+	
+			<handler name="oninit">
+				this.addHeaderItem(1140,200);
+				this.addHeaderItem(1141,106);
+                this.addHeaderItem(1142,106);
+                this.addHeaderItem(1143,106);
+                this.addHeaderItem(1144,106);
+                this.addHeaderItem(1195,100);
+                
+				this.getTransactions.doCall();
+			</handler>
+			
+			<handler name="oncallnext" >
+				this.getTransactions.doCall();
+			</handler>
+			
+			<handler name="oncallpre" >		
+				this.getTransactions.doCall();
+			</handler>
+			
+			<handler name="onclickedItem" args="obj">
+				Debug.write("onclickedItem",obj,obj.obj);
+				//parent._confvalueform.initValueFieldsByObject(obj.obj);
+			</handler>
+			
+			<netRemoteCallRPC name="getTransactions" funcname="getTransactions" 
+							  remotecontext="$once{  canvas.userServiceRPC }" >      
+				<netparam><method name="getValue"> return canvas.sessionId; </method></netparam>
+				<netparam><method name="getValue"> return parent.parent.start; </method></netparam>
+				<netparam><method name="getValue"> return parent.parent.step; </method></netparam>
+				<netparam><method name="getValue"> return parent.parent.orderby; </method></netparam>
+				<netparam><method name="getValue"> return parent.parent.asc; </method></netparam>
+		    	<handler name="ondata" args="value">
+		    		if ($debug) Debug.write("getTransactions ",value);
+		    		//this.parent.destroy();
+		    		this.parent.initValues(value.records);
+		    		this.parent.renderContent(value.result);
+		    	</handler>
+		    </netRemoteCallRPC>	
+		    
+		    <method name="renderContent" args="records">
+		    	<![CDATA[
+			    	this.clearList();
+			    	var labelText = '<u>'+canvas.getLabelName(1196)+'</u>';
+			    	for (var i=0;i<records.length;i++){
+			    		new lz.transactionListItem(this._innerlist._inn._inn,{
+		                            obj:records[i],
+	                                paidDate:parseDateToStringTime(records[i].transactionPaypal.paidDate),
+	                                amount:records[i].transactionPaypal.amount+' USD',
+	    							status:records[i].transactionPaypal.status,
+	    							numberOfLicenses:records[i].transactionPaypal.numberOfLicenses,
+	    							isControlled:records[i].transactionPaypal.isControlled,
+	    							labelText:labelText
+	                            });
+			    	}
+		    	]]>
+		    </method>
+	
+		</turnOverList>
+	    
+    </view>
+
+       
+</class>
+
+</library>

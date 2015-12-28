@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+<!--- Configuration module for ADMIN -->
+<class name="webSiteAdminSearchBox"  extends="labelExplorerBox" labelid="1220"
+        docking="true" width="462" x="400" y="300" height="370"> 
+        
+    <attribute name="refObj" value="null" />
+        
+    <handler name="oninit">
+        lz.ModeManager.makeModal(this);
+    </handler>
+    
+    <handler name="onclose">
+        lz.ModeManager.release(this);
+    </handler>
+    
+    <labelText x="2" labelid="592" y="32" fontstyle="bold" />
+    
+    <omComboBox name="_helpItemFilter" editable="false" x="70" width="140" y="30">
+    	<attribute name="initialClick" value="true" type="boolean" />
+        <handler name="oninit">
+            this.addItem(canvas.getLabelName(1403),"0");
+            this.addItem(canvas.getLabelName(1404),"1");
+            this.addItem(canvas.getLabelName(1405),"2");
+            this.selectItemAt(0);
+        </handler>
+        <handler name="onselect" args="sel">
+            if ($debug) Debug.write("onselect",sel);
+            parent._turnoverlist.searchOnlyHelpItems = Number(sel.value);
+            if (this.initialClick) {
+                this.initialClick = false;
+                return;
+            }
+            parent._turnoverlist.reload();
+        </handler>
+    </omComboBox> 
+    
+    <labelText x="220" labelid="1393" y="32" fontstyle="bold" width="40" />   
+    
+    <customEdittext name="search" y="30" x="252" width="188" text="">
+        <handler name="onkeyup" args="k">
+            if (k == 13) {
+                parent._turnoverlist.start = 0;
+                parent._turnoverlist.reload();
+            }
+        </handler>
+    </customEdittext>
+    
+    <view y="32" x="442" bgcolor="0xFFFFFF" width="18" height="18">
+        <view resource="search_help_item_rsc" y="1" x="1" />
+        <handler name="onclick">
+            parent._turnoverlist.reload();
+        </handler>
+        <labelTooltip labelid="771" />
+    </view>   
+    
+    <turnOverListOrderedPaged name="_turnoverlist" width="460" 
+		  height="$once{ parent.height-100 }" x="1" y="60" 
+		  orderby="c.webItemId" step="200" asc="true" 
+		  listItemName="webSiteAdminListItem">
+    	
+    	<attribute name="searchOnlyHelpItems" value="0" type="number" />
+        
+		<handler name="oninit">
+			
+            this.addHeaderItemOrdered(1211,80,"c.webItemId",false,true);
+            this.addHeaderItemOrdered(1213,166,"c.webItemName",true,false);
+            this.addHeaderItemOrdered(1212,200,"c.webItemType.typeName",true,false);
+        
+			this.reload();
+		</handler>
+		
+		<handler name="oncallnext" >
+			this.reload();
+		</handler>
+		
+		<handler name="oncallpre" >		
+			this.reload();
+		</handler>
+		
+		<handler name="onclickedItem" args="obj">
+			//if ($debug) Debug.write("onclickedItem",obj,obj.obj);
+		</handler>
+		
+        <method name="reload">
+            this.getWebItemSearchList.doCall();
+        </method>
+        
+        <handler name="onUpdateOrder">
+            this.reload();
+        </handler>		
+		
+		<!--
+		public SearchResult getWebItemSearchList(String SID, int start, int max, 
+            String orderby, boolean asc, Integer searchOnlyHelpItems, String search)
+         -->
+		
+		<netRemoteCallRPC name="getWebItemSearchList" funcname="getWebItemSearchList" 
+                          remotecontext="$once{  canvas.websiteServiceRPC }" >      
+			<netparam><method name="getValue"> return canvas.sessionId; </method></netparam>
+			<netparam><method name="getValue"> return parent.parent.start; </method></netparam>
+			<netparam><method name="getValue"> return parent.parent.step; </method></netparam>
+			<netparam><method name="getValue"> return parent.parent.orderby; </method></netparam>
+			<netparam><method name="getValue"> return parent.parent.asc; </method></netparam>
+			<netparam><method name="getValue"> return parent.parent.searchOnlyHelpItems; </method></netparam>
+			<netparam><method name="getValue"> return parent.parent.parent.search.getText(); </method></netparam>
+	    	<handler name="ondata" args="value">
+	    		//if ($debug) Debug.write("getWebItemList ",value);
+	    		//this.parent.destroy();
+	    		this.parent.initValues(value.records);
+	    		this.parent.renderContent(value.result);
+	    	</handler>
+	    </netRemoteCallRPC>	
+	    
+	    <!--
+	    <method name="renderContent" args="records">
+	    	<![CDATA[
+		    	this.clearList();
+		    	for (var i=0;i<records.length;i++){
+		    		new lz.webSiteAdminListItem(this._innerlist._inn._inn,{
+	                            obj:records[i],
+	                            webItemName:records[i].webItemName,
+	                            webItemId:records[i].webItemId,
+	                            typeName:records[i].webItemType.typeName
+	                        });
+		    	}
+	    	]]>
+	    </method>
+	     -->
+	     
+        <method name="renderContent" args="records">
+            <![CDATA[
+                //this.clearList();
+                var list = this._innerlist._inn._inn;
+                this.renderList = records;
+                
+                this._innerlist._inn.setAttribute("y",0);
+                this._innerlist._inn._inn.setAttribute("height",records.length*20);
+                
+                this._innerlist._inn.resetItems();
+                
+                for (var i=0;i<list.subviews.length;i++){
+                    if (records.length > i) {
+                        list.subviews[i].setAttribute("clickable",true);
+                        list.subviews[i].obj = records[i];
+                        list.subviews[i].setAttribute("webItemId",records[i].webItemId);
+                        list.subviews[i].setAttribute("webItemName",records[i].webItemName);
+                        list.subviews[i].setAttribute("typeName",records[i].webItemType.typeName);
+                    } else {
+                        list.subviews[i].obj = null;
+                        list.subviews[i].setAttribute("webItemId","");
+                        list.subviews[i].setAttribute("webItemName","");
+                        list.subviews[i].setAttribute("typeName","");
+                        list.subviews[i].setAttribute("clickable",false);
+                    }
+                }
+                
+            ]]>
+        </method>
+        
+        <handler name="onScrollItem" args="item">
+            <![CDATA[
+                if (this.renderList.length > item.itemId) {
+                    item.setAttribute("clickable",true);
+                    item.obj = this.renderList[item.itemId];
+                    item.setAttribute("webItemId",this.renderList[item.itemId].webItemId);
+                    item.setAttribute("webItemName",this.renderList[item.itemId].webItemName);
+                    item.setAttribute("typeName",this.renderList[item.itemId].webItemType.typeName);
+                } else {
+                    item.obj = null;
+                    item.setAttribute("webItemId","");
+                    item.setAttribute("webItemName","");
+                    item.setAttribute("typeName","");
+                    item.setAttribute("clickable",false);
+                }
+            ]]>
+        </handler>
+
+	</turnOverListOrderedPaged>
+    
+    <simpleLabelButton labelid="174" x="350" y="340" width="100">
+        <handler name="onclick">
+            this.parent.close();
+        </handler>
+    </simpleLabelButton>
+    <simpleLabelButton labelid="175" x="240" y="340" width="100">
+        <handler name="onclick">
+            //if ($debug) Debug.write("this.parent._turnoverlist.selected: ",this.parent._turnoverlist.selected);
+            if (this.parent._turnoverlist.selected != null) {
+                parent.refObj.addItem(this.parent._turnoverlist.selected);
+            }
+            this.parent.close();
+        </handler>
+    </simpleLabelButton>        
+        
+</class>
+
+</library>

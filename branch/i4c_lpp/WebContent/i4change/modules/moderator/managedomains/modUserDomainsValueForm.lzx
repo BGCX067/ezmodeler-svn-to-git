@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+<!--- User Profile edit panel in the useradmin leftblock. Private class only for useradmin -->
+<class name="modUserDomainsValueForm" extends="baseContentSaveView"
+       addIsVisible="false" deleteIsVisible="false">
+
+	<!--- recordContent id -->
+    <attribute name="organisation_id" value="0" type="number" />    
+    <attribute name="orgObject" value="null" />
+
+    <!-- handler -->
+    <handler name="oninit">
+        //Add Help Item
+        canvas.addCurrentHelpId(25,this.__constructor__.classname);
+        //if ($debug) Debug.write(" canvas.currentdomainObj ", canvas.currentdomainObj);
+        this.organisation_id =  canvas.currentdomainObj.organisation_id;
+        this.getOrganisationById.doCall();
+    </handler> 
+    
+    <handler name="onsavecompleted" >
+        this.getOrganisationById.doCall();
+    </handler>
+    
+    <handler name="onreload" >
+        if (this.organisation_id!=0) {
+            this.getOrganisationById.doCall();
+            this._userlist.getUsersByOrganisation.doCall();
+        }
+    </handler>  
+    
+    <!-- methods -->
+    
+    <method name="initValueFieldsByObject" args="obj">
+        <![CDATA[
+            //if ($debug) Debug.write("initValueFieldsByObject: ",obj);
+            this.organisation_id = obj.organisation_id;
+            if (this.organisation_id!=0){
+                this._orgPatternlist.clearList();
+                ////if ($debug) Debug.write("initValueFieldsByObject: ",obj);
+                this.getOrganisationById.doCall();
+                this._userlist.getUsersByOrganisation.doCall();
+            }
+        ]]>
+    </method>   
+    
+    <netRemoteCallRPC name="getOrganisationById" funcname="getOrganisationById" 
+        remotecontext="$once{  canvas.organisationServiceRPC }" > 
+        <netparam><method name="getValue"> return canvas.sessionId; </method></netparam>
+        <netparam><method name="getValue">return parent.parent.organisation_id;</method></netparam>
+        <handler name="ondata" args="value">
+            parent.initFields(value);
+        </handler>
+    </netRemoteCallRPC> 
+    
+    
+    
+    <method name="initFields" args="obj">
+        <![CDATA[
+            this.orgObject = obj;
+            this.organisation_id = obj.organisation_id;
+            this.orgname.setAttribute("text",obj.name);
+            this._orgPatternlist.clearList();
+            if (obj.orgPatternsMap != null) {
+                for (var i = 0;i<obj.orgPatternsMap.length;i++) {
+                    this._orgPatternlist.addItemDelete(obj.orgPatternsMap[i],obj.orgPatternsMap[i]);
+                }
+            }     
+            this.isPending.setValue(obj.isPending);
+            if (obj.maxWorkDays != null){
+                this.workdaysCheckbox.setValue(false);
+                this.workdays.setAttribute('text',obj.maxWorkDays);
+            } else {
+                this.workdaysCheckbox.setValue(false);
+                this.workdays.setAttribute('text',"");
+                this.workdaysCheckbox.setValue(true);
+            }
+            if (obj.maxUsers != null){
+                this.maxUserCheckbox.setValue(false);
+                this.maxUser.setAttribute('text',obj.maxUsers);
+            } else {
+                this.maxUserCheckbox.setValue(false);
+                this.maxUser.setAttribute('text',"");
+                this.maxUserCheckbox.setValue(true);
+            }
+            if (obj.expireDate != null){
+                this.expireDateCheckbox.setValue(false);
+                this.expireDate.setAttribute('text',parseDateToString(obj.expireDate));
+            } else {
+                this.expireDateCheckbox.setValue(false);
+                this.expireDate.setAttribute('text',"");
+                this.expireDateCheckbox.setValue(true);
+            }            
+        ]]>
+    </method>
+    
+    <!-- remotecalls -->
+    
+    <netRemoteCallRPC name="saveOrUpdateOrganisation" funcname="saveOrUpdateOrganisation" 
+        remotecontext="$once{  canvas.organisationServiceRPC }" registerObject="true" activeErrorHandler="true" >   
+        <attribute name="sendObject" value="null" />
+        <!-- gets called by Observer -->
+        <method name="prepareCall">
+            this.sendObject=new Object();
+            
+            this.sendObject["orgPatternMap"] = parent._orgPatternlist.getValuesForUpdate();
+            this.sendObject["organisation_id"] = this.parent.organisation_id;
+            this.sendObject["orgname"] = this.parent.orgname.getText();
+            
+            //Overwrite values using the remote-values
+            this.sendObject["expireDate"] = parseDateToString(this.parent.orgObject.expireDate);
+            this.sendObject["maxUsers"] = this.parent.orgObject.maxUsers;
+            this.sendObject["isPending"] = this.parent.orgObject.isPending;
+            this.sendObject["maxWorkDays"] = this.parent.orgObject.maxWorkDays;
+
+            //if ($debug) Debug.write("prepareCall: ",this.sendObject);
+        </method>
+        <netparam><method name="getValue"> return canvas.sessionId; </method></netparam>
+        <netparam><method name="getValue">return parent.sendObject;</method></netparam>         
+        <handler name="ondata" args="val">
+            <![CDATA[
+            //if ($debug) Debug.write("saveOrUpdateOrganisation: ",val);
+            if (val>0){
+                //Debug.write("saveOrUpdateUser val greater 0: ",val);
+                this.parent.parent._turnoverlist.oncallnext.sendEvent();
+                parent.organisation_id = val;
+                parent.getOrganisationById.doCall();
+            }
+            ]]>
+        </handler>
+    </netRemoteCallRPC>     
+    
+    <!-- content -->    
+    
+    <labelText labelid="170" width="200" y="40" resize="false" fontstyle="bold" />  
+    
+    <labelText labelid="171" width="200" y="70" resize="false" x="2"/>
+        <customEdittext name="orgname" y="70" x="120" width="270" text="" />    
+    
+    <labelText labelid="891" width="200" y="100" resize="false" x="2" fontstyle="bold" />   
+    
+    <labelText labelid="893" width="200" y="130" resize="false" x="2" />   
+    
+    <list name="_orgPatternlist" y="130" x="120" width="300" height="200" >
+        <method name="clearList">
+            <![CDATA[
+                var currentCount = this.getNumItems();
+                for (var i = 0; i < currentCount; i++) {
+                    this.removeItemAt(0);
+                }
+            ]]>
+        </method>
+        <method name="getValuesForUpdate">
+            <![CDATA[
+                var itemList = new Array();
+                var currentCount = this.getNumItems();
+                for (var i = 0; i < currentCount; i++) {
+                    var item = this.getItemAt(i);
+                    var v = item.getValue();
+                    itemList.push(v);
+                }
+                return itemList;
+            ]]>
+        </method>
+        <method name="addItemDelete" args="txt,val">
+            new lz.textListItemToDelete(this,{
+                    text:txt,value:val
+                });
+        </method>
+    </list>
+    
+    <baseChooseIcon resourceN="edit_add_rsc" labelid="890" y="100" x="400"
+        onclick="this.parent.addNewPattern()" />        
+    <method name="addNewPattern">
+        if (this.organisation_id!=0) {
+            new lz.addOrgProperties(this,{
+                x:120,y:370,refObj:this
+            })
+        } else {
+            new lz.errorPopupWithLabel(canvas,{labelerrorid:887});
+        }
+    </method>
+    <method name="addDomainToList" args="newDomainName">
+        this._orgPatternlist.addItemDelete(newDomainName,newDomainName);
+    </method>
+    
+   <labelText labelid="920" width="200" y="350" resize="false" 
+           x="2" fontstyle="bold" />   
+
+   <labelCheckbox name="isPending" labelid="917" y="380" x="6" />   
+   
+   <labelText labelid="913" width="200" y="410" resize="false" x="2" />  
+        <dateField name="expireDate" y="410" x="120" width="140" text="" enabled="${ !parent.expireDateCheckbox.value }" />
+        <labelCheckbox name="expireDateCheckbox" labelid="914" y="410" x="270" />   
+
+   <labelText labelid="915" width="200" y="440" resize="false" x="2" />  
+        <customEdittext name="maxUser" y="440" x="120" width="140" enabled="${ !parent.maxUserCheckbox.value }"
+                        text="" regexpType="number" />
+        <labelCheckbox name="maxUserCheckbox" labelid="916" y="440" x="270" /> 
+    
+   <labelText labelid="918" width="200" y="470" resize="false" x="2" />  
+        <customEdittext name="workdays" y="470" x="120" width="140" enabled="${ !parent.workdaysCheckbox.value }"
+                        text="" regexpType="number" />
+        <labelCheckbox name="workdaysCheckbox" labelid="919" y="470" x="270" />
+
+    
+   <view y="380" name="_mainBG" width="400" height="200" 
+      clickable="true" opacity="0.3" bgcolor="white">
+        <handler name="onclick">
+            new lz.errorPopupWithLabel(canvas,{labelerrorid:967});
+        </handler>    
+   </view>
+        
+</class>
+
+</library>

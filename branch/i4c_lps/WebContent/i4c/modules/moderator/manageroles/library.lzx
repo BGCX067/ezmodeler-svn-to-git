@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+    <resource name="search_role_rsc" src="resources/viewmag.png" />    
+
+    <include href="modRoleValueForm.lzx" />
+    <include href="modRoles.lzx" />
+    <include href="modRoleListItem.lzx" />
+    <include href="modRoleExplorer.lzx" />
+    <include href="modRoleAddRole.lzx" />
+
+</library>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+  <class table="diagram" lazy="false" name="org.i4change.app.hibernate.beans.diagram.Diagram">
+    <id column="diagram_id" name="diagramId">
+      <generator class="increment"/>
+    </id>
+    <many-to-one outer-join="true" insert="true" column="diagramrevision_id" lazy="false" update="true" name="diagramrevision" class="org.i4change.app.hibernate.beans.diagram.Diagramrevision"/>
+    <property name="name" type="string" column="name"/>
+    <property name="description" type="string" column="description"/>
+    <many-to-one outer-join="true" insert="true" column="updatedby" lazy="false" update="true" name="updatedby" class="org.i4change.app.hibernate.beans.user.Users"/>
+    <many-to-one outer-join="true" insert="true" column="insertedby" lazy="false" update="true" name="insertedby" class="org.i4change.app.hibernate.beans.user.Users"/>
+    <property name="updated" type="java.util.Date" column="updated"/>
+    <property name="inserted" type="java.util.Date" column="inserted"/>
+    <property name="revisionNumber" type="long" column="revisionNumber"/>
+    <property name="deleted" type="string" column="deleted"/>
+    <property name="parentDiagramId" type="long" column="parentdiagram_id"/>
+    <property name="diagramNo" type="long" column="diagram_no"/>
+    <many-to-one outer-join="true" insert="true" column="diagramtype_id" lazy="false" update="true" name="diagramType" class="org.i4change.app.hibernate.beans.diagram.DiagramType"/>
+    <many-to-one outer-join="true" insert="true" column="organisation_id" lazy="false" update="true" name="organisation" class="org.i4change.app.hibernate.beans.domain.Organisation"/>
+    <property name="canRead" type="boolean" column="canRead"/>
+    <property name="canWrite" type="boolean" column="canWrite"/>
+    <property name="onlyIssues" type="boolean" column="onlyissues"/>
+    <many-to-one outer-join="true" insert="true" column="diagramobject_id" lazy="false" update="true" name="parentDiagramObject" class="org.i4change.app.hibernate.beans.diagram.DiagramObject"/>
+    <property name="svgFile" type="boolean" column="svgfile"/>
+    <property name="pngFile" type="boolean" column="pngfile"/>
+    <property name="shortName" type="string" column="shortname"/>
+  </class>
+</hibernate-mapping>

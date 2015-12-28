@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+<class name="saveAllDiagramWindow" extends="guiPresenter" labelid="640"
+    docking="true" closable="true" width="400" resizeable="false" 
+    x="$once{ canvas.width/2 - this.width/2 }" y="100" height="150">
+    
+    <attribute name="refObj" value="null" />
+    
+    <handler name="oninit">
+        //Add Help Item
+        canvas.addCurrentHelpId(12,this.__constructor__.classname);
+    </handler>
+    
+    <handler name="oninit">
+    	lz.ModeManager.makeModal(this);
+    </handler>
+    
+    <handler name="onclose">
+    	lz.ModeManager.release(this);
+    </handler>
+    
+    <infoIconBox y="22" iconResourceName="messagebox_warning_rsc"
+                 labelid="641" width="$once{ parent.width - 20 }" x="10" />
+               
+	<simpleLabelButton name="_cancel" x="$once{parent.width - 115*3 }" 
+        y="$once{parent.height - 26 }" labelid="642" width="110" height="20">
+		<handler name="onclick">
+			this.parent.close();
+		</handler>
+	</simpleLabelButton>
+    
+    <simpleLabelButton name="_do_not_save" x="$once{parent.width - 115*2 }" 
+        y="$once{parent.height - 26 }" labelid="643" width="110" height="20">
+        <handler name="onclick">
+            this.parent.refObj.doNotSaveObjectToDatabase();
+            this.parent.close();
+        </handler>
+    </simpleLabelButton>      
+    
+    <simpleLabelButton name="_confirm_each" x="$once{parent.width - 115*1 }" 
+        y="$once{parent.height - 26 }" labelid="644" width="110" height="20">
+        <handler name="onclick">
+            this.parent.refObj.confirmSaveEachAsObjectToDatabase();
+            this.parent.close();
+        </handler>
+    </simpleLabelButton>        
+	
+</class>
+
+</library>

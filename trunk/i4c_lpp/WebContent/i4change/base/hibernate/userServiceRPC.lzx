@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+	<security>
+        <allow>
+            <pattern>^org.i4change.app.http.javarpc\.UserServiceRPC</pattern>
+        </allow>
+    </security>
+    
+    <!-- See WEB-INF/classes/TypesExample.java for java source. -->
+    <javaCallRPC name="userServiceRPC" scope="webapp" secure="$once{ canvas.javaRPCSecure }" secureport="$once{ canvas.httpport }"
+    		 autoload="false" objectreturntype="javabean"
+    		 remoteclassname="org.i4change.app.http.javarpc.UserServiceRPC">
+    	
+    	<attribute name="refreshDelegate" value="null" />
+
+        <handler name="onload">
+            // Set buttons visible only after JavaRPC object loads
+            //if ($debug) Debug.write('onload:', this);
+            languageServiceRPC.load();
+            this.refreshDelegate = new LzDelegate( this, "refreshSessionMeth" );
+            lz.Timer.addTimer( this.refreshDelegate, 30000 );
+        </handler>
+
+        <handler name="ondata" args="res">
+            ////if ($debug) Debug.write('(types ondata) response is:', res);
+        </handler>
+        
+        <method name="refreshSessionMeth" args="item">
+        	this.refreshSession.doCall();
+        </method>
+        
+        <netRemoteCallRPC name="getUserSalutations" funcname="getUserSalutations" showLoading="false">
+            <param><method name="getValue">return canvas.sessionId;</method></param>
+			<param><method name="getValue">return canvas.userlang;</method></param> 
+	        <handler name="ondata" args="value">
+	            //The onResult-Handler will be called be the rtmpconnection
+	            //Debug.write("getUserSalutations ",value);
+	            canvas.salutationsInitValues = value;
+				//check for password reset
+				if (canvas.isResetUsername){
+					canvas.loaderVar.close();
+					new lz.resetPassword(canvas);
+				} else { 
+					
+					if (canvas.userAutoLoggedIn) {
+						//Load User Values and Log 'em in
+						
+						//set canvas.userobject = value;
+						//set canvas.orgUserList
+						//set canvas.currentdomain = item.obj.name;
+                		//set canvas.currentdomainObj = item.obj;
+                		//set canvas.currentdomainUserObj = item.orgUser;
+						//canvas.currentRole
+						
+						//
+						new lz.autoLoginValues(canvas);
+						
+					} else {
+						//do not show loggin-PopUp for the test-Application
+						//new lz.checkLoginData(canvas.main_content._content.inner);
+						//Show Kaleidoscope
+						canvas.showKaleidoscope();
+					}
+					
+				}
+	        </handler> 
+        </netRemoteCallRPC>
+        
+        <netRemoteCallRPC name="refreshSession" funcname="refreshSession" showLoading="false" >    
+            <netparam><method name="getValue">return canvas.sessionId;</method></netparam>   
+            <handler name="ondata" args="value">
+                ////if ($debug) Debug.write("hibRtmpConnection/refreshSession [",value,"]");
+                lz.Timer.addTimer( parent.refreshDelegate, 30000 );
+            </handler>
+        </netRemoteCallRPC>
+        
+    </javaCallRPC>
+
+</library>

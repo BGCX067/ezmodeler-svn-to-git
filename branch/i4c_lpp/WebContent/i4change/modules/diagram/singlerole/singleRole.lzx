@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+ 
+<!--- Language editor module. You can edit the label for your language. -->
+<class name="singleRole" extends="baseContentDiagramView" 
+       helpId="2" diagramType="singleRole">
+    
+ 	<handler name="oninit">
+ 		<![CDATA[
+        
+	 		this._scrollcontent.dragArea.contentArea.setAttribute('x',-(canvas.defaultDiagramWidth/2-(canvas.width/2)-100));
+	 		this._scrollcontent.dragArea.contentArea.setAttribute('y',-(canvas.defaultDiagramHeight/2-((canvas.height-canvas.naviHeight)/2))+100);
+	 	
+
+        ]]>
+    </handler>
+    
+    <!--
+            if (canvas.initObjectDiagram!=null){
+                //if ($debug) Debug.write("canvas.initObjectDiagram: ",canvas.initObjectDiagram);
+                if (canvas.initObjectDiagram[0] == 'processgroup'){
+                    this._scrollcontent.dragArea.contentArea._currentBoard.loadFixedProcessgroup(
+                        canvas.initObjectDiagram,
+                        canvas.defaultDiagramWidth/2+canvas.defaultProcessGroupWidth/2-canvas.width/2+100,
+                        canvas.defaultDiagramHeight/2+canvas.defaultProcessGroupHeight/2-(canvas.height-canvas.naviHeight)/2
+                    );
+                }
+            }
+            
+     -->    
+    
+    <handler name="onMenu">
+        canvas._dashboardMenubar.setAttribute('visibility','hidden');
+        canvas._roleViewMenubar.setAttribute('visibility','hidden');
+        canvas._processgroupMenubar.setAttribute('visibility','hidden');
+        canvas._hierarchicalMenubar.setAttribute('visibility','hidden');
+        canvas._singleRoleMenubar.setAttribute('visibility','visible');
+    </handler>
+    
+    <method name="initWriteDialogs" >
+        new lz.roleViewToolBar(this,{name:"_toolBar",x:"0",y:"4"});
+        <!--
+            new lz.roleExplorer(this,{name:"_roleexplorer"});
+         -->
+    </method>
+ 	
+	<baseDrawContent name="_scrollcontent" width="${ canvas.width - parent._diagramSideBar.width }"
+		  height="${ canvas.height-canvas.naviHeight-20 }">
+        
+        <view name="dragArea">
+            <dragstate name="dragger" />
+            
+            <view name="contentArea">
+    			<remoteDrawBoard name="_currentBoard" diagramType="4"
+    				width="$once{ canvas.defaultDiagramWidth }"
+    				height="$once{ canvas.defaultDiagramHeight }" />
+    				
+    		    <view name="boundboxesView"
+    		    	  width="${ parent._currentBoard.width }" 
+    		    	  height="${ parent._currentBoard.height }" />
+    		</view>		
+		</view>
+		<!--
+        <hEventScrollbar name="_vscrollbar">
+            <handler name="onFinishedDrag">
+                ////if ($debug) Debug.write("onblur: ",this);
+                parent.parent._diagramSideBar.updateSidebar();
+            </handler>
+        </hEventScrollbar>
+        <vEventScrollbar name="_hscrollbar">
+            <handler name="onFinishedDrag">
+                ////if ($debug) Debug.write("onblur: ",this);
+                parent.parent._diagramSideBar.updateSidebar();
+            </handler>
+        </vEventScrollbar>
+         -->
+	</baseDrawContent>
+     
+    <zoomBox name="zoombar" />
+    
+    <diagramSideBarFlow name="_diagramSideBar" />
+    
+</class>
+
+</library>

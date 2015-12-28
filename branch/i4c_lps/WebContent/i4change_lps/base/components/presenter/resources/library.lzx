@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+	<resource src="presenter_thumb.swf" name="presenter_thumb_rsc" />
+     
+	<resource name="btn_presenter_close">
+        <frame src="close_up.png" />
+        <frame src="close_mo.png" />
+        <frame src="close_dn.png" />
+    </resource> 
+    
+    <resource name="btn_presenter_mini_close">
+        <frame src="button_cancel.png" />
+        <frame src="button_cancel.png" />
+        <frame src="button_cancel.png" />
+    </resource> 
+    
+    
+</library>

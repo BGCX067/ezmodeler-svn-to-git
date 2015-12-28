@@ -1,0 +1,335 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+    
+<class name="labelTabButtonHeader" extends="simpleLabelButton" height="28" width="196">
+    <attribute name="refObj" value="null" />
+    <handler name="onclick">
+        ////if ($debug) Debug.write("onclick setSelection",this,this.refObj);
+        parent.parent.parent.mainbar.usertabs.setSelection(this);
+    </handler>
+</class>
+
+<class name="labelTabButton" extends="view">
+    
+    <attribute name="headBtn" value="null" />
+    
+    <attribute name="hideInMenu" value="false" type="boolean" />
+    
+    <handler name="oninit">
+    	if (this.hideInMenu) {
+    		this.headBtn = new lz.labelTabButtonHeader(parent.parent.parent.sideBar.headerTabs,{
+    		                      labelid:this.labelid,refObj:this,visibility:'hidden'});
+    	} else {
+    		this.headBtn = new lz.labelTabButtonHeader(parent.parent.parent.sideBar.headerTabs,{
+    		                      labelid:this.labelid,refObj:this});
+    	}
+    </handler>
+    
+    <attribute name="labelid" type="number" setter="setLabelId(labelid)" />
+    <method name="setLabelId" args="_labelid" >
+        this.labelid = _labelid;
+        this.setAttribute("text",canvas.getLabelName(this.labelid));
+    </method>
+    
+</class>
+
+<!--- User Profile Setting Panel -->
+<class name="userSettings" extends="baseContentTabbedView" labelid="5" notifyScrollWheel="false">
+	
+	<handler name="oninit">
+		this.mainbar.sendToBack();
+	</handler>
+	
+	<view name="_savecontentbar" layout="axis:x;spacing:2;inset:2" x="2" height="28" y="2"
+          width="$once{ parent.width }" bgcolor="$once{ canvas.baseMousecolorizer }">
+        <baseChooseIcon resourceN="filesave_rsc" labelid="144" y="2" 
+            onclick="this.parent.parent.mainbar.usertabs.doSaveEvent()" />
+        <baseChooseIcon resourceN="reload_rsc" labelid="156" y="2" 
+            onclick="this.parent.parent.mainbar.usertabs.doReloadEvent()" />        
+    </view>
+		    
+	<view name="sideBar" y="32" layout="axis:y;spacing:2;inset:2" width="200" height="${ parent.height }" 
+		  bgcolor="$once{ canvas.baseMouseOvercolorizer }">
+		<view name="headerTabs" x="2" layout="axis:y;spacing:2" bgcolor="0xF0F0F0" width="196" >
+            
+        </view>
+        <userProfileLicenseInfo name="licenseInfo" height="${ parent.height-this.y-2 }"/>
+	</view>  
+	
+    <view x="200" y="32" name="mainbar" width="${ parent.width-200 }"
+    	  height="${ parent.height-32 }" clip="true" showhandcursor="false"> 
+          
+    	<handler name="onmouseover">
+	        setCurrentMouseWheelObject(this._scrollbar);
+	    </handler>
+	    <handler name="onmouseout">
+	        disableCurrentMouseWheelObject();
+	    </handler>
+	    
+	    <view name="usertabs" >
+	        
+	        <attribute name="selected" value="null" />
+	        <attribute name="userObj" value="null" />
+	        
+	        <method name="getUserProperties" args="objName">
+	            if (this.userObj == null) {
+	                return null;
+	            }
+	            if (this.userObj.regObjectObj == null) {
+	                return null;
+	            }
+	            //if ($debug) Debug.write("getUserProperties: ",objName,this.userObj.regObjectObj);
+	            for (var eg in this.userObj.regObjectObj) {
+	                if (eg == objName) {
+	                    return this.userObj.regObjectObj[eg];
+	                }
+	            }
+	            return null;
+	        </method>
+	        
+	        <method name="setUserProperties" args="dValues,objName">
+	            if (this.getUserProperties(objName) != null) {
+	                //if ($debug) Debug.write("setUserProperties: ",objName,dValues);
+	                this.userObj.regObjectObj[objName] = dValues;
+	            } else {
+	            	if (this.userObj.regObjectObj == null) {
+    	            	this.userObj.regObjectObj = new Object();
+                        this.userObj.regObjectObj[objName] = dValues;
+	            	} else {
+	            		this.userObj.regObjectObj[objName] = dValues;
+	            	}
+	            }
+	        </method>
+	        
+	        <handler name="oninit">
+	            this.selected = this._userSettingsTab.headBtn;
+	            this.selected.setAttribute("enabled",false);
+	            this.getUserProfile.doCall();
+	        </handler>
+	        
+	        <netRemoteCallRPC name="getUserProfile" funcname="getUserProfile" 
+	            remotecontext="$once{  canvas.userServiceRPC }" > 
+	            <netparam><method name="getValue"> return canvas.sessionId; </method></netparam>
+	            <handler name="ondata" args="value">
+	                <![CDATA[
+	                    if ($debug) Debug.write("getUserProfile ",value);
+	                    var d = new Date();
+	                    parent.userObj = value;
+	                    if (value.pictureuri==null || value.pictureuri.length==0){
+	                        value.pictureuri = "d.jpg";
+	                    } else {
+	                        value.pictureuri = "_profile_"+value.pictureuri;
+	                    }
+	                    
+	                    canvas.userobject = value;
+	                    
+	                    var downloadurl = canvas.httpprotocol+'://'+canvas.rtmphostlocal+':'+canvas.httpport
+	                            +'/'+canvas.webAppRootKey+'/DownloadHandler?fileName='+value.pictureuri
+	                            +'&moduleName=userprofile&parentPath=&room=&domain='
+	                            +'&sid='+canvas.sessionId+'&random='+d.getTime();
+	                    if ($debug) Debug.write("downloadurl "+downloadurl);
+	                    value["downloadurl"] = downloadurl;
+	                    parent._userSettingsTab._content.initFields(value);
+	                    parent._companySettingsTab._content.initFields(value);
+	                    parent._orgSettingsTab._content.doInit();
+	                    parent._jobSettingsTab._content.doInit();
+                        //parent._licenseSettingsTab._content.doInit();
+                        parent.parent.parent.sideBar.licenseInfo.setUserLicense(parent,value);
+	                ]]>
+	            </handler>
+	        </netRemoteCallRPC> 
+	        
+	        <method name="doSaveEvent">
+	            this.selected.refObj._content.doSaveTemp();
+	            if ($debug) Debug.write("this..userObj",this.userObj);
+	            this.updateUserProfile.doCall();
+	        </method>
+	        
+	        <method name="doReloadEvent">
+	            this.getUserProfile.doCall();
+	        </method>
+	        
+	        <netRemoteCallRPC name="updateUserProfile" funcname="updateUserProfile" 
+	            remotecontext="$once{  canvas.userServiceRPC }" activeErrorHandler="true"> 
+	            <netparam><method name="getValue"> return canvas.sessionId; </method></netparam>
+	            <netparam><method name="getValue"> return parent.parent.userObj; </method></netparam>
+	            <handler name="ondata" args="value">
+	                <![CDATA[
+	                    //if ($debug) Debug.write("updateUserProfile ",value);
+	                    if (value > 0) {
+	                        parent.doReloadEvent();
+	                    }
+	                ]]>
+	            </handler>
+	        </netRemoteCallRPC> 
+	        
+	        <method name="setSelection" args="refBtnHead">
+	            //if ($debug) Debug.write("setSelection",refBtnHead);
+	            this.selected.refObj._content.doSaveTemp();
+	            this.selected.setAttribute("enabled",true);
+	            this.selected.refObj._content.setAttribute("visibility","hidden");
+	            this.selected = refBtnHead;
+	            this.selected.setAttribute("enabled",false);
+	            this.selected.refObj._content.setAttribute("visibility","visible");
+	            this.selected.refObj._content.doInit();
+	        </method>
+	        
+	        <method name="loadPaymentFormByTransaction" args="transactionId,price,users">
+	        	this._paymentSettingsTab.headBtn.onclick.sendEvent();
+	        	this._paymentSettingsTab._content._userSettingsTabPaypal.setTransactionId(transactionId,price,users);
+	        </method>
+            
+	        <labelTabButton name="_userSettingsTab" labelid="1082" >
+	            <userSettingsTabUser name="_content">
+	                <!-- save Temp see the class inner details -->
+	            </userSettingsTabUser>
+	        </labelTabButton>
+            
+	        <labelTabButton name="_companySettingsTab" labelid="1104" >
+	            <userSettingsTabCompany name="_content" visibility="hidden">
+	                <!-- save Temp see the class inner details -->
+	            </userSettingsTabCompany>
+	        </labelTabButton>
+            
+	        <labelTabButton name="_orgSettingsTab" labelid="1083" >
+	            <method name="getStep" args="attrName">
+	                //if ($debug) Debug.write("getStep: ",attrName);
+	                return parent.getUserProperties(attrName);
+	            </method>
+	            <method name="saveStep" args="dValues,attrName">
+	                parent.setUserProperties(dValues,attrName);
+	            </method>
+	            <view name="_content" visibility="hidden">
+	                <attribute name="isInited" value="false" type="boolean" />
+	                <method name="doInit">
+	                    //Fake Loading a bit to cheat User-Impression
+	                    if (this.isInited) {
+	                        this._registerWizzardStep3.oninit.sendEvent();
+	                    } else {
+	                        this.isInited = true;
+	                        this.fadeDelegate = new LzDelegate( this, "doLoadNext" );
+	                        lz.Timer.addTimer( this.fadeDelegate, 500 );
+	                    }
+	                </method>
+	                <method name="doLoadNext" args="item">
+	                    new lz.registerWizzardStep3(this,{name:'_registerWizzardStep3'});
+	                </method>
+	                <method name="doSaveTemp">
+	                    this._registerWizzardStep3.doSaveTemp();
+	                </method>
+	                <!--
+	                <registerWizzardStep3 name="_registerWizzardStep3" y="22" />
+	                 -->
+	            </view>
+	        </labelTabButton>
+            
+	        <labelTabButton name="_jobSettingsTab" labelid="1084" >
+	            <method name="getStep" args="attrName">
+	                //if ($debug) Debug.write("getStep: ",attrName);
+	                return parent.getUserProperties(attrName);
+	            </method>
+	            <method name="saveStep" args="dValues,attrName">
+	                parent.setUserProperties(dValues,attrName);
+	            </method>
+	            <view name="_content" visibility="hidden">
+	                <attribute name="isInited" value="false" type="boolean" />
+	                <method name="doInit">
+	                    //Fake Loading a bit to cheat User-Impression
+	                    if (this.isInited) {
+	                        this._registerWizzardStep4.oninit.sendEvent();
+	                    } else {
+	                        this.isInited = true;
+	                        this.fadeDelegate = new LzDelegate( this, "doLoadNext" );
+	                        lz.Timer.addTimer( this.fadeDelegate, 1000 );
+	                    }
+	                </method>
+	                <method name="doLoadNext" args="item">
+	                    new lz.registerWizzardStep4(this,{name:'_registerWizzardStep4'});
+	                </method>
+	                <method name="doSaveTemp">
+	                    this._registerWizzardStep4.doSaveTemp();
+	                </method>
+	                <!--
+	                <registerWizzardStep4 name="_registerWizzardStep4" y="22" />
+	                 -->
+	            </view>
+	        </labelTabButton>
+	        
+	        <!-- 1128 -->
+            <labelTabButton name="_licenseSettingsTab" labelid="1145">
+                <handler name="oninit">
+                    parent.licenseContentRef = this;
+                </handler>
+                <method name="getStep" args="attrName">
+                    //if ($debug) Debug.write("getStep: ",attrName);
+                </method>
+                <method name="saveStep" args="dValues,attrName">
+                    //parent.setUserProperties(dValues,attrName);
+                </method>
+                <view name="_content" visibility="hidden">
+                    <attribute name="isInited" value="false" type="boolean" />
+                    <method name="doInit">
+                        //Fake Loading a bit to cheat User-Impression
+                        if (this.isInited) {
+                            this._userSettingsTabLicense.oninit.sendEvent();
+                        } else {
+                            this.isInited = true;
+                            this.fadeDelegate = new LzDelegate( this, "doLoadNext" );
+                            lz.Timer.addTimer( this.fadeDelegate, 2000 );
+                        }
+                    </method>
+                    <method name="doLoadNext" args="item">
+                        new lz.userSettingsTabLicense(this,{name:'_userSettingsTabLicense'});
+                    </method>
+                    <method name="doSaveTemp">
+                        this._userSettingsTabLicense.doSaveTemp();
+                    </method>
+                    <!--
+                    <registerWizzardStep4 name="_registerWizzardStep4" y="22" />
+                     -->
+                </view>
+            </labelTabButton>
+            
+            <!--
+            <labelTabButton name="_paymentSettingsTab" labelid="1083" hideInMenu="true">
+                <method name="getStep" args="attrName">
+                    //if ($debug) Debug.write("getStep: ",attrName);
+                </method>
+                <method name="saveStep" args="dValues,attrName">
+                    //Debug
+                </method>
+                <view name="_content" visibility="hidden">
+                    <attribute name="isInited" value="false" type="boolean" />
+                    <method name="doInit">
+                    	if ($debug) Debug.write("doInit");
+                        //Fake Loading a bit to cheat User-Impression
+                        if (this.isInited) {
+                            this._userSettingsTabPaypal.oninit.sendEvent();
+                        } else {
+                        	if ($debug) Debug.write("INIT PAYPAL FORM");
+                            this.isInited = true;
+                            this.doLoadNext(null);
+                        }
+                    </method>
+                    <method name="doLoadNext" args="item">
+                    	if ($debug) Debug.write("doLoadNext");
+                        new lz.userSettingsTabPaypal(this,{name:'_userSettingsTabPaypal'});
+                    </method>
+                    <method name="doSaveTemp">
+                        //this._registerWizzardStep3.doSaveTemp();
+                    </method>
+                    
+                </view>
+            </labelTabButton>
+             -->
+            <!--
+                    <registerWizzardStep3 name="_registerWizzardStep3" y="22" />
+                     -->
+            
+	    </view>
+	    <vscrollbar name="_scrollbar" />
+	</view>
+	
+</class>
+
+</library>

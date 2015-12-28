@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:lang="http://www.springframework.org/schema/lang"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+                           http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-2.0.xsd">
+    
+    
+    <bean id="propertyservice.service" parent="txProxyTemplate">
+        <property name="target" ref="txPropertyservice.service" />
+    </bean>
+    
+    <!-- Class for Methods which can be invoked by the client -->
+    <bean id="txPropertyservice.service" 
+        class="org.i4change.app.remote.PropertyService" >
+        <property name="application" ref="web.handler" />
+        <property name="propertyDaoImpl" ref="i4change.PropertyDaoImpl" />
+        <property name="organisationDaoImpl" ref="i4change.OrganisationDaoImpl" />
+        <property name="diagramObjectPropertyDaoImpl" ref="i4change.DiagramObjectPropertyDaoImpl" />
+        <property name="propertyValidationTypeDaoImpl" ref="i4change.PropertyValidationTypeDaoImpl" />
+        <property name="propertyCategoryDaoImpl" ref="i4change.PropertyCategoryDaoImpl" />
+        <property name="propertyListItemDaoImpl" ref="i4change.PropertyListItemDaoImpl" />
+        <property name="objectTypeDaoImpl" ref="i4change.ObjectTypeDaoImpl" />
+        <property name="userDaoImpl" ref="i4change.UserDaoImpl" />
+        <property name="sessionmanagement" ref="i4change.Sessionmanagement" />
+    </bean> 
+    
+    <bean id="i4change.PropertyDaoImpl"
+        class="org.i4change.app.data.diagram.PropertyDaoImpl">
+    	<property name="sessionFactory" ref="theSessionFactory"/>
+        <property name="organisationDaoImpl" ref="i4change.OrganisationDaoImpl" />
+        <property name="propertyCategoryDaoImpl" ref="i4change.PropertyCategoryDaoImpl" />
+        <property name="propertyListItemDaoImpl" ref="i4change.PropertyListItemDaoImpl" />
+        <property name="fieldmanagment" ref="i4change.Fieldmanagment" />
+    </bean>   
+    
+    <bean id="i4change.PropertyCategoryDaoImpl"
+        class="org.i4change.app.data.diagram.PropertyCategoryDaoImpl">
+    	<property name="sessionFactory" ref="theSessionFactory"/>
+        <property name="organisationDaoImpl" ref="i4change.OrganisationDaoImpl" />
+    </bean>   
+    
+    <bean id="i4change.PropertyValidationTypeDaoImpl"
+        class="org.i4change.app.data.diagram.PropertyValidationTypeDaoImpl">
+    	<property name="sessionFactory" ref="theSessionFactory"/>
+    </bean> 
+    
+    <bean id="i4change.PropertyListItemDaoImpl"
+        class="org.i4change.app.data.diagram.PropertyListItemDaoImpl">
+    	<property name="sessionFactory" ref="theSessionFactory"/>
+    </bean> 
+    
+    <bean id="i4change.ObjectTypeDaoImpl"
+        class="org.i4change.app.data.diagram.ObjectTypeDaoImpl">
+    	<property name="organisationDaoImpl" ref="i4change.OrganisationDaoImpl" />
+    	<property name="sessionFactory" ref="theSessionFactory"/>
+    	<property name="fieldmanagment" ref="i4change.Fieldmanagment" />
+    </bean> 
+    
+</beans>

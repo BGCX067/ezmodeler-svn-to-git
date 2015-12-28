@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+	
+<class name="transactionAdminListItem" extends="basePagingListItem">
+    
+    <attribute name="transactionId" value="" type="string" />
+    <attribute name="tDate" value="" type="string" />
+    <attribute name="tStatus" value="" type="string" />
+    <attribute name="tName" value="" type="string" />
+    <attribute name="tAmount" value="" type="string" />
+    
+    <turnOverTextItem text="${ parent.transactionId }" width="80" />
+    <turnOverTextItem text="${ parent.tDate }" width="100" />
+    <turnOverTextItem text="${ parent.tStatus }" width="100" />
+    <turnOverTextItem text="${ parent.tName }" width="140" />
+    <turnOverTextItem text="${ parent.tAmount }" width="140" />
+    
+</class>
+
+<!--- Admin module to configure the Conference or Audience room.-->
+<class name="transactionAdmin" extends="baseContentTabbedView" labelid="1367">	
+
+    <handler name="oninit">
+        //Add Help Item
+        //canvas.addCurrentHelpId(42,this.__constructor__.classname);
+    </handler>  
+        
+    <view>
+    	
+    	<labelText labelid="1383" width="200" y="650" resize="false" x="2" />  
+            <dateField name="expireDate" y="650" x="120" width="140" text="" />
+
+		<turnOverListOrderedPaged name="_turnoverlist" width="680" height="400" x="2" y="60" 
+            orderby="c.propertyId" step="50" asc="true" listItemName="transactionAdminListItem">
+    
+            <handler name="oninit">
+                this.addHeaderItem(1378,100);
+                this.addHeaderItem(1379,100);
+                this.addHeaderItem(1380,100);
+                this.addHeaderItem(1381,140);
+                this.addHeaderItem(1382,140);
+                this.getTransactionsByDate.doCall();
+            </handler>
+            
+            <handler name="oncallnext" >
+                this.getTransactionsByDate.doCall();
+            </handler>
+            
+            <handler name="oncallpre" >     
+                this.getTransactionsByDate.doCall();
+            </handler>
+            
+            <handler name="onclickedItem" args="obj">
+                if ($debug) Debug.write("onclickedItem",obj,obj.obj);
+            </handler>
+            
+            <netRemoteCallRPC name="getTransactionsByDate" funcname="getTransactionsByDate" 
+                              remotecontext="$once{  canvas.applicationRPC }" >      
+                <netparam><method name="getValue"> return canvas.sessionId; </method></netparam>
+                <handler name="ondata" args="value">
+                    if ($debug) Debug.write("getTransactionsByDate: ",value);
+                    //this.parent.destroy();
+                    this.parent.initValues(value.length);
+                    this.parent.renderContent(value);
+                </handler>
+            </netRemoteCallRPC> 
+            
+            <method name="renderContent" args="records">
+                <![CDATA[
+                this.clearList();
+                for (var i=0;i<records.length;i++){
+                    new lz.objectTypeAdminListItem(this._innerlist._inn._inn,{
+                        obj:records[i],
+                        objectTypeId:records[i].objectTypeId,
+                        oName:canvas.getLabelName(records[i].labelid),
+                        objectTypeName:records[i].objectTypeName,
+                        organisation:((records[i].organisation != null) ? records[i].organisation.name : canvas.getLabelName(996))});
+                }
+                ]]>
+            </method>
+    
+        </turnOverListOrderedPaged>
+        
+    </view>
+    
+    <vscrollbar name="_scrollbar" />
+    		
+</class>
+
+
+
+</library>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:lang="http://www.springframework.org/schema/lang"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+                           http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-2.0.xsd">
+    
+    
+    <bean id="downloadservice.service" parent="txProxyTemplate">
+        <property name="target" ref="txDownloadservice.service" />
+    </bean>
+    
+    <!-- Class for Methods which can be invoked by the client -->
+    <bean id="txDownloadservice.service" 
+        class="org.i4change.app.remote.DownloadService">
+        <property name="application" ref="web.handler" />
+        <property name="sessionmanagement" ref="i4change.Sessionmanagement"/>
+        <property name="userDaoImpl" ref="i4change.UserDaoImpl"/>
+        <property name="invoiceDaoImpl" ref="i4change.InvoiceDaoImpl" />
+        <property name="downloadHashDaoImpl" ref="i4change.DownloadHashDaoImpl" />
+    </bean> 
+    
+    <bean id="i4change.DownloadHashDaoImpl"
+        class="org.i4change.app.data.basic.daos.DownloadHashDaoImpl">
+    	<property name="sessionFactory" ref="theSessionFactory"/>
+    	<property name="manageCryptStyle" ref="i4change.ManageCryptStyle" />
+    </bean> 
+    
+</beans>

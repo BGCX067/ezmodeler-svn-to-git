@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+	<security>
+        <allow>
+            <pattern>^org.i4change.app.http.javarpc\.MainServiceRPC</pattern>
+        </allow>
+    </security>
+    
+    <!-- See WEB-INF/classes/TypesExample.java for java source. -->
+    <javaCallRPC name="mainServiceRPC" scope="webapp" secure="$once{ canvas.javaRPCSecure }" secureport="$once{ canvas.httpport }"
+    		 autoload="false" objectreturntype="javabean"
+    		 remoteclassname="org.i4change.app.http.javarpc.MainServiceRPC">
+
+        <handler name="onload">
+            // Set buttons visible only after JavaRPC object loads
+            //if ($debug) Debug.write('onload:', this);
+            this.getsessiondata.doCall();
+        </handler>
+
+        <handler name="ondata" args="res">
+            ////if ($debug) Debug.write('(types ondata) response is:', res);
+        </handler>
+
+        <netRemoteCallRPC name="getsessiondata" funcname="getsessiondata" showLoading="false">
+            <handler name="ondata" args="value">
+            	canvas.sessionObject = value;
+            	canvas.sessionId = value.session_id; 
+            	if ($debug) Debug.write("getsessiondata/ondata: ",value);
+                canvas.loaderVar.setProgress();
+            	applicationRPC.getPublicSID.doCall();
+            </handler>
+        </netRemoteCallRPC>
+        
+        <netRemoteCallRPC name="getStates" funcname="getStates" showLoading="false">
+            <handler name="ondata" args="value">
+            	//if ($debug) Debug.write("getStates/ondata: ",value);
+                canvas.statesInitValues = value;
+	            canvas.loaderVar.setProgress();
+	            if ($debug) Debug.write("userServiceRPC.getUserSalutations ",canvas.userlang,canvas.sessionId);
+	            userServiceRPC.getUserSalutations.doCall();
+            </handler>
+        </netRemoteCallRPC>
+        
+        <!--
+        public Sessiondata getStoredUserSessionBySID(String SID)
+         -->
+        <netRemoteCallRPC name="getStoredUserSessionBySID" funcname="getStoredUserSessionBySID">
+        	<netparam><method name="getValue">return canvas.userStoredHash; </method></netparam> 
+            <handler name="ondata" args="value">
+            	if ($debug) Debug.write("getStoredUserSessionBySID/ondata: ",value);
+            	if ($debug) Debug.write("getStoredUserSessionBySID/ondata -1- : ",canvas.userStoredHash);
+            	if (value == null) {
+            		languageServiceRPC.getDefaultLanguage.doCall();
+            	} else {
+            		canvas.userAutoLoggedIn = true;
+            		//Overwrite session_id with the remote value
+            		canvas.sessionId = value.session_id; 
+            		canvas.userAutoLoggedObj = value;
+            		canvas.loaderVar.src.setAttribute("text","Loading User Language");
+	            	websiteServiceRPC.getWebItemTypes.doCall();
+	            	//Set Language from last session
+	            	canvas.userlang = value.language_id;
+	            	languageServiceRPC.getLanguageByIdAndMaxLabeled.doCall();
+            	}
+            </handler>
+        </netRemoteCallRPC>
+        
+        <netRemoteCallRPC name="logoutUser" funcname="logoutUser" activeErrorHandler="true" 
+            isCallBackHandler="true">
+            <netparam><method name="getValue">return canvas.sessionId;</method></netparam>
+            <handler name="sendCallBack">
+                //The onResult-Handler will be called be the rtmpconnection
+                //if ($debug) Debug.write("sendCallBack logoutUser: ",value);    
+                canvas.showKaleidoscope();
+            </handler>          
+        </netRemoteCallRPC>         
+        
+    </javaCallRPC>
+
+</library>

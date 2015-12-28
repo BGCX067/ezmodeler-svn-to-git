@@ -1,0 +1,207 @@
+<canvas  width="100%" height="100%" debug="false" bgcolor="0x808080">
+
+
+  <include href="../GraphBox.lzx" />
+  <include href="../GraphBoxDrag.lzx" />
+  <include href="../GraphConnector.lzx" />
+  <include href="../GraphConnectorPanel.lzx" />
+  <include href="../GraphPanel.lzx" />
+  <include href="../Tools.lzx" />
+  
+  <alert name="conalert">
+    Connection between these types is not allowed!
+  </alert>
+  
+  <alert name="deletealert">
+    Cannot delete objects of this type!
+  </alert>
+  
+  <alert name="detailalert">
+  Show details here!
+  </alert>
+
+  <class name="ElementType1" extends="GraphBoxDrag" width="450" height="200" colorBody="0xFFAC2F">
+    <method name="materialize">
+      this.caption.setText("ROLE");
+    </method>
+    <method name="doAction" args="action">
+      if ( action == "details" ) canvas.detailalert.open();
+      else if ( action == "remove" ) canvas.deletealert.open();
+      else super.doAction(action);
+    </method>
+ 
+   <inputtext name="myText" x="5" y="22" width="100" height="100" multiline="true">Role</inputtext>
+
+   
+  </class>
+
+
+  <class name="Activity" extends="GraphBoxDrag" width="120" height="85" colorBody="white">
+    
+	<view width="${parent.width}" height="${parent.height}" />
+
+    <method name="materialize">
+      this.caption.setText("");
+    </method>
+    <method name="doAction" args="action">
+      if ( action == "details" ) canvas.detailalert.open();
+      else if ( action == "remove" )
+	{ 
+		this.setVisible( false );
+            LzFocus.clearFocus();
+            LzModeManager.release( this );
+		this.update();
+	}
+      else super.doAction(action);
+    </method>
+
+   <inputtext name="myText" x="5" y="22" width="${parent.width}" height="${parent.height}" multiline="true">Actvy</inputtext>
+  </class>
+
+
+  <class name="ElementType3" extends="GraphBoxDrag" width="95" height="45" colorBody="0x99CCFF">
+    <method name="materialize">
+      this.caption.setText("Type 3");
+    </method>
+    <method name="doAction" args="action">
+      if ( action == "details" ) canvas.detailalert.open();
+      else super.doAction(action);
+    </method>
+    <text x="5" y="22">Line 1</text>
+  </class>
+
+  <class name="Role" extends="window" width="95" height="150">
+	   <inputtext name="myText"  x="0" y="0" width="${parent.width}" height="50" multiline="true">ROLE</inputtext>
+	
+  </class>
+
+
+  <view name="menubar" x="0" y="0" width="100" height="200">
+    <simplelayout axis="y"/>
+
+    <method name="oninit">
+  <![CDATA[
+    
+    var incr = 0;	 
+    var subs = this.subviews;
+        for(var i = 0; i < subs.length; i++) {
+        Debug.write("Subviews :: " + subs[i]);
+	}
+]]>
+    </method>
+
+    <button y="80" x="10" width="100">Add: Activity
+      <method event="onclick">
+        <![CDATA[
+
+          var b = canvas.scr.panel.addBoxByClass("Activity", {x: 25, y: 25, visible: true});
+          b.redraw();
+        ]]>
+      </method>
+    </button>
+
+
+    <button y="100" x="10" width="100" >Clear
+      <method event="onclick">
+        <![CDATA[
+
+		scr.setVisible( false );
+            LzFocus.clearFocus();
+            LzModeManager.release( scr );
+
+	    var subs = canvas.scr.subviews;
+		for(var i = 0; i < subs.length; i++) {
+		Debug.write("Subview from main :: " + subs[i].id);
+		}	
+
+        ]]>
+      </method>
+    </button>
+
+
+    <button y="120" x="10" width="100">Add: Role
+      <method event="onclick">
+        <![CDATA[
+
+          var b = new Role(canvas.scr, {name:'role', x:150, y:100, width:200, height:150,closeable: 'true', resizable:'true', haswindowfocus:'false',
+					 inset_top: 20,inset_bottom:6,inset_right:5,inset_left:2,
+					  bgcolor: 0x6677DD});
+		b.sendBehind();
+  	      var subs = canvas.scr.subviews;
+		for(var i = 0; i < subs.length; i++) {
+		Debug.write("Subview from main :: " + subs[i].id);
+		}	
+        ]]>
+      </method>
+    </button>
+
+    
+
+   </view>  
+
+      
+
+
+  <view name="scr" x="${parent.menubar.width}" y="0" width="${parent.width}" 
+        height="${parent.height}" clip="true" >
+
+    <method name="oninit">
+    var incr = 0;	 
+    </method>
+
+
+    <GraphPanel name="panel" oninit="this.restart()" >
+
+      <method name="getConnectionClass" args="box1,box2">
+        <![CDATA[
+        // Returns the class of the connector, which should be used for connecting box1 and box2
+        // null, if the connection is not allowed"
+        if ( (box1['classname'] == 'ElementType1' && box2['classname'] == 'ElementType3') ||
+          (box2['classname'] == 'ElementType1' && box1['classname'] == 'ElementType3') ) {
+            canvas.conalert.open();
+            return null;
+        }
+        return "GraphConnector";
+        ]]>
+      </method>
+    
+
+     <button y="140" x="10" width="100">Save
+      <method event="onclick">
+        <![CDATA[
+
+        var subs = canvas.scr.subviews;
+        var subs_act = canvas.scr.panel.subviews;
+	
+        for(var i = 0; i < subs.length; i++) {
+		Debug.write ("===================================================");
+       	Debug.write( "Subs ::"+subs[i] +" -- X ::" + subs[i].x + " -- Y ::" + subs[i].y + "W ::"+ subs[i].width
+		+ " H ::" + subs[i].height );
+	      }
+        for(var i = 0; i < subs_act.length; i++) {
+       	Debug.write( "Subs for Panel ::"+subs_act[i] +" -- X ::" + subs_act[i].x + " -- Y ::" + subs_act[i].y + "W ::"+ subs_act[i].width
+		+ " H ::" + subs_act[i].height );
+	      }
+
+
+       for(var i = 0; i < 2; i++) {
+          Debug.write("X1 ::" + canvas.scr.panel.boxConnecting.getNextHandleX()+ "Y1 ::" + canvas.scr.panel.boxConnecting.getNextHandleY());
+          Debug.write("X2 ::" + dragview.x + "Y2 ::" + dragview.y);
+	
+
+        }
+
+        ]]>
+      </method>
+    </button>
+
+</GraphPanel>
+
+  
+    <scrollbar axis="x"/>
+    <scrollbar axis="y"/> 
+  </view>
+  
+
+
+</canvas>

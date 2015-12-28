@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+	<class name="processgroupMenubar" extends="_menubar" height="28" showhandcursor="false">
+        <handler name="oninit">
+            //Add Help Item
+            canvas.addCurrentHelpId(21,this.__constructor__.classname);
+        </handler>         
+        <!-- save menu -->
+        <fileMenuBar />
+        <!-- file menu
+        <_labelMenu labelid="624" width="250">
+            <_labelMenuItemView labelid="627" command="cmd_showProcessExplorer" 
+                                id="menu_showProcessExplorer" />
+            <_labelMenuItemView labelid="626" command="cmd_showRevisionHistoryProcess"
+                                id="menu_showRevisionHistoryProcess" />
+            <_labelMenuItemView labelid="657" command="cmd_showPropertyInspectorProcess" 
+                                id="menu_showPropertyInspectorProcess" />
+        </_labelMenu>  
+         -->  
+    </class>
+    
+	<class name="processgroupMenubarAdmin" extends="processgroupMenubar">
+        <modMenuBarItems />    
+        <adminMenuBarItems />  
+        <usermenuBarItems />
+	</class>    
+    
+    <class name="processgroupMenubarMod" extends="processgroupMenubar">
+		<modMenuBarItems />    
+        <usermenuBarItems />
+    </class> 
+    
+    <class name="processgroupMenubarUser" extends="processgroupMenubar">
+        <usermenuBarItems />
+    </class> 
+    
+</library>

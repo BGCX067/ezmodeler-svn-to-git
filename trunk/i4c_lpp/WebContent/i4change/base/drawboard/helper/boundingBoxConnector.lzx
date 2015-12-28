@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+<class name="boundingBoxConnector" extends="drawViewNewItem" opacity="0.7" >
+    
+    <attribute name="typeOfObject" value="boundingBoxConnector" type="string" />
+    
+    <attribute name="pointRect" value="null" />
+    <attribute name="isDrag" value="false" type="boolean" />
+    <attribute name="isLast" value="false" type="boolean" />
+    <attribute name="pointIndex" value="0" type="number" />
+    
+    <attribute name="start_x" value="0" type="number" />
+    <attribute name="start_y" value="0" type="number" />
+    
+    <attribute name="delta_x" value="0" type="number" />
+    <attribute name="delta_y" value="0" type="number" />
+    
+    <attribute name="init_x" value="0" type="number" />
+    <attribute name="init_y" value="0" type="number" />
+    
+    <attribute name="snap_size" value="10" type="number" />
+    
+    <attribute name="activeSnap" value="false" type="boolean"/>
+    
+    <handler name="onx" args="x">
+        if (this.activeSnap) {
+            if (lz.Keys.downKeysArray.length != 1) {
+                var delta_x = x - this.init_x;
+                var trimmed_x = Math.round(delta_x/snap_size) * snap_size;
+                this.setAttribute("x",this.init_x + trimmed_x);
+            }
+        }
+    </handler>
+    
+    <handler name="ony" args="y">
+        if (this.activeSnap) {
+            if (lz.Keys.downKeysArray.length != 1) {
+                var delta_y = y - this.init_y;
+                var trimmed_y = Math.round(delta_y/snap_size) * snap_size;
+                this.setAttribute("y",this.init_y + trimmed_y);
+            }
+        }
+    </handler>
+    
+    <method name="startDrag">
+    	<![CDATA[
+        	if (this.isLast || this.pointIndex == 0) {
+        		new lz.warningPopup(canvas,{error:canvas.getLabelName(1298),closable:true});
+        		return false;
+        	}
+    	
+        	this.start_x = this.x;
+        	this.start_y = this.y;
+        	this.isDrag = true;
+        	
+        	this.activeSnap = true;
+            parent.init_x = parent.x;
+            parent.init_y = parent.y;
+        	this._drag.apply();
+        	
+        	this.setAttribute("opacity",0.7);
+        	return true;
+    	]]>
+    </method>
+    
+    <method name="stopDrag">
+    	//if ($debug) Debug.write("THIS",this.isDrag,this,"DRAG",this._drag);
+    	if (this.isDrag) {
+    	   this.isDrag = false;
+    	   this.activeSnap = false;
+    	   this.setAttribute("opacity",1);
+    	   this._drag.remove();
+    	}
+    	this.delta_x = this.x - this.start_x;
+    	this.delta_y = this.y - this.start_y;
+    </method>
+    
+    <dragstate name="_drag" />
+</class>
+
+<class name="_boundingBoxConnector" extends="view" opacity="0.7" bgcolor="0xFF3300">
+	
+	<attribute name="typeOfObject" value="boundingBoxConnector" type="string" />
+   
+</class>
+
+</library>

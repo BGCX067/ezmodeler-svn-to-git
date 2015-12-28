@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+  <class table="diagraminstanceobject" lazy="false" name="org.i4change.app.hibernate.beans.diagram.DiagramInstanceObject">
+    <id column="diagraminstanceobject_id" name="diagramInstanceObjectId">
+      <generator class="increment"/>
+    </id>
+    <many-to-one outer-join="true" insert="true" column="diagram_id" lazy="false" update="true" name="diagram" class="org.i4change.app.hibernate.beans.diagram.Diagram"/>
+    <many-to-one outer-join="true" insert="true" column="diagramobject_id" lazy="false" update="true" name="diagramObject" class="org.i4change.app.hibernate.beans.diagram.DiagramObject"/>
+    <property name="inserted" type="java.util.Date" column="inserted"/>
+    <property name="insertedby" type="long" column="insertedby"/>
+    <many-to-one outer-join="true" insert="false" column="startdiagramobject_id" lazy="false" update="false" name="startDiagramObject" class="org.i4change.app.hibernate.beans.diagram.DiagramObject"/>
+    <property name="startDiagramObjectId" type="long" column="startdiagramobject_id"/>
+    <many-to-one outer-join="true" insert="false" column="enddiagramobject_id" lazy="false" update="false" name="endDiagramObject" class="org.i4change.app.hibernate.beans.diagram.DiagramObject"/>
+    <property name="endDiagramObjectId" type="long" column="enddiagramobject_id"/>
+    <property name="graphObject" type="text" column="graphObject"/>
+    <property name="objInternalUID" type="text" column="obj_internal_uid"/>
+    <property name="flowType" type="string" column="flowtype"/>
+  </class>
+</hibernate-mapping>

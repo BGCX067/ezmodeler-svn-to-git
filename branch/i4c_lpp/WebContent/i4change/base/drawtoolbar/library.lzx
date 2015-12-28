@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+	
+	<resource name="plain" src="resources/button_cancel.png" />
+	<resource name="saveobj" src="resources/filesave.png" />
+	<resource name="menupointer_rsc" src="resources/menupointer.png" />
+	<resource name="menupointer_multi_rsc" src="resources/menupointer_multi.png" />
+	<resource name="connector_rsc" src="resources/line.png" />
+	
+	<resource name="connector_tree_rsc" src="resources/connector_tree.png" />
+	<resource name="connector_fork_rsc" src="resources/connector_fork.png" />
+	<resource name="connector_flow_rsc" src="resources/connector_flow.png" />
+    
+    <resource name="drill_up_rsc" src="resources/up.png" />
+	
+	<resource name="processgroup_menu" src="resources/processgroup_menuitem.swf" />
+	<resource name="process_menu" src="resources/process_menuitem.swf" />
+	<resource name="activity_menu" src="resources/activity_menuitem.swf" />
+	
+	<resource name="company_menu" src="resources/company_menuitem.swf" />
+	<resource name="departement_menu" src="resources/departement_menuitem.swf" />
+	<resource name="unit_menu" src="resources/unit_menuitem.swf" />
+	
+	<resource name="inputflow_menu" src="resources/inputflow_menuitem.swf" />
+	<resource name="outputflow_menu" src="resources/outputflow_menuitem.swf" />
+	
+	<resource name="issueflow_menu" src="resources/issueflow_menuitem.swf" />
+	
+	<resource name="letter_menu" src="resources/letter.png" />
+    
+    <resource name="zoom_in_rsc" src="resources/zoom_in.png" />
+    <resource name="zoom_out_rsc" src="resources/zoom_out.png" />
+    <resource name="zoom_reset_rsc" src="resources/view_1_1.png" />
+
+	<include href="drawToolBarItem.lzx" />
+	<include href="baseToolBar.lzx" />
+    <include href="drawToolBar.lzx" />
+    <include href="readOnlyToolBar.lzx" />
+    
+</library>

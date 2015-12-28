@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+	<!---
+		Menu for public/private conference and audience room.
+		This class shows exit, moderator, file, setteings and poll menu.
+		Those menu items are connected to each command that has been declared in base/mainMethods.lzx.
+			May 24 2008 commented by onokeiji@gmail.com
+	-->
+	<class name="dashboardMenubarAdmin" extends="_menubar" height="28" >
+       
+       <!--
+        <simpleLabelButton name="_buyNow" height="28" labelid="310">
+            <handler name="onclick">
+                lz.Browser.loadUrl("http://ezmodeler.org/toegang-3-maanden/","_blank");
+            </handler>
+        </simpleLabelButton>
+         -->
+         
+	    <!-- save menu -->
+	    <_labelMenu labelid="615" width="250" fgcolor="0xFFFFFF">
+            <_labelMenuItem labelid="616" command="cmd_new" />
+            <_labelMenuItem labelid="617" command="cmd_open" />
+            <_labelMenuItem labelid="1418" command="cmd_search" />
+            <menuseparator /> 
+            <_labelMenuItem labelid="1402" command="cmd_change_project" />
+            <_labelMenuItem labelid="1094" command="cmd_change_role" />
+            <!--
+            <_labelMenuItem labelid="1095" command="cmd_change_org" />
+             -->
+            <menuseparator />
+            <_labelMenuItem labelid="310" width="250">
+                <handler name="onclick">
+                    quicklinkAct('logout');
+                </handler>
+            </_labelMenuItem> 
+	    </_labelMenu>
+        <modMenuBarItems />    
+        <adminMenuBarItems />  
+        <usermenuBarItems />
+        <buyMenuBar />
+        
+        <!--
+        <simpleLabelButton x="${ parent._usermenuBarItems.x + parent._usermenuBarItems.width }" 
+			   labelid="1398" style="defaultstyle" fgcolor="0xFFFFFF" fontstyle="bold" height="28">
+        	<handler name="onclick">
+                lz.browser.loadUrl("http://ezmodeler.org/toegang-3-maanden/","_blank");
+            </handler>
+        </simpleLabelButton>
+         -->
+        
+	</class>    
+    
+    <class name="dashboardMenubarMod" extends="_menubar" height="28">
+       
+        <!-- save menu -->
+        <_labelMenu labelid="615" width="250">
+            <_labelMenuItem labelid="616" command="cmd_new" />
+            <_labelMenuItem labelid="617" command="cmd_open" />
+            <menuseparator /> 
+            <_labelMenuItem labelid="1402" command="cmd_change_project" />
+            <_labelMenuItem labelid="1094" command="cmd_change_role" />
+            <!--
+            <_labelMenuItem labelid="1095" command="cmd_change_org" />
+             -->
+            <menuseparator />
+            <_labelMenuItem labelid="310" width="250">
+                <handler name="onclick">
+                    quicklinkAct('logout');
+                </handler>
+            </_labelMenuItem>
+        </_labelMenu>
+        <modMenuBarItems />    
+        <usermenuBarItems />
+        <buyMenuBar />
+        
+    </class>   
+    
+    <class name="dashboardMenubarUser" extends="_menubar" height="28">
+       
+        <!-- save menu -->
+        <_labelMenu labelid="615" width="250">
+            <_labelMenuItem labelid="616" command="cmd_new" />
+            <_labelMenuItem labelid="617" command="cmd_open" />
+            <menuseparator /> 
+            <_labelMenuItem labelid="1402" command="cmd_change_project" />
+            <_labelMenuItem labelid="1094" command="cmd_change_role" />
+            <!--
+            <_labelMenuItem labelid="1095" command="cmd_change_org" />
+             -->
+            <menuseparator />
+            <_labelMenuItem labelid="310" width="250">
+                <handler name="onclick">
+                    quicklinkAct('logout');
+                </handler>
+            </_labelMenuItem>
+        </_labelMenu>  
+        <usermenuBarItems />
+        <buyMenuBar />
+        
+    </class>   
+    
+</library>

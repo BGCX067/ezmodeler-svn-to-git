@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+	
+<class name="topbarDropDownButton" width="34" resource="drop_down_topbar_rsc" y="1" 
+          onmouseover="this.setAttribute('frame',2)" onmouseout="this.setAttribute('frame',1)">
+	
+	<attribute name="iconResourceName" value="add_project_topbar_rsc" type="string" />
+	<event name="iconClick" />
+	<event name="onInitList" />
+	<event name="onselect" />
+	
+    <handler name="onclick">
+        if ($debug) Debug.write("Open Change Dialog");
+        this.list.setAttribute("visibility","visible");
+        lz.ModeManager.makeModal(this.list);
+        lz.Focus.setFocus(this.list, false);
+        this.onInitList.sendEvent();
+    </handler>
+    
+    <view width="21" height="22" name="_bg"
+          x="1" y="1" bgcolor="0xFFFFFF" visibility="hidden" />
+    
+    <view name="add_project" x="1" y="1" width="21" height="22" 
+          onmouseover="parent._bg.setAttribute('visibility','visible')" 
+          onmouseout="parent._bg.setAttribute('visibility','hidden')">
+        <handler name="onclick">
+            parent.iconClick.sendEvent();
+        </handler>
+        <labelTooltip labelid="1272" inittwice="true" />
+    </view>
+    
+    <view name="icon" resource="$once{ parent.iconResourceName }" x="2" y="4" />
+    
+    <labelTooltip labelid="1283" inittwice="true" />
+    <floatinglist name="list" width="120" attach="bottom" shownitems="7"
+                  visibility="hidden" scrollable="true">
+	    <method name="reset" >
+            <![CDATA[
+                var currentCount = this.getNumItems();
+                for (var i = 0; i < currentCount; i++)
+                    this.removeItemAt(0);
+            ]]>
+        </method>
+        <method name="passModeEvent" args="eventStr,view" > <![CDATA[
+            // Once a view has been made modal, this method
+            // gets called ONLY when a user clicks on a view 'outside'
+            // the contents of this view, or clicks on a inputtext view anywhere
+            // on the screen even for a subview within this view.
+            if ( eventStr == "onmousedown"  ){
+                // first, we only care about the mousedown event.
+                // if the user has pressed the mouse down on a textfield
+                // within the component, then we will not know this unless
+                // we test it to see if it is a subview of this component.
+
+                if ( view != null ) { // view is a clickable view
+                    // view is not LITERALLY part of the class heirarchy but
+                    // it maybe part of the floatingview of this component, and if so
+                    // then treat it as if it were a child of the class.
+
+                   if ( !view.childOf(this) ) {
+                        // view is outside of combobox so close the combbobox
+                        this.setOpen(false);
+
+                   } else {
+                        // view is a child of cblist, so don't do anything.
+                   }
+
+                } else {
+                    this.setOpen(false);
+                }
+            }
+            // if we're inside a modal dialog, need to propagate event manually
+            // since floating list is a child of the canvas
+            if (view && view.childOf(this)) {
+                if (view[ eventStr ]) {
+                    view[ eventStr ].sendEvent( view );
+                }
+                return false;
+            }
+           // since a combox is not strictly modal, always return
+           // true to pass the event to the object (oustide combobox)
+           // that was clicked on
+           return true;
+        ]]> </method>
+        <method name="setOpen" args="bool">
+            if (!bool) {
+                this.setAttribute("visibility","hidden");
+                lz.ModeManager.releaseAll();
+            }
+        </method>
+        <handler name="onblur" >
+            if ( lz.Focus.getFocus() != this.interior.cbtext ) {
+                this.setAttribute("visibility","hidden");
+                lz.ModeManager.releaseAll();
+                this.reset();
+            }
+        </handler>
+        <handler name="onselect" args="sel">
+        	if ($debug) Debug.write(this);
+        	this.owner.onselect.sendEvent(sel);
+        	this.setOpen(false);
+        </handler>
+    </floatinglist>
+</class>
+    
+<class name="topNavigation" extends="view" x="${ parent.width - this.width }" 
+       layout="axis:x;spacing:2">
+    
+    <attribute name="projectText" value="" type="string" />
+    <attribute name="text" value="" type="string" />
+    
+    <handler name="ontext">
+        this.info_help.setAttribute('visibility','visible');
+        this.info_help.setSource(canvas.getIconPathByName('icon_topbar_help_rsc')); //Former resource="info_help_rsc" 
+        this.info_role.setAttribute('visibility','visible');
+        this.info_role.setSource(canvas.getIconPathByName('icon_topbar_changeoradd_role_rsc'));
+        this.info_org.setAttribute('visibility','visible');
+        this.info_org.setSource(canvas.getIconPathByName('icon_organization_add_rsc'));
+        this.info_project.setAttribute('visibility','visible');
+        this.search_big_rsc.setAttribute('visibility','visible');
+    </handler>
+    
+    <labelText text="${ parent.text }" y="2" fgcolor="0xFFFFFF">
+        <handler name="onclick">
+            quicklinkAct('userSettings')
+        </handler>
+        <labelTooltip labelid="1099" inittwice="true" />
+    </labelText>
+    
+    <labelText text="${ parent.projectText }" y="2" onclick="" fgcolor="0xFFFFFF">
+        <!--
+        <handler name="onclick">
+            quicklinkAct('userSettings')
+        </handler>
+         -->
+        <labelTooltip labelid="1242" inittwice="true" />
+    </labelText>
+    
+    <topbarDropDownButton name="info_project" visibility="hidden"
+    					  iconResourceName="add_project_topbar_rsc">
+    	<handler name="iconClick">
+    		new lz.changeAndAddProject(canvas);
+    	</handler>
+    	<handler name="onInitList">
+            this.getProjectsByUser.doCall();
+        </handler>
+        <handler name="onselect" args="sel">
+        	this.getProjectById.projectId = sel.value;
+        	this.getProjectById.doCall();
+        </handler>
+        <netRemoteCallRPC name="getProjectById" funcname="getProjectById" 
+            remotecontext="$once{  canvas.projectServiceRPC }" >
+            <attribute name="projectId" value="" type="string" />         
+            <netparam><method name="getValue">return canvas.sessionId;</method></netparam>
+            <netparam><method name="getValue">return parent.projectId;</method></netparam>
+            <handler name="ondata" args="value">
+                <![CDATA[
+                    //The onResult-Handler will be called be the rtmpconnection
+                    //if ($debug) Debug.write("getProjectById: ",value);
+                    if (value != null) {
+                        canvas.projectObj = value;
+                        canvas.currentProjectId = value.projectId;
+                        _currentUserHeaderMenu.setAttribute("projectText"," ( "+canvas.projectObj.name+" ) ");
+                    }
+                ]]>
+            </handler>  
+        </netRemoteCallRPC> 
+        <!--
+            public List<ProjectDTO> getProjectsByUser(String SID)
+         -->
+        <netRemoteCallRPC name="getProjectsByUser" funcname="getProjectsByUser" 
+                          remotecontext="$once{  canvas.projectServiceRPC }" >      
+            <netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+            <netparam><method name="getValue">return canvas.currentdomainObj.organisation_id;</method></netparam>
+            <handler name="ondata" args="value">
+                <![CDATA[
+                    if ($debug) Debug.write("getProjectsByUser: ",value);
+                    parent.list.reset();
+                    for (var i=0;i<value.length;i++) {
+                        parent.list.addItem(value[i].name,value[i].projectId);
+                    }
+                    if (value == null || value.length == 0){
+                    	new lz.errorPopupWithLabel(canvas,{labelerrorid:1288});
+                    }
+                ]]>
+            </handler>
+        </netRemoteCallRPC>  
+    </topbarDropDownButton>
+    
+    <view name="info_role" width="24" >
+        <handler name="onclick">
+        	if (canvas.currentRole != null) {
+                new lz.changeAndAddRole(canvas,{
+                        currentRoleName: canvas.currentRole.roleObject.name
+                    });
+        	} else {
+    		    new lz.changeAndAddRole(canvas);
+        	}
+        </handler>
+        <labelTooltip labelid="1094" inittwice="true" />
+    </view>
+    
+    <!--
+    <view name="info_org" width="24" >
+        <handler name="onclick">
+            //if ($debug) Debug.write("onclick topNavigation");
+        </handler>
+        <labelTooltip labelid="1095" inittwice="true" />
+    </view>
+     -->
+    <view name="search_big_rsc" width="24" resource="search_big_rsc" visibility="hidden">
+        <handler name="onclick">
+            //if ($debug) Debug.write("onclick topNavigation");
+            canvas.doActionmenu('search');
+        </handler>
+        <labelTooltip labelid="1458" inittwice="true" />
+    </view>
+    
+    <view name="info_help" width="24" visibility="hidden">
+        <handler name="onclick">
+            //if ($debug) Debug.write("info_help_rsc: ",this);
+            if (canvas.userobject.userlevel.level_id == 1){
+                new lz.helpCenter(canvas);
+            } else {
+                new lz.modHelpCenter(canvas);
+            }
+        </handler>
+        <labelTooltip labelid="750" inittwice="true" />
+    </view>
+	
+</class>
+
+</library>

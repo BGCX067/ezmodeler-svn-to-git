@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+       http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.0.xsd
+       http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.0.xsd">
+    
+    <!--
+    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
+	 -->
+    <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource"> 
+         <property name="driverClassName" value="com.mysql.jdbc.Driver" /> 
+         <property name="url" value="jdbc:mysql://localhost/i4change_dev3?autoReconnect=true&amp;useUnicode=true&amp;createDatabaseIfNotExist=true&amp;characterEncoding=utf-8" /> 
+         <property name="username" value="root" /> 
+         <property name="password" value="admin" /> 
+    </bean>
+    
+      <!-- DATABASE Connection via hibernate -->
+
+    <bean id="theSessionFactory" class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="mappingLocations">
+            <value>classpath:**/*.hbm.xml</value>
+        </property >
+                     <!--  value="WEB-INF/hibernate.cfg.xml" -->
+        <property name="hibernateProperties">
+            <props>
+            	
+            <prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect</prop>	
+        	<!--
+            <prop key="hibernate.dialect">org.hibernate.dialect.MySQLMyISAMDialect</prop>
+             -->
+            
+            <prop key="hibernate.connection.CharSet">utf8</prop>
+            <prop key="hibernate.connection.characterEncoding">utf8</prop>
+            <prop key="hibernate.connection.useUnicode">true</prop>
+            <prop key="hibernate.hbm2ddl.auto">update</prop>
+            <prop key="hibernate.cglib.use_reflection_optimizer">true</prop>
+            <prop key="hibernate.show_sql">false</prop>
+            <prop key="hibernate.use_sql_comments">true</prop>
+            <prop key="hibernate.generate_statistics">false</prop>
+            <prop key="hibernate.format_sql">false</prop>
+            <prop key="hibernate.generate_statistics">false</prop>
+            <prop key="hibernate.jdbc.batch_size">0</prop>
+            <prop key="hibernate.jdbc.use_streams_for_binary">true</prop>
+            <prop key="hibernate.query.factory_class">org.hibernate.hql.ast.ASTQueryTranslatorFactory</prop>
+            <prop key="hibernate.connection.autocommit">true</prop>
+            
+            <prop key="hibernate.cache.provider_class">org.hibernate.cache.NoCacheProvider</prop>
+            
+            <prop key="hibernate.c3p0.max_size">80</prop>
+            <prop key="hibernate.c3p0.min_size">20</prop>
+            <prop key="hibernate.c3p0.initial_pool_size">20</prop>
+            <prop key="hibernate.c3p0.timeout">250</prop><!-- Zeit bis eine Connection reseted wird die unbenutzt war -->
+            <prop key="hibernate.c3p0.max_statements">50</prop>
+            <!--
+                Möglichkeiten Performance zu verbessern, default ist 3
+            <prop key="hibernate.c3p0.numHelperThreads">3</prop>
+             -->
+    
+            </props>
+        </property>
+    </bean>
+    
+    <!--
+    <bean id="transactionmanager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+        <property name="sessionFactory" ref="theSessionFactory"/>
+    </bean>
+    
+    <bean id="transactionAttributeSource"
+        class="org.springframework.transaction.interceptor.NameMatchTransactionAttributeSource">
+        <property name="nameMap">
+            <map>
+                <entry key="bestellen*"
+                    value="PROPAGATION_REQUIRED"/>
+                <entry key="save" value="PROPAGATION_REQUIRED"/>
+                <entry key="getBy*" value="PROPAGATION_REQUIRED"/>
+                <entry key="deleteBy*" value="PROPAGATION_REQUIRED"/>
+                <entry key="update" value="PROPAGATION_REQUIRED"/>
+            </map>
+        </property>
+    </bean>
+     -->
+    
+    <!--
+    <bean id="transactionInterceptor"
+        class="org.springframework.transaction.interceptor.TransactionInterceptor">
+        <property name="transactionManager" ref="transactionmanager"/>
+        <property name="transactionAttributeSource"
+            ref="transactionAttributeSource"/>
+    </bean>
+    <bean id="autoProxyCreator"
+        class="org.springframework.aop.framework.autoproxy.BeanNameAutoProxyCreator">
+        <property name="interceptorNames">
+            <list>
+                <idref local="transactionInterceptor"></idref>
+            </list>
+        </property>
+        <property name="beanNames">
+            <list>
+                <idref bean="i4change.Sessionmanagement" />
+            </list>
+        </property>
+    </bean>
+     -->
+
+    
+    <!-- similarly, don't forget the PlatformTransactionManager 
+    <bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+    -->
+    
+    <!-- similarly, don't forget the PlatformTransactionManager
+    <bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+     -->
+	<!-- the transactional advice (what 'happens'; see the <aop:advisor/> bean below) 
+	<tx:advice id="txAdvice" transaction-manager="txManager">
+		<tx:attributes>
+			<tx:method name="get*" read-only="true"/>
+			<tx:method name="*"/>
+		</tx:attributes>
+	</tx:advice>
+	-->
+  
+  <!-- ensure that the above transactional advice runs for any execution
+    of an operation defined by the FooService interface
+  <aop:config>
+  <aop:pointcut id="fooServiceOperation" expression="execution(* x.y.service.FooService.*(..))"/>
+  <aop:advisor advice-ref="txAdvice" pointcut-ref="fooServiceOperation"/>
+  </aop:config>
+   -->
+
+    
+    <!-- -->
+    
+    
+    <bean id="hibernateInterceptor" class="org.springframework.orm.hibernate3.HibernateInterceptor">
+        <property name="sessionFactory">
+            <ref bean="theSessionFactory"/>
+        </property>
+    </bean>    
+
+    <bean id="transactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+        <property name="sessionFactory" ref="theSessionFactory"/>
+    </bean>
+
+    <bean id="txProxyTemplate" abstract="true"
+        class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager" ref="transactionManager"/>
+        <property name="transactionAttributes">
+            <props>
+            	<!--
+                <prop key="save*">PROPAGATION_REQUIRED</prop>
+                <prop key="remove*">PROPAGATION_REQUIRED</prop>
+                <prop key="update*">PROPAGATION_REQUIRED</prop>                
+                <prop key="create*">PROPAGATION_REQUIRED</prop>   
+                <prop key="delete*">PROPAGATION_REQUIRED</prop>
+                <prop key="get*">readOnly</prop> -->
+                <prop key="*">PROPAGATION_REQUIRED</prop>
+            </props>
+        </property>
+        <property name="preInterceptors">
+            <list>
+                <ref bean="hibernateInterceptor"/>
+            </list>
+        </property>                        
+    </bean>
+
+    
+	<bean id="testJavaRPC" 
+	    class="org.i4change.test.javarpc.TestJavaRPC">
+		<property name="testService" ref="testService" />
+	</bean>
+
+    <bean id="testService" 
+	    class="org.i4change.test.javarpc.TestService" />
+
+    <bean id="web.handler" parent="txProxyTemplate">
+        <property name="target" ref="txWeb.handler" />
+    </bean>
+    
+	<!-- Class for the Streaming Handlers -->
+	<bean id="txWeb.handler" 
+	    class="org.i4change.app.remote.Application">
+		<property name="sessionmanagement" ref="i4change.Sessionmanagement"/>
+		<property name="userDaoImpl" ref="i4change.UserDaoImpl"/>
+		<property name="objectIdentifierDaoImpl" ref="i4change.ObjectIdentifierDaoImpl"/>
+	</bean>
+		
+    
+    <!--
+        Import Services
+     -->
+    <import resource="services/roleservice.service.xml" />
+    <import resource="services/userservice.service.xml" />    
+    <import resource="services/diagramservice.service.xml" />
+    <import resource="services/propertyservice.service.xml" />	
+    <import resource="services/organizationservice.service.xml" /> 
+    <import resource="services/downloadservice.service.xml" /> 
+    <import resource="services/websiteservice.service.xml" /> 
+    <import resource="services/projectservice.service.xml" /> 
+    <import resource="services/reportservice.service.xml" /> 
+    <import resource="services/schedulerJobs.service.xml" /> 
+    <import resource="services/mailservice.service.xml" />
+    <import resource="services/fieldservice.service.xml" />
+    <import resource="services/installservice.service.xml" />
+    <import resource="services/helpservice.service.xml" /> 
+    <import resource="services/mainservice.service.xml" /> 
+    <import resource="services/configservice.service.xml" />
+    <import resource="services/transactionservice.service.xml" /> 
+    <import resource="services/documentservice.service.xml" />
+    <import resource="services/errorservice.service.xml" /> 
+    <import resource="services/servletservice.service.xml" /> 
+    <import resource="services/validateservice.service.xml" /> 
+    
+</beans>

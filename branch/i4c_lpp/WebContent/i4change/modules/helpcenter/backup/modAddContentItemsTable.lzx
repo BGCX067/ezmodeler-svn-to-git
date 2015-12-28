@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<library>
+    
+<class name="modAddContentItemsTable" extends="view" 
+          clip="true" bgcolor="0xCECECE" >
+    <handler name="oninit">
+        <![CDATA[
+            var helpList = canvas.checkCurrentHelpIds();
+            ////if ($debug) Debug.write("HelpObjects: ",canvas.checkCurrentHelpIds());
+            for (var i=0;i<helpList.length;i++) {
+                this.doAddItem(helpList[i][0],helpList[i][1]);
+            }
+        ]]>
+    </handler>        
+    <method name="closeAllItems">
+        <![CDATA[
+            for (var i=0;i<this._inn.subviews.length;i++) {
+                this._inn.subviews[i].closeItem();
+            }
+        ]]>
+    </method>
+    <method name="doAddItem" args="helpId,helpName">
+        new lz.modHelpCenterHelpItem(this._inn,{helpId:helpId,helpName:helpName});
+    </method>
+    <view name="_inn" layout="axis:y;spacing:2" />
+    <vscrollbar name="_scrollbar" />
+</class>
+
+</library>

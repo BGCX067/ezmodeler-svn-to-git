@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+    
+<class name="pendingOrg" extends="labelExplorerBox" labelid="925"
+    docking="true" closable="false" width="360" 
+    x="$once{ canvas.width - this.width }" y="$once{ canvas.height + 20 }" height="220">
+    
+    <handler name="oninit">
+        <![CDATA[
+            //if ($debug) Debug.write("pendingOrg canvas.currentdomainObj:",canvas.currentdomainObj);
+            var usedDaysPercent = canvas.currentdomainObj.usedWorkDays / canvas.currentdomainObj.maxWorkDays;
+            this._usedDays._usedDays._usedDays.showWindow.setAttribute("to",Math.round(156 * usedDaysPercent));
+            //if ($debug) Debug.write("pendingOrg usedDaysPercent:",usedDaysPercent,Math.round(156 * usedDaysPercent));
+            var dtString = canvas.currentdomainObj.usedWorkDays + " " +
+                                canvas.getLabelName(926) + " " +
+                                canvas.currentdomainObj.maxWorkDays + " " +
+                                canvas.getLabelName(927);
+            this._usedDaysText.setAttribute("text",dtString);
+        ]]>
+    </handler>
+    
+    <method name="finishedDays">
+        //if ($debug) Debug.write("pendingOrg canvas.currentdomainObj:",canvas.currentdomainObj);
+        this._usedDays._usedDays._usedDays.showWindow.doStart();
+    </method>
+    
+    <method name="doClose">
+        //this.setNewUserProperty.doCall();
+        this.close();
+    </method>
+    
+    <view name="_bg" clickable="true" showhandcursor="false" 
+          width="$once{ parent.width }" height="$once{parent.height }" />
+    
+    <labelText name="_mainText" y="22" x="2" width="340" multiline="true" labelid="924" />
+
+    <view name="_usedDays" bgcolor="0x333333" x="20" y="52" width="160" height="22">
+        <view name="_usedDays" bgcolor="0xFFFFFF" x="1" y="1" width="158" height="20">
+            <view name="_usedDays" bgcolor="0xFF3300" height="20" y="1" width="0">
+                <animator name="showWindow" attribute="width" to="20" 
+                    duration="1500" start="false" />
+            </view>
+        </view>
+    </view>
+    
+    <labelText name="_usedDaysText" y="54" x="200" />
+    
+    <infoIconBox name="_infoIconBox" y="80" x="2" 
+                 width="340" labelid="928" />
+    
+	<simpleLabelButton name="_cancel" 
+            x="$once{ parent.width - this.width - 4 }" y="$once{ parent.height - 26 }" 
+			labelid="778" width="100" height="20">
+		<handler name="onclick">
+			this.parent.doClose();
+		</handler>
+	</simpleLabelButton>
+    
+    <animator name="showWindow" attribute="y" to="$once{ canvas.height - parent.height - 20 }" 
+              duration="2500" start="true" onstop="parent.finishedDays()" />
+</class>
+
+</library>

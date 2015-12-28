@@ -1,0 +1,354 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<library>
+
+<class name="dataCarrierItem" extends="baseContentListItem" showhandcursor="false"> 
+
+    <attribute name="obj" value="null" />
+    <attribute name="diagramObjectId" value="0" type="number" />
+    <attribute name="dataCarrierName" value="" type="string" />
+    
+    <handler name="ondblclick">
+        //if ($debug) Debug.write("ondblcick: ",this);
+        parent.parent.parent.parent.editBaseObject(this);
+    </handler>
+    
+    <method name="refreshObject">
+    	parent.parent.parent.parent.updateBaseObject();
+    </method>
+
+    <turnOverTextItem text="$once{ parent.diagramObjectId }" width="110" />
+    <turnOverTextItem text="${ parent.dataCarrierName }" width="236" />
+    <turnOverTextItem width="40">
+        <view resource="edit_s_rsc" x="1">
+        	<handler name="onmouseover">
+        		parent.parent.onmouseover.sendEvent();
+        	</handler>
+        	<handler name="onmouseout">
+                parent.parent.onmouseout.sendEvent();
+            </handler>
+            <handler name="onclick">
+                parent.parent.ondblclick.sendEvent();
+            </handler>
+            <labelTooltip labelid="1377" /> 
+        </view>
+        <view resource="whiteboard_item_delete" x="18" >
+        	<handler name="onmouseover">
+                parent.parent.onmouseover.sendEvent();
+            </handler>
+            <handler name="onmouseout">
+                parent.parent.onmouseout.sendEvent();
+            </handler>
+            <handler name="onclick">
+                parent.parent.destroy();
+                if ($debug) Debug.write("whiteboard_item_delete ",parent.parent.parent.parent.parent.parent);
+                parent.parent.refreshObject();
+            </handler>
+            <labelTooltip labelid="1376" /> 
+        </view>
+    </turnOverTextItem>
+    
+    <!--
+    <labelTooltip text="$once{ canvas.getLabelName(810) + 
+        parseDateToStringTime(parent.obj.diagramObject.inserted) }" />
+     -->
+
+</class>
+
+<class name="dataCarrierItems" extends="view" y="20" x="16" width="${ parent.width-16 }" >
+    
+    <attribute name="baseObject" value="null" />
+    <attribute name="diagramObjectId" value="0" type="number" />
+    <attribute name="baseObjectItemIndex" value="10" type="number" />
+    
+    <handler name="oninit">
+        this.addHeaderItem(831,110);
+        this.addHeaderItem(832,226);
+        this.addHeaderItem(833,40);
+    </handler>
+    
+    <method name="doInitNewItemList" args="baseObject,diagramObjectId,baseObjectItemIndex">
+        <![CDATA[
+            this.baseObject = baseObject;
+            this.diagramObjectId = diagramObjectId;
+            this.baseObjectItemIndex = baseObjectItemIndex;
+            ////if ($debug) Debug.write("this.baseObject: ",this.baseObject);
+            var dataCarrierList = this.baseObject[this.baseObject.length-this.baseObjectItemIndex];
+            ////if ($debug) Debug.write("dataCarrierList: ",dataCarrierList);
+            this.getDiagramObjectsLinked.doCall();
+        ]]>
+    </method>
+    
+    <method name="loadListWithRemote" args="items">
+    	<![CDATA[
+    	    for (var k=0;k<items.length;k++) {
+    	    	var tName = items[k].name;
+    	    	
+        	    for (var i=0;i<dataCarrierList.length;i++) {
+                    if (dataCarrierList[i].diagramObjectId == items[k].diagramObjectId) {
+                    	tName = dataCarrierList[i].dataCarrierName;
+                    }
+                }
+                
+                this.addDiagramObject(items[k].diagramObjectId,tName,items[k].objectTypeName);
+    	    }
+    	]]>
+    </method>
+    
+    <!--
+        public List<DiagramObjectListDTO> getDiagramObjectsLinked(String SID, Long diagramObjectId)
+     -->
+    <netRemoteCallRPC name="getDiagramObjectsLinked" funcname="getDiagramObjectsLinked" 
+                      remotecontext="$once{  canvas.diagramServiceRPC }" showLoading="false" >      
+        <netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+        <netparam><method name="getValue">return parent.parent.diagramObjectId;</method></netparam>
+        <handler name="ondata" args="value">
+            if ($debug) Debug.write("getDiagramObjectsLinked: ",value);
+            //this.parent.destroy();
+            parent.loadListWithRemote(value);
+        </handler>
+    </netRemoteCallRPC> 
+    
+    <event name="onclickedItem" />
+    
+    <method name="clearList">
+        this._innerlist._inn._inn.destroy();
+        new lz.innerList(this._innerlist._inn,{name:'_inn'});
+    </method>
+    
+    <method name="addHeaderItem" args="labelid,width" >
+        new lz.turnOverListHeaderItem(this._innerlisthead._inn,{
+                labelid:labelid,width:width,
+                subviewsid:this._innerlisthead._inn.subviews.length
+            });
+    </method>   
+    
+    <method name="sendInitialWidthUpdate">
+        for (var eg in this._innerlisthead._inn.subviews) {
+            this._innerlisthead._inn.subviews[eg].onwidth.sendEvent(this._innerlisthead._inn.subviews[eg].width);
+        }
+    </method>
+    
+    <method name="addAndUpdate" args="dataCarrierDiagramObjectId,dataCarrierName">
+        this.addDiagramObject(dataCarrierDiagramObjectId,dataCarrierName);
+        this.updateBaseObject();
+    </method>
+    
+    <method name="addDiagramObject" args="dataCarrierDiagramObjectId,dataCarrierName">
+        //if ($debug) Debug.write("this.baseObject: ",this.baseObject);
+        new lz.dataCarrierItem(this._innerlist._inn._inn,{
+                diagramObjectId:dataCarrierDiagramObjectId,
+                dataCarrierName:dataCarrierName
+            });
+        this.sendInitialWidthUpdate();    
+    </method>
+    
+    <method name="updateBaseObject">
+        <![CDATA[
+            var dataCarrierList = new Array();
+            for (var i=0;i<this._innerlist._inn._inn.subviews.length;i++) {
+                var item = this._innerlist._inn._inn.subviews[i];
+                dataCarrierList.push({diagramObjectId:item.diagramObjectId,dataCarrierName:item.dataCarrierName});
+            }
+	        canvas.currentDiagramRef._scrollcontent.dragArea.contentArea._currentBoard.
+	                updateBaseactionobjectDataCarrierByNameAndIndex(this.baseObject[this.baseObject.length-1],
+                        this.baseObjectItemIndex,dataCarrierList);
+        ]]>
+    </method> 
+    
+    <method name="editBaseObject" args="listObjRef">
+        if (this.baseObject == null) {
+                new lz.warningPopup(canvas,{error:canvas.getLabelName(1374),
+                                      closable:true});
+            } else {
+                
+                var targetObjectName = parent.baseObject[0];
+                
+                if (parent.baseObject[0] == 'unit') {
+                    targetObjectName = 'unitFixed';
+                }
+                if (parent.baseObject[0] == 'departement') {
+                    targetObjectName = 'departementFixed';
+                }
+                if (parent.baseObject[0] == 'company') {
+                    targetObjectName = 'companyFixed';
+                }
+                //simulate the Process as a tree, as we got only one Process Type
+                if (parent.baseObject[0] == 'process') {
+                    targetObjectName = 'processtree';
+                }
+                
+                new lz.editDataCarrierItem(canvas,{
+                        name:'_datacarrierExplorer',refObj:parent,
+                        diagramObjectId:listObjRef.diagramObjectId,
+                        listObjRef:listObjRef,
+                        targetObjectName:targetObjectName
+                    });
+            }    	
+    </method>
+    
+    <method name="sendWidthUpdate" args="w,subviewsid" >
+        <![CDATA[
+        ////Debug.write(w,subviewsid,this._innerlist._inn);
+        for (var i=0;i<this._innerlist._inn._inn.subviews.length;i++){
+            this._innerlist._inn._inn.subviews[i].subviews[subviewsid].setAttribute('width',w);
+        }
+        ]]>
+    </method>    
+    <!-- 
+    <labelText x="0" labelid="818" />   
+     --> 
+    
+    <simpleLabelButton name="_addbtn" x="2" labelid="1372" text_x="20" y="2">
+    	<handler name="onclick">
+    		if (parent.baseObject == null) {
+    			new lz.warningPopup(canvas,{error:canvas.getLabelName(1374),
+                                      closable:true});
+    		} else {
+    			
+    			var targetObjectName = parent.baseObject[0];
+    			
+    			if (parent.baseObject[0] == 'unit') {
+                    targetObjectName = 'unitFixed';
+                }
+                if (parent.baseObject[0] == 'departement') {
+                    targetObjectName = 'departementFixed';
+                }
+                if (parent.baseObject[0] == 'company') {
+                    targetObjectName = 'companyFixed';
+                }
+                //simulate the Process as a tree, as we got only one Process Type
+                if (parent.baseObject[0] == 'process') {
+                    targetObjectName = 'processtree';
+                }
+                
+                new lz.datacarrierExplorer(canvas,{
+                        name:'_datacarrierExplorer',refObj:parent,
+                        targetObjectName:targetObjectName
+                    });
+    		}
+        </handler>
+        <view resource="edit_add_rsc" x="2" y="1" />
+        <labelTooltip labelid="819" />
+    </simpleLabelButton>
+    
+    <!--
+    <view x="${ parent.parent.parent.width - 38 }" y="2"
+          resource="edit_add_rsc" onmouseover="" onmouseout="">
+        
+        
+    </view>
+     -->
+    
+    <!-- =========  List Header area  =========-->
+
+    <view name="_innerlisthead" height="20" width="${ parent._innerlist.width }" 
+        x="${ parent._innerlist.x }" y="24" clip="true">
+        <view name="_inn" layout="axis:x;spacing:0" />
+    </view> 
+    
+    <!-- =========  List Contents area  =========-->
+    <view name="_innerlist" height="240" x="0" width="${ parent.width }"
+        y="44" clip="true">
+        <view name="_inn" >
+            <innerList name="_inn" />
+        </view>
+        <vscrollbar name="_scrollbar" />
+        <hscrollbar />
+    </view>    
+    
+    <!--
+    <view x="80" y="20" name="_infoContent" height="100" clip="true"
+          width="${ parent.width-80 }" bgcolor="0xDDDDDD">
+        <view name="_inner" layout="axis:y;spacing:2">
+            
+        </view>
+        <vscrollbar name="_scrollbar" />
+    </view>
+     -->
+</class>
+
+<class name="dataCarrierItemsSidebar" extends="sideBarPod" labelid="826"
+      iconName="icon_datacarriers_inspector" contentHeight="284" contentY="20">
+    
+    <attribute name="selectedObj" value="null" />
+    <attribute name="baseObject" value="null" />
+    <attribute name="diagramObjectId" value="0" type="number"/>
+    
+    <attribute name="currentDrawArea" value="null" />
+    
+    <method name="setObjectSelectedObj" args="objRef,baseObject,diagramObjectId">
+        <![CDATA[   
+        
+            if (this.currentDrawArea == null) {
+            	if ($debug) Debug.write("canvas.currentDiagramRef: ",canvas.currentDiagramRef);
+                this.currentDrawArea = canvas.currentDiagramRef._scrollcontent.dragArea.contentArea._currentBoard;
+            }
+            
+        	this.selectedObj = objRef;
+            this.baseObject = baseObject;
+            this.diagramObjectId = diagramObjectId;
+        
+            //init content if not inited yet
+            if (!this.contentIsInited){
+            	return;
+            }
+            //this.checkContentInitHidden();
+            
+            if (this.content.visibility == "hidden") {
+            	if ($debug) Debug.write("dataCarrierItems Content is HIDDEN");
+            	return;
+            }
+            this.loadContent();
+        
+        ]]>
+    </method>
+    
+    <method name="loadContent">
+    	<![CDATA[
+			this.content.clearList();
+            
+            //Load Data Carrier Module
+            if (this.baseObject[0] == "inputflow" 
+                    || this.baseObject[0] == "outputflow"
+                    || this.baseObject[0] == "activity") {
+                this.content.doInitNewItemList(this.baseObject,this.diagramObjectId,10);
+            } else if (this.baseObject[0] == "unit" || this.baseObject[0] == "unitFixed" 
+                    || this.baseObject[0] == "departement" || this.baseObject[0] == "departementFixed" 
+                    || this.baseObject[0] == "company" || this.baseObject[0] == "companyFixed") {
+                if (this.currentDrawArea.diagramType == 2 || this.currentDrawArea.diagramType == 4) {
+                    this.content.doInitNewItemList(this.baseObject,this.diagramObjectId,12);
+                } else {
+                    this.content.doInitNewItemList(this.baseObject,this.diagramObjectId,9);
+                }
+            } else if (this.baseObject[0] == "process" || this.baseObject[0] == "processtree") {
+                if (this.currentDrawArea.diagramType == 2 || this.currentDrawArea.diagramType == 4) {
+                    this.content.doInitNewItemList(this.baseObject,this.diagramObjectId,10);
+                } else {
+                    this.content.doInitNewItemList(this.baseObject,this.diagramObjectId,9);
+                }
+            } else if (this.baseObject[0] == "processgroup") {
+                this.content.doInitNewItemList(this.baseObject,this.diagramObjectId,9);
+            } else {
+                if ($debug) Debug.write("No DataCarrier for this this.baseObject[0]: ",this.baseObject[0]);
+            }    	
+    	]]>
+    </method>
+    
+    <method name="checkContentInitHidden">
+        if (!this.contentIsInited){
+            new lz.dataCarrierItems(this,{name:'content',visibility:'hidden'});
+            this.contentIsInited = true;
+        }
+    </method>    
+
+    <handler name="contentInit" >
+        new lz.dataCarrierItems(this,{name:'content'});
+    </handler>
+    
+    <!--
+    <dataCarrierItems y="20" name="content" x="10"
+                      width="${parent.width - 10 }" />
+     -->
+</class>
+
+</library>

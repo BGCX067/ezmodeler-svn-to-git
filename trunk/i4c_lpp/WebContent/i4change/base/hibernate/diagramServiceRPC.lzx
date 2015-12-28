@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+	<security>
+        <allow>
+            <pattern>^org.i4change.app.http.javarpc\.DiagramServiceRPC</pattern>
+        </allow>
+    </security>
+    
+    <!-- See WEB-INF/classes/TypesExample.java for java source. -->
+    <javaCallRPC name="diagramServiceRPC" scope="webapp" secure="$once{ canvas.javaRPCSecure }" secureport="$once{ canvas.httpport }"
+    		 autoload="false" objectreturntype="javabean"
+    		 remoteclassname="org.i4change.app.http.javarpc.DiagramServiceRPC">
+
+        <handler name="onload">
+            // Set buttons visible only after JavaRPC object loads
+            //if ($debug) Debug.write('onload:', this);
+            downloadServiceRPC.load();
+        </handler>
+
+        <handler name="ondata" args="res">
+            //if ($debug) Debug.write('(types ondata) response is:', res);
+        </handler>
+        
+        <method name="loadDiagramByIdAndObject" args="diagramId,diagram">
+            this.currentDiagram = diagram;
+            this.getLatestDiagramObjectsById.diagramId = diagramId;
+            this.getLatestDiagramObjectsById.doCall();
+        </method>
+
+        <method name="getDiagramObjectsByDiagram" args="diagramId,diagram">
+            this.currentDiagram = diagram;
+            this.getDiagramObjectsByDiagramId.diagramId = diagramId;
+            this.getDiagramObjectsByDiagramId.doCall();
+        </method>
+        
+	    <!--
+	    public List<DiagramInstanceObjectDTO> getDiagramObjectsByDiagramId(String SID, Long diagramId)
+	     -->
+	    <netRemoteCallRPC name="getDiagramObjectsByDiagramId" funcname="getDiagramObjectsByDiagramId" >      
+            <attribute name="diagramId" value="0" type="number" />
+            <netparam><method name="getValue">return canvas.sessionId;</method></netparam>
+            <netparam><method name="getValue">return parent.diagramId;</method></netparam> 
+            <handler name="ondata" args="value">
+                if ($debug) Debug.write("getDiagramObjectsByDiagramId: ",value);
+                parent.loadDiagram(value);
+            </handler>
+        </netRemoteCallRPC> 
+        
+	    <method name="loadLatestDiagramByIdAndObject" args="diagramId,diagram">
+            this.currentDiagram = diagram;
+            this.getLatestDiagramObjectsById.diagramId = diagramId;
+            this.getLatestDiagramObjectsById.doCall();
+        </method>
+        
+        <method name="loadLatestDiagramById" args="diagramId">
+            this.getDiagramById.diagramId = diagramId;
+            this.getDiagramById.doCall();
+        </method>
+        
+        <netRemoteCallRPC name="getDiagramById" funcname="getDiagramById" >      
+            <attribute name="diagramId" value="0" type="number" />
+            <netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+            <netparam><method name="getValue">return parent.diagramId;</method></netparam> 
+            <handler name="ondata" args="value">
+                if ($debug) Debug.write("getLatestDiagramObjectsById: ",value);
+                parent.loadLatestDiagramByIdAndObject(value.diagramId,value);
+            </handler>
+        </netRemoteCallRPC>  
+        
+	    <netRemoteCallRPC name="getLatestDiagramObjectsById" funcname="getLatestDiagramObjectsById" >      
+	        <attribute name="diagramId" value="0" type="number" />
+	        <netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+	        <netparam><method name="getValue">return parent.diagramId;</method></netparam> 
+	        <netparam><method name="getValue">return canvas.currentdomainObj.organisation_id;</method></netparam>
+	        <handler name="ondata" args="value">
+	            if ($debug) Debug.write("getLatestDiagramObjectsById: ",value);
+	            parent.loadDiagram(value);
+	        </handler>
+	    </netRemoteCallRPC>  
+	    
+	     <method name="loadDiagram" args="value">
+	        if ($debug) Debug.write("loadDiagram: ",this.currentDiagram);
+	        
+	        canvas.currentDiagram = this.currentDiagram;
+	        canvas.currentInstanceList = value;
+	        
+	        if (this.currentDiagram.diagramType.diagramTypeId == 1) {
+	            quicklinkAct('processgroup');
+	        } else if (this.currentDiagram.diagramType.diagramTypeId == 2) {
+	            quicklinkAct('roleView');
+	        } else if (this.currentDiagram.diagramType.diagramTypeId == 3) {
+	            quicklinkAct('hierarchical');
+	        } else if (this.currentDiagram.diagramType.diagramTypeId == 4) {
+	            quicklinkAct('singleRole');
+	        }
+	    </method> 
+	    
+	    <netRemoteCallRPC name="getDiagramSurfAcrossByDiagramObjectIdAndType" 
+                      funcname="getDiagramSurfAcrossByDiagramObjectIdAndType" >
+            <attribute name="diagramObjectId" value="0" type="number" />
+            <attribute name="flowType" value="" type="string" />
+            <attribute name="objRef" value="null"/>
+            <method name="checkAndLoadDiagram" args="dObject,flowType,objRef">
+                this.diagramObjectId = dObject;
+            	this.flowType = flowType;
+            	this.objRef = objRef;
+                //this.diagramTypeId = dType;
+                this.doCall();
+            </method>
+            <netparam><method name="getValue">return canvas.sessionId;</method></netparam>
+            <netparam><method name="getValue">return parent.diagramObjectId;</method></netparam>
+            <netparam><method name="getValue">return parent.flowType;</method></netparam>
+            <handler name="ondata" args="list">
+                <![CDATA[
+                    if (list == null || list.length == 0) {
+                    	if (this.flowType == "outputflow") {
+                            new lz.errorPopup(canvas,{error:canvas.getLabelName(1388),closable:true});
+                    	} else {
+                    		new lz.errorPopup(canvas,{error:canvas.getLabelName(1389),closable:true});
+                    	}
+                    } else if (list.length == 1){
+                        var value = list[0];
+                        
+                        //Open existing
+                        //if ($debug) Debug.write("Open existing");
+                        parent.loadLatestDiagramByIdAndObject(value.diagramId,value);
+                    } else {
+                    	
+                    	canvas.currentDiagramRef._scrollcontent.dragArea.contentArea._currentBoard.showPreNextDiagramsOnCertainFlow(this.objRef);
+                    	
+                        //new lz.errorPopup(canvas,{error:"Found more then one Diagram as Surf Across Possibility: "
+                        //           +list.length+" diagramObjectId "+this.diagramObjectId,closable:true});
+                    }
+                ]]>
+            </handler>
+        </netRemoteCallRPC> 
+            
+	    
+	    <netRemoteCallRPC name="getDiagramDrillDownByDiagramObjectIdAndType" 
+                      funcname="getDiagramDrillDownByDiagramObjectIdAndType" >
+            <attribute name="diagramObjectId" value="0" type="number" />
+            <!--
+            <attribute name="diagramTypeId" value="0" type="number" />
+             -->
+            <method name="checkAndLoadDiagram" args="dObject">
+                this.diagramObjectId = dObject;
+                //this.diagramTypeId = dType;
+                this.doCall();
+            </method>
+            <netparam><method name="getValue">return canvas.sessionId;</method></netparam>
+            <netparam><method name="getValue">return canvas.currentdomainObj.organisation_id;</method></netparam>
+            <netparam><method name="getValue">return parent.diagramObjectId;</method></netparam>
+            <!--
+            <netparam><method name="getValue">return parent.diagramTypeId;</method></netparam>
+             -->
+            <handler name="ondata" args="list">
+                <![CDATA[
+                    //The onResult-Handler will be called be the rtmpconnection
+                    //if ($debug) Debug.write("getDiagramDrillDownByDiagramObjectIdAndType: ",value);
+                    if (list == null || list.length == 0){
+                        //Make new
+                        //if ($debug) Debug.write("Make new ",this.diagramObjectId);
+                        
+                        var baseObject =  canvas.tempNewlyCreatedBaseObject;
+                        if (baseObject[0] == "process" || baseObject[0] == "processtree") {
+                            canvas.currentDrillDownType = "process";
+                            new lz.drillDownChooseBoxProcess(canvas,{
+                                        diagramObjectId:this.diagramObjectId,
+                                        x:canvas.getMouse('x'),y:canvas.getMouse('y')
+                                    });
+                        } else if (baseObject[0] == "processgroup") {
+                            
+                            canvas.currentDiagram = null;
+                            canvas.isTempNewlyCreated = true;
+                            canvas.isTempNewlyCreatedMainDiagram = true;                        
+                            canvas.currentDrillDownType = "processgroup";
+                            canvas.tempParentDiagramObjectId = this.diagramObjectId;
+                            
+                            //if ($debug) Debug.write("Make new Process Diagram by " +
+                                            //"currentDrillDownType ",canvas.currentDrillDownType);
+                                            
+                            //if ($debug) Debug.write("Make new Process Diagram");
+                            quicklinkAct('processgroup');
+                            
+                        } else if (baseObject[0] == "departement" || baseObject[0] == "departementFixed") {
+                            
+                            canvas.currentDiagram = null;
+                            canvas.isTempNewlyCreated = true;
+                            canvas.isTempNewlyCreatedMainDiagram = true;                        
+                            canvas.currentDrillDownType = "departement";
+                            canvas.tempParentDiagramObjectId = this.diagramObjectId;
+                            
+                            //if ($debug) Debug.write("Make new Org-Tree Diagram by " +
+                                            //"currentDrillDownType ",canvas.currentDrillDownType);
+                                            
+                            //if ($debug) Debug.write("Make new Org-Tree Diagram");
+                            quicklinkAct('hierarchical');
+                            
+                        } else if (baseObject[0] == "company" || baseObject[0] == "companyFixed") {
+                            
+                            canvas.currentDiagram = null;
+                            canvas.isTempNewlyCreated = true;
+                            canvas.isTempNewlyCreatedMainDiagram = true;                        
+                            canvas.currentDrillDownType = "company";
+                            canvas.tempParentDiagramObjectId = this.diagramObjectId;
+                            
+                            //if ($debug) Debug.write("Make new Org-Tree Diagram by " +
+                                            //"currentDrillDownType ",canvas.currentDrillDownType);
+                                            
+                            //if ($debug) Debug.write("Make new Org-Tree Diagram");
+                            quicklinkAct('hierarchical');
+                            
+                        } else {
+                            new lz.errorPopup(canvas,{error:"Unkown baseObject[0] typeOfObject: "+baseObject[0],closable:true});
+                        }
+                        
+                    } else if (list.length == 1){
+                    	var value = list[0];
+                    	
+                        //Open existing
+                        //if ($debug) Debug.write("Open existing");
+                        parent.loadLatestDiagramByIdAndObject(value.diagramId,value);
+                    } else {
+                    	new lz.errorPopup(canvas,{error:"Found more then one Diagram as Child: "
+                    	           +list.length+" diagramObjectId "+this.diagramObjectId,closable:true});
+                    }
+                ]]>
+            </handler>  
+        </netRemoteCallRPC> 
+        
+        
+    </javaCallRPC>
+
+</library>

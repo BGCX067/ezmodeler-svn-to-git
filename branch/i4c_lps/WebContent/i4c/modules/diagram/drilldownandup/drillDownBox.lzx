@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+	
+<class name="drillDownBox" extends="guiPresenter" labelid="852" y="100"
+    docking="true" resizeable="false" closable="true" width="400" 
+    x="$once{ canvas.width/2 - this.width/2 }" height="140">
+    
+    <attribute name="refObj" value="null" />
+    <attribute name="connectDiagramBaseObjectList" value="null" />
+    <attribute name="connectList" value="null" />
+    <attribute name="baseObject" value="null" />
+    <attribute name="diagramobjectid" value="0" type="number" />
+    <attribute name="opened" value="false" type="boolean" />
+    
+    <method name="showContent">
+        new lz.diagramObjectConnectedDiagrams(this,{
+                name:'_diagramObjectConnectedDiagrams',y:60,x:5
+            });
+        this._diagramObjectConnectedDiagrams.doInitNewItemList(
+            this.baseObject,this.diagramobjectid);
+    </method>
+    
+    <infoIconBox labelid="853" x="10" name="_content"
+                 y="24" width="$once{ parent.width -20 }" />
+    
+    <simpleLabelButton labelid="854" width="100" x="70" y="${ parent.height - 30 }">
+    	<handler name="onclick">
+    		this.parent.close();
+    	</handler>
+    </simpleLabelButton>    
+    
+    <simpleLabelButton labelid="855" width="100" x="180" y="${ parent.height - 30 }">
+    	<handler name="onclick">   
+            canvas.setTempLoaderObject(parent.baseObject,parent.connectDiagramBaseObjectList);
+            canvas.currentDiagram = null;
+            canvas.currentInstanceList = null;            
+    		quicklinkAct('roleView');
+            parent.close();
+    	</handler>
+    </simpleLabelButton>
+    
+    <simpleLabelButton labelid="856" width="100" x="290" y="${ parent.height - 30 }">
+    	<handler name="onclick">
+            if (!parent.opened) {
+	            parent.opened = true;
+	            parent._doShow.doStart();
+            }
+    	</handler>
+    </simpleLabelButton>  
+    
+     <animator name="_doShow" start="false" duration="500" 
+              attribute="height" to="300" onstop="parent.showContent();" />
+
+     <animatorgroup name="_doClose" start="false" duration="500">
+        <animator attribute="height" to="140" />
+    </animatorgroup>
+    
+     
+</class>
+
+</library>

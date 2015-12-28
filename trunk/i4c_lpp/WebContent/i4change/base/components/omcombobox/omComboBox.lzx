@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+    
+<!--
+ see separated class file
+<class name="labelTextListItem" extends="textlistitem">
+    <attribute name="labelid" type="number" setter="setLabelId(labelid)" />
+    <method name="setLabelId" args="_labelid" >
+        this.labelid = _labelid;
+        this.setAttribute("text",canvas.getLabelName(this.labelid));
+    </method>
+</class>
+ -->
+ 
+<class name="omComboBox" extends="combobox" shownitems="7" style="noStyle" >
+    <method name="reset" >
+        <![CDATA[
+            var currentCount = this.cblist.getNumItems();
+            for (var i = 0; i < currentCount; i++)
+                this.removeItemAt(0);
+        ]]>
+    </method>
+</class>
+
+<class name="resetCombobox" extends="omComboBox">
+
+</class>
+
+<class name="omDynamicComboBox" extends="view" height="22" focusable="true">
+	
+	<attribute name="value" type="string" value="" />
+	<attribute name="text" type="string" value="" />
+	
+	<attribute name="valueList" value="null" />
+	<attribute name="cList" value="null" />
+	
+	<event name="initContent" />
+	<event name="onselect" />
+	
+	<handler name="onclick">
+		if ($debug) Debug.write("Init Dynamic Combobox");
+		this.initContent.sendEvent();
+	</handler>
+	
+	<method name="selectItem" args="txt,val">
+		this.value = val;
+		this.setAttribute("text",txt);
+	</method>
+	
+	<method name="selectItemByList" args="txt,val">
+		if ($debug) Debug.write("selectItemByList: ",txt,val);
+        this.value = val;
+        this.setAttribute("text",txt);
+    </method>
+	
+	<method name="resetItem" >
+		this.value=0;
+		this.setAttribute("text","");
+	</method>
+	
+	<method name="initList">
+		this.cList = new lz.omDynamicComboBoxList(canvas,{shownitems:7,
+                              refObj:this,x:this.getAttributeRelative("x",canvas),
+                              y:this.getAttributeRelative("y",canvas),width:this.width
+                        });
+	</method>
+	
+	<method name="doDefaultSelection">
+		if (this.cList.getItem(this.value) != null) {
+            this.cList.selectItem(this.value);
+        } else {
+            this.cList.selectItemAt(0);
+        }
+        
+        this.cList.toggle(true);
+        if ($debug) Debug.write("doDefaultSelection -1- ",this.cList.closeOnUpdate);
+        this.cList.closeOnUpdate = true;
+        if ($debug) Debug.write("doDefaultSelection -2- ",this.cList.closeOnUpdate);
+	</method>
+	
+	<view name="bkgnd" width="100%" focusable="false">
+        <view name="lft" resource="lzcombobox_lft_rsc" />
+        <view name="mid" resource="lzcombobox_mid_rsc" stretches="width" />
+        <basebutton name="rgt" resource="lzcombobox_rgt_rsc" styleable="true"
+                onclick="parent.parent.onclick.sendEvent()" style="noStyle" />
+        <stableborderlayout axis="x" />
+    </view>
+    
+    <text fontsize="11" text="${ parent.text }" y="2" x="2" resize="false"
+    	  width="${ parent.width - 19 }" />
+
+</class>
+
+<class name="omDynamicComboBoxList" extends="omComboBox" editable="false">
+	
+	<attribute name="refObj" value="null" />
+	<attribute name="closeOnUpdate" value="false" type="boolean" />
+	
+	<attribute name="alreadyClosed" value="false" type="boolean"/>
+	
+	<handler name="onselect" args="sel">
+		//if ($debug) Debug.write("onselect ",this.closeOnUpdate);
+		if (this.closeOnUpdate) {
+			this.refObj.selectItemByList(sel.text,sel.value);
+			this.refObj.onselect.sendEvent(sel);
+			lz.Focus.setFocus(this.refObj,true);
+			this.alreadyClosed = true;
+			this.destroy();
+		}
+	</handler>
+	
+	<handler name="onisopen" args="b">
+		<![CDATA[
+    		if (this.closeOnUpdate && !this.alreadyClosed) {
+    			if (!b) {
+    				//if ($debug) Debug.write("onisopen DESTROY ");
+    			    this.destroy();
+    			}
+    		}
+		]]>
+	</handler>
+	
+</class>
+
+</library>

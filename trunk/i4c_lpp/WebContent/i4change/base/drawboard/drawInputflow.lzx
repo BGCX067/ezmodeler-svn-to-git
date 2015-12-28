@@ -1,0 +1,481 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+<class name="drawInputflow" extends="drawUnit">
+	
+  	<attribute name="currentinputflowstroke" value="0x009900" />
+  	<attribute name="currentinputflowstrokeDis" value="1" type="number" />
+  	<attribute name="currentinputflowstrokeFill" value="0x00FF33" />
+  	<attribute name="currentinputflowstrokeFillDis" value="1" type="number" />
+  	<attribute name="currentinputflowlineWidth" value="2" type="number" />
+	
+    <!-- ###########################
+    Companygroup
+     -->
+	<method name="startInputflow">
+		//Debug.write("startRect");
+    	this.currentlayer = new lz.drawViewContainerNew(this,{name:'inputflow'+this.getCounter(),
+            typeOfObject:'inputflowTemp',width:this.width+2,height:this.height+2});
+    	new lz.drawViewNew(this.currentlayer,{name:'_inputflow',typeOfObject:'inputflow',width:this.width+2,height:this.height+2});
+		this.drawlineOnObject(this.currentlayer._inputflow,-1,-1,0,0);
+		this.drawlineOnObject(this.currentlayer._inputflow,this.width,this.height,this.width+1,this.height+1);
+  	</method>  
+    
+    <method name="endInputflowDrag" args="x,y">
+        <![CDATA[
+            //if ($debug) Debug.write(" this.startx, this.starty , this.endx, this.endy ",this.startx, this.starty , this.endx, this.endy);
+            
+            var posObject = this.calcObjectPos(x,x,y,y,"any",false,1,40);
+            var x = posObject.x;
+            var y = posObject.y;
+            var width = posObject.width-20;
+            var height = posObject.height-20;
+            
+            var connectList = this.checkOrganisationConnection('flow',x,y,width,height,this.currentlayer);
+            
+            if (connectList.length == 0) {
+            	new lz.warningPopup(canvas,{error:canvas.getLabelName(806),closable:true});
+            }
+            
+            this.currentlayer = new lz.drawViewContainerNew(this,{name:'inputflow'+this.getCounter(),
+                    typeOfObject:'inputflowTemp',currentStyleTextClass:'styleableInputInputflow',
+                    x:x,y:y,width:width,height:height,labelid:575,doUpdate:false});
+            ////if ($debug) Debug.write(this.currentlayer,width,height);  
+            new lz.drawViewNewItem(this.currentlayer,{name:'_inputflow',
+                    typeOfObject:'inputflow',x:0,y:0,
+                    width:width,height:height});
+            ////if ($debug) Debug.write(this.currentlayer._inputflow,width,height);
+            //this.currentlayer = new lz.drawViewNew(this,{name:'inputflow'+this.getCounter(),typeOfObject:'inputflow',x:x,y:y,width:width,height:height});
+            this.drawInputflowHistory(this.currentlayer,0,0,width,height,this.currentinputflowstroke,this.currentinputflowlineWidth,this.currentinputflowstrokeFill,this.currentinputflowstrokeDis,this.currentinputflowstrokeFillDis);
+            
+            //this.currentlayer._inputflow.setAttribute('stretches','both');
+            this.drawInputflowFinal(this.currentlayer.name,this.currentinputflowstroke,
+                this.currentinputflowlineWidth,this.currentinputflowstrokeFill,
+                this.currentinputflowstrokeDis,this.currentinputflowstrokeFillDis,
+                x,y,width,height,'',0,connectList, new Array(),null);
+            this.checkStepLayers();
+            this.currentlayer.loadObjectIdentifier();
+            this.currentlayer.typeOfObject = "inputflow";
+            this.currentlayer.isOrgConnectionItem = true;
+            this.currentlayer.doUpdate = true;
+        ]]>
+    </method> 
+
+	<method name="endInputflow">
+		<![CDATA[
+			//if ($debug) Debug.write(" this.startx, this.starty , this.endx, this.endy ",this.startx, this.starty , this.endx, this.endy);
+			this.currentlayer.destroy();
+			
+            var posObject = this.calcObjectPos(this.startx,this.endx,this.starty,this.endy,"any",false,1,40);
+            var x = posObject.x;
+            var y = posObject.y;
+            var width = posObject.width-20;
+            var height = posObject.height-20;
+			
+            var connectList = this.checkOrganisationConnection('flow',x,y,width,height,this.currentlayer);
+            
+            if (connectList.length == 0) {
+            	new lz.warningPopup(canvas,{error:canvas.getLabelName(806),closable:true});
+            }
+			this.currentlayer = new lz.drawViewContainerNew(this,{name:'inputflow'+this.getCounter(),
+					typeOfObject:'inputflowTemp',currentStyleTextClass:'styleableInputInputflow',
+					x:x,y:y,width:width,height:height,labelid:575,doUpdate:false});
+			////if ($debug) Debug.write(this.currentlayer,width,height);	
+    		new lz.drawViewNewItem(this.currentlayer,{name:'_inputflow',
+    				typeOfObject:'inputflow',x:0,y:0,
+    				width:width,height:height});
+			////if ($debug) Debug.write(this.currentlayer._inputflow,width,height);
+			//this.currentlayer = new lz.drawViewNew(this,{name:'inputflow'+this.getCounter(),typeOfObject:'inputflow',x:x,y:y,width:width,height:height});
+			this.drawInputflowHistory(this.currentlayer,0,0,width,height,this.currentinputflowstroke,this.currentinputflowlineWidth,this.currentinputflowstrokeFill,this.currentinputflowstrokeDis,this.currentinputflowstrokeFillDis);
+			
+			//this.currentlayer._inputflow.setAttribute('stretches','both');
+			this.drawInputflowFinal(this.currentlayer.name,this.currentinputflowstroke,
+                this.currentinputflowlineWidth,this.currentinputflowstrokeFill,
+                this.currentinputflowstrokeDis,this.currentinputflowstrokeFillDis,
+                x,y,width,height,'',0,connectList, new Array(),null);
+			this.checkStepLayers();
+			this.currentlayer.loadObjectIdentifier();
+			this.currentlayer.typeOfObject = "inputflow";
+            this.currentlayer.isOrgConnectionItem = true;
+            this.currentlayer.doUpdate = true;
+		]]>
+	</method> 
+    
+    <!-- 
+    backup
+    //Using Company Size as default, cause Role-View uses same Grid Sizes as Hierarchical Grid
+            var x = Math.round(this.startx/(canvas.defaultCompanyWidth*canvas.gridFixedFactor))*(canvas.defaultCompanyWidth*canvas.gridFixedFactor);
+            var width = this.endx - this.startx;
+            if (this.endx<this.startx){
+                x = this.endx;
+                width = Math.abs(width);
+            }
+            var y = Math.round(this.starty/(canvas.defaultCompanyHeight*canvas.gridFixedFactor))*(canvas.defaultCompanyHeight*canvas.gridFixedFactor);
+            var height = this.endy - this.starty;
+            if (this.endy<this.starty){
+                y = this.endy;
+                height = Math.abs(height);
+            }
+            
+            if (width<20){
+                width = canvas.defaultInputFlowWidth
+            }
+            if (height < 20) {
+                height = canvas.defaultInputFlowHeight;
+            }
+      -->
+    
+    <method name="loadInputflow" args="txt,objectId,x,y,width,height,newName,connectList,dataCarrierList,propertyMap">
+        <![CDATA[           
+            this.currentlayer = new lz.drawViewContainerNew(this,{name:newName,
+                    typeOfObject:'inputflowTemp',currentStyleTextClass:'styleableInputInputflow',
+                    x:x,y:y,width:width,height:height,labelid:575,doUpdate:false});
+            ////if ($debug) Debug.write(this.currentlayer,width,height);  
+            new lz.drawViewNewItem(this.currentlayer,{name:'_inputflow',
+                    typeOfObject:'inputflow',x:0,y:0,
+                    width:width,height:height});
+            ////if ($debug) Debug.write(this.currentlayer._inputflow,width,height);
+            //this.currentlayer = new lz.drawViewNew(this,{name:'inputflow'+this.getCounter(),typeOfObject:'inputflow',x:x,y:y,width:width,height:height});
+            this.drawInputflowHistory(this.currentlayer,0,0,width,height,this.currentinputflowstroke,
+                this.currentinputflowlineWidth,this.currentinputflowstrokeFill,
+                this.currentinputflowstrokeDis,this.currentinputflowstrokeFillDis);
+            
+            //this.currentlayer._inputflow.setAttribute('stretches','both');
+            this.drawInputflowFinal(this.currentlayer.name,this.currentinputflowstroke,
+                this.currentinputflowlineWidth,this.currentinputflowstrokeFill,
+                this.currentinputflowstrokeDis,this.currentinputflowstrokeFillDis,
+                x,y,width,height,txt,objectId,connectList,dataCarrierList,propertyMap);
+            this.checkStepLayers();
+            //this.currentlayer.initEditableText(txt);
+            this.completedObjectTextObjByLoadingInputFlow(this.currentlayer,txt);
+            this.currentlayer.typeOfObject = "inputflow";
+            this.currentlayer.isOrgConnectionItem = true;
+            this.currentlayer.doUpdate = true;
+        ]]>
+    </method> 
+    
+    <method name="completedObjectTextObjByLoadingInputFlow" args="_parentObj,_txt">
+        ////if ($debug) Debug.write("completedObjectTextObj: ",obj);
+        var t = new lz.styleableTextIntputFlow(_parentObj,{name:'_textview',
+                text:_txt,
+                fontstyle:this.currentlayerstyle,
+                fontsize:this.currentlayersize,
+                fgcolor:this.currentlayerletter});
+    </method>        
+    
+	<method name="loadFixedInputflow" args="txt,objectId,x1,y1,width,height,newName,dataCarrierList">
+		<![CDATA[			
+        
+            //var x = Math.round(x1/(canvas.defaultCompanyWidth*canvas.gridFixedFactor))*(canvas.defaultCompanyWidth*canvas.gridFixedFactor);
+            //var y = Math.round(y1/(canvas.defaultCompanyHeight*canvas.gridFixedFactor))*(canvas.defaultCompanyHeight*canvas.gridFixedFactor);
+            
+            var posObject = this.calcObjectPos(x1,x1,y1,y1,"any",false,1,40);
+            var x = posObject.x;
+            var y = posObject.y;
+            var width = posObject.width-20;
+            var height = posObject.height-20;
+            
+            var connectList = this.checkOrganisationConnection('flow',x,y,width,height,this.currentlayer);
+            
+            if (connectList.length == 0) {
+            	new lz.warningPopup(canvas,{error:canvas.getLabelName(806),closable:true});
+            }
+            
+			this.currentlayer = new lz.drawViewContainerNew(this,{name:newName,
+					typeOfObject:'inputflowTemp',currentStyleTextClass:'styleableInputInputflow',
+					x:x,y:y,width:width,height:height,labelid:575,doUpdate:false});
+			////if ($debug) Debug.write(this.currentlayer,width,height);	
+    		new lz.drawViewNewItem(this.currentlayer,{name:'_inputflow',
+    				typeOfObject:'inputflow',x:0,y:0,
+    				width:width,height:height});
+			////if ($debug) Debug.write(this.currentlayer._inputflow,width,height);
+			//this.currentlayer = new lz.drawViewNew(this,{name:'inputflow'+this.getCounter(),typeOfObject:'inputflow',x:x,y:y,width:width,height:height});
+			this.drawInputflowHistory(this.currentlayer,0,0,width,height,this.currentinputflowstroke,
+				this.currentinputflowlineWidth,this.currentinputflowstrokeFill,
+				this.currentinputflowstrokeDis,this.currentinputflowstrokeFillDis);
+			
+			//this.currentlayer._inputflow.setAttribute('stretches','both');
+			this.drawInputflowFinal(this.currentlayer.name,this.currentinputflowstroke,
+                this.currentinputflowlineWidth,this.currentinputflowstrokeFill,
+                this.currentinputflowstrokeDis,this.currentinputflowstrokeFillDis,
+                x,y,width,height,txt,objectId,connectList,dataCarrierList,null);
+			this.checkStepLayers();
+			this.currentlayer.initEditableText(txt);
+			this.currentlayer.typeOfObject = "inputflow";
+            this.currentlayer.isOrgConnectionItem = true;
+            this.currentlayer.doUpdate = true;
+		]]>
+	</method> 
+    
+  	<method name="drawInputflow" args="x1,y1,x2,y2">
+   		<![CDATA[
+   			
+   			////if ($debug) Debug.write("drawInputflow: ",x1,y1,x2,y2);
+   			currentlayer._inputflow.strokeStyle = this.currentinputflowstroke;
+   			currentlayer._inputflow.fillStyle = this.currentinputflowstrokeFill;
+ 
+   			if (x1 <= x2 && y2 >= y1) {
+	   			var mx1 = x1+((Math.abs(x1-x2)/3)*2);
+	   			var my1 = y1+(Math.abs(y1-y2)/2);
+	   			currentlayer._inputflow.lineWidth = this.currentinputflowlineWidth;
+	    		currentlayer._inputflow.beginPath();
+	    		currentlayer._inputflow.moveTo(x1,y1);
+	    		currentlayer._inputflow.lineTo(mx1,y1);
+	    		currentlayer._inputflow.lineTo(x2,my1);
+	    		currentlayer._inputflow.lineTo(mx1,y2);
+	    		currentlayer._inputflow.lineTo(x1,y2);
+    			currentlayer._inputflow.lineTo (x1,y1);
+   			} else if (x1 <= x2 && y2 <= y1) {
+	   			var mx1 = x1+((Math.abs(x1-x2)/3)*2);
+	   			var my1 = y1-(Math.abs(y1-y2)/2);
+	   			currentlayer._inputflow.lineWidth = this.currentinputflowlineWidth;
+	    		currentlayer._inputflow.beginPath();
+	    		currentlayer._inputflow.moveTo(x1,y1);
+	    		currentlayer._inputflow.lineTo(mx1,y1);
+	    		currentlayer._inputflow.lineTo(x2,my1);
+	    		currentlayer._inputflow.lineTo(mx1,y2);
+	    		currentlayer._inputflow.lineTo(x1,y2);
+    			currentlayer._inputflow.lineTo (x1,y1);
+   			} else if (x1 >= x2 && y2 <= y1) {
+	   			
+	   			var mx1 = x2+((Math.abs(x1-x2)/3)*2);
+	   			var my1 = y2+(Math.abs(y1-y2)/2);
+	   			
+	   			currentlayer._inputflow.lineWidth = this.currentinputflowlineWidth;
+	    		currentlayer._inputflow.beginPath();
+	    		currentlayer._inputflow.moveTo(x2,y2);
+	    		currentlayer._inputflow.lineTo(mx1,y2);
+	    		currentlayer._inputflow.lineTo(x1,my1);
+	    		currentlayer._inputflow.lineTo(mx1,y1);
+	    		currentlayer._inputflow.lineTo(x2,y1);
+    			currentlayer._inputflow.lineTo (x2,y2);
+    			
+   			} else if (x1 >= x2 && y2 >= y1) {
+   				
+	   			var mx1 = x2+((Math.abs(x1-x2)/3)*2);
+	   			var my1 = y2-(Math.abs(y1-y2)/2);
+	   			
+	   			currentlayer._inputflow.lineWidth = this.currentinputflowlineWidth;
+	    		currentlayer._inputflow.beginPath();
+	    		currentlayer._inputflow.moveTo(x2,y1);
+	    		currentlayer._inputflow.lineTo(mx1,y1);
+	    		currentlayer._inputflow.lineTo(x1,my1);
+	    		currentlayer._inputflow.lineTo(mx1,y2);
+	    		currentlayer._inputflow.lineTo(x2,y2);
+    			currentlayer._inputflow.lineTo (x2,y1);
+   			}
+    		
+    		//currentlayer._inputflow.closePath();
+    		
+    		if (this.currentrectanglestrokeDis!=-1){
+	    		currentlayer._inputflow.stroke();
+    		}
+
+    		if (this.currentrectanglestrokeFillDis!=-1){
+	    		currentlayer._inputflow.fill();
+    		}
+    		
+    	]]>   
+  	</method>    
+  	
+  	<method name="drawInputflowOnTarget" args="targetOBj,x1,y1,x2,y2">
+   		<![CDATA[
+    		
+   			targetOBj._inputflow.strokeStyle = this.currentinputflowstroke;
+   			targetOBj._inputflow.fillStyle = this.currentinputflowstrokeFill;
+   			
+   			if (x1 <= x2 && y2 >= y1) {
+	   			var mx1 = x1+((Math.abs(x1-x2)/3)*2);
+	   			var my1 = y1+(Math.abs(y1-y2)/2);
+   			} else if (x1 <= x2 && y2 <= y1) {
+	   			var mx1 = x1+((Math.abs(x1-x2)/3)*2);
+	   			var my1 = y1-(Math.abs(y1-y2)/2);
+   			} else if (x1 >= x2 && y2 <= y1) {
+	   			var mx1 = x1-((Math.abs(x1-x2)/3)*2);
+	   			var my1 = y1-(Math.abs(y1-y2)/2);
+   			} else if (x1 >= x2 && y2 >= y1) {
+	   			var mx1 = x1-((Math.abs(x1-x2)/3)*2);
+	   			var my1 = y1+(Math.abs(y1-y2)/2);
+   			}
+    		targetOBj._inputflow.lineWidth = this.currentinputflowlineWidth;
+    		targetOBj._inputflow.beginPath();
+    		targetOBj._inputflow.moveTo(x1,y1);
+    		targetOBj._inputflow.lineTo(mx1,y1);
+    		targetOBj._inputflow.lineTo(x2,my1);
+    		targetOBj._inputflow.lineTo(mx1,y2);
+    		targetOBj._inputflow.lineTo(x1,y2);
+    		targetOBj._inputflow.lineTo (x1,y1);
+  
+    		if (this.currentrectanglestrokeDis!=-1){
+	    		targetOBj._inputflow.stroke();
+    		}
+
+    		if (this.currentrectanglestrokeFillDis!=-1){
+	    		targetOBj._inputflow.fill();
+    		}
+    		
+    	]]>   
+  	</method>    
+  	
+  	<method name="drawInputflowToHistory" args="lastActionObject,parentView">
+		this.currentlayer = new lz.drawViewContainerNew(parentView,{name:lastActionObject[lastActionObject.length-1],
+			typeOfObject:'inputflow',currentStyleTextClass:'styleableInputInputflow',
+			x:lastActionObject[lastActionObject.length-5],y:lastActionObject[lastActionObject.length-4],
+			width:lastActionObject[lastActionObject.length-3],height:lastActionObject[lastActionObject.length-2]});
+		new lz.drawViewNewItem(this.currentlayer,{name:'_inputflow',typeOfObject:'inputflow',x:lastActionObject[lastActionObject.length-5],y:lastActionObject[lastActionObject.length-4],width:lastActionObject[lastActionObject.length-3],height:lastActionObject[lastActionObject.length-2]});
+   		this.drawInputflowHistory(this.currentlayer._inputflow,0,0,lastActionObject[lastActionObject.length-3],lastActionObject[lastActionObject.length-2],lastActionObject[1],lastActionObject[2],lastActionObject[3],lastActionObject[4],lastActionObject[5]);
+  	</method>
+    
+  	<method name="drawInputflowHistory" args="parentObj,x1,y1,x2,y2,stroke,line,fill,strokeDis,fillDis">
+   		<![CDATA[
+    		////if ($debug) Debug.write("drawInputflowHistory",parentObj,x1,y1,x2,y2,stroke,line,fill,strokeDis,fillDis);
+    		
+   			parentObj._inputflow.strokeStyle = stroke;
+   			parentObj._inputflow.fillStyle = fill;
+   			
+    		if (x1 <= x2 && y2 >= y1) {
+	   			var mx1 = x1+((Math.abs(x1-x2)/3)*2);
+	   			var my1 = y1+(Math.abs(y1-y2)/2);
+   			} else if (x1 <= x2 && y2 <= y1) {
+	   			var mx1 = x1+((Math.abs(x1-x2)/3)*2);
+	   			var my1 = y1-(Math.abs(y1-y2)/2);
+   			} else if (x1 >= x2 && y2 <= y1) {
+	   			var mx1 = x1-((Math.abs(x1-x2)/3)*2);
+	   			var my1 = y1-(Math.abs(y1-y2)/2);
+   			} else if (x1 >= x2 && y2 >= y1) {
+	   			var mx1 = x1-((Math.abs(x1-x2)/3)*2);
+	   			var my1 = y1+(Math.abs(y1-y2)/2);
+   			}
+   			parentObj._inputflow.lineWidth = line;
+    		parentObj._inputflow.beginPath();
+    		parentObj._inputflow.moveTo(x1,y1);
+    		parentObj._inputflow.lineTo(mx1,y1);
+    		parentObj._inputflow.lineTo(x2,my1);
+    		parentObj._inputflow.lineTo(mx1,y2);
+    		parentObj._inputflow.lineTo(x1,y2);
+    		parentObj._inputflow.lineTo (x1,y1);
+    		//parentObj._inputflow.closePath();
+    		
+    		if (strokeDis!=-1){
+	    		parentObj._inputflow.stroke();
+    		}
+    		
+    		if (fillDis!=-1){
+	    		parentObj._inputflow.fill();
+    		}
+	        //var t = new lz.styleableInputDrawBoard(parentObj,{name:'_textview',
+	        //	text:'Inputflow',fontstyle:this.currentlayerstyle,
+	        //	fontsize:this.currentlayersize,fgcolor:this.currentlayerletter});
+		
+    	]]>   
+  	</method>  
+  	
+  	<method name="drawInputflowFinal" args="newName,stroke,line,fill,strokeDis,fillDis,x,y,width,height,currentText,diagramobjectid,connectList,dataCarrierList,propertyList" >
+  		//Debug.write("drawrectregisterFinal",newName,stroke,line,fill,strokeDis,fillDis,x,y,width,height);
+		var actionObject = new Array();
+	    actionObject[0] = 'inputflow';
+	    actionObject[1] = stroke;
+	    actionObject[2] = line;
+	    actionObject[3] = fill;
+	    actionObject[4] = strokeDis;
+	    actionObject[5] = fillDis;
+        actionObject[6] = propertyList;
+        actionObject[7] = dataCarrierList;
+        actionObject[8] = connectList;
+        actionObject[9] = currentText;
+        actionObject[10] = diagramobjectid;    
+        actionObject[11] = this.counter;//diagramInstanceObjectId
+	    actionObject[12] = x;
+	    actionObject[13] = y;
+	    actionObject[14] = width;
+	    actionObject[15] = height;	    
+	    actionObject[16] = newName;
+	    this.baseactionobjectList.push(actionObject);
+	    this.onsharedMessage('draw',actionObject);
+  	</method>
+  	
+  	<method name="editInputflowTextByValues" args="obj">
+		<![CDATA[
+			if (!this.letterObjectIsActive){
+				//obj._inputflow.destroy();
+				
+				//this.drawInputflowOnTarget()
+			    if (this.boundingref!=null) {
+                    //if ($debug) Debug.write("REMOVE BOUNDING REF");
+                    this.boundingref.removeIt();
+                }
+                
+			    var txt = obj._textview.getText();
+			    
+			    var _txt = obj._textview.getText();
+				var _fontstyle = obj._textview.fontstyle;
+				var _fontsize = obj._textview.fontsize;
+				var _fgcolor = obj._textview.fgcolor;
+				var _width = obj._textview.width;
+				var _height = obj._textview.height;
+				obj._textview.destroy();
+		        var t = new lz.styleableInputInputflow(obj,{name:'_textview',
+					text:_txt,
+					fontstyle:_fontstyle,
+					fontsize:_fontsize,
+					fgcolor:_fgcolor,
+					width:_width,height:_height});
+	        }	
+		]]>
+	</method>
+	
+	<method name="completedInputflowObj" args="obj">
+		//if ($debug) Debug.write("completedInputflowObj: ",obj);
+		var _parentObj = obj.parent;
+		var _txt = obj.getText();
+		var _fontstyle = obj.fontstyle;
+		var _fontsize = obj.fontsize;
+		var _fgcolor = obj.fgcolor;
+		var _width = obj.width;
+		var _height = obj.height;
+		obj.destroy();
+		var t = new lz.styleableTextIntputFlow(_parentObj,{name:'_textview',
+				text:_txt,
+				fontstyle:_fontstyle,
+				fontsize:_fontsize,
+				fgcolor:_fgcolor,
+				width:_width,height:_height});
+        var previousText = this.getPreviousTextObjByName(_parentObj.name);
+        this.updateObjTextByName(_parentObj.name,_txt);
+        if (!this.isRemoteLoaderAction){
+            this.checkObjectForUniqueName(_txt,_parentObj,previousText,_parentObj.typeOfObject);
+        }
+	</method>
+    
+    <method name="completedInputflowObjByRemote" args="_parentObj,newText">
+        //if ($debug) Debug.write("completedInputflowObjByRemote: ",_parentObj,newText);
+        var obj = _parentObj._textview;
+        var _fontstyle = obj.fontstyle;
+        var _fontsize = obj.fontsize;
+        var _fgcolor = obj.fgcolor;
+        var _width = obj.width;
+        var _height = obj.height;
+        obj.destroy();
+        var t = new lz.styleableTextIntputFlow(_parentObj,{name:'_textview',
+                text:newText,
+                fontstyle:_fontstyle,
+                fontsize:_fontsize,
+                fgcolor:_fgcolor,
+                width:_width,height:_height});
+        this.updateObjTextByName(_parentObj.name,newText);
+    </method>
+	
+	<method name="redrawInputflowItemByScaling" args="refObj">
+		////if ($debug) Debug.write("redrawInputflowItemByScaling: ",refObj,refObj.width,refObj.height);
+		refObj._inputflow.destroy();
+		new lz.drawViewNewItem(refObj,{name:'_inputflow',
+    				typeOfObject:'inputflow',x:0,y:0,
+    				width:refObj.width,height:refObj.height});
+    	refObj._inputflow.sendToBack();		
+    	this.drawInputflowOnTarget(refObj,0,0,refObj.width,refObj.height);		
+	</method>
+	
+	
+</class>
+
+</library>

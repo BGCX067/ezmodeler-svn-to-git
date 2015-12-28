@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<library>
+
+<class name="flowsExplorerSidebar" extends="sideBarPod" 
+       labelid="645" contentHeight="340" contentY="20">
+    
+    <method name="refresh">
+        if (this.contentIsInited){
+            this.content._innerTableProcess.getDiagramObjectsFastPath.doCall();
+        }
+    </method> 
+        
+    <handler name="contentInit" >
+        new lz.flowsExplorerSidebarContent(this,{name:'content'});
+    </handler>
+    
+</class> 
+
+<!--- "System" panel on the dashboard -->
+<class name="flowsExplorerSidebarContent" extends="view" y="20" 
+       x="16" width="${ parent.width-16 }" height="340"
+       bgcolor="$once{ canvas.currentMenuLayoutBackGround }" >  
+      
+    <handler name="oninit">
+        //Add Help Item
+        canvas.addCurrentHelpId(7,this.__constructor__.classname);
+    </handler>
+    
+    <labelText x="2" labelid="592" y="4" />
+                
+      <view y="4" height="20" width="182" x="99" bgcolor="0xD0D0D0" />
+      <inputtext name="search" x="100" width="180" bgcolor="0xFFFFFF"
+                   height="18" fontsize="10" y="5">
+          <handler name="onkeydown" args="k">
+              ////if ($debug) Debug.write("onkeydown: ",k)
+              if (k == 13) {
+                  parent._innerTableProcess.start = 0;
+                  parent._innerTableProcess.getDiagramObjectsFastPath.doCall();
+              }
+          </handler>
+      </inputtext>
+        
+      <view y="5" x="282" width="18" height="18">
+          <view resource="search_help_item_rsc" y="1" x="1" />
+          <handler name="onclick">
+              parent._innerTableProcess.start = 0;
+              parent._innerTableProcess.getDiagramObjectsFastPath.doCall();
+          </handler>
+          <labelTooltip labelid="771" />
+      </view>                          
+      
+      <labelText labelid="646" fontsize="10" fontstyle="italic" multiline="true"
+               x="2" width="$once{ parent.width-4 }" fgcolor="0x666666" y="30" />
+      
+      <turnOverListOrderedPaged name="_innerTableProcess" y="60" listItemName="roleExplorerListItem"
+            width="${ parent.width }" height="${ parent.height-60 }" 
+            orderby="c.name" step="50" asc="true" bgcolor="0xFFFFFF">  
+            
+        <attribute name="currentObjects" value="null" />
+        <attribute name="fadeDelegate" value="null" />
+    
+        <attribute name="departementFixedLabel" value="" type="string"/>
+        <attribute name="unitFixedLabel" value="" type="string"/>
+        <attribute name="companyFixedLabel" value="" type="string"/>
+        <attribute name="processgroupLabel" value="" type="string"/>
+        <attribute name="processtreeLabel" value="" type="string"/>
+        <attribute name="activityLabel" value="" type="string"/>   
+        <attribute name="flowLabel" value="" type="string"/>      
+             
+        <handler name="oninit">
+            this.currentObjects = new Array();
+            this.currentObjects.push("flow");
+            this.addHeaderItemOrdered(605,160,"c.name",true,true);
+            this.addHeaderItemOrdered(794,100,"c.objectTypeName",true,false);
+            this.addHeaderItemOrdered(606,120,"c.inserted",true,false);
+            
+			this.flowLabel = canvas.getLabelName(801);
+			
+			this.getDiagramObjectsFastPath.doCall();
+        </handler>  
+        
+        <handler name="onUpdateOrder">
+            //if ($debug) Debug.write("onUpdateOrder");
+            this.getDiagramObjectsFastPath.doCall();
+        </handler>
+        
+        <handler name="onclickedItem" args="obj">
+            //if ($debug) Debug.write("obj",obj);
+        </handler>
+        
+        <handler name="oncallnext" >
+            this.getDiagramObjectsFastPath.doCall();
+        </handler>
+        
+        <handler name="oncallpre" >     
+            this.getDiagramObjectsFastPath.doCall();
+        </handler>
+        
+        <handler name="onclickedItem" args="obj">
+            //if ($debug) Debug.write("onclickedItem",obj,obj.obj);
+            parent._useradminvalueform.initValueFieldsByObject(obj.obj);
+        </handler>
+        
+        <netRemoteCallRPC name="getDiagramObjectsFastPath" funcname="getDiagramObjectsFastPath" 
+                          remotecontext="$once{  canvas.diagramServiceRPC }" >      
+            <netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+            <netparam><method name="getValue">return canvas.currentdomainObj.organisation_id;</method></netparam>
+            <netparam><method name="getValue">return parent.parent.start; </method></netparam>
+            <netparam><method name="getValue">return parent.parent.step; </method></netparam>
+            <netparam><method name="getValue">return parent.parent.currentObjects;</method></netparam>
+            <netparam><method name="getValue">return parent.parent.orderby;</method></netparam>
+            <netparam><method name="getValue">return parent.parent.asc;</method></netparam>
+            <netparam><method name="getValue">return parent.parent.parent.search.getText();</method></netparam>
+            <handler name="ondata" args="value">
+                //if ($debug) Debug.write("Flows getDiagramObjectsFastPathRoles: ",value);
+                //this.parent.destroy();
+                this.parent.initValues(value.records);
+                this.parent.renderContent(value.result);
+            </handler>
+        </netRemoteCallRPC> 
+        
+        <method name="renderContent" args="records">
+            <![CDATA[
+                //this.clearList();
+                var list = this._innerlist._inn._inn;
+                this.renderList = records;
+                
+                this._innerlist._inn.setAttribute("y",0);
+                this._innerlist._inn._inn.setAttribute("height",records.length*20);
+                
+                this._innerlist._inn.resetItems();
+                
+                for (var i=0;i<list.subviews.length;i++){
+                    if (records.length > i) {
+                        list.subviews[i].setAttribute("clickable",true);
+                        list.subviews[i].obj = records[i];
+                        list.subviews[i].setItemName(records[i].name);
+                        list.subviews[i].setObjectTypeNameLabel(this.getLabelIdForObjectType(records[i].objectTypeName));
+                        list.subviews[i].setInserted(parseDateToStringTime(records[i].inserted));
+                    } else {
+                        list.subviews[i].obj = null;
+                        list.subviews[i].setItemName("");
+                        list.subviews[i].setObjectTypeNameLabel("");
+                        list.subviews[i].setInserted("");
+                        list.subviews[i].setAttribute("clickable",false);
+                    }
+                }
+                
+            ]]>
+        </method>
+        
+        <handler name="onScrollItem" args="item">
+            <![CDATA[
+                if (this.renderList.length > item.itemId) {
+                    item.setAttribute("clickable",true);
+                    item.obj = this.renderList[item.itemId];
+                    item.setItemName(this.renderList[item.itemId].name);
+                    item.setObjectTypeNameLabel(this.getLabelIdForObjectType(this.renderList[item.itemId].objectTypeName));
+                    item.setInserted(parseDateToStringTime(this.renderList[item.itemId].inserted));
+                } else {
+                    item.obj = null;
+                    item.setItemName("");
+                    item.setObjectTypeNameLabel("");
+                    item.setInserted("");
+                    item.setAttribute("clickable",false);
+                }
+            ]]>
+        </handler>
+        
+        <method name="getLabelIdForObjectType" args="objectTypeName">
+            if (objectTypeName == "flow") {
+                return this.flowLabel;
+            } else if (objectTypeName == "departementFixed") {
+                return this.departementFixedLabel;
+            } else if (objectTypeName == "unitFixed") {
+                return this.unitFixedLabel;
+            } else if (objectTypeName == "companyFixed") {
+                return this.companyFixedLabel;
+            } else if (objectTypeName == "processgroup") {
+                return this.processgroupLabel;
+            } else if (objectTypeName == "processtree") {
+                return this.processtreeLabel;
+            } else if (objectTypeName == "activity") {
+                return this.activityLabel;
+            }
+        </method>
+        
+    </turnOverListOrderedPaged> 
+</class> 
+
+</library>

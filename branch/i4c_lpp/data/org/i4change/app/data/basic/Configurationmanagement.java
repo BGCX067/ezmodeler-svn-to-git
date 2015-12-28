@@ -1,0 +1,287 @@
+package org.i4change.app.data.basic;
+
+import java.util.Iterator;
+import java.util.Date;
+import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.hibernate.HibernateException;
+import org.hibernate.Query;
+import org.hibernate.Criteria;
+//import org.hibernate.Session;
+//import org.hibernate.Transaction;
+import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Restrictions;
+
+import org.i4change.app.data.basic.AuthLevelmanagement;
+import org.i4change.app.data.user.daos.UserDaoImpl;
+import org.i4change.app.data.basic.beans.SearchResult;
+import org.i4change.app.dto.basic.ConfigurationDTO;
+import org.i4change.app.hibernate.beans.basic.Configuration;
+//import org.i4change.app.hibernate.utils.HibernateUtil;
+//import org.i4change.app.utils.math.CalendarPatterns;
+import org.i4change.app.utils.mappings.CastMapToObject;
+import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+
+public class Configurationmanagement extends HibernateDaoSupport {
+ 
+	private static final Log log = LogFactory.getLog(Configurationmanagement.class);
+
+	//Spring loaded Beans
+	private UserDaoImpl userDaoImpl;
+	
+	public UserDaoImpl getUserDaoImpl() {
+		return userDaoImpl;
+	}
+	public void setUserDaoImpl(UserDaoImpl userDaoImpl) {
+		this.userDaoImpl = userDaoImpl;
+	}
+
+	public Configuration getConfKey(long user_level, String CONF_KEY) {
+		try {
+			if (AuthLevelmanagement.checkAdminLevel(user_level)) {
+				Configuration configuration = null;
+				Query query = getSession().createQuery("select c from Configuration as c where c.conf_key = :conf_key");
+				query.setString("conf_key", CONF_KEY);
+				for (Iterator it = query.iterate(); it.hasNext();) {
+					configuration = (Configuration) it.next();
+				}
+				return configuration;
+			} else {
+				log.error("[getAllConf] Permission denied "+user_level);
+			}
+		} catch (HibernateException ex) {
+			log.error("[getConfKey]: " ,ex);
+		} catch (Exception ex2) {
+			log.error("[getConfKey]: " ,ex2);
+		}		
+		return null;
+	}
+	
+	public ConfigurationDTO getConfKeyDTO(long user_level, String CONF_KEY) {
+		Configuration conf = this.getConfKey(user_level, CONF_KEY);
+		
+		ConfigurationDTO confDTO = new ConfigurationDTO();
+		
+		if (conf != null) {
+			confDTO.setConfiguration_id(conf.getConfiguration_id());
+			confDTO.setConf_key(conf.getConf_key());
+			confDTO.setConf_value(conf.getConf_value());
+			confDTO.setComment(conf.getComment());
+		}
+		
+		return confDTO;
+	}
+	
+	
+	public Configuration getConfByConfigurationId(long user_level, long configuration_id) {
+		try {
+			log.debug("getConfByConfigurationId1: user_level "+user_level);
+			if (AuthLevelmanagement.checkAdminLevel(user_level)) {
+				return this.getConfByConfigurationById(configuration_id);
+			} else {
+				log.error("[getConfByConfigurationId] Permission denied "+user_level);
+			}
+		} catch (HibernateException ex) {
+			log.error("[getConfByConfigurationId]: " ,ex);
+		} catch (Exception ex2) {
+			log.error("[getConfByConfigurationId]: " ,ex2);
+		}		
+		return null;
+	}
+	
+	public Configuration getConfByConfigurationById(long configuration_id) {
+		try {
+			Query query = getSession().createQuery("select c from Configuration as c where c.configuration_id = :configuration_id");
+			query.setLong("configuration_id", configuration_id);
+			query.setMaxResults(1);
+			Configuration configuration = (Configuration) query.uniqueResult();
+			log.debug("getConfByConfigurationId4: "+configuration);
+			
+			if (configuration!=null && configuration.getUser_id()!=null) {
+				configuration.setUsers(this.userDaoImpl.getUserById(configuration.getUser_id()));
+			}
+			return configuration;
+		} catch (HibernateException ex) {
+			log.error("[getConfByConfigurationById]: " ,ex);
+		} catch (Exception ex2) {
+			log.error("[getConfByConfigurationById]: " ,ex2);
+		}		
+		return null;
+	}
+
+	public SearchResult getAllConf(long user_level, int start ,int max, String orderby, boolean asc) {
+		try {
+			if (AuthLevelmanagement.checkAdminLevel(user_level)) {
+				SearchResult sresult = new SearchResult();
+				sresult.setRecords(this.selectMaxFromConfigurations());
+				sresult.setResult(this.getConfigurations(start, max, orderby, asc));
+				sresult.setObjectName(Configuration.class.getName());
+				return sresult;
+			} else {
+				log.error("[getAllConf] Permission denied "+user_level);
+			}
+		} catch (HibernateException ex) {
+			log.error("[getAllConf]: " ,ex);
+		} catch (Exception ex2) {
+			log.error("[getAllConf]: " ,ex2);
+		}		
+		return null;
+	}
+
+	public List<Configuration> getConfigurationsBackup() {
+		try {
+			Criteria crit = getSession().createCriteria(Configuration.class);
+			List<Configuration> ll = crit.list();
+			return ll;
+		} catch (HibernateException ex) {
+			log.error("[getConfigurations]" ,ex);
+		} catch (Exception ex2) {
+			log.error("[getConfigurations]" ,ex2);
+		}
+		return null;
+	}
+	
+	public List getConfigurations(int start, int max, String orderby, boolean asc) {
+		try {
+			Criteria crit = getSession().createCriteria(Configuration.class);
+			crit.add(Restrictions.eq("deleted", "false"));
+			crit.setFirstResult(start);
+			crit.setMaxResults(max);
+			if (asc) crit.addOrder(Order.asc(orderby));
+			else crit.addOrder(Order.desc(orderby));
+			List ll = crit.list();
+			return ll;
+		} catch (HibernateException ex) {
+			log.error("[getConfigurations]" ,ex);
+		} catch (Exception ex2) {
+			log.error("[getConfigurations]" ,ex2);
+		}
+		return null;
+	}
+	
+	
+	/**
+	 * 
+	 * @return
+	 */
+	private Long selectMaxFromConfigurations(){
+		try {
+			log.debug("selectMaxFromConfigurations ");
+			//get all users
+			Query query = getSession().createQuery("select max(c.configuration_id) from Configuration c where c.deleted = 'false'"); 
+			List ll = query.list();
+			log.error((Long)ll.get(0));
+			return (Long)ll.get(0);				
+		} catch (HibernateException ex) {
+			log.error("[selectMaxFromConfigurations] ",ex);
+		} catch (Exception ex2) {
+			log.error("[selectMaxFromConfigurations] ",ex2);
+		}
+		return null;
+	}		
+
+	public String addConfByKey(long user_level, String CONF_KEY,
+			String CONF_VALUE, Long USER_ID, String comment) {
+		String ret = "Add Configuration";
+		if (AuthLevelmanagement.checkAdminLevel(user_level)) {
+			Configuration configuration = new Configuration();
+			configuration.setConf_key(CONF_KEY);
+			configuration.setConf_value(CONF_VALUE);
+			configuration.setStarttime(new Date());
+			configuration.setDeleted("false");
+			configuration.setComment(comment);
+			if (USER_ID!=null) configuration.setUser_id(USER_ID);
+			try {
+				getSession().save(configuration);
+//				session.flush();
+//				session.clear();
+//				session.refresh(configuration);
+				ret = "Erfolgreich";
+			} catch (HibernateException ex) {
+				log.error("[addConfByKey]: " ,ex);
+			} catch (Exception ex2) {
+				log.error("[addConfByKey]: " ,ex2);
+			}
+		} else {
+			ret = "Error: Permission denied";
+		}
+		return ret;
+	}
+	
+	public Long saveOrUpdateConfiguration(long user_level, Map values, Long users_id) {
+		try {
+			if (AuthLevelmanagement.checkAdminLevel(user_level)) {
+				Configuration conf = (Configuration) CastMapToObject.getInstance().castByGivenObject(values, Configuration.class);
+				if (conf.getConfiguration_id().equals(null) || conf.getConfiguration_id() == 0 ){
+					log.info("add new Configuration");
+					conf.setStarttime(new Date());
+					conf.setDeleted("false");
+					return this.addConfig(conf);
+				} else {
+					log.info("update Configuration ID: "+conf.getConfiguration_id());
+					conf.setUser_id(users_id);
+					conf.setDeleted("false");
+					conf.setUpdatetime(new Date());
+					return this.updateConfig(conf);
+				}
+			} else {
+				log.error("[saveOrUpdateConfByConfigurationId] Error: Permission denied");
+				return new Long(-100);
+			}				
+		} catch (HibernateException ex) {
+			log.error("[updateConfByUID]: " ,ex);
+		} catch (Exception ex2) {
+			log.error("[updateConfByUID]: " ,ex2);
+		}
+		return new Long(-1);
+	}
+
+	public Long addConfig(Configuration conf){
+		try {
+			Long configuration_id = (Long) getSession().save(conf);
+			return configuration_id;
+		} catch (HibernateException ex) {
+			log.error("[updateConfByUID]: " ,ex);
+		} catch (Exception ex2) {
+			log.error("[updateConfByUID]: " ,ex2);
+		}
+		return new Long(-1);		
+	}
+	
+	public Long updateConfig(Configuration conf){
+		try {
+			getSession().update(conf);
+			return conf.getConfiguration_id();
+		} catch (HibernateException ex) {
+			log.error("[updateConfByUID]: " ,ex);
+		} catch (Exception ex2) {
+			log.error("[updateConfByUID]: " ,ex2);
+		}
+		return new Long(-1);		
+	}	
+
+	public Long deleteConfByConfiguration(long user_level, Map values, Long users_id) {
+		try {	
+			if (AuthLevelmanagement.checkAdminLevel(user_level)) {
+				Configuration conf = (Configuration) CastMapToObject.getInstance().castByGivenObject(values, Configuration.class);
+				conf.setUsers(this.userDaoImpl.getUserById(users_id));
+				conf.setUpdatetime(new Date());
+				conf.setDeleted("true");
+				this.updateConfig(conf);
+				return new Long(1);
+			} else {
+				log.error("Error: Permission denied");
+				return new Long(-100);
+			}
+		} catch (HibernateException ex) {
+			log.error("[deleteConfByUID]: " ,ex);
+		} catch (Exception ex2) {
+			log.error("[deleteConfByUID]: " ,ex2);
+		}		
+		return new Long(-1);
+	}
+}

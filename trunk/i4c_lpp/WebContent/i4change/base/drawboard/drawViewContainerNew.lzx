@@ -1,0 +1,685 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+<class name="drawViewContainerNew" extends="view" x="-1" y="-1">
+    
+    <!-- unit,process, et cetera -->
+    <attribute name="typeOfObject" value="paint" type="string" />
+
+    <attribute name="initwidth" value="0" type="number" />
+    <attribute name="initheight" value="0" type="number" />
+    <attribute name="labelid" value="567" type="number" />
+    
+    <attribute name="text" value="" type="string" />
+    <attribute name="trackPointsInited" value="false" type="boolean" />
+    
+    <attribute name="hasShadow" value="true" type="boolean" />
+    
+    <attribute name="currentStyleTextClass" value="styleableInputDrawBoard" type="string" />
+    <attribute name="currentStyleTextClassPending" value="styleableInputDrawBoardPending" type="string" />
+    
+    <!-- judges wether the item should be auto-position on x,y,width.height Update -->
+    <attribute name="doUpdate" value="true" type="boolean" />
+    
+    <!-- indicates if this Object will be checked for underlaying Roles -->
+    <attribute name="isOrgConnectionItem" value="false" type="boolean" />      
+    <attribute name="dragStartValues" value="null" />    
+    
+    <!-- indicates if this Object will be checked for overlaying Process, Activities or Flows -->
+    <attribute name="isOrgObjectItem" value="false" type="boolean" />  
+    
+    <attribute name="pending" value="false" type="boolean" />
+    
+    <!-- this is for dragging an Object by the Org-Object -->
+    <attribute name="orgObjectDeltaX" value="0" type="number" />
+    <attribute name="orgObjectDeltaY" value="0" type="number" />
+    
+    <!-- this is for dragging an Object by multi-selection -->
+    <attribute name="deltaXToBoundBox" value="0" type="number" />
+    <attribute name="deltaYToBoundBox" value="0" type="number" />
+    
+    <attribute name="highlighted" value="false" type="boolean" />
+    
+    <attribute name="drillDowned" value="false" type="boolean" />
+    <attribute name="surfAcross" value="false" type="boolean" />
+    
+    <attribute name="flowsAdditionalDiagramInfoContainerRef" value="null" />
+    
+    <handler name="oninit">
+        this.initwidth=this.width;
+        this.initheight=this.height;
+        if (this.hasShadow) this.setShadow();         
+    </handler>
+    
+    <!-- sets the x,y,width,height before Dragging/Resize to reset it later on if the Object is outside
+        of a Org-Object -->
+    <method name="setStartValues">
+        this.dragStartValues = {x:this.x,y:this.y,width:this.width,height:this.height};
+    </method>
+    
+    <!-- 
+    checks if this Object is Inside a Org-Object and in case of failure shows a warning
+     -->
+    <method name="checkStartValues">
+        var connectList = parent.checkOrganisationConnection(this.typeOfObject,this.x,this.y,this.width,this.height,this);
+        
+        if (connectList.length == 0) {
+        	new lz.warningPopup(canvas,{error:canvas.getLabelName(806),closable:true});
+        }
+        
+        parent.updateBaseactionobjectOrganisationConnectionByName(this.name,connectList);
+    </method>
+    <!--
+    if (connectList.length != 0) {
+            //Update Objects Connection List
+            
+        } else {
+            this.setAttribute("x",this.dragStartValues.x);
+            this.setAttribute("y",this.dragStartValues.y);
+            this.setAttribute("width",this.dragStartValues.width);
+            this.setAttribute("height",this.dragStartValues.height);
+            parent.UpdateByObject(this);
+            new lz.errorPopup(canvas,{error:canvas.getLabelName(806),closable:true});
+        }
+     -->
+    
+    <!-- checks if this Org-Object has overlaying Process, Activities or Flows -->
+    <method name="checkOrgObjectValues">
+        parent.checkOrganisationConnectionByNewOrgObject(this.x,this.y,this.width,this.height,this);
+    </method>
+    
+    <method name="doShowNoRoleIcon">
+        //if ($debug) Debug.write("### doShowNoRoleIcon",this);
+        //this._no_role_warning.s
+        //new lz._no_role_warning(this);
+    </method>
+    
+    <method name="loadObjectIdentifier">
+        //if ($debug) Debug.write("canvas.currentdomainObj: ",canvas.currentdomainObj);
+        //if ($debug) Debug.write("organization_id: ",canvas.currentdomainObj.organisation_id);
+        //this.initEditableText(canvas.getLabelName(parent.labelid)+' '+parent.currentOID);
+        //parent.updateCurrentOID();
+        this.getObjectIdentifier.doCall();
+    </method>
+    
+    <method name="setDrillDownFlag">
+    	//if ($debug) Debug.write("setDrillDownFlag");
+    	this._drilldown.setAttribute("visibility","visible");
+    	this._drilldown.bringToFront();
+    	this.drillDowned = true;
+    </method>
+    
+    <method name="setSurfAcrossFlag">
+    	//if ($debug) Debug.write("setSurfAcrossFlag",this.typeOfObject);
+    	if (this.typeOfObject == "inputflow") {
+    		//if ($debug) Debug.write("setSurfAcrossFlag ### INPUT to True",this.typeOfObject);
+    		this._drillacross_left.setAttribute("y",this.height - this._drillacross_right.height);
+    		this._drillacross_left.setAttribute("visibility","visible");
+    		this._drillacross_left.bringToFront();
+    		this.surfAcross = true;
+    	} else if (this.typeOfObject == "outputflow") {
+    		//if ($debug) Debug.write("setSurfAcrossFlag ### OUTPUT to True",this.typeOfObject);
+    		this._drillacross_right.setAttribute("x",this.width - this._drillacross_right.width);
+            this._drillacross_right.setAttribute("y",this.height - this._drillacross_right.height);
+    		this._drillacross_right.setAttribute("visibility","visible");
+    		this._drillacross_right.bringToFront();
+    		this.surfAcross = true;
+    	}
+    </method>
+    
+    <method name="startResize">
+    	if (this.drillDowned) {
+    	   this._drilldown.setAttribute("visibility","hidden");
+    	}
+    	if (this.surfAcross) {
+    		if (this.typeOfObject == "inputflow") {
+                this._drillacross_left.setAttribute("visibility","hidden");
+            }
+            if (this.typeOfObject == "outputflow") {
+                this._drillacross_right.setAttribute("visibility","hidden");
+            }
+    	}
+    </method>
+    
+    <method name="stopResize">
+    	if (this.drillDowned) {
+        	this._drilldown.setAttribute("x",this.width/2 - this._drilldown.width/2);
+        	this._drilldown.setAttribute("y",this.height - this._drilldown.height);
+        	this._drilldown.setAttribute("visibility","visible");
+        	this._drilldown.bringToFront();
+    	}
+    	if (this.surfAcross) {
+            if (this.typeOfObject == "inputflow") {
+                this._drillacross_left.setAttribute("y",this.height - this._drillacross_right.height);
+                this._drillacross_left.setAttribute("visibility","visible");
+            } else if (this.typeOfObject == "outputflow") {
+            	this._drillacross_right.setAttribute("x",this.width - this._drillacross_right.width);
+            	this._drillacross_right.setAttribute("y",this.height - this._drillacross_right.height);
+                this._drillacross_right.setAttribute("visibility","visible");
+            }
+        }
+    </method>
+    
+    <method name="setFlowDiagramList" args="diagramList">
+    	<![CDATA[
+    	    this.clearFlowDiagramList();
+    	    if (diagramList != null && diagramList.length > 0) {
+    	    	
+    	    	if (this.typeOfObject == "inputflow") {
+    	    		this.flowsAdditionalDiagramInfoContainerRef = new lz.flowsAdditionalDiagramInfoContainer(this,{x:-36});
+    	    	} else {
+    	    	    this.flowsAdditionalDiagramInfoContainerRef = new lz.flowsAdditionalDiagramInfoContainer(this,{x:this.width});
+    	    	}
+    	    
+    	        for (var i=0;i<diagramList.length;i++) {
+        	        new lz.flowsLinkedDiagramItem(this.flowsAdditionalDiagramInfoContainerRef,{
+        	        	        text:diagramList[i].shortName,
+                	            diagramObj:diagramList[i],
+                                diagramName:diagramList[i].name
+                	        });
+    	        }
+    	       
+    	    }
+    	    
+    	]]>
+    </method>
+    
+    <method name="clearFlowDiagramList">
+    	if (this.flowsAdditionalDiagramInfoContainerRef != null) {
+    		this.flowsAdditionalDiagramInfoContainerRef.destroy();
+    		this.flowsAdditionalDiagramInfoContainerRef = null;
+    	}
+    </method>
+    
+    <netRemoteCallRPC name="getObjectIdentifier" funcname="getObjectIdentifier" 
+        remotecontext="$once{  applicationRPC }" showLoading="false">      
+        <netparam><method name="getValue"> return canvas.currentdomainObj.organisation_id;</method></netparam> 
+        <handler name="ondata" args="value">
+            //The onResult-Handler will be called be the rtmpconnection
+            //if ($debug) Debug.write("getObjectIdentifier: ",value);
+            parent.initEditableText(canvas.getLabelName(parent.labelid)+' '+value);
+            //parent._textview.setAttribute("text",parent._textview.text+' '+value);
+            //parent._textview.oninit.sendEvent();
+            //lz.Focus.clearFocus();
+            //lz.Focus.setFocus(parent._textview);
+            //parent._textview.isActiveBlur = true;
+        </handler>  
+    </netRemoteCallRPC>  
+    
+    <method name="initEditableText" args="val">
+        //if ($debug) Debug.write("currentStyleTextClass: ",this.currentStyleTextClass);
+        parent.updateObjTextByName(this.name,val);
+        if (this.typeOfObject == 'unit' 
+            || this.typeOfObject == 'departement' 
+            || this.typeOfObject == 'company'){
+            if (this.pending){
+                var t = new lz[this.currentStyleTextClassPending](this,{name:'_textview',
+                    text:val,fontstyle:'bold',
+                    fontsize:parent.currentlayersize+2,fgcolor:parent.currentlayerletter});
+            } else {
+                var t = new lz[this.currentStyleTextClass](this,{name:'_textview',
+                    text:val,fontstyle:'bold',
+                    fontsize:parent.currentlayersize+2,fgcolor:parent.currentlayerletter});
+            }
+        } else {
+            var t = new lz[this.currentStyleTextClass](this,{name:'_textview',
+                text:val,fontstyle:parent.currentlayerstyle,
+                fontsize:parent.currentlayersize,fgcolor:parent.currentlayerletter});
+        }
+    </method>  
+
+    <method name="setShadow">
+        <![CDATA[
+        if (this.isinited){
+            this.normalMC = this.getMCRef();
+            //Debug.write(this.normalMC);
+            ////Debug.write("this.normalMC: ",this.normalMC);
+            ////Debug.write("this: ",this);
+            this.displacementMap = new flash.filters.DropShadowFilter();
+            this.normalMC.filters = [this.displacementMap];
+        }
+        ]]>              
+    </method>      
+    
+    <!--
+    	Pass through the Bounding boxes for the X,Y Position
+     -->
+    <method name="updatex" args="x">
+        if (this.doUpdate) {
+            if (this.typeOfObject=="processgroup"){
+                parent.setFixedProcessGroupXPosition(this,x);
+            } else if (this.typeOfObject=="processtree"){
+                parent.setFixedProcessXPosition(this,x);
+            } else if (this.typeOfObject=="companyFixed") {
+                parent.setFixedProcessHierarchicalXPosition(this,canvas.defaultCompanyWidth,x);
+            } else if (this.typeOfObject=="departementFixed") {
+                parent.setFixedProcessHierarchicalXPosition(this,canvas.defaultDepartementWidth,x);
+            } else if (this.typeOfObject=="unitFixed") {
+                parent.setFixedProcessHierarchicalXPosition(this,canvas.defaultUnitWidth,x);
+            } else {
+                parent.setFixedGeneralXPosition(this,canvas.snapWidthGridX,x);
+            }
+        }
+    </method> 
+    
+    <!-- -->
+    
+    <method name="updatey" args="y">
+        if (this.doUpdate) {
+        	////if ($debug) Debug.write("ony STEP -1- ",this.typeOfObject,y);
+            if (this.typeOfObject=="processgroup"){
+                parent.setFixedProcessGroupYPosition(this,y);
+            } else if (this.typeOfObject=="processtree"){
+                parent.setFixedProcessYPosition(this,y);
+            } else if (this.typeOfObject=="companyFixed") {
+                parent.setFixedProcessHierarchicalYPosition(this,canvas.defaultCompanyWidth,
+                    canvas.defaultCompanyHeight,y);
+            } else if (this.typeOfObject=="departementFixed") {
+                parent.setFixedProcessHierarchicalYPosition(this,canvas.defaultDepartementWidth,
+                    canvas.defaultDepartementHeight,y);
+            } else if (this.typeOfObject=="unitFixed") {
+                parent.setFixedProcessHierarchicalYPosition(this,canvas.defaultUnitWidth,
+                    canvas.defaultUnitHeight,y);
+            } else {
+                parent.setFixedGeneralYPosition(this,canvas.snapWidthGridX,
+                    canvas.snapHeightGridY,y);
+            }
+        }
+    </method> 
+    
+    <!-- -->
+    
+    <handler name="onwidth" args="w">
+        <![CDATA[
+            if (this.doUpdate) {
+                for (var i=0;i<this.subviews.length;i++){
+                    if (this.typeOfObject=="issueflow") {
+                    	if (this.subviews[i].name != "_drillacross_left" 
+                               && this.subviews[i].name != "_drillacross_right"
+                               && this.subviews[i].name != "_drilldown" ) {
+                            if (this.subviews[i].name != "_textview"){
+                                this.subviews[i].setAttribute('width',w);
+                            } else {
+                                this.subviews[i].setAttribute('width',(w/6)*4-2);
+                            }
+                        }
+                    } else if (this.typeOfObject=="inputflow") {
+                    	if (this.subviews[i].name != "_drillacross_left" 
+                    	       && this.subviews[i].name != "_drillacross_right"
+                    	       && this.subviews[i].name != "_drilldown" ) {
+                            if (this.subviews[i].name != "_textview"){
+                                this.subviews[i].setAttribute('width',w);
+                            } else {
+                                this.subviews[i].setAttribute('width',(w*2/3)-2);
+                            }
+                        }
+                        
+                    } else if (this.typeOfObject=="outputflow") {
+                    	if (this.subviews[i].name != "_drillacross_left" 
+                               && this.subviews[i].name != "_drillacross_right"
+                               && this.subviews[i].name != "_drilldown" ) {
+                            if (this.subviews[i].name != "_textview"){
+                                this.subviews[i].setAttribute('width',w);
+                            } else {
+                                this.subviews[i].setAttribute('width',(w*2/3)-2);
+                            }
+                        }
+                        
+                        if (this.flowsAdditionalDiagramInfoContainerRef != null) {
+                            this.flowsAdditionalDiagramInfoContainerRef.setAttribute("x",this.width);
+                        }
+                        
+                    } else {
+                    	if (this.subviews[i].name != "_drilldown") {
+                            this.subviews[i].setAttribute('width',w);
+                    	}
+                    }
+                }
+                
+                ////if ($debug) Debug.write("onwidth this.typeOfObject: ",this.typeOfObject);
+                
+                if (this.typeOfObject=="processgroup"){
+                    parent.redrawProcessGroupItemByScaling(this);
+                } else if (this.typeOfObject=="process"){
+                    parent.redrawProcessItemByScaling(this);
+                } else if (this.typeOfObject=="processtree"){
+                    parent.redrawProcessItemByScaling(this);
+                } else if (this.typeOfObject=="activity"){
+                    parent.redrawActivityItemByScaling(this);
+                } else if (this.typeOfObject=="company"){
+                    parent.redrawCompanyItemByScaling(this);
+                } else if (this.typeOfObject=="departement"){
+                    parent.redrawDepartementItemByScaling(this);
+                } else if (this.typeOfObject=="unit"){
+                    parent.redrawUnitItemByScaling(this);
+                } else if (this.typeOfObject=="companyFixed"){
+                    parent.redrawCompanyItemByScaling(this);
+                } else if (this.typeOfObject=="departementFixed"){
+                    parent.redrawDepartementItemByScaling(this);
+                } else if (this.typeOfObject=="unitFixed"){
+                    parent.redrawUnitItemByScaling(this);
+                } else if (this.typeOfObject=="inputflow"){
+                    parent.redrawInputflowItemByScaling(this);
+                } else if (this.typeOfObject=="outputflow"){
+                    parent.redrawOutputflowItemByScaling(this);
+                } else if (this.typeOfObject=="issueflow"){
+                    parent.redrawIssueflowItemByScaling(this);
+                }
+            }
+        ]]>
+    </handler>
+    <handler name="onheight" args="h">
+        <![CDATA[
+            if (this.doUpdate) {
+                for (var i=0;i<this.subviews.length;i++){
+                    if (this.subviews[i].name != "_drilldown" 
+                               && this.subviews[i].name != "_drillacross_left" 
+                               && this.subviews[i].name != "_drillacross_right") {
+                        this.subviews[i].setAttribute('height',h);
+                    }
+                }
+                if (this.typeOfObject=="processgroup"){
+                    parent.redrawProcessGroupItemByScaling(this);
+                } else if (this.typeOfObject=="process"){
+                    parent.redrawProcessItemByScaling(this);
+                } else if (this.typeOfObject=="processtree"){
+                    parent.redrawProcessItemByScaling(this);
+                } else if (this.typeOfObject=="activity"){
+                    parent.redrawActivityItemByScaling(this);
+                } else if (this.typeOfObject=="company"){
+                    parent.redrawCompanyItemByScaling(this);
+                } else if (this.typeOfObject=="departement"){
+                    parent.redrawDepartementItemByScaling(this);
+                } else if (this.typeOfObject=="unit"){
+                    parent.redrawUnitItemByScaling(this);
+                } else if (this.typeOfObject=="companyFixed"){
+                    parent.redrawCompanyItemByScaling(this);
+                } else if (this.typeOfObject=="departementFixed"){
+                    parent.redrawDepartementItemByScaling(this);
+                } else if (this.typeOfObject=="unitFixed"){
+                    parent.redrawUnitItemByScaling(this);
+                } else if (this.typeOfObject=="inputflow"){
+                    parent.redrawInputflowItemByScaling(this);
+                } else if (this.typeOfObject=="outputflow"){
+                    parent.redrawOutputflowItemByScaling(this);
+                } else if (this.typeOfObject=="issueflow"){
+                    parent.redrawIssueflowItemByScaling(this);
+                }
+            }
+        ]]>
+    </handler>
+    
+    <method name="showObjectConnectors">
+        <![CDATA[
+            if (!this.trackPointsInited){
+                //if (this.typeOfObject=="inputflow"){
+                //  new lz.connectorPoint(this,{name:'w4',x:this.width-10,y:(this.height/2)-10});
+                //  this.w4.registerToTrack();
+                //} else if (this.typeOfObject=="outputflow"){
+                //  new lz.connectorPoint(this,{name:'w3',x:-10,y:(this.height/2)-10});
+                //  this.w3.registerToTrack();
+                //} else {
+                    
+                    
+                    ////if ($debug) Debug.write("showObjectConnectors: ",this);
+                    new lz.connectorPoint(this,{name:'w1',x:(this.width/2)-10,y:-10});
+                    new lz.connectorPoint(this,{name:'w2',x:(this.width/2)-10,y:this.height-10});
+                    new lz.connectorPoint(this,{name:'w3',x:-10,y:(this.height/2)-10});
+                    new lz.connectorPoint(this,{name:'w4',x:this.width-10,y:(this.height/2)-10});
+                    
+                    this.w1.registerToTrack();
+                    this.w2.registerToTrack();
+                    this.w3.registerToTrack();
+                    this.w4.registerToTrack();
+                //}
+                this.trackPointsInited = true;
+            }
+        ]]>
+    </method>
+    
+    <!--
+    	This Method is used during the Loading of a 
+    	Diagram to Simulate an Anchor to draw the Connection Line
+     -->
+    <method name="simulateObjectConnectors">
+        <![CDATA[
+                    
+            ////if ($debug) Debug.write("showObjectConnectors: ",this);
+            new lz.connectorPointSimulated(this,{name:'w1',x:(this.width/2)-10,y:-10});
+            new lz.connectorPointSimulated(this,{name:'w2',x:(this.width/2)-10,y:this.height-10});
+            new lz.connectorPointSimulated(this,{name:'w3',x:-10,y:(this.height/2)-10});
+            new lz.connectorPointSimulated(this,{name:'w4',x:this.width-10,y:(this.height/2)-10});
+
+        ]]>
+    </method>
+    
+    <method name="removeConnectors">
+        this.w1.destroy();
+        this.w2.destroy();
+        this.w3.destroy();
+        this.w4.destroy();
+    </method>
+    
+    <!--
+            w1
+        w3      w4      
+            w2
+     -->
+    
+    <method name="removeObjectConnectors">
+        if (this.trackPointsInited){
+            //if (this.typeOfObject=="inputflow"){
+            //  this.w4.unRegisterFromTrack();
+            //  this.w4.destroy();
+            //} else if (this.typeOfObject=="outputflow"){
+            //  this.w3.unRegisterFromTrack();
+            //  this.w3.destroy();
+            //} else {
+                this.w1.unRegisterFromTrack();
+                this.w2.unRegisterFromTrack();
+                this.w3.unRegisterFromTrack();
+                this.w4.unRegisterFromTrack();
+                this.removeConnectors();
+
+            //}
+            this.trackPointsInited = false;
+        }
+    </method>
+    
+    <method name="deHighlight">
+    	this.highlighted = false;
+    	////if ($debug) Debug.write("deHighlight");
+    	this.setAttribute("opacity",1);
+    </method>
+    
+    <method name="setHighlight">
+    	this.highlighted = true;
+    	////if ($debug) Debug.write("setHighlight");
+    	this.setAttribute("opacity",0.5);
+    </method>
+    
+    <method name="showDocuments" args="diagramDocuments">
+    	<![CDATA[
+    	
+    	   for (var i=0;i<diagramDocuments.length;i++) {
+                
+                var item = diagramDocuments[i];
+                
+                if (!item.isInternal) {
+                    
+                	if ($debug) Debug.write("Add Document ",item.url);
+                	
+                    new lz.documentsMiniIcon(this._innerDocs,{
+                                    url:item.url,
+                                    fileName:item.fileName,
+                                    fileIconName:item.fileIconName
+                                });
+                    
+                } else {
+                	
+                   var url = canvas.httpprotocol+'://'+canvas.rtmphostlocal+':'+canvas.httpport
+                            +'/'+canvas.webAppRootKey+'/DownloadHandler?fileName='+item.url
+                            +'&downloadFileName='+item.fileName
+                            +'&moduleName=document&parentPath=&room=&domain='
+                            +'&sid='+canvas.sessionId;
+                            
+                    new lz.documentsMiniIcon(this._innerDocs,{
+                                    url:url,
+                                    fileName:item.fileName,
+                                    fileIconName:item.fileIconName
+                                });  
+                	
+                }
+                
+            }
+            
+            if (diagramDocuments.length > 0) {
+                this._innerDocs.bringToFront();
+            }
+            
+    	]]>
+    </method>
+    
+    <view name="_innerDocs" valign="bottom"
+    	  layout="axis:x;spacing:0" />
+    
+    <baseChooseIcon name="_drillacross_left" resourceN="drill_left_rsc" labelid="1387"
+            visibility="hidden" x="0" y="$once{ parent.height - this.height }" >
+        <handler name="onclick"> 
+            <![CDATA[
+                var typeOfObject = this.parent.typeOfObject;
+                ////if ($debug) Debug.write("typeOfObject: ",typeOfObject);
+                var baseObject = this.parent.parent.getBaseactionobjectByName(this.parent.name);
+                ////if ($debug) Debug.write("baseObject: ",baseObject);
+                canvas.tempNewlyCreatedBaseObject = baseObject;
+                
+                var diagramObjectId = baseObject[baseObject.length-7];
+                ////if ($debug) Debug.write("diagramObjectId: ",diagramObjectId);
+                
+                if (diagramObjectId != 0){
+                    //this is an Input Flow so search for Outputflows
+                    diagramServiceRPC.getDiagramSurfAcrossByDiagramObjectIdAndType.
+                            checkAndLoadDiagram(diagramObjectId, "outputflow");
+                } else {
+                    new lz.errorPopup(canvas,{error:canvas.getLabelName(857),closable:true});
+                }
+            ]]>
+        </handler>
+    </baseChooseIcon>
+    
+    <!-- -->
+    <baseChooseIcon name="_drilldown" resourceN="drill_down_rsc" 
+            x="$once{ parent.width/2 - this.width/2 }" labelid="1386" 
+            y="$once{ parent.height - this.height }" visibility="hidden">
+        <handler name="onclick">
+            <![CDATA[
+                var typeOfObject = parent.typeOfObject;
+                ////if ($debug) Debug.write("typeOfObject: ",typeOfObject);
+                if (typeOfObject == "process" || typeOfObject == "processtree" 
+                        || typeOfObject == "processgroup"
+                        || typeOfObject == "departement"
+                        || typeOfObject == "departementFixed"
+                        || typeOfObject == "company"
+                        || typeOfObject == "companyFixed"){
+                            
+                    var baseObject = this.parent.parent.getBaseactionobjectByName(this.parent.name);
+                    if ($debug) Debug.write("baseObject: _drilldown",baseObject);
+                    
+                    canvas.tempNewlyCreatedBaseObject = baseObject;
+                    
+                    var diagramObjectId = baseObject[baseObject.length-7];
+                    ////if ($debug) Debug.write("diagramObjectId: ",diagramObjectId);
+                    
+                    if (diagramObjectId != 0){
+                         diagramServiceRPC.getDiagramDrillDownByDiagramObjectIdAndType.
+                                checkAndLoadDiagram(diagramObjectId);
+                    } else {
+                        new lz.errorPopup(canvas,{error:canvas.getLabelName(857),closable:true});
+                    }
+                     
+                } else {
+                    new lz.errorPopup(canvas,{error:canvas.getLabelName(851),closable:true});
+                }
+            ]]>
+        </handler>
+    </baseChooseIcon>  
+    
+    <!--  --> 
+    <baseChooseIcon name="_drillacross_right" resourceN="drill_right_rsc" labelid="1390" 
+        visibility="hidden" x="$once{ parent.width - this.width }" y="$once{ parent.height - this.height }">
+        <handler name="onclick">
+            <![CDATA[
+                var typeOfObject = this.parent.typeOfObject;
+                ////if ($debug) Debug.write("typeOfObject: ",typeOfObject);
+                var baseObject = this.parent.parent.getBaseactionobjectByName(this.parent.name);
+                ////if ($debug) Debug.write("baseObject: ",baseObject);
+                canvas.tempNewlyCreatedBaseObject = baseObject;
+                
+                var diagramObjectId = baseObject[baseObject.length-7];
+                ////if ($debug) Debug.write("diagramObjectId: ",diagramObjectId);
+                
+                if (diagramObjectId != 0){
+                    //this is an Output Flow so search for Inputflows
+                    diagramServiceRPC.getDiagramSurfAcrossByDiagramObjectIdAndType.
+                            checkAndLoadDiagram(diagramObjectId, "inputflow",parent);
+                } else {
+                    new lz.errorPopup(canvas,{error:canvas.getLabelName(857),closable:true});
+                }
+            ]]>
+        </handler>
+    </baseChooseIcon>  
+    
+    <!--
+    <view name="_no_role_warning" resource="no_role_warning" />
+     -->
+    
+</class>
+
+<class name="documentsMiniIcon" extends="view">
+	
+    <attribute name="fileIconName" value="" type="string" />
+    <attribute name="fileName" value="" type="string" />
+    <attribute name="url" value="" type="string" />
+    
+    <handler name="onclick">
+    	lz.Browser.loadURL(this.url,"_BLANK");
+    </handler>
+    
+    <handler name="oninit">
+    	if ($debug) Debug.warn("iconSourceName ",this.fileIconName);
+        this._icon.setSource(canvas.getIconPathByName(this.fileIconName));
+    </handler>
+    
+    <view name="_icon" />
+    
+    <labelTooltip text="$once{ parent.fileName }" />
+    
+</class>
+
+
+<class name="flowsAdditionalDiagramInfoContainer" extends="view" width="36"
+	   layout="axis:y;spacing:1;inset:1" bgcolor="$once{ canvas.basebgcolorizer }" />
+
+<class name="flowsLinkedDiagramItem" extends="text" bgcolor="0xFFFFFF" 
+	   fgcolor="0x0000CC" x="1" width="34" resize="false" fontsize="9">
+	<attribute name="diagramObj" value="null" />
+	<attribute name="diagramName" value="" type="string" />
+	<handler name="onmouseover">
+		this.setAttribute("bgcolor",canvas.baseMouseOvercolorizer);
+	</handler>
+	<handler name="onmouseout">
+		this.setAttribute("bgcolor",0xFFFFFF);
+	</handler>
+	<handler name="onclick">
+		diagramServiceRPC.loadLatestDiagramById(this.diagramObj.diagramId);
+	</handler>
+	<labelTooltip text="$once{ parent.diagramName }" />
+</class>
+
+<class name="_no_role_warning" extends="view" 
+       onmouseover="" onmouseout=""
+       resource="no_role_warning">
+    
+</class>
+    
+</library>  

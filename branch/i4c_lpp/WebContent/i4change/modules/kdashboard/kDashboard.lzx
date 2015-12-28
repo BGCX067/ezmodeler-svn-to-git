@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+ 
+<class name="kDashBoardBox" extends="view" >
+    
+    <attribute name="labelid" type="number" setter="setLabelId(labelid)" />
+    <method name="setLabelId" args="_labelid" >
+        this.labelid = _labelid;
+        this.setAttribute("headerText",canvas.getLabelName(this.labelid));
+    </method>
+    
+    <attribute name="headerText" value="" type="string" />
+    
+    <view name="_head" x="2" y="2" width="${ parent.width-4 }" height="34" bgcolor="0x3F5B9E">
+        
+        <text x="10" fontstyle="bold" fontsize="14" fgcolor="0xFFFFFF" 
+              text="${ parent.parent.headerText }" valign="middle"></text>
+        
+        <view resource="kaleidoscope_textbox_milk" width="${ parent.width }" height="30"
+              stretches="width">
+            
+        </view>
+        
+    </view>
+    
+    <view x="2" width="${ parent.width - 4 }" y="34" height="${ parent.height - 34 }"
+          bgcolor="0x3F5B9E" opacity="0.1"></view>
+    
+</class>
+
+<!---  modules:dashboard -->
+<class name="kDashboard" extends="baseContentTabbedView" closeable="false"
+       labelid="807" width="${ canvas.width }" height="${ canvas.height-48 }">	
+             
+
+    <kDashBoardBox name="userProfile" width="260" height="320" labelid="1223" id="_userDashBoard">
+        <handler name="oninit">
+            this.getUserPictureURI.doCall();
+	    </handler>
+	    <method name="sendRefresh">
+	        this.getUserPictureURI.doCall();
+	    </method>
+        <netRemoteCallRPC name="getUserPictureURI" funcname="getUserPictureURI" 
+            remotecontext="$once{  canvas.userServiceRPC }" > 
+            <netparam><method name="getValue"> return canvas.sessionId; </method></netparam>
+            <handler name="ondata" args="value">
+                <![CDATA[
+                    //if($debug) Debug.write("dashboard/getUserPictureURI: ",value);
+                    parent._username.setAttribute("text",canvas.getLabelName(376)+canvas.userobject.login);
+                    if (value==null || value.length==0){
+                        value = "d.jpg";
+                    } else {
+                        value = "_profile_"+value;
+                    }
+                    var downloadurl = canvas.httpprotocol+'://'+canvas.rtmphostlocal+':'+canvas.httpport
+                            +'/'+canvas.webAppRootKey+'/DownloadHandler?fileName='+value
+                            +'&moduleName=userprofile&parentPath=&room=&domain='
+                            +'&sid='+canvas.sessionId;
+                    //if($debug) Debug.write("dashboard/downloadurl "+downloadurl);
+                    parent._userpic.setAttribute('src',downloadurl);    
+                ]]>
+            </handler>
+        </netRemoteCallRPC>    
+        
+        <labelText name="_username" fontstyle="bold" multiline="true" width="134"
+                   y="40" labelid="376" x="124" />
+        
+        <image name="_userpic" y="40" x="4" >
+        	<view resource="edit_table" valign="bottom" align="right" onmouseover="" onmouseout="">
+        		<handler name="onclick">
+        			new lz.uploadWindow(canvas.main_content._content.inner,{
+            			             x:300,uploadmodule:'userprofile',
+            			             isOnlyProfile:true,isdefaultreturn:false,
+            			             returnObj:this.parent.parent
+        			             });
+        		</handler>
+        		<labelTooltip labelid="1252" />
+        	</view>
+        </image> 
+        
+        <labelText labelid="1408" x="2" width="256" multiline="true" y="140" />
+        
+        <simpleLabelButton labelid="1407" height="30" x="2" width="256" y="184">
+        	<view x="4" y="2" resource="nav_right_green_rsc" />
+        	<handler name="onclick">
+        		new lz.firstStartWizzard(canvas);
+        	</handler>
+        </simpleLabelButton>
+        
+        <labelText labelid="1458" x="2" width="256" multiline="true" y="244" />	
+        
+        <customEdittext name="search" x="2" width="256" text="" y="264" >
+            <handler name="onkeyup" args="k">
+                if (k == 13) {
+                    parent._doSearch.onclick.sendEvent();
+                }
+            </handler>
+        </customEdittext>
+        
+        <simpleLabelButton name="_doSearch" labelid="1459" height="30" 
+        				   x="102" width="156" y="288">
+            <view x="4" y="2" resource="search_big_rsc" />
+            <handler name="onclick">
+                canvas.currentSearchTerm = parent.search.getText();
+                canvas.doActionmenu('search');
+            </handler>
+        </simpleLabelButton>
+        	
+    </kDashBoardBox>
+    
+    <kDashBoardBox name="loadDiagram" width="${ canvas.width - 262 }" 
+    			    x="262" height="320" labelid="1224">
+        
+	    <handler name="oninit">
+	        //Add Help Item
+	        canvas.addCurrentHelpId(36,this.__constructor__.classname);
+	        canvas.addToCurrentDiagramList(this);
+	    </handler> 
+	    
+	    <method name="updateDiagramRevision" args="diagram">
+	        this._diagrams.updateDiagramRevision(diagram);
+	    </method>
+	    
+	    <method name="refreshDiagramRevision" >
+	        this._diagrams.refreshDiagramRevision();
+	    </method>
+	    
+	    <view clickable="true" showhandcursor="false" y="20" x="1" width="${ parent.width-2 }" 
+	          height="${ parent.height-21 }" ></view>
+        
+        <view x="6" y="38" name="_header" layout="axis:x;spacing:2">
+        	<handler name="oninit">
+        		var storedItems = canvas.getUserProperty("dashBoardDiagramPod");
+        		if (storedItems != null){
+        			if (storedItems.selected == 1) {
+        				//Is same like Default State
+        			} else {
+        				this._head1.setAttribute("y",2);
+        				this._head2.setAttribute("y",0);
+        				parent._open.setAttribute("visibility","hidden");
+                        parent._diagrams.setAttribute("visibility","visible");
+        			}
+        		}
+        	</handler>
+	        <view name="_head1" width="140" height="22" bgcolor="0x3F5B9E">
+                <handler name="onclick">
+                    parent.parent._open.setAttribute("visibility","visible");
+                    parent.parent._diagrams.setAttribute("visibility","hidden");
+                    this.setAttribute("y",0);
+                    parent._head2.setAttribute("y",2);
+                    parent.setNewUserProperty.setProperties(1);
+                </handler>
+	            <labelText x="10" fontstyle="bold" fontsize="14" fgcolor="0xFFFFFF" 
+	                  labelid="1228" valign="middle"></labelText>
+	            <view resource="kaleidoscope_textbox_milk" width="$once{ parent.width }" height="22"
+	                  stretches="both">
+	            </view>
+	        </view>
+            <view name="_head2" width="140" y="2" height="22" bgcolor="0x3F5B9E">
+                <handler name="onclick">
+                    parent.parent._open.setAttribute("visibility","hidden");
+                    parent.parent._diagrams.setAttribute("visibility","visible");
+                    this.setAttribute("y",0);
+                    parent._head1.setAttribute("y",2);
+                    parent.setNewUserProperty.setProperties(2);
+                </handler>
+                <labelText x="10" fontstyle="bold" fontsize="14" fgcolor="0xFFFFFF" 
+                      labelid="1229" valign="middle"></labelText>
+                <view resource="kaleidoscope_textbox_milk" width="$once{ parent.width }" height="22"
+                      stretches="both">
+                </view>
+            </view>
+            
+            <netRemoteCallRPC name="setNewUserProperty" funcname="setNewUserProperty" 
+                          remotecontext="$once{  canvas.mainServiceRPC }" showLoading="false" >
+                <attribute name="propKey" value="" type="string" />   
+                <attribute name="propValue" value="null" />
+                <method name="setProperties" args="val">
+                    this.propValue = new Object();
+                    this.propValue["selected"] = val;
+                    this.doCall();
+                </method>
+                <netparam><method name="getValue"> return canvas.sessionId; </method></netparam>  
+                <netparam><method name="getValue"> return "dashBoardDiagramPod"; </method></netparam>  
+                <netparam><method name="getValue"> return parent.propValue; </method></netparam>  
+                <handler name="ondata" args="value">
+                    //The onResult-Handler will be called be the rtmpconnection
+                    //if ($debug) Debug.write("setNewUserProperty: ",this.propValue);
+                </handler>  
+            </netRemoteCallRPC>
+        </view>      
+	    
+        <view name="_open" y="60" height="$once{ parent.height-58 }" >
+            <view width="400">
+            	
+            	<!--
+            	##############################################
+            	   newDiagramButtons
+            	##############################################
+            	 -->
+	            <newDiagramButtons name="_newDiagramButtons" /> 
+	            
+	        </view>
+            <view x="400" width="${ parent.parent.width - 400 }" height="$once{ parent.height-58 }">
+                <simpleLabelButtonTooltip valign="middle" fontstyle="bold" 
+                                          align="center" labelid="1227" height="47">
+                    <handler name="onclick">
+                    	parent.parent.parent._header._head1.setAttribute("y",2);
+                    	parent.parent.parent._header._head2.setAttribute("y",0);
+                        parent.parent.parent._open.setAttribute("visibility","hidden");
+                        parent.parent.parent._diagrams.setAttribute("visibility","visible");
+                        parent.parent.parent._header.setNewUserProperty.setProperties(2);
+                    </handler>
+                </simpleLabelButtonTooltip>
+            </view>
+        </view>
+        
+	    <baseDiagramLoader name="_diagrams" y="64" x="1" width="${ parent.width-2 }" additionalX="-1" 
+	          height="${ parent.height-64 }" visibility="hidden"/>
+              
+        <view y="60" width="${ parent.width }" height="2" bgcolor="0x3F5B9E"></view>
+        
+    </kDashBoardBox>
+    
+    <kDashBoardBox name="faqAndHelp" width="${ canvas.width - 448 }" 
+    			   height="${ parent.height - 328 }" y="322" labelid="1225">
+        
+        <helpAndFaq name="_helpAndFaq" x="2"  
+        			y="38" height="${ parent.height - 38 }" width="${ parent.width }"/>
+        
+    </kDashBoardBox>
+    
+    <issuesListDashBoard name="ideasAndEvents" x="${ canvas.width - 446 }" 
+				   width="446" height="${ parent.height - 328 }" y="322" />
+
+
+</class>
+
+</library>

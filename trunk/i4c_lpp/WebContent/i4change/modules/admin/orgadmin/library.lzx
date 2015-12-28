@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+    <include href="addOrgProperties.lzx" />
+	<include href="orgAdmin.lzx" />
+	<include href="orgAdminListItem.lzx" />
+	<include href="orgAdminValueForm.lzx" />
+	<include href="orgAdminChooseUserWindow.lzx" />
+
+</library>

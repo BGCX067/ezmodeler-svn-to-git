@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>   
+
+	<class name="_menubar" extends="menubar" style="componentStyle"></class>
+
+    <!-- private class for conferenceMenubar class -->
+    <class name="_labelMenuItem" extends="menuitem" text="labelmenulabelmenulabelmenu">
+        <attribute name="labelid" type="number" setter="setLabelId(labelid)" />
+        <method name="setLabelId" args="_labelid" >
+            this.labelid = _labelid;
+            this.setAttribute('text',canvas.getLabelName(this.labelid));
+        </method>
+    </class>  
+    
+	<!-- private class for conferenceMenubar class -->
+	<class name="_labelMenuItemView" extends="menuitem" text="labelmenulabelmenulabelmenu">
+		<attribute name="labelid" type="number" setter="setLabelId(labelid)" />
+        <attribute name="initSelected" value="false" type="boolean" />
+        <view name="_checkbox" y="2" x="2" opacity="0.3"
+              resource="menu_item_availible_rsc">
+            <method name="setValue" args="bool">
+                //if ($debug) Debug.write("setValue Text ",this.text,bool);
+                if (bool) {
+                    //if ($debug) Debug.write("Set Opacity 1");
+                    this.setAttribute('opacity',1);
+                } else {
+                    //if ($debug) Debug.write("Set Opacity 0.3");
+                    this.setAttribute('opacity',0.3);
+                }
+            </method>
+        </view>
+        <handler name="oninit">
+            if (this.initSelected) {
+                this._checkbox.setValue(true);
+            }
+        </handler>
+		<method name="setLabelId" args="_labelid" >
+			this.labelid = _labelid;
+			this.setAttribute('text','    '+canvas.getLabelName(this.labelid));
+		</method>
+        <!--
+        <handler name="onclick">
+            this._checkbox.setValue(!this._checkbox.getValue());
+        </handler>
+         -->
+	</class>   
+	
+	<class name="_menubutton" extends="menubutton" fontstyle="bold" ></class> 
+	    
+	<!-- private class for conferenceMenubar class -->
+	<!-- menuButtonClass="_menubutton" -->
+	<class name="_labelMenu" extends="menu" text="labelmenulabelmenulabelmenu" 
+		    style="defaultstyle" >
+		<attribute name="buttonClassName" value="" type="string" />
+		<attribute name="labelid" type="number" setter="setLabelId(labelid)" />
+		<method name="setLabelId" args="_labelid" >
+			this.labelid = _labelid;
+			this.setAttribute('text',canvas.getLabelName(this.labelid));
+		</method>
+	</class>  
+	
+	<class name="exportMenuBar" extends="_labelMenuItem" labelid="621" >
+        <_labelMenu width="250">
+        	<_labelMenuItem labelid="1257" command="cmd_exportPowerPoint" />
+            <_labelMenuItem labelid="665" command="cmd_exportPNG" />
+            <_labelMenuItem labelid="666" command="cmd_exportJPG" />
+            <_labelMenuItem labelid="667" command="cmd_exportPDF" />
+            <_labelMenuItem labelid="668" command="cmd_exportXML" />
+            <_labelMenuItem labelid="664" command="cmd_exportSVG" />
+            <_labelMenuItem labelid="669" command="cmd_exportCustom" />
+        </_labelMenu>
+	</class>
+	
+	<class name="buyMenuBar" extends="_labelMenu" 
+		   buttonClassName="_menubutton" labelid="1398" width="250" >
+        <_labelMenuItem labelid="1399" >
+        	<handler name="onclick">
+        		lz.Browser.loadURL("http://www.i4change.com/buy-now","_blank");
+        	</handler>
+        </_labelMenuItem>
+        <_labelMenuItem labelid="1400" >
+            <handler name="onclick">
+                lz.Browser.loadURL("http://ezmodeler.org/toegang-3-maanden/","_blank");
+            </handler>
+        </_labelMenuItem>
+        <_labelMenuItem labelid="1401" >
+            <handler name="onclick">
+                lz.Browser.loadURL("http://ezmodeler.org/toegang-3-maanden/","_blank");
+            </handler>
+        </_labelMenuItem>
+    </class>
+	
+	<class name="fileMenuBar" extends="_labelMenu" labelid="615" width="250">
+        <_labelMenuItem labelid="616" command="cmd_new" />
+        <_labelMenuItem labelid="617" command="cmd_open" />
+        <_labelMenuItem labelid="618" command="cmd_save" />
+        <_labelMenuItem labelid="619" command="cmd_save_as" />
+        <menuseparator /> 
+        <_labelMenuItem labelid="1272" command="cmd_change_project" />
+        <_labelMenuItem labelid="1094" command="cmd_change_role" />
+        <_labelMenuItem labelid="1095" command="cmd_change_org" />
+        <menuseparator />  
+        <exportMenuBar />
+        <_labelMenuItem labelid="622" command="cmd_import" />
+        <menuseparator />
+        <_labelMenuItem labelid="629" command="cmd_close" />
+        <menuseparator />
+        <_labelMenuItem labelid="310" width="250">
+            <handler name="onclick">
+                quicklinkAct('logout');
+            </handler>
+        </_labelMenuItem> 
+        <!--
+        <menuseparator />
+        <_labelMenuItem labelid="623" command="cmd_quit" />
+         -->
+	</class>
+	
+	<class name="adminMenuBarItems" extends="_labelMenu" labelid="6" width="250">
+        <_labelMenuItem labelid="125" >
+            <handler name="onclick">
+                quicklinkAct("userAdmin");
+            </handler>
+        </_labelMenuItem>  
+        <_labelMenuItem labelid="127" >
+            <handler name="onclick">
+                quicklinkAct("orgAdmin");
+            </handler>
+        </_labelMenuItem>  
+        <_labelMenuItem labelid="263" >
+            <handler name="onclick">
+                quicklinkAct("confAdmin");
+            </handler>
+        </_labelMenuItem> 
+        <_labelMenuItem labelid="1367" >
+            <handler name="onclick">
+                quicklinkAct("objectTypeAdmin");
+            </handler>
+        </_labelMenuItem>        
+        <_labelMenuItem labelid="983" >
+            <handler name="onclick">
+                quicklinkAct("propertyAdmin");
+            </handler>
+        </_labelMenuItem>   
+        <_labelMenuItem labelid="348" >
+            <handler name="onclick">
+                quicklinkAct("languagesEditor");
+            </handler>
+        </_labelMenuItem>     
+        <_labelMenuItem labelid="1198" >
+            <handler name="onclick">
+                quicklinkAct("webSiteAdmin");
+            </handler>
+        </_labelMenuItem>         
+        <_labelMenuItem labelid="367" >
+            <handler name="onclick">
+                quicklinkAct("backupContent");
+            </handler>
+        </_labelMenuItem>
+	</class>
+	
+	<class name="modMenuBarItems" extends="_labelMenu" labelid="689" width="250">
+        <_labelMenuItem labelid="966" >
+            <handler name="onclick">
+                quicklinkAct("modUserDomains");
+            </handler>
+        </_labelMenuItem> 
+        <_labelMenuItem labelid="956" >
+            <handler name="onclick">
+                quicklinkAct("modUserRoles");
+            </handler>
+        </_labelMenuItem> 
+        <_labelMenuItem labelid="690" >
+            <handler name="onclick">
+                quicklinkAct("modRoles");
+            </handler>
+        </_labelMenuItem> 
+        <_labelMenuItem labelid="1371" >
+            <handler name="onclick">
+                quicklinkAct("objectTypeMod");
+            </handler>
+        </_labelMenuItem> 
+        <_labelMenuItem labelid="997" >
+            <handler name="onclick">
+                quicklinkAct("modProperty");
+            </handler>
+        </_labelMenuItem> 
+    </class>
+    
+    <class name="usermenuBarItems" extends="_labelMenu" labelid="808" width="250">
+        <_labelMenuItem labelid="751" width="250">
+            <handler name="onclick">
+                if (canvas.userobject.userlevel.level_id == 1){
+                    new lz.helpCenter(canvas);
+                } else {
+                    new lz.modHelpCenter(canvas);
+                }
+            </handler>
+        </_labelMenuItem> 
+        <_labelMenuItem labelid="5" width="250">
+            <handler name="onclick">
+                quicklinkAct("userSettings");
+            </handler>
+        </_labelMenuItem>  
+        <_labelMenuItem labelid="284" width="250">
+            <handler name="onclick">
+                lz.Browser.loadURL(canvas.currentappnamebugurl,"_blank");
+            </handler>
+        </_labelMenuItem> 
+        <_labelMenuItem labelid="1262" width="250">
+            <handler name="onclick">
+                quicklinkAct('aboutPopup');
+            </handler>
+        </_labelMenuItem> 
+    </class>
+    
+</library>

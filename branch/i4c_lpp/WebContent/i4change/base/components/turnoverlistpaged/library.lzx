@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+    
+    <include href="basePagingListItem.lzx" />
+    <include href="listPagedContent.lzx" />
+	<include href="turnOverListPaged.lzx" />
+    <include href="turnOverListOrderedPaged.lzx" />
+
+</library>

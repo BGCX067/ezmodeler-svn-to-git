@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+	
+<class name="processGroupToolBar" extends="baseToolBar" 
+	   labelid="542" width="62" height="204" >
+	
+	<handler name="oninit">
+		this._area.menupointer_single.onmouseup.sendEvent(this);
+	</handler>
+    <handler name="oninit">
+        //Add Help Item
+        canvas.addCurrentHelpId(21,this.__constructor__.classname);
+    </handler> 
+	<view name="_area" width="62" y="22" x="4">
+		<wrappinglayout axis="x" spacing="2" />
+		
+		<drawToolBarItem name="menupointer_single" resoureceItem="menupointer_rsc" 
+						 modi="hand_single" labelid="545" />
+                         
+        <drawToolBarItem name="drill_up_rsc" resoureceItem="drill_up_rsc" setSelectionToItem="false"
+                         modi="drill_up" labelid="869" />                         
+		
+        <!--
+		<drawToolBarItem name="menupointer" resoureceItem="menupointer_multi_rsc" 
+						 modi="hand" labelid="577" />
+		 -->
+         			 
+		<drawToolBarSeperator name="_drawToolBarSeperator1" />	
+						 
+		<drawToolBarItem name="plain" resoureceItem="plain" setSelectionToItem="false"
+						 modi="plain" labelid="543" />
+		<drawToolBarItem name="saveobj" resoureceItem="saveobj" setSelectionToItem="false"
+						 modi="saveobj" labelid="544" />
+		
+        <drawToolBarSeperator name="_drawToolBarSeperator_zoom" />     
+					 
+		<drawToolBarItem name="letter" resoureceItem="letter_menu" 
+						 modi="letter" labelid="578" />		
+						 
+		<drawToolBarItem name="issueflow" resoureceItem="issueflow_menu" 
+						 modi="issueflow" labelid="579" />							 
+			
+		<drawToolBarSeperator name="_drawToolBarSeperator2" />
+		                 
+        <drawToolBarItem name="connector_fork" resoureceItem="connector_fork_rsc" 
+                         modi="connector_fork" labelid="1255" />  
+                         
+        <drawToolBarItem name="connector_tree" resoureceItem="connector_tree_rsc" 
+                         modi="connector_tree" labelid="1254" />    
+                         
+        <drawToolBarItem name="connector_flow" resoureceItem="connector_flow_rsc" 
+                         modi="connector_flow" labelid="1256" />		 
+						 
+		<drawToolBarSeperator name="_drawToolBarSeperator3" />
+		
+		<drawToolBarItem name="processgroup" resoureceItem="processgroup_menu" 
+						 modi="processgroup" labelid="546" />				 				 					 
+						 
+		<drawToolBarItem name="process" resoureceItem="process_menu" 
+						 modi="processtree" labelid="550" />
+						 					 
+	</view>
+	
+</class>
+
+<class name="processGroupToolBarDrilledDownByProcess" extends="baseToolBar" 
+       labelid="542" width="62" height="204" >
+    
+    <handler name="oninit">
+        this._area.menupointer_single.onmouseup.sendEvent(this);
+    </handler>
+    <handler name="oninit">
+        //Add Help Item
+        canvas.addCurrentHelpId(21,this.__constructor__.classname);
+    </handler> 
+    <view name="_area" width="62" y="22" x="4">
+        <wrappinglayout axis="x" spacing="2" />
+        
+        <drawToolBarItem name="menupointer_single" resoureceItem="menupointer_rsc" 
+                         modi="hand_single" labelid="545" />
+                         
+        <drawToolBarItem name="drill_up_rsc" resoureceItem="drill_up_rsc" setSelectionToItem="false"
+                         modi="drill_up" labelid="869" />                         
+        
+        <!--
+        <drawToolBarItem name="menupointer" resoureceItem="menupointer_multi_rsc" 
+                         modi="hand" labelid="577" />
+         -->
+                     
+        <drawToolBarSeperator name="_drawToolBarSeperator1" />  
+                         
+        <drawToolBarItem name="plain" resoureceItem="plain" setSelectionToItem="false"
+                         modi="plain" labelid="543" />
+        <drawToolBarItem name="saveobj" resoureceItem="saveobj" setSelectionToItem="false"
+                         modi="saveobj" labelid="544" />
+        
+        <drawToolBarSeperator name="_drawToolBarSeperator_zoom" />     
+                     
+        <drawToolBarItem name="letter" resoureceItem="letter_menu" 
+                         modi="letter" labelid="578" />     
+                         
+        <drawToolBarItem name="issueflow" resoureceItem="issueflow_menu" 
+                         modi="issueflow" labelid="579" />                           
+            
+        <drawToolBarSeperator name="_drawToolBarSeperator2" />
+		
+        <drawToolBarItem name="connector_tree" resoureceItem="connector_tree_rsc" 
+                         modi="connector_tree" labelid="1254" />    
+                         
+        <drawToolBarItem name="connector_fork" resoureceItem="connector_fork_rsc" 
+                         modi="connector_fork" labelid="1255" />        
+                         
+        <drawToolBarItem name="connector_flow" resoureceItem="connector_flow_rsc" 
+                         modi="connector_flow" labelid="1256" />  
+                         
+        <drawToolBarSeperator name="_drawToolBarSeperator3" />                                                 
+                         
+        <drawToolBarItem name="process" resoureceItem="process_menu" 
+                         modi="processtree" labelid="550" />
+                                             
+    </view>
+    
+</class>
+
+</library>

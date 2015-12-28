@@ -1,0 +1,43 @@
+<canvas title="Testing Data" proxied="false" debug = "true">     
+   <dataset name="listNames" request="true" type="http" src="/names/records/" />
+   <dataset name="addName" type="http" src="/names/create/" />
+	
+   <!-- This window displays a list of records //-->
+	<window x="30" y="50" width="400" height="200" title = "people" resizable="true">
+		<view name="myList">
+			<simplelayout axis="y" />  
+			<view name="rowOfData" id = "d" datapath ="listNames:/records/name" onmouseover="this.doHighlight()" onmouseout="this.doUnlight()">
+				<method name="doHighlight"> 
+					this.setAttribute('bgcolor', 0xffff66); 
+				</method>
+				<method name="doUnlight"> 
+					this.setAttribute('bgcolor', 0xffffff); 
+				</method>
+				<simplelayout axis="x" />
+				<text resize = "true" datapath="@firstname" />
+				<text resize = "true" datapath="@surname" />
+			</view>
+		</view>
+	</window>
+	
+   <!-- This window displays a submission form to create a new record //-->      
+	<window x="50" y="80" width="400" height="280" title = "new person" name="newperson" resizable="true">
+		<view name="myForm"> 
+			<simplelayout axis="y" spacing="10" /> 
+			<edittext name="firstName">First Name</edittext>
+			<edittext name="surName">Surname</edittext> 
+			<edittext name="notes" width="150" height="80" multiline="true">
+				Notes
+			</edittext>
+			<button onclick="newPerson();">
+				Submit
+				<method name="newPerson"><![CDATA[
+					// Adds new person, submits user data
+		    		addName.setSrc("http://localhost:3000/names/create/" + "firstname=" + parent.firstName.getText() + "&surname=" + parent.surName.getText() + "&notes=" + parent.notes.getText());
+					addName.doRequest();
+					d.datapath.updateData();
+                ]]></method>
+			</button> 
+		</view>
+	</window>
+</canvas>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+<!--- LOGIN panel window -->
+<class name="advancedUsersLogin" extends="view" x="340" y="20" >
+	
+	<view height="178" width="2" bgcolor="black" >
+	    <handler name="oninit">
+	        this.setShadow();
+	    </handler>
+	
+	    <method name="setShadow">
+	        <![CDATA[
+	        if (this.isinited){
+	            this.normalMC = this.getMCRef();
+	            this.displacementMap = new flash.filters.DropShadowFilter();
+	            this.normalMC.filters = [this.displacementMap];
+	        }
+	        ]]>              
+	    </method>	
+	</view>
+	<!--
+	iconResourceNameDynamic="icon_organization_rsc"
+	 -->
+	<infoIconBox y="0" name="_infoBoxForOrgSelection" 
+             x="2" width="196"
+             labelid="1107" />
+             
+             
+     <simpleLabelButton name="_loginAdvanced" labelid="1108" width="170" 
+			x="25" y="144" >
+		<handler name="onclick">
+			<![CDATA[
+				if (canvas.userobject.maxPendingOrganizations != null && 
+						canvas.userobject.maxPendingOrganizations >= canvas.userobject.createdOrganizations) {
+					new lz.rpcErrorDialog(canvas,{errorid:-43});
+				} else {
+					parent.parent.parent.parent.showAddPendingOrgForm();
+				}
+     		]]>
+     	</handler>
+     </simpleLabelButton>
+    
+           
+</class>
+
+</library>

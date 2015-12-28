@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+  <class table="project" name="org.i4change.app.hibernate.beans.project.Project">
+    <id column="project_id" name="projectId">
+      <generator class="increment"/>
+    </id>
+    <property name="name" type="string" column="name"/>
+    <property name="wizzardType" type="string" column="wizzardtype"/>
+    <property name="buildByWizzard" type="boolean" column="buildbywizzard"/>
+    <property name="wizzardStep" type="int" column="wizzardstep"/>
+    <many-to-one outer-join="true" insert="true" column="owner" lazy="false" update="true" name="owner" class="org.i4change.app.hibernate.beans.user.Users"/>
+    <property name="description" type="text" column="description"/>
+    <property name="inserted" type="java.util.Date" column="inserted"/>
+    <property name="updated" type="java.util.Date" column="updated"/>
+    <property name="deleted" type="string" column="deleted"/>
+    <property name="insertedby" type="long" column="insertedby"/>
+    <property name="updatedby" type="long" column="updatedby"/>
+    <many-to-one outer-join="true" insert="true" column="organisation_id" lazy="false" update="true" name="organisation" class="org.i4change.app.hibernate.beans.domain.Organisation"/>
+  </class>
+</hibernate-mapping>

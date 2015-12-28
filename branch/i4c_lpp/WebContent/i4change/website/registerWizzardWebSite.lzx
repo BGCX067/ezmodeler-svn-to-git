@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+    
+<class name="registerWizzardWebSite" extends="guiPresenter" labelid="1016"
+    docking="true" resizeable="false" closable="false" width="364" 
+    align="middle" valign="center" height="260">
+    
+    <attribute name="refObj" value="null" />
+    <attribute name="regObject" value="null" />
+    
+    
+    <handler name="oninit">
+    	if (canvas.loaderVar != null) {
+            canvas.loaderVar.close();
+        }
+        var pressEnter = new LzDelegate(this, "finish");
+        lz.Keys.callOnKeyCombo(pressEnter, ["enter"]);
+    </handler>
+    
+    <method name="finish" args="itemRef">
+        //if ($debug) Debug.write("finish",this.regObject);
+        this.regObject = new Object();
+        
+    	this.regObject["Username"]=this._user.username.getText();
+        this.regObject["Userpass"]=this._user.userpass1.getText();
+        this.regObject["lastname"]=this._user.lastname.getText();
+        this.regObject["firstname"]=this._user.firstname.getText();
+        this.regObject["email"]=this._user.email.getText();
+        this.regObject["states_Name"]=this._user.state.getText();
+        this.regObject["states_id"]=147;
+        this.regObject["domain"]=canvas.rtmphostlocal; 
+        this.regObject["port"]=canvas.httpport; 
+        this.regObject["webapp"]=canvas.webAppRootKey;
+    	
+        this.registerUserWebSite.doCall();
+    </method>
+    
+    <!--
+        public Long registerUserWebSite(Map regObject)
+    
+        regObject.get("Username").toString(), regObject.get("Userpass").toString(), 
+        regObject.get("lastname").toString(), regObject.get("firstname").toString(), 
+        regObject.get("email").toString(), 
+        null, "", "", //age,street,additionalname
+        "", "", //fax,zip
+        147L, "", //country, town
+        1L, //language_id
+        regObject.get("domain").toString(),
+        Integer.valueOf(regObject.get("port").toString()).intValue(),
+        regObject.get("webapp").toString(),null);
+     -->
+    
+    <netRemoteCallRPC name="registerUserWebSite" funcname="registerUserWebSite" 
+        remotecontext="$once{  canvas.mainServiceRPC }" activeErrorHandler="true" >     
+        <netparam>
+            <method name="getValue"> 
+                return this.parent.parent.regObject; 
+            </method>
+        </netparam>           
+         <handler name="ondata" args="value">
+            <![CDATA[
+	            //The onResult-Handler will be called be the rtmpconnection
+	            //if ($debug) Debug.write("registerUserByObject: ",value);
+	            if (!(value<0)){
+	                //Debug.write("successfully registered");
+	                 new lz.rpcErrorDialog(canvas,{labelid:886,errorid:-18});
+	                 //this.parent.refObj._inner._slidaArea._userValues.username.setAttribute("text",this.parent.regObject["personalData"]["Username"]);
+	                 //this.parent.refObj._inner._slidaArea._userValues.userpass.setAttribute("text",this.parent.regObject["personalData"]["Userpass"]);
+	                 this.parent.close();
+	            }
+            ]]>
+         </handler>  
+    </netRemoteCallRPC>  
+    
+    <view name="_user" y="22">
+    
+        <labelText labelid="117" width="200" y="0" resize="false" x="2"/>
+            <customEdittext name="firstname" y="0" x="120" width="240" text="">
+                <handler name="onblur">
+                    parent.username.setAttribute("text",this.getText()+"."+parent.lastname.getText());
+                </handler>
+            </customEdittext>
+            
+        <labelText labelid="118" width="200" y="30" resize="false" x="2"/>
+            <customEdittext name="lastname" y="30" x="120" width="240" text="" >
+                <handler name="onblur">
+                    parent.username.setAttribute("text",parent.firstname.getText()+"."+this.getText());
+                </handler>
+            </customEdittext>    
+            
+        <labelText labelid="114" width="200" y="60" resize="false" x="2"/>
+            <customEdittext name="username" y="60" x="120" width="240" text="" />
+    
+        <labelText labelid="115" width="200" y="90" resize="false" x="2"/>
+            <customEdittext name="userpass1" y="90" password="true" x="120" width="240" text="" />
+            
+        <labelText labelid="116" width="200" y="120" resize="false" x="2"/>
+            <customEdittext name="userpass2" y="120" password="true" x="120" width="240" text="" />                    
+    
+        <labelText labelid="119" width="200" y="150" resize="false" x="2"/>
+            <customEdittext name="email" y="150" x="120" regexpType="email" 
+                            width="240" text="" />
+                            
+    </view>               
+    
+    <simpleLabelButton name="_finish" labelid="121" width="140" 
+    				   x="$once{ parent.width - 144 }" height="26"
+                       y="$once{ parent.height - 30 }" >
+        <handler name="onclick">
+            this.parent.finish();
+        </handler>
+    </simpleLabelButton> 
+	
+</class>
+
+</library>

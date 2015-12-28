@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+	
+<class name="netparam" extends="node">
+
+    <!--- The value of the netparam. -->
+    <attribute name="value" value="null"/>
+
+</class>	
+
+<class name="javaCallRPC" extends="javarpc">
+	
+	
+</class>
+	
+<class name="netRemoteCallRPC" extends="remotecall">
+	
+	<!-- this should be the contentSaveWindow -->
+	<attribute name="returnObj" value="null" />
+	
+	<attribute name="count" value="0" type="number"/>
+	<attribute name="open" value="false" type="boolean"/>
+	
+	<!-- if true this object will register at the update-observer -->
+	<attribute name="registerObject" value="false" type="boolean" />
+	
+	<!-- show Error Messages with normal Box -->
+    <attribute name="activeErrorHandler" value="false" type="boolean" />
+    
+	<!-- show Error Messages with normal Box -->
+    <attribute name="showLoading" value="true" type="boolean" />    
+	
+	<!-- show Error Messages with Callback Box -->
+	<attribute name="isCallBackHandler" value="false" type="boolean" />	
+	
+	<handler name="oninit">
+		if (this.registerObject) this.parent.addViewToObserver(this);
+	</handler>
+	
+	<handler name="onerror" args="errmsg">
+        <![CDATA[
+            if ($debug) Debug.write('(types onerror) error:', errmsg);
+            if ($debug) Debug.write('(types onerror) errorObject:', this.errorObject);
+        
+            
+            var errorObjectString = errmsg +"<br/>ErrorObject: <br/>";
+            
+            for (var eg in this.errorObject) {
+            	errorObjectString += eg + " :: " + this.errorObject[eg] + "<br/>";
+            	
+            	if (eg == "opinfo") {
+            		for (var eg2 in this.errorObject[eg]) {
+            			errorObjectString += eg2 + " :: " + this.errorObject[eg][eg2] + "<br/>";
+            		}
+            	}
+            	
+            }
+            
+            var error = errmsg +"<br/>CallHistory: <br/>";
+            
+            for (var i=0;i<canvas.callHistory.length;i++) {
+                error += "Call:"+canvas.callHistory[i].rpcCounter 
+                          + " " + canvas.callHistory[i].rpcName 
+                          + " S:" + canvas.callHistory[i].rpcStart 
+                          + " E:" + canvas.callHistory[i].rpcEnd 
+                          + "<br/>";
+            }
+            
+            new lz.errorPopupJavaRPC(canvas,{error:error,
+                        errorObject:errorObjectString,width:900});
+        
+        ]]>
+    </handler>
+	
+	<!--
+	if (this.open) {
+        var errorMsg = "This call is currently open TIME OUT? " 
+                       + this.funcname+"["+this.remotecontext.name +"]"
+                       + " T: " + getStringTimePC();
+        new lz.errorPopup(canvas,{error:errorMsg});
+    }
+     -->	
+     
+	<method name="doCall">
+        if (this.showLoading) canvas._loadingAll.setAttribute('visible',true);
+        
+        
+        
+		//if($debug) Debug.write("netRemoteCallRPC/doCall: [ " , this.funcname , " ]",this.remotecontext);
+		this.count = canvas.addCallHistory(this.funcname+"["+this.remotecontext.name +"]");
+		this.open = true;
+        this.invoke();
+    
+	</method>
+	
+	<event name="sendCallBack" />
+	
+	<!--
+ 
+	 -->
+	<handler name="ondata" args="value">
+		<![CDATA[
+			//if ($debug) Debug.write("ondata: ",this.funcname,value);
+			
+			if (this.showLoading) canvas._loadingAll.setAttribute('visible',false);
+			this.open = false;
+			canvas.completedCallHistory(this.count);
+			
+			//Another Error Handler for the Form-Components
+			if (this.returnObj!=null && Number(value)>0) {
+				//Debug.write("this.returnObj.processNext");
+				this.returnObj.processNext();
+			} else if (this.returnObj!=null && Number(value)<0) {
+				this.returnObj.errorByCode(Number(value));
+			} else if (this.returnObj!=null && value==null) {
+				this.returnObj.errorByCode(-1);
+			}
+			
+            if (this.activeErrorHandler) {
+                if (Number(value)<0){
+                    if ($debug) Debug.warn("Received Error ID: ",value);
+					if (this.isCallBackHandler) {
+						new lz.callbackRpcErrorDialog(canvas,{callBackObject:this,errorid:Number(value)});
+					} else {
+						new lz.rpcErrorDialog(canvas,{errorid:Number(value)});
+					}
+                }
+            }			
+		]]>
+	</handler>	
+	
+</class>
+
+</library>

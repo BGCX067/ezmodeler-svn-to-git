@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+<!--- Existing user list. used by userAdmin only -->
+<class name="modRoleListItem" extends="baseContentListItem"> 
+    
+	<attribute name="rolesId" value="0" type="number" />
+	<attribute name="login" value="" type="string" />
+	<attribute name="roleObject" value="" type="string" />
+	
+	<turnOverTextItem text="$once{ parent.rolesId }" width="60" />
+	<turnOverTextItem text="$once{ parent.login }" width="182" />
+	<turnOverTextItem text="$once{ parent.roleObject }" width="182" />
+	
+</class>
+
+</library>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+    
+    <resource name="drop_down_topbar_rsc" >
+    	<frame src="resources/drop_down.png" />
+    	<frame src="resources/drop_down_mo.png" />
+    </resource>
+    <resource name="add_project_topbar_rsc" src="resources/box_add.png" />
+    
+	<include href="topNavigation.lzx" />
+
+</library>

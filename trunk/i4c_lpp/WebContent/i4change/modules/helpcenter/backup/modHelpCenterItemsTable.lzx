@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<library>
+    
+<class name="modHelpCenterItemsTable" extends="view" clip="true">
+    <attribute name="helpIdsArray" value="null" />
+    <handler name="oninit">
+        <![CDATA[
+            var helpList = canvas.checkCurrentHelpIds();
+            //if ($debug) Debug.write("HelpObjects: ",canvas.checkCurrentHelpIds());
+            this.helpIdsArray = new Array()
+            for (var i=0;i<helpList.length;i++) {
+                helpIdsArray.push(helpList[i][0]);
+            }
+            this.getHelpTopicByHelpIdRange.doCall();
+        ]]>
+    </handler>
+    <method name="reload">
+        <![CDATA[
+	        this.clearContent();
+	        var helpList = canvas.checkCurrentHelpIds();
+	        //if ($debug) Debug.write("HelpObjects: ",canvas.checkCurrentHelpIds());
+	        this.helpIdsArray = new Array()
+	        for (var i=0;i<helpList.length;i++) {
+	            helpIdsArray.push(helpList[i][0]);
+	        }
+	        this.getHelpTopicByHelpIdRange.doCall();
+        ]]>
+    </method>
+    <netRemoteCallRPC name="getHelpTopicByHelpIdRange" funcname="getHelpTopicByHelpIdRange" 
+                      remotecontext="$once{  canvas.helpServiceRPC }" >      
+        <netparam><method name="getValue"> return canvas.sessionId; </method></netparam>
+        <netparam><method name="getValue">return parent.parent.helpIdsArray;</method></netparam>
+        <handler name="ondata" args="value">
+            <![CDATA[
+                //if ($debug) Debug.write("getHelpTopicByHelpIdRange: ",value);
+                for (var i=0;i<value.length;i++) {
+                    parent.doAddItem(value[i]);
+                }
+            ]]>
+        </handler>
+    </netRemoteCallRPC>    
+    <method name="doAddItem" args="helpItem">
+        new lz.helpCenterItem(this._inn,{helpItem:helpItem});
+    </method>     
+    <method name="clearContent">
+        for (var eg in this._inn.subviews) {
+            this._inn.subviews[eg].destroy();
+        }
+    </method>
+    <view name="_inn" layout="axis:y;spacing:2" />
+    <vscrollbar name="_scrollbar" />
+</class>
+
+</library>

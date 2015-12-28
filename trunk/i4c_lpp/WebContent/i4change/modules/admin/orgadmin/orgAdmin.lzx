@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+<!--- Organization administration module for ADMIN.-->
+<class name="orgAdmin" extends="baseContentTabbedView" labelid="127">  
+
+    <handler name="oninit">
+        //Add Help Item
+        canvas.addCurrentHelpId(23,this.__constructor__.classname);
+    </handler>  
+        
+    <view>
+    
+		<turnOverList name="_turnoverlist" width="320" height="${ parent.height }" x="2" y="2" 
+			orderby="organisation_id" step="50" asc="true">
+	 
+			<handler name="oninit">
+				this.addHeaderItem(164,120);
+				this.addHeaderItem(165,184);
+				this.getOrganisations.doCall();
+			</handler>
+			
+			<handler name="oncallnext" >
+				this.getOrganisations.doCall();
+			</handler>
+			
+			<handler name="oncallpre" >		
+				this.getOrganisations.doCall();
+			</handler>
+			
+			<handler name="onclickedItem" args="obj">
+				//Debug.write("onclickedItem",obj,obj.obj);
+				parent._orgadminvalueform.initValueFieldsByObject(obj.obj);
+			</handler>
+			
+			<netRemoteCallRPC name="getOrganisations" funcname="getOrganisations" 
+							  remotecontext="$once{  canvas.organisationServiceRPC }" >      
+				<netparam><method name="getValue"> return canvas.sessionId; </method></netparam>
+				<netparam><method name="getValue"> return parent.parent.start; </method></netparam>
+				<netparam><method name="getValue"> return parent.parent.step; </method></netparam>
+				<netparam><method name="getValue"> return parent.parent.orderby; </method></netparam>
+				<netparam><method name="getValue"> return parent.parent.asc; </method></netparam>
+		    	<handler name="ondata" args="value">
+		    		//Debug.write("getOrganisations ",value);
+		    		//this.parent.destroy();
+		    		this.parent.initValues(value.records);
+		    		this.parent.renderContent(value.result);
+		    	</handler>
+		    </netRemoteCallRPC>	
+		    
+		    <method name="renderContent" args="records">
+		    	<![CDATA[
+			    	this.clearList();
+			    	for (var i=0;i<records.length;i++){
+			    		new lz.orgAdminListItem(this._innerlist._inn._inn,{
+    			    		       obj:records[i],
+    			    		       organisation_id:records[i].organisation_id,
+    			    		       orgname:records[i].name
+			    		       });
+			    	}
+		    	]]>
+		    </method>
+	
+		</turnOverList>
+		
+		<orgAdminValueForm name="_orgadminvalueform" x="340" />
+    
+    </view>
+    
+    <vscrollbar name="_scrollbar" />
+	
+</class>
+
+</library>

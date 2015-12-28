@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+  <class table="diagramtype" lazy="false" name="org.i4change.app.hibernate.beans.diagram.DiagramType">
+    <id column="diagramtype_id" name="diagramTypeId">
+      <generator class="increment"/>
+    </id>
+    <property name="inserted" type="java.util.Date" column="inserted"/>
+    <property name="fieldId" type="long" column="field_id"/>
+    <property name="internalName" type="string" column="internalname"/>
+  </class>
+</hibernate-mapping>

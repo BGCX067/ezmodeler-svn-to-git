@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+	
+<class name="autoLoader" extends="view" x="$once{ canvas.width/2 - this.width/2 }" 
+       width="$once{ ( canvas.isWebSiteLogin ) ? 420 : 520 }" 
+       valign="middle" layout="axis:y;spacing:2" height="340" >
+
+    <attribute name="maxwidth" value="80" type="number" />
+    <attribute name="maxsteps" value="13" type="number" />
+    <attribute name="currentsteps" value="0" type="number" />
+    
+    <method name="close">
+        canvas.main_content.setAttribute('visibility','visible');
+        //canvas._mainbgcontentNavi.setAttribute('visibility','visible');
+        canvas.loaderVar = null;
+        this.destroy();
+    </method>
+    
+    <method name="setProgress">
+        this.currentsteps += 1;
+        ////if($debug) Debug.write("autoLoader/setProgress ===== ",this.currentsteps);
+        var w = Math.round(((this.maxwidth-2)/this.maxsteps)*this.currentsteps);
+        this.loadingbar.setAttribute('visibility','visible');
+        ////if($debug) Debug.write("autoLoader/setResourceNumber == ",w);
+        this.loadingbar.setAttribute('frame',w);
+    </method>
+    <!--
+    <text fontsize="12" >Autoconnect</text>
+     -->
+    <text fontsize="12" name="error" />
+    <text fontsize="12" name="src" />
+    
+    <view name="loadingbar" resource="currentsplash">
+    	<handler name="oninit">
+    		this.setAttribute('frame',1);
+    	</handler>
+    </view>
+</class>
+
+    
+<class name="autoLoader2" extends="view" x="$once{ canvas.width/2 - this.width/2 }" 
+       width="340" valign="middle" layout="axis:y;spacing:2">
+
+	<attribute name="maxwidth" value="100" type="number" />
+	<attribute name="maxsteps" value="13" type="number" />
+	<attribute name="currentsteps" value="0" type="number" />
+	
+	<method name="close">
+		canvas.main_content.setAttribute('visibility','visible');
+		//canvas._mainbgcontentNavi.setAttribute('visibility','visible');
+		canvas.loaderVar = null;
+		this.destroy();
+	</method>
+	
+	<method name="setProgress">
+		this.currentsteps += 1;
+		////if($debug) Debug.write("autoLoader/setProgress ===== ",this.currentsteps);
+		var w = Math.round(((this.maxwidth-2)/this.maxsteps)*this.currentsteps);
+		this.loadingbar.setAttribute('visibility','visible');
+		////if($debug) Debug.write("autoLoader/setResourceNumber == ",w);
+		this.loadingbar.setAttribute('frame',w);
+	</method>
+    <!--
+    <text fontsize="12" >Autoconnect</text>
+     -->
+    <text fontsize="12" name="error" />
+    <text fontsize="12" name="src" />
+    
+    <view name="loadingbar" resource="currentsplash" 
+          x="-5" y="60" width="$once{ parent.maxwidth }" visibility="hidden" />
+</class>
+
+<class name="autoloaderBarOnly" extends="view" x="400" valign="middle"
+    layout="axis:y;spacing:2">
+
+	<attribute name="maxwidth" value="100" type="number" />
+	<attribute name="maxsteps" value="12" type="number" />
+	<attribute name="currentsteps" value="0" type="number" />
+	
+	<method name="close">
+		canvas.loaderVar = null;
+		this.destroy();
+	</method>
+	
+	<method name="setProgress">
+		this.currentsteps += 1;
+		//if ($debug) Debug.write("setProgress ",this.currentsteps);
+		var w = Math.round(((this.maxwidth-2)/this.maxsteps)*this.currentsteps);
+		this.loadingbar.setAttribute('visibility','visible');
+		//if ($debug) Debug.write("setResourceNumber ",w);
+		this.loadingbar.setAttribute('frame',w);
+	</method>
+        
+    <view name="loadingbar" resource="currentsplash" 
+          width="$once{ parent.maxwidth }" visibility="hidden" />
+          
+    <netRemoteCallRPC name="getLanguageByIdAndMax" funcname="getLanguageByIdAndMax" 
+		remotecontext="$once{  canvas.languageServiceRPC }" >
+    	<attribute name="start" value="0" type="number" />
+    	<attribute name="step" value="100" type="number" /> 
+    	<attribute name="max" value="600" type="number" />    
+        <netparam><method name="getValue">return  canvas.userlang;</method></netparam> 
+        <netparam><method name="getValue">return parent.start;</method></netparam> 
+        <netparam><method name="getValue">return parent.step;</method></netparam> 
+        <handler name="ondata" args="value">
+        	<![CDATA[
+        		//if ($debug) Debug.write("getLanguageByIdAndMax: ",value);
+        		setLabelObjectByHundred(this.start,value);
+	            //The onResult-Handler will be called be the rtmpconnection
+	            if (this.start <= max){
+	            	this.start += this.step;
+					canvas.loaderVar.setProgress();
+					this.doCall();
+	            } else {
+            		parent.setProgress();
+            		parent.getStates.doCall();
+				}
+			]]>
+        </handler>  
+    </netRemoteCallRPC>	 
+    
+    <netRemoteCallRPC name="getStates" funcname="getStates" 
+		remotecontext="$once{  canvas.mainServiceRPC }" >  
+        <handler name="ondata" args="value">
+            //The onResult-Handler will be called be the rtmpconnection
+            //if ($debug) Debug.write("getStates: ",value);
+            canvas.statesInitValues = value;
+            parent.setProgress();
+            
+            if ($debug) Debug.write("getUserSalutations 1 ",canvas.sessionId);
+            if ($debug) Debug.write("getUserSalutations 2 ",canvas.userlang);
+            
+            parent.getUserSalutations.doCall();
+        </handler>  
+    </netRemoteCallRPC>    
+    
+    <netRemoteCallRPC name="getUserSalutations" funcname="getUserSalutations" 
+		remotecontext="$once{  canvas.userServiceRPC }" >  
+		<netparam><method name="getValue">return canvas.sessionId;</method></netparam>
+        <netparam><method name="getValue">return canvas.userlang; </method></netparam> 
+        <handler name="ondata" args="value">
+            //The onResult-Handler will be called be the rtmpconnection
+            //if ($debug) Debug.write("getUserSalutations ",value);
+            canvas.salutationsInitValues = value;
+            parent.setProgress();
+            parent.getRoomTypes.doCall();
+        </handler>  
+    </netRemoteCallRPC>   
+    
+    <netRemoteCallRPC name="getRoomTypes" funcname="getRoomTypes" 
+		remotecontext="$once{  canvas.conferenceServiceRPC }" >  
+		<netparam><method name="getValue">return canvas.sessionId;</method></netparam>
+        <handler name="ondata" args="value">
+            //The onResult-Handler will be called be the rtmpconnection
+            //if ($debug) Debug.write("getRoomTypes ",value);
+            canvas.roomTypesInitValues = value;
+            parent.setProgress();
+            parent.setUsername.doCall();
+        </handler>  
+    </netRemoteCallRPC>    	 
+	 
+    <netRemoteCallRPC name="setUsername" funcname="setUsername" remotecontext="$once{  canvas.applicationRPC }" >   
+        <netparam><method name="getValue">return canvas.user_id;</method></netparam>
+        <netparam><method name="getValue">return canvas.currentuser;</method></netparam>
+        <netparam><method name="getValue">return canvas.firstName;</method></netparam>
+        <netparam><method name="getValue">return canvas.lastName;</method></netparam>      
+        <netparam><method name="getValue">return  canvas.currentdomain;</method></netparam>
+        <handler name="ondata" args="value">
+            //The onResult-Handler will be called be the rtmpconnection
+            //if ($debug) Debug.write("setUsername: ",value);
+            clearStageContent();		
+            parent.close();
+			if ( canvas.currentInvitation.room.roomtype.roomtypes_id==1){
+				new conferenceView(canvas.main_content._content.inner,{roomobj: canvas.currentInvitation.room}); 
+			} else {
+				new audienceView(canvas.main_content._content.inner,{roomobj: canvas.currentInvitation.room}); 
+			}                 
+        </handler>  
+    </netRemoteCallRPC>     
+          
+</class>
+
+</library>

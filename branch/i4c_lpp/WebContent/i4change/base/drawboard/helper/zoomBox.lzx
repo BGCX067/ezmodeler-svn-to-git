@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+	
+<class name="zoomBox" extends="view" layout="axis:x;spacing:1;inset:1" bgcolor="0xFFFFFF" 
+          x="${ parent.width - parent._diagramSideBar.width - this.width }">
+	
+	<view y="1" layout="axis:x;spacing:0">
+        <iconButton ressourceName="zoom_in_rsc" >
+            <handler name="onclick">
+                parent.parent.parent._scrollcontent.dragArea.contentArea._currentBoard.capturePreviousAndSetModus("zoom_in");
+            </handler>
+            <labelTooltip labelid="848" />
+        </iconButton>
+        
+        <iconButton ressourceName="zoom_reset_rsc" >
+            <handler name="onclick">
+                parent.parent.parent._scrollcontent.dragArea.contentArea._currentBoard.capturePreviousAndSetModus("zoom_reset");
+            </handler>
+            <labelTooltip labelid="1259" />
+        </iconButton>
+        
+        <iconButton ressourceName="zoom_out_rsc" >
+            <handler name="onclick">
+                parent.parent.parent._scrollcontent.dragArea.contentArea._currentBoard.capturePreviousAndSetModus("zoom_out");
+            </handler>
+            <labelTooltip labelid="849" />
+        </iconButton>
+        
+        <view width="1" height="20" bgcolor="0x000000" />
+	</view>
+
+    
+    <omComboBox name="_zoombox" width="60" editable="false" >
+        <attribute name="doUpdateValues" type="boolean" value="true"/>
+        <method name="updateZoom" args="zoom">
+        	var item = this.getItem(""+zoom);
+        	if ($debug) Debug.write("updateZoom",zoom,item);
+            this.doUpdateValues = false;
+            this.selectItem(""+zoom);
+            this.doUpdateValues = true;
+        </method>
+        <textlistitem value="10" text="10%" />
+        <textlistitem value="25" text="25%" />
+        <textlistitem value="50" text="50%" />
+        <textlistitem value="75" text="75%" />
+        <textlistitem value="100" text="100%" />
+        <textlistitem value="150" text="150%" />
+        <textlistitem value="200" text="200%" />
+        <textlistitem value="250" text="250%" />
+        <handler name="onselect" args="sel">
+            if (this.doUpdateValues) {
+                parent.parent._scrollcontent.dragArea.contentArea._currentBoard.doZoomByNumber(Number(sel.value),false);
+            }
+        </handler>
+    </omComboBox>
+    
+</class>
+
+</library>

@@ -1,0 +1,377 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+<class name="drawActivity" extends="drawProcess">
+	
+  	<attribute name="currentactivitystroke" value="0xFF6600" />
+  	<attribute name="currentactivitystrokeDis" value="1" type="number" />
+  	<attribute name="currentactivitystrokeFill" value="0xFEFEFE" />
+  	<attribute name="currentactivitystrokeFillDis" value="1" type="number" />
+  	<attribute name="currentactivitylineWidth" value="2" type="number" />
+	
+    <!-- ###########################
+    Activitygroup
+     -->
+	<method name="startActivity">
+		//Debug.write("startRect");
+    	this.currentlayer = new lz.drawViewContainerNew(this,{name:'activity'+this.getCounter(),typeOfObject:'activityTemp',width:this.width+2,height:this.height+2});
+    	new lz.drawViewNew(this.currentlayer,{name:'_activity',typeOfObject:'activity',width:this.width+2,height:this.height+2});
+		this.drawlineOnObject(this.currentlayer._activity,-1,-1,0,0);
+		this.drawlineOnObject(this.currentlayer._activity,this.width,this.height,this.width+1,this.height+1);
+  	</method>  
+
+    <method name="endActivityDrag" args="x,y">
+        <![CDATA[
+            ////if ($debug) Debug.write("endActivityDrag this.startx, this.starty , this.endx, this.endy ",this.startx, this.starty , this.endx, this.endy);
+            
+            var posObject = this.calcObjectPos(x,x,y,y,"any",false,1,40);
+            var x = posObject.x;
+            var y = posObject.y;
+            var width = posObject.width-20;
+            var height = posObject.height-20;
+            
+            var connectList = this.checkOrganisationConnection('activity',x,y,width,height,this.currentlayer);
+            
+            if (connectList.length == 0) {
+            	new lz.warningPopup(canvas,{error:canvas.getLabelName(806),closable:true});
+            }
+            
+            this.currentlayer = new lz.drawViewContainerNew(this,{name:'activity'+this.getCounter(),
+                    typeOfObject:'activityTemp',labelid:574,doUpdate:false,
+                    x:x,y:y,width:width,height:height});
+            ////if ($debug) Debug.write(this.currentlayer,width,height);  
+            new lz.drawViewNewItem(this.currentlayer,{name:'_activity',
+                    typeOfObject:'activity',x:0,y:0,
+                    width:width,height:height});
+            ////if ($debug) Debug.write(this.currentlayer._activity,width,height);
+            //this.currentlayer = new lz.drawViewNew(this,{name:'activity'+this.getCounter(),typeOfObject:'activity',x:x,y:y,width:width,height:height});
+            this.drawActivityHistory(this.currentlayer,0,0,width,height,this.currentactivitystroke,this.currentactivitylineWidth,this.currentactivitystrokeFill,this.currentactivitystrokeDis,this.currentactivitystrokeFillDis);
+            
+            //this.currentlayer._activity.setAttribute('stretches','both');
+            this.drawActivityFinal(this.currentlayer.name,this.currentactivitystroke,
+                this.currentactivitylineWidth,this.currentactivitystrokeFill,
+                this.currentactivitystrokeDis,this.currentactivitystrokeFillDis,
+                x,y,width,height,
+                '',0,connectList, new Array(),null);
+            this.checkStepLayers();
+            this.currentlayer.loadObjectIdentifier();
+            this.currentlayer.typeOfObject = "activity";
+            this.currentlayer.isOrgConnectionItem = true;
+            this.currentlayer.doUpdate = true;
+        ]]>
+    </method> 
+    
+	<method name="endActivity">
+		<![CDATA[
+			////if ($debug) Debug.write("endActivity this.startx, this.starty , this.endx, this.endy ",this.startx, this.starty , this.endx, this.endy);
+			this.currentlayer.destroy();
+            
+            var posObject = this.calcObjectPos(this.startx,this.endx,this.starty,this.endy,"any",false,1,40);
+            var x = posObject.x;
+            var y = posObject.y;
+            var width = posObject.width-20;
+            var height = posObject.height-20;
+            
+            var connectList = this.checkOrganisationConnection('activity',x,y,width,height,this.currentlayer);
+            
+            if (connectList.length == 0) {
+            	new lz.warningPopup(canvas,{error:canvas.getLabelName(806),closable:true});
+            }
+            
+			this.currentlayer = new lz.drawViewContainerNew(this,{name:'activity'+this.getCounter(),
+					typeOfObject:'activityTemp',labelid:574,doUpdate:false,
+					x:x,y:y,width:width,height:height});
+			////if ($debug) Debug.write(this.currentlayer,width,height);	
+    		new lz.drawViewNewItem(this.currentlayer,{name:'_activity',
+    				typeOfObject:'activity',x:0,y:0,
+    				width:width,height:height});
+			////if ($debug) Debug.write(this.currentlayer._activity,width,height);
+			//this.currentlayer = new lz.drawViewNew(this,{name:'activity'+this.getCounter(),typeOfObject:'activity',x:x,y:y,width:width,height:height});
+			this.drawActivityHistory(this.currentlayer,0,0,width,height,this.currentactivitystroke,this.currentactivitylineWidth,this.currentactivitystrokeFill,this.currentactivitystrokeDis,this.currentactivitystrokeFillDis);
+			
+			//this.currentlayer._activity.setAttribute('stretches','both');
+			this.drawActivityFinal(this.currentlayer.name,this.currentactivitystroke,
+                this.currentactivitylineWidth,this.currentactivitystrokeFill,
+                this.currentactivitystrokeDis,this.currentactivitystrokeFillDis,
+                x,y,width,height,
+                '',0,connectList, new Array(),null);
+			this.checkStepLayers();
+			this.currentlayer.loadObjectIdentifier();
+			this.currentlayer.typeOfObject = "activity";
+            this.currentlayer.isOrgConnectionItem = true;
+            this.currentlayer.doUpdate = true;
+		]]>
+	</method> 
+    
+    <!-- backup
+    //Using Company Size as default, cause Role-View uses same Grid Sizes as Hierarchical Grid
+            var x = Math.round(this.startx/(canvas.defaultCompanyWidth*canvas.gridFixedFactor))*(canvas.defaultCompanyWidth*canvas.gridFixedFactor);
+            var width = this.endx - this.startx;
+            if (this.endx<this.startx){
+                x = this.endx;
+                width = Math.abs(width);
+            }
+            var y = Math.round(this.starty/(canvas.defaultCompanyHeight*canvas.gridFixedFactor))*(canvas.defaultCompanyHeight*canvas.gridFixedFactor);
+            var height = this.endy - this.starty;
+            if (this.endy<this.starty){
+                y = this.endy;
+                height = Math.abs(height);
+            }
+                    
+            if (width<20){
+                width = canvas.defaultActicityWidth
+            }
+            if (height < 20) {
+                height = canvas.defaultActicityHeight;
+            }
+      -->
+	
+	<method name="loadActivity" args="txt,objectId,x,y,width,height,newName,connectList,dataCarrierList,propertyMap">
+		<![CDATA[			
+			this.currentlayer = new lz.drawViewContainerNew(this,{name:newName,
+					typeOfObject:'activityTemp',labelid:574,doUpdate:false,
+					x:x,y:y,width:width,height:height});
+			////if ($debug) Debug.write(this.currentlayer,width,height);	
+    		new lz.drawViewNewItem(this.currentlayer,{name:'_activity',
+    				typeOfObject:'activity',x:0,y:0,
+    				width:width,height:height});
+			////if ($debug) Debug.write(this.currentlayer._activity,width,height);
+			//this.currentlayer = new lz.drawViewNew(this,{name:'activity'+this.getCounter(),typeOfObject:'activity',x:x,y:y,width:width,height:height});
+			this.drawActivityHistory(this.currentlayer,0,0,width,height,this.currentactivitystroke,
+				this.currentactivitylineWidth,this.currentactivitystrokeFill,
+				this.currentactivitystrokeDis,this.currentactivitystrokeFillDis);
+			
+			//this.currentlayer._activity.setAttribute('stretches','both');
+			this.drawActivityFinal(this.currentlayer.name,this.currentactivitystroke,
+                this.currentactivitylineWidth,this.currentactivitystrokeFill,
+                this.currentactivitystrokeDis,this.currentactivitystrokeFillDis,
+                x,y,width,height,
+                txt,objectId,connectList,dataCarrierList,propertyMap);
+			this.checkStepLayers();
+			//this.currentlayer.initEditableText(txt);
+            this.completedObjectTextObjByLoading(this.currentlayer,txt);
+			this.currentlayer.typeOfObject = "activity";
+            this.currentlayer.isOrgConnectionItem = true;
+            this.currentlayer.doUpdate = true;
+		]]>
+	</method> 	
+    
+    <method name="loadActivityDrag" args="txt,objectId,x,y,width,height,newName,dataCarrierList,propertyMap">
+        <![CDATA[     
+        
+            ////if ($debug) Debug.write("loadActivityDrag: ",txt,objectId,x,y,width,height,newName,connectList,dataCarrierList);  
+        
+            var posObject = this.calcObjectPos(x,x,y,y,"any",false,1,40);
+            var x = posObject.x;
+            var y = posObject.y;
+            var width = posObject.width-20;
+            var height = posObject.height-20;
+            
+            var connectList = this.checkOrganisationConnection('activity',x,y,width,height,this.currentlayer);
+            
+            if (connectList.length == 0) {
+            	new lz.warningPopup(canvas,{error:canvas.getLabelName(806),closable:true});
+            }
+            
+            this.currentlayer = new lz.drawViewContainerNew(this,{name:newName,
+                    typeOfObject:'activityTemp',labelid:574,doUpdate:false,
+                    x:x,y:y,width:width,height:height});
+            ////if ($debug) Debug.write(this.currentlayer,width,height);  
+            new lz.drawViewNewItem(this.currentlayer,{name:'_activity',
+                    typeOfObject:'activity',x:0,y:0,
+                    width:width,height:height});
+            ////if ($debug) Debug.write(this.currentlayer._activity,width,height);
+            //this.currentlayer = new lz.drawViewNew(this,{name:'activity'+this.getCounter(),typeOfObject:'activity',x:x,y:y,width:width,height:height});
+            this.drawActivityHistory(this.currentlayer,0,0,width,height,this.currentactivitystroke,
+                this.currentactivitylineWidth,this.currentactivitystrokeFill,
+                this.currentactivitystrokeDis,this.currentactivitystrokeFillDis);
+            
+            //this.currentlayer._activity.setAttribute('stretches','both');
+            this.drawActivityFinal(this.currentlayer.name,this.currentactivitystroke,
+                this.currentactivitylineWidth,this.currentactivitystrokeFill,
+                this.currentactivitystrokeDis,this.currentactivitystrokeFillDis,
+                x,y,width,height,
+                txt,objectId,connectList,dataCarrierList,propertyMap);
+            this.checkStepLayers();
+            //this.currentlayer.initEditableText(txt);
+            this.completedObjectTextObjByLoading(this.currentlayer,txt);
+            this.currentlayer.typeOfObject = "activity";
+            this.currentlayer.isOrgConnectionItem = true;
+            this.currentlayer.doUpdate = true;
+        ]]>
+    </method> 
+    
+  	<method name="drawActivity" args="x1,y1,x2,y2">
+   		<![CDATA[
+    		
+   			currentlayer._activity.strokeStyle = this.currentactivitystroke;
+   			currentlayer._activity.fillStyle = this.currentactivitystrokeFill;
+    		currentlayer._activity.lineWidth = this.currentactivitylineWidth;
+    		currentlayer._activity.beginPath();
+    		currentlayer._activity.moveTo(x1,y1);
+    		currentlayer._activity.lineTo(x1,y2);
+    		currentlayer._activity.lineTo(x2,y2);
+    		currentlayer._activity.lineTo(x2,y1);
+    		currentlayer._activity.lineTo (x1,y1);
+    		//currentlayer._activity.closePath();
+    		
+    		if (this.currentrectanglestrokeDis!=-1){
+	    		currentlayer._activity.stroke();
+    		}
+
+    		if (this.currentrectanglestrokeFillDis!=-1){
+	    		currentlayer._activity.fill();
+    		}
+    		
+    	]]>   
+  	</method>    
+  	
+  	<method name="drawActivityOnTarget" args="targetOBj,x1,y1,x2,y2">
+   		<![CDATA[
+    		
+    		targetOBj._activity.lineWidth = this.currentactivitylineWidth;
+    		targetOBj._activity.fillStyle = this.currentactivitystrokeFill;
+    		targetOBj._activity.strokeStyle = this.currentactivitystroke;
+    		targetOBj._activity.beginPath();
+    		targetOBj._activity.moveTo(x1,y1);
+    		targetOBj._activity.lineTo(x1,y2);
+    		targetOBj._activity.lineTo(x2,y2);
+    		targetOBj._activity.lineTo(x2,y1);
+    		targetOBj._activity.lineTo (x1,y1);
+    		//currentlayer._activity.closePath();
+    		
+    		if (this.currentrectanglestrokeDis!=-1){
+	    		targetOBj._activity.stroke();
+    		}
+
+    		if (this.currentrectanglestrokeFillDis!=-1){
+	    		targetOBj._activity.fill();
+    		}
+    		
+    	]]>   
+  	</method>    
+  	
+  	<method name="drawActivityToHistory" args="lastActionObject,parentView">
+		this.currentlayer = new lz.drawViewContainerNew(parentView,{name:lastActionObject[lastActionObject.length-1],
+			typeOfObject:'activity',
+			x:lastActionObject[lastActionObject.length-5],y:lastActionObject[lastActionObject.length-4],
+			width:lastActionObject[lastActionObject.length-3],height:lastActionObject[lastActionObject.length-2]});
+		new lz.drawViewNewItem(this.currentlayer,{name:'_activity',typeOfObject:'activity',x:lastActionObject[lastActionObject.length-5],y:lastActionObject[lastActionObject.length-4],width:lastActionObject[lastActionObject.length-3],height:lastActionObject[lastActionObject.length-2]});
+   		this.drawActivityHistory(this.currentlayer._activity,0,0,lastActionObject[lastActionObject.length-3],lastActionObject[lastActionObject.length-2],lastActionObject[1],lastActionObject[2],lastActionObject[3],lastActionObject[4],lastActionObject[5]);
+  	</method>
+    
+  	<method name="drawActivityHistory" args="parentObj,x1,y1,x2,y2,stroke,line,fill,strokeDis,fillDis">
+   		<![CDATA[
+    		////if ($debug) Debug.write("drawActivityHistory",parentObj,x1,y1,x2,y2,stroke,line,fill,strokeDis,fillDis);
+    		parentObj._activity.lineWidth = line;
+    		parentObj._activity.strokeStyle = stroke;
+    		parentObj._activity.fillStyle = fill;
+    		parentObj._activity.beginPath();
+    		parentObj._activity.moveTo(x1,y1);
+    		parentObj._activity.lineTo(x1,y2);
+    		parentObj._activity.lineTo(x2,y2);
+    		parentObj._activity.lineTo(x2,y1);
+    		parentObj._activity.lineTo (x1,y1);
+    		//parentObj._activity.closePath();
+    		
+    		if (strokeDis!=-1){
+	    		parentObj._activity.stroke();
+    		}
+    		
+    		if (fillDis!=-1){
+	    		parentObj._activity.fill();
+    		}
+	        //var t = new lz.styleableInputDrawBoard(parentObj,{name:'_textview',
+	        //	text:'Activity',fontstyle:this.currentlayerstyle,
+	        //	fontsize:this.currentlayersize,fgcolor:this.currentlayerletter});
+		
+    	]]>   
+  	</method>  
+  	
+  	<method name="drawActivityFinal" args="newName,stroke,line,fill,strokeDis,fillDis,x,y,width,height,currentText,diagramobjectid,connectList,dataCarrierList,propertyList" >
+  		////if ($debug) Debug.write("drawrectregisterFinal",newName,dataCarrierList);
+		var actionObject = new Array();
+	    actionObject[0] = 'activity';
+	    actionObject[1] = stroke;
+	    actionObject[2] = line;
+	    actionObject[3] = fill;
+	    actionObject[4] = strokeDis;
+	    actionObject[5] = fillDis;
+        actionObject[6] = propertyList;
+        actionObject[7] = dataCarrierList;
+        actionObject[8] = connectList;
+        actionObject[9] = currentText;
+        actionObject[10] = diagramobjectid;     
+		actionObject[11] = 0;//diagramObjectInstanceId
+	    actionObject[12] = x;
+	    actionObject[13] = y;
+	    actionObject[14] = width;
+	    actionObject[15] = height;	    
+	    actionObject[16] = newName;
+	    this.baseactionobjectList.push(actionObject);
+	    this.onsharedMessage('draw',actionObject);
+  	</method>
+  	
+  	<method name="editActivityTextByValues" args="obj">
+		<![CDATA[
+			if (!this.letterObjectIsActive){
+				//obj._activity.destroy();
+				
+				//this.drawActivityOnTarget()
+			    if (this.boundingref!=null) {
+                    //if ($debug) Debug.write("REMOVE BOUNDING REF");
+                    this.boundingref.removeIt();
+                }
+                
+			    var txt = obj._textview.getText();
+			    
+			    var _txt = obj._textview.getText();
+				var _fontstyle = obj._textview.fontstyle;
+				var _fontsize = obj._textview.fontsize;
+				var _fgcolor = obj._textview.fgcolor;
+				var _width = obj._textview.width;
+				var _height = obj._textview.height;
+				obj._textview.destroy();
+		        var t = new lz.styleableInputDrawBoard(obj,{name:'_textview',
+					text:_txt,
+					fontstyle:_fontstyle,
+					fontsize:_fontsize,
+					fgcolor:_fgcolor,
+					width:_width,height:_height});
+	        }	
+		]]>
+	</method>
+	
+	<method name="completedActivityObj" args="obj">
+		//if ($debug) Debug.write("completedActivityObj: ",obj);
+		var _parentObj = obj.parent;
+		var _txt = obj.getText();
+		var _fontstyle = obj.fontstyle;
+		var _fontsize = obj.fontsize;
+		var _fgcolor = obj.fgcolor;
+		var _width = obj.width;
+		var _height = obj.height;
+		obj.destroy();
+		var t = new lz.styleableTextDrawBoard(_parentObj,{name:'_textview',
+				text:_txt,
+				fontstyle:_fontstyle,
+				fontsize:_fontsize,
+				fgcolor:_fgcolor,
+				width:_width,height:_height});
+        this.updateObjTextByName(_parentObj.name,_txt);
+	</method>
+	
+	<method name="redrawActivityItemByScaling" args="refObj">
+		////if ($debug) Debug.write("redrawActivityItemByScaling: ",refObj,refObj.width,refObj.height);
+		refObj._activity.destroy();
+		new lz.drawViewNewItem(refObj,{name:'_activity',
+    				typeOfObject:'activity',x:0,y:0,
+    				width:refObj.width,height:refObj.height});
+    	refObj._activity.sendToBack();		
+    	this.drawActivityOnTarget(refObj,0,0,refObj.width,refObj.height);		
+	</method>
+	
+	
+</class>
+
+</library>

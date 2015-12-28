@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+<class name="addOrgProperties" extends="guiPresenter" labelid="888"
+    docking="true" resizeable="false" closable="true" width="300" 
+    height="200">
+    
+    <attribute name="refObj" value="null" />
+    
+    <infoIconBox y="22" labelid="889" width="$once{ parent.width - 20 }" x="10" />
+      
+    <labelText labelid="892" width="200" y="146" resize="false" x="2"/>     
+    <customEdittext name="newDomainName" y="146" x="120" 
+                        width="$once{ parent.width - 140 }" text="" />      
+
+    <simpleLabelButton labelid="894" width="100" x="$once{ parent.width-105*2 }" 
+                       y="$once{ parent.height-24 }">
+        <handler name="onclick">
+            this.parent.close();
+        </handler>
+    </simpleLabelButton>  
+    <simpleLabelButton labelid="895" width="100" x="$once{ parent.width-105*1 }" 
+                       y="$once{ parent.height-24 }">
+        <handler name="onclick">
+            this.parent.refObj.addDomainToList(parent.newDomainName.getText());
+            this.parent.close();
+        </handler>
+    </simpleLabelButton>    
+ 
+</class>
+	
+</library>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+  <class table="roles" lazy="false" name="org.i4change.app.hibernate.beans.diagram.Role">
+    <id column="roles_id" name="rolesId">
+      <generator class="increment"/>
+    </id>
+    <property name="inserted" type="java.util.Date" column="inserted"/>
+    <property name="insertedBy" type="long" column="insertedby"/>
+    <property name="updated" type="java.util.Date" column="updated"/>
+    <property name="updatedBy" type="long" column="updatedby"/>
+    <many-to-one outer-join="true" insert="true" column="assignee" lazy="false" update="true" name="assignee" class="org.i4change.app.hibernate.beans.user.Users"/>
+    <many-to-one outer-join="true" insert="true" column="diagramobject_id" lazy="false" update="true" name="roleObject" class="org.i4change.app.hibernate.beans.diagram.DiagramObject"/>
+    <property name="deleted" type="string" column="deleted"/>
+    <many-to-one outer-join="true" insert="true" column="organisation_id" lazy="false" update="true" name="organisation" class="org.i4change.app.hibernate.beans.domain.Organisation"/>
+  </class>
+</hibernate-mapping>

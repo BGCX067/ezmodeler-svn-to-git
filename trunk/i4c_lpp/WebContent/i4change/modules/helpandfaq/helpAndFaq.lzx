@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+ 
+<class name="helpAndFaq" extends="view" >
+	
+    <searchHelpItems name="_searchHelpItems" height="${ parent.height }">
+    	<handler name="onselect" args="itemObj">
+    		parent._searchHelpContentArea.loadContentByWebItemId(itemObj.webItem.webItemId);
+    	</handler>
+    </searchHelpItems>
+    
+    <searchHelpContentArea name="_searchHelpContentArea" x="204"
+    					   height="${ parent.height }" width="${ parent.width-207 }" />
+    
+</class>
+
+</library>

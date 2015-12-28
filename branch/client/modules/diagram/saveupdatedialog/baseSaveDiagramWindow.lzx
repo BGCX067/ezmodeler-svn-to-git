@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+    
+<class name="saveCheckBoxes" extends="view" layout="axis:y;spacing:2">
+    <attribute name="read" value="true" type="boolean" />
+    <attribute name="issueOnly" value="true" type="boolean" />
+    <attribute name="write" value="false" type="boolean" />
+    <labelCheckbox name="_read" value="$once{ parent.read }" labelid="727" fontsize="12"/>
+    <labelCheckbox name="_issueOnly" value="$once{ parent.issueOnly }" labelid="729" fontsize="12" >
+        <handler name="onvalue">
+            //parent._read.setValue(true);
+        </handler>
+    </labelCheckbox>
+    <labelCheckbox name="_write" value="$once{ parent.write }" labelid="728" fontsize="12" >
+        <handler name="onvalue">
+            //parent._issueOnly.setValue(true);
+            //parent._read.setValue(true);
+        </handler>
+    </labelCheckbox> 
+</class>
+
+<class name="baseSaveDiagramWindow" extends="guiPresenter" labelid="581"
+    docking="true" closable="true" width="400" resizeable="false"
+    x="$once{ parent.width/2 - this.width/2 }" y="100" height="300">
+    
+    <attribute name="refObj" value="null" />
+    <attribute name="diagramName" value="" type="string" />
+    
+    <!-- reference to the parent DiagramObjectId -->
+    <attribute name="parentDiagramObjectId" value="0" type="number" />
+    <attribute name="parentDiagramObject" value="null" />
+    
+    
+    <handler name="oninit">
+    	LzModeManager.makeModal(this);
+        if ($debug) Debug.write("THIS: ",this.diagramName);
+        this._savefileName1.setAttribute('text',this.diagramName);
+        this.initDiagramObject();
+    </handler>
+    
+    <handler name="onclose">
+    	LzModeManager.release(this);
+    </handler>
+    
+    <method name="initDiagramObject">
+        if (this.parentDiagramObjectId != 0) {
+            //this._savefileName1.setAttribute("enabled",false);
+            this.getDiagramObjectById.doCall();
+        } else {
+            //this._savefileName1.setAttribute("enabled",false);
+        }
+    </method>
+    
+    <netRemoteCallHib name="getDiagramObjectById" funcname="diagramservice.getDiagramObjectById" 
+                      remotecontext="$once{ canvas.thishib }" >
+        <netparam><method name="getValue">return canvas.sessionId;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.parentDiagramObjectId;</method></netparam>
+        <handler name="ondata" args="value">
+            //The onResult-Handler will be called be the rtmpconnection
+            if ($debug) Debug.write("getDiagramObjectById: ",value);
+            if (value != null) {
+                parent.parentDiagramObject = value;
+                parent._parentDiagramObjectName.setAttribute("text",parent.parentDiagramObject.name);
+            }
+        </handler>  
+    </netRemoteCallHib>        
+    
+    <labelText y="24" labelid="582" />
+    <customEdittext name="_savefileName1" y="24" x="160" width="$once{ parent.width-this.x-4 }" 
+                    text="$once{ 'Diagram-Name_'+ getStringDateFileSave() }" />
+      
+    <labelText y="54" labelid="863" />
+    <labelText name="_parentDiagramObjectName" y="54" x="160" height="22" resize="false"
+               width="$once{ parent.width-this.x-38 }" bgcolor="0xCCCCCC" />
+    <view y="56" x="$once{ parent.width-18 }" resource="_delete_parentDiagramObject_rsc"
+          onmouseover="" onmouseout="">
+        <handler name="onclick">
+            new confirmDeleteWindowCustomLabel(canvas.main_content._content.inner,{
+                    refObj:this,messageLabelid:875,
+                    funcNameConfirm:'confirmDelete'
+                });
+        </handler>
+	    <method name="confirmDelete">
+	        parent.parentDiagramObjectId = 0;
+            parent._parentDiagramObjectName.setAttribute("text","");
+            parent.refObj.setAttribute('parentDiagramObjectId',0);
+	    </method>        
+        <labelTooltip labelid="864" />
+    </view>
+    
+    <!--
+    chooseParentObject info text over table (italic and grey)
+    
+    You can only select a Processgroup or Process which is not already Parent Object of another Diagram!
+     -->
+    <view y="56" x="$once{ parent.width-36 }" resource="_add_parentDiagramObject_rsc"
+          onmouseover="" onmouseout="">
+        <handler name="onclick">
+            if ($debug) Debug.write("type of Parent Diagram Object: ",parent.refObj.diagramType);
+            //TODO: Add Dialog to choose parent Diagram Object
+            if (parent.refObj.diagramType == 1) {
+                //processgroup
+                //check if parent must be a processgroup or can be also a process
+                if (parent.refObj.checkForObjectType("processgroup")) {
+                    if ($debug) Debug.write("Objecttype Processgroup is available Can only be Processgroup as Parent Object");
+                    new lz.chooseParentObject(parent.parent,{
+                            refObj:parent,infoTextLabelId:878,
+                            showItems:"processGroups"
+                        });
+                } else {
+                    if ($debug) Debug.write("Objecttype Processgroup is NOT available Can be Process or Processgroup as Parent Object");
+                    new lz.chooseParentObject(parent.parent,{
+                            refObj:parent,infoTextLabelId:877,
+                            showItems:"processesAndProcessGroups"
+                        });
+                }
+            } else if (parent.refObj.diagramType == 2) {
+                //roleview
+                //parent can only be a process
+                if ($debug) Debug.write("Objecttype Processgroup is NOT available Can only be Process as Parent Object");
+                new lz.chooseParentObject(parent.parent,{
+                        refObj:parent,infoTextLabelId:879,
+                        showItems:"process"
+                    });   
+            } else if (parent.refObj.diagramType == 3) {
+                // hierarchical
+                if ($debug) Debug.write("Diagramtype Hierarchical as Parent Object");
+                if (parent.refObj.checkForObjectType("company") || 
+                    parent.refObj.checkForObjectType("companyFixed") ) {
+                    if ($debug) Debug.write("Objecttype Company is available Can only be Company as Parent Object");
+	                new lz.chooseParentObject(parent.parent,{
+	                        refObj:parent,infoTextLabelId:880,
+	                        showItems:"company"
+	                    });     
+                } else {
+                    if ($debug) Debug.write("Objecttype Company is NOT available Can be Departement or Company as Parent Object");
+                    new lz.chooseParentObject(parent.parent,{
+                            refObj:parent,infoTextLabelId:881,
+                            showItems:"companyAndDepartement"
+                        });   
+                }
+                
+            } else if (parent.refObj.diagramType == 4) {
+                //singleRole
+            }
+        </handler>
+        <labelTooltip labelid="865" />
+    </view>
+                    
+    <labelText labelid="582" width="200" y="84" resize="false" x="2"/>
+    <customScrollEdittext name="comment" y="104" x="2" width="$once{ parent.width-this.x-2 }" 
+                          height="160" text="Initial" />   
+                                 
+</class>
+
+</library>

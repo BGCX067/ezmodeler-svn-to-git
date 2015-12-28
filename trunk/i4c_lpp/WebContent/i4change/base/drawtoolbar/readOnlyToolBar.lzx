@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+	
+<class name="readOnlyToolBar" extends="baseToolBar" 
+	   labelid="542" width="62" height="114" >
+	
+	<handler name="oninit">
+		this._area.menupointer_single.onmouseup.sendEvent(this);
+	</handler>
+	
+	<view name="_area" width="58" y="22" x="4" >
+		<wrappinglayout axis="x" spacing="2" />
+		
+		<drawToolBarItem name="menupointer_single" resoureceItem="menupointer_rsc" 
+						 modi="hand_single" labelid="545" />
+         			 
+		<drawToolBarSeperator name="_drawToolBarSeperator1" />	
+
+		<drawToolBarItem name="saveobj" resoureceItem="saveobj" setSelectionToItem="false"
+						 modi="saveobj" labelid="544" />
+						 
+		<drawToolBarSeperator name="_drawToolBarSeperator10" />	
+						 
+		<drawToolBarItem name="issueflow" resoureceItem="issueflow_menu" 
+						 modi="issueflow" labelid="579" />						 					 
+						 					 
+	</view>
+	
+</class>
+
+</library>

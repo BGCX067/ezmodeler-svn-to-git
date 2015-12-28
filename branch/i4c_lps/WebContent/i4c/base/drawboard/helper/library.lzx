@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+    
+    <resource name="drill_down_rsc" src="resources/down.png" />
+
+    <include href="dragView.lzx" />
+    <include href="boundingBoxAll.lzx" />
+    <include href="boundingBoxConnector.lzx" />
+    <include href="boundingBoxReadOnly.lzx" />
+
+</library>

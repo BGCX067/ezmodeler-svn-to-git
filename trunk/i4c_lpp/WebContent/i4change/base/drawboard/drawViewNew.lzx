@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+	
+<class name="drawViewNewItem" extends="view">
+	
+	<attribute name="typeOfObject" value="paint" type="string" />
+	
+	<attribute name="strokeStyle" value="null" />
+	<attribute name="lineWidth" value="0" type="number" />
+	<attribute name="fillStyle" value="null" />
+	
+	<method name="beginPath">
+		<![CDATA[
+			var mc = this.getMCRef();
+			mc.lineStyle(this.lineWidth, this.strokeStyle, 100);
+			mc.beginFill(this.fillStyle);
+		]]>
+	</method>
+	
+	<method name="closePath">
+		
+	</method>
+	
+	<method name="moveTo" args="x,y">
+		var mc = this.getMCRef();
+		mc.moveTo(x,y);
+	</method>
+	
+	<method name="lineTo" args="x,y">
+		var mc = this.getMCRef();
+		mc.lineTo(x,y);
+	</method>
+	
+	<method name="stroke">
+		
+	</method>
+	
+	<method name="fill">
+		var mc = this.getMCRef();
+		mc.endFill();
+	</method>
+	
+	<!--
+	strokeStyle = stroke;
+                    drawObj.lineWidth = lineWidth;
+                    drawObj.beginPath();                                
+                    drawObj.moveTo(csx,csy);
+                    drawObj.lineTo(ctx,cty);
+                    drawObj.stroke
+       
+       lineWidth = line;
+    		parentObj._company.beginPath();
+    		parentObj._company.moveTo(x1,y1);
+    		parentObj._company.lineTo(x1,y2);
+    		parentObj._company.lineTo(x2,y2);
+    		parentObj._company.lineTo(x2,y1);
+    		parentObj._company.lineTo (x1,y1);
+    		//parentObj._company.closePath();
+    		
+    		if (strokeDis!=-1){
+	    		parentObj._company.strokeStyle = stroke;
+	    		parentObj._company.stroke();
+    		}
+    		
+    		if (fillDis!=-1){
+	    		parentObj._company.fillStyle = fill;
+	    		parentObj._company.fill();
+    		}             
+      -->
+      
+                     
+</class>
+
+<!--
+cachebitmap="false"
+ -->
+ 
+<class name="drawViewNew" extends="drawViewNewItem" x="-1" y="-1" >
+	
+    <attribute name="initwidth" value="0" type="number" />
+    <attribute name="initheight" value="0" type="number" />
+    
+    <attribute name="text" value="" type="string" />
+    
+    <handler name="oninit">
+        this.initwidth=this.width;
+        this.initheight=this.height;
+    </handler>
+    
+	<handler name="onwidth">
+        <![CDATA[
+        if(this.name.indexOf('line')>=0 
+        	|| this.name.indexOf('uline')>=0 
+        	|| this.name.indexOf('drawarrow')>=0
+        	|| this.name.indexOf('paint')>=0 
+        	|| this.name.indexOf('rectangle')>=0 
+        	|| this.name.indexOf('ellipse')>=0 ) {
+        	if (this.isinited) {
+        		this.getMCRef()._xscale = (this.width/this.initwidth)*100;
+        	}
+        }
+        ]]>
+    </handler>
+    
+    <handler name="onheight">
+    	<![CDATA[
+        if(this.name.indexOf('line')>=0 
+        	|| this.name.indexOf('uline')>=0 
+        	|| this.name.indexOf('drawarrow')>=0 
+        	|| this.name.indexOf('paint')>=0  
+        	|| this.name.indexOf('rectangle')>=0 
+        	|| this.name.indexOf('ellipse')>=0 ) {
+        	if (this.isinited) {
+        		this.getMCRef()._yscale = (this.height/this.initheight)*100;  
+        	}
+        }
+        ]]>   
+    </handler>
+    <!--
+    <dragstate name="dragger" drag_axis="both"
+	    drag_min_x="0"
+	    drag_max_x="$once{parent.width - this.width}"
+	    drag_min_y="0"
+	    drag_max_y="$once{parent.height - this.height}">
+    </dragstate>
+     -->
+</class>
+	
+</library>	

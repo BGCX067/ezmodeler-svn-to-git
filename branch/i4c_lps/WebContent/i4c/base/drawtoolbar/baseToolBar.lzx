@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+	
+<class name="baseToolBar" extends="toolnaviinspector" >
+	
+	<attribute name="objectRef" value="null" />
+	
+	<method name="setSelection" args="obj">
+		if (obj.setSelectionToItem){			
+			if (this.objectRef!=null){
+				this.objectRef._isselected = false;
+				this.objectRef._area.setAttribute('bgcolor',0xFFFFFF);
+			}
+			this.objectRef = obj;
+			this.objectRef._isselected = true;
+			this.objectRef._area.setAttribute('bgcolor',canvas.basebgcolorizer);
+			
+		}
+		parent._scrollcontent.contentArea._currentBoard.setModus(obj.modi);
+		parent._scrollcontent.contentArea._currentBoard.setModus(this.objectRef.modi);
+	</method>
+	
+	
+	<method name="doSelectItem" args="modi">
+		<![CDATA[
+			if ($debug) Debug.write("doSelectItem",modi);	
+			for (var i=0;i<this._area.subviews.length;i++) {
+				//if ($debug) Debug.write("this._area.subviews[i]",this._area.subviews[i].modi);
+				if (this._area.subviews[i].modi == modi) {
+					if ($debug) Debug.write("Found it;")
+					this._area.subviews[i].onmouseup.sendEvent(this);
+					break;
+				}
+			}
+		]]>
+	</method>	
+	
+	
+</class>
+
+</library>

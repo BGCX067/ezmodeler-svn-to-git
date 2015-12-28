@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+<!--- User Profile edit panel in the useradmin leftblock. Private class only for useradmin -->
+<class name="modRoleValueForm" extends="baseContentSaveView">
+
+	<!--- recordContent-id -->
+	<attribute name="rolesId" value="0" type="number" />
+    <handler name="oninit">
+        //Add Help Item
+        canvas.addCurrentHelpId(27,this.__constructor__.classname);
+    </handler> 
+	<!--handlers -->
+
+	<handler name="onsavecompleted" >
+		//this.getRoleById.doCall();
+	</handler>
+	
+	<handler name="onreload" >
+		if (this.rolesId!=0) this.getRoleById.doCall();
+	</handler>	
+
+	<handler name="onnew">
+		this.rolesId=0;
+        this.readOnlyRole.setAttribute("text",'');
+        this.readOnlyDate.setAttribute("text",'');
+        this.usersOrganisation.selectItemAt(0);
+	</handler>
+	
+    <handler name="ondelete" >
+		if (this.rolesId!=0){
+			this.deleteRole.doCall();
+		}
+    </handler>
+	
+	<!-- methods -->
+
+    <method name="initValueFieldsByObject" args="obj">
+		this.rolesId = obj.rolesId;
+		if (this.rolesId!=0){
+			//if ($debug) Debug.write("this.getRoleById this.user_id",this.rolesId);
+			this.getRoleById.doCall();
+		}
+    </method>
+    
+    <method name="initFields" args="obj">
+    	<![CDATA[
+	        //this.readOnlyRole.setAttribute("text",obj.user.login);
+	        this.readOnlyDate.setAttribute('text',parseDateToStringTime(obj.inserted));
+            ////if ($debug) Debug.write("")
+	        this.usersOrganisation.selectItem(String(obj.assignee.user_id));
+            this.readOnlyRole.setAttribute('text',obj.roleObject.name);
+            this.readOnlyRole.diagramObjectId = obj.roleObject.diagramObjectId;
+            
+        ]]>
+    </method>
+	
+	<!-- remotecalls -->
+	
+  	<netRemoteCallRPC name="getRoleById" funcname="getRoleById" 
+  		remotecontext="$once{  canvas.roleServiceRPC }" > 
+  		<netparam><method name="getValue"> return canvas.sessionId; </method></netparam>
+    	<netparam><method name="getValue">return parent.parent.rolesId;</method></netparam>
+    	<handler name="ondata" args="value">
+			//if($debug) Debug.write("[admin]modRoleValueForm/getRoleById: ",value);
+    		parent.initFields(value);
+    	</handler>
+  	</netRemoteCallRPC>
+	
+	<netRemoteCallRPC name="deleteRole" funcname="deleteRole" 
+					  remotecontext="$once{  canvas.roleServiceRPC }" >      
+		<netparam><method name="getValue"> return canvas.sessionId; </method></netparam>
+		<netparam><method name="getValue"> return parent.parent.rolesId; </method></netparam>
+		<handler name="ondata" args="value">
+			//Debug.write("deleteUserAdmin ",value);
+			//this.parent.destroy();
+			this.parent.parent._turnoverlist.oncallnext.sendEvent();
+			this.parent.onnew.sendEvent();
+		</handler>
+	</netRemoteCallRPC>		
+    
+    
+    <netRemoteCallRPC name="saveOrUpdateRole" funcname="saveOrUpdateRole" 
+        remotecontext="$once{  canvas.roleServiceRPC }" registerObject="true" activeErrorHandler="false" >
+        <attribute name="sendObject" value="null" />
+        <netparam><method name="getValue"> return canvas.sessionId; </method></netparam>
+        <netparam><method name="getValue">return parent.sendObject;</method></netparam>  
+        <!-- gets called by Observer -->
+        <method name="prepareCall">
+            this.sendObject=new Object();
+            this.sendObject["rolesId"] = this.parent.rolesId;
+            this.sendObject["organisation_id"] = canvas.currentdomainObj.organisation_id;
+            this.sendObject["user_id"] = Number(this.parent.usersOrganisation.getValue());
+            this.sendObject["diagramObjectId"] = this.parent.readOnlyRole.diagramObjectId;
+
+            //Debug.write("prepareCall: ",this.sendObject);
+        </method>        
+        <handler name="ondata" args="val">
+            <![CDATA[
+                //Debug.write("saveOrUpdateRole: ",val);
+                if (val>0){
+                    var obj = new Array();
+                    obj["rolesId"] = val;
+                    this.parent.initValueFieldsByObject(obj);
+                }
+                this.parent.parent._turnoverlist.oncallnext.sendEvent();
+            ]]>
+        </handler>        
+    </netRemoteCallRPC>
+	<!-- content -->
+    
+    <labelText labelid="143" width="200" y="40" resize="false" fontstyle="bold" />
+    
+    <labelText labelid="695" width="200" y="70" resize="false" x="2"/>  
+    <labelText name="readOnlyDate" x="120" width="270" y="70" resize="false" bgcolor="0xCCCCCC" />  
+    
+    <labelText labelid="694" width="200" y="100" resize="false" x="2"/>  
+        <omComboBox name="usersOrganisation" width="270" y="100" shownitems="10"
+                  x="120" editable="false" fontsize="12">
+            <handler name="oninit" >
+                <![CDATA[
+                    for (var i=0;i<canvas.orgUserList.length;i++) {
+                        this.addItem(canvas.orgUserList[i].login
+                            + " (" + canvas.orgUserList[i].firstname + ","
+                            + canvas.orgUserList[i].lastname + ") ",
+                        canvas.orgUserList[i].user_id);
+                    }
+                    this.selectItemAt(0);
+                ]]>
+            </handler> 
+        </omComboBox>
+    
+    <labelText labelid="693" width="200" y="140" resize="false" x="2" fontstyle="bold" />  
+               
+    <baseChooseIcon resourceN="search_help_item_rsc" labelid="696" y="140" x="120"
+        onclick="this.parent.showDialog('modRoleExplorer')" />  
+    <baseChooseIcon resourceN="edit_add_rsc" labelid="698" y="140" x="139"
+        onclick="this.parent.showDialog('modRoleAddRole')" />   
+              
+    <method name="showDialog" args="dialogName">
+            new lz[dialogName](canvas.main_content._content.inner,{
+                    refObj:this
+                });
+    </method>
+    <method name="setDiagramObject" args="name,diagramObjectId">
+        this.readOnlyRole.setAttribute('text',name);
+        this.readOnlyRole.diagramObjectId = diagramObjectId;
+    </method>
+    
+    <labelText labelid="693" width="200" y="164" resize="false" x="2"/>  
+    <labelText name="readOnlyRole" x="120" width="270" y="164" 
+               resize="false" bgcolor="0xCCCCCC">
+        <attribute name="diagramObjectId" value="0" type="number" />
+    </labelText>  
+    
+</class>
+
+</library>

@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<library>
+
+<!--- "System" panel on the dashboard -->
+<class name="addPendingRole" extends="view"
+       x="0" width="500" height="160" bgcolor="0xDEDEDE">
+    
+    <animatorgroup name="_doShow" start="false" duration="300">
+         <animator attribute="height" to="130" />
+     </animatorgroup>
+     <animatorgroup name="_doClose" start="false" duration="300">
+        <animator attribute="height" to="0" />
+    </animatorgroup>
+    
+    <attribute name="refObj" value="null" />
+    
+    <attribute name="errortext" value="" type="string" />
+    <attribute name="errorid" value="0" type="number" />    
+
+    <method name="saveAndLoadDiagramObject">
+        //if ($debug) Debug.write("saveAndLoadDiagramObject ");
+        this.parent.setAttribute('errortext','');
+        if (Number(this.users.getValue()) != 0) {
+            this.checkForUniqueName.doCall();
+        } else {
+            new lz.errorPopupWithLabel(canvas,{labelerrorid:945});
+        }
+    </method>
+    
+   <netRemoteCallRPC name="checkForUniqueName" funcname="checkForUniqueName" 
+                      remotecontext="$once{  canvas.diagramServiceRPC }" >      
+        <netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+        <netparam><method name="getValue">return parent.parent.roleName.getText();</method></netparam> 
+        <netparam><method name="getValue">return '0';</method></netparam> 
+        <netparam><method name="getValue">return "unit";</method></netparam>
+        <netparam><method name="getValue">return canvas.currentdomainObj.organisation_id;</method></netparam>
+        <handler name="ondata" args="value">
+            <![CDATA[
+                //if ($debug) Debug.write("checkForUniqueName: ",value);
+                if (value < 0){
+                    parent.errorid = value;
+                    parent.getErrorByCode.doCall();
+                } else {
+                    //if ($debug) Debug.write("userobject: ", canvas.userobject);
+                    if ( canvas.userobject.level_id == 1 && !canvas.currentdomainUserObj.isModerator) {
+                        parent.addPendingDiagramObject.isPending = true;
+                    } else {
+                        parent.addPendingDiagramObject.isPending = false;
+                    }
+                    parent.addPendingDiagramObject.doCall();
+                }
+            ]]>
+        </handler>
+    </netRemoteCallRPC>  
+    
+    <netRemoteCallRPC name="getErrorByCode" funcname="getErrorByCode" 
+    				  remotecontext="$once{  canvas.errorServiceRPC }" >      
+        <netparam><method name="getValue"> return canvas.sessionId; </method></netparam>
+        <netparam><method name="getValue"> return parent.parent.errorid; </method></netparam>
+        <netparam><method name="getValue"> return  canvas.userlang; </method></netparam>
+        <handler name="ondata" args="value">
+            Debug.write("getErrorByCode ",value);
+            //this.parent.destroy();
+            this.parent.setAttribute('errortext',value.errmessage);
+        </handler>
+    </netRemoteCallRPC>     
+
+   <netRemoteCallRPC name="addPendingDiagramObject" funcname="addPendingDiagramObject" 
+                      remotecontext="$once{  canvas.diagramServiceRPC }" >     
+        <attribute name="isPending" value="true" type="boolean" /> 
+        <netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+        <netparam><method name="getValue">return parent.parent.roleName.getText();</method></netparam> 
+        <netparam><method name="getValue">return 'unitFixed';</method></netparam> 
+        <netparam><method name="getValue">return canvas.currentdomainObj.organisation_id;</method></netparam>
+        <netparam><method name="getValue">return canvas.userlang;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.users.getValueByType();</method></netparam>
+        <netparam><method name="getValue">return parent.isPending;</method></netparam>
+        <handler name="ondata" args="value">
+            <![CDATA[
+                //if ($debug) Debug.write("checkForUniqueName: ",value);
+                if (value < 0){
+                    parent.errorid = value;
+                    parent.getErrorByCode.doCall();
+                } else {
+                    //parent.parent.setDiagramObject(parent.roleName.getText(),value);
+                    parent.parent._innerTableProcess.getDiagramObjectsNoMatterPending.doCall();
+                    parent._doClose.doStart();
+                }
+            ]]>
+        </handler>
+    </netRemoteCallRPC> 
+    
+    <view bgcolor="0x000000" width="500" height="2" />
+
+    <labelText labelid="699" width="200" y="10" resize="false" x="2"/>  
+    <customEdittext name="roleName" y="10" x="120" width="$once{parent.width - 125 }" text="" />
+    
+    <labelText labelid="903" width="200" y="40" resize="false" x="2">
+        <handler name="oninit">
+            <![CDATA[
+	            if ( canvas.userobject.level_id != 1 || canvas.currentdomainUserObj.isModerator) {
+	                this.setAttribute("visibility","hidden");
+	            }
+            ]]>
+        </handler>
+    </labelText>  
+    <omComboBox name="users" x="120" width="$once{parent.width - 125 }" y="40" editable="false" >
+        <method name="getValueByType">
+            if ( canvas.userobject.level_id != 1 || canvas.currentdomainUserObj.isModerator) {
+                return null;
+            } else {
+                return Number(this.getValue());
+            }
+        </method>
+        <handler name="oninit">
+            <![CDATA[
+                if ( canvas.userobject.level_id != 1) {
+                    this.setAttribute("visibility","hidden");
+                }
+                var adminAdded = false;
+                for (var eg=0;eg<canvas.orgUserList.length;eg++) {
+                    //if ($debug) Debug.write("canvas.orgUserList[eg].orgUser ",canvas.orgUserList[eg]);
+                    if (canvas.orgUserList[eg].orgUser.isModerator){
+                        this.addItem(canvas.orgUserList[eg].login,canvas.orgUserList[eg].user_id);
+                        
+                    } else if (canvas.orgUserList[eg].level_id == 2) {
+                        //Only Add Moderators No Administrators ICH-521
+                        //if (!adminAdded){
+                        //    adminAdded = true;
+                        //    this.addItem(canvas.getLabelName(946),"0");
+                        //}
+                        this.addItem(canvas.orgUserList[eg].login,canvas.orgUserList[eg].user_id);
+                    }
+                }
+                this.selectItemAt(0);
+            ]]>
+        </handler>
+        <!--
+        <handler name="onselect" args="sel">
+            if (this.getValue()=="0"){
+                new lz.errorPopupWithLabel(canvas,{labelerrorid:945});
+                //this.selectItemAt(0);
+            }
+        </handler>
+         -->
+    </omComboBox> 
+    
+    <infoIconBox iconResourceName="info_help_small_rsc"
+                 labelid="904" x="10" name="_content"
+                 y="70" width="${ parent.width -20 }" >
+        <handler name="oninit">
+            <![CDATA[
+                if ( canvas.userobject.level_id != 1 || canvas.currentdomainUserObj.isModerator) {
+                    this.setAttribute("visibility","hidden");
+                }
+            ]]>
+        </handler>
+    </infoIconBox>     
+    
+    <infoIconBox iconResourceName="info_help_small_rsc"
+                 labelid="1165" x="10" name="_contentInfoOrgModsAndAdmins"
+                 y="70" width="${ parent.width -20 }" >
+        <handler name="oninit">
+            <![CDATA[
+                if ( canvas.userobject.level_id != 1 || canvas.currentdomainUserObj.isModerator) {
+                    this.setAttribute("visibility","visible");
+                } else {
+                	this.setAttribute("visibility","hidden");
+                }
+            ]]>
+        </handler>
+    </infoIconBox>         
+
+    <view y="24" width="298" height="${ parent.height-60 }">
+        <text y="2" x="10" fontsize="10" fontstyle="bold" text="${ parent.parent.errortext }"
+            multiline="true" width="270" />
+    </view>    
+    
+    <simpleLabelButton labelid="701" width="100" x="$once{ parent.width-105*2 }" 
+                       y="${ parent.height-24 }">
+        <handler name="onclick">
+            this.parent.saveAndLoadDiagramObject();
+        </handler>
+    </simpleLabelButton>  
+    <simpleLabelButton labelid="725" width="100" x="$once{ parent.width-105*1 }" 
+                       y="${ parent.height-24 }">
+        <handler name="onclick">
+            parent._doClose.doStart();
+        </handler>
+    </simpleLabelButton>  
+    
+    <view bgcolor="0x000000" width="500" height="2" y="${ parent.height-2 }" />     
+</class> 
+
+</library>

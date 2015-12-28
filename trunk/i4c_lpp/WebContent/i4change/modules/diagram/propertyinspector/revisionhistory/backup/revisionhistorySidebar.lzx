@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<library>
+
+<!--- "System" panel on the dashboard -->
+<class name="revisionhistory" extends="guiPresenter" resizeable="false"
+	   x="$once{ canvas.width-410 }"
+	   width="400" height="360" closable="true" labelid="601" y="10">
+    
+    <attribute name="currentRemoteDiagram" value="null" />
+    
+    <handler name="oninit">
+        //Add Help Item
+        canvas.addCurrentHelpId(16,this.__constructor__.classname);
+    </handler>
+    
+    <handler name="oninit">
+        //if ($debug) Debug.write("this: ",canvas.currentDiagramRef,canvas.currentDiagramRef.diagramType);
+        if (canvas.currentDiagramRef.diagramType=="roleview") {
+            menu_showRevisionHistory._checkbox.setValue(true);
+        } else if (canvas.currentDiagramRef.diagramType=="processgroup") {
+            menu_showRevisionHistoryProcess._checkbox.setValue(true);
+        } else if (canvas.currentDiagramRef.diagramType=="hierarchical") {
+            menu_showRevisionHistoryHierarchical._checkbox.setValue(true);
+        } else if (canvas.currentDiagramRef.diagramType=="singleRole") {
+            menu_showRevisionHistorySingleRole._checkbox.setValue(true);
+        }
+    </handler>
+    
+    <handler name="onclose">
+        if (canvas.currentDiagramRef.diagramType=="roleview") {
+            menu_showRevisionHistory._checkbox.setValue(false);
+        } else if (canvas.currentDiagramRef.diagramType=="processgroup") {
+            menu_showRevisionHistoryProcess._checkbox.setValue(false);
+        } else if (canvas.currentDiagramRef.diagramType=="hierarchical") {
+            menu_showRevisionHistoryHierarchical._checkbox.setValue(false);
+        } else if (canvas.currentDiagramRef.diagramType=="singleRole") {
+            menu_showRevisionHistorySingleRole._checkbox.setValue(false);
+        }
+    </handler>
+    
+	<view y="20" bgcolor="$once{ canvas.currentMenuLayoutBackGround }" 
+          name="_inner" x="1" width="$once{ parent.width-2 }" 
+		  height="$once{ parent.height-21 }" >
+		
+		<attribute name="currentDiagram" value="null" />
+		
+        <netRemoteCallRPC name="getDiagramObjectsById" funcname="diagramservice.getDiagramObjectsById" 
+                          remotecontext="$once{  canvas. }" >      
+            <attribute name="diagramId" value="" type="string" />
+            <netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+            <netparam><method name="getValue">return parent.diagramId;</method></netparam> 
+            <netparam><method name="getValue">return canvas.currentdomainObj.organisation_id;</method></netparam>
+            <handler name="ondata" args="value">
+                //if ($debug) Debug.write("getDiagramObjectsByNo: ",value);
+                parent.loadDiagram(value);
+            </handler>
+        </netRemoteCallRPC>  		
+        
+        <method name="loadDiagram" args="value">
+        	////if ($debug) Debug.write("loadDiagram: ",this.currentDiagram);
+        	
+        	canvas.currentDiagram = this.currentDiagram;
+        	canvas.currentInstanceList = value;
+        	
+        	if (this.currentDiagram.diagramType.diagramTypeId == 1) {
+	        	quicklinkAct('processgroup');
+        	} else if (this.currentDiagram.diagramType.diagramTypeId == 2) {
+	        	quicklinkAct('roleView');
+        	} else if (this.currentDiagram.diagramType.diagramTypeId == 3) {
+	        	quicklinkAct('hierarchical');
+        	}
+        </method>
+        
+        <method name="startNewSearch">
+            
+        </method>      
+        
+        <view width="$once{ parent.width }" name="_inner"
+        	  height="$once{ parent.height }" >
+        	
+        	<handler name="onclickedItem" args="obj">
+				////if ($debug) Debug.write("obj",obj.diagramObj.diagramId);
+				parent.currentDiagram = obj.diagramObj;
+				parent.getDiagramObjectsById.diagramId = obj.diagramObj.diagramId;
+				parent.getDiagramObjectsById.doCall();
+			</handler>
+		
+	        <handler name="oninit">
+	            this.addHeaderItem(589,40);
+	            this.addHeaderItem(588,112);
+	            this.addHeaderItem(602,70);
+	            this.addHeaderItem(603,160);
+	            
+                ////if($debug) Debug.write("this.getDiagramHistoryByNo: ",parent.parent.currentRemoteDiagram);
+	            this.getDiagramHistoryByNo.doCall();
+	        </handler>  
+	        
+	        <method name="addHeaderItem" args="labelid,width" >
+	        	////if ($debug) Debug.write("addHeaderItem: ",labelid,width,this.width,this._innerlisthead._inn.width);
+	            new lz.turnOverListHeaderItem(this._innerlisthead._inn,{labelid:labelid,width:width,subviewsid:this._innerlisthead._inn.subviews.length});
+	        </method>       
+	        
+	        <method name="doLoadList" args="loadList">
+	        	<![CDATA[
+	        		for (var i=0;i<loadList.length;i++) {
+	        			
+	        			////if ($debug) Debug.write("loadList[i]: ",loadList[i]);
+	        			
+	        			new lz.historyListItem(this._innerlist._inn._inn,{
+	        				diagramObj:loadList[i],
+	        				diagramNo:loadList[i].diagramNo,
+	        				diagramrevisionId:loadList[i].diagramrevision.diagramrevisionId,
+	        				diagramname:loadList[i].name,
+	        				insertedby:loadList[i].insertedby.login,
+	        				comment:loadList[i].diagramrevision.comment,
+	        				typelabel:loadList[i].diagramType.label.value,
+	        				inserted:parseDateToStringTime(loadList[i].inserted)
+	        			});
+	        			
+	        		}
+	        	]]>
+	        </method> 
+	        
+			<method name="clearList">
+				this._innerlist._inn._inn.destroy();
+				new lz.innerList(this._innerlist._inn,{name:'_inn'});
+			</method>
+	        
+			<method name="sendWidthUpdate" args="w,subviewsid" >
+				<![CDATA[
+				////Debug.write(w,subviewsid,this._innerlist._inn);
+				for (var i=0;i<this._innerlist._inn._inn.subviews.length;i++){
+					this._innerlist._inn._inn.subviews[i].subviews[subviewsid].setAttribute('width',w);
+				}
+				]]>
+			</method>	        
+	                  
+	        <view name="_innerlisthead" height="20" width="$once{ parent.width }" 
+	            x="${ parent._innerlist.x }" y="2" clip="true">
+	            <view name="_inn" layout="axis:x;spacing:0" />
+	        </view>         
+	
+	        <view name="_innerlist" height="$once{ parent.height-22 }" width="$once{ parent.width }"
+	            y="22" clip="true">
+	            <view name="_inn" >
+	                <innerList name="_inn" />
+	            </view>
+	            <vscrollbar name="_scrollbar" />
+	            <hscrollbar />
+	        </view>
+	            
+	        <netRemoteCallRPC name="getDiagramHistoryByNo" funcname="diagramservice.getDiagramHistoryByNo" 
+	                          remotecontext="$once{  canvas. }" >      
+	            <netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+	            <netparam><method name="getValue">return canvas.currentdomainObj.organisation_id;</method></netparam>
+	            <netparam><method name="getValue">return parent.parent.parent.parent.currentRemoteDiagram.diagramNo;</method></netparam>
+	            <netparam><method name="getValue">return canvas.userlang;</method></netparam> 
+	            <handler name="ondata" args="value">
+	                ////if ($debug) Debug.write("getDiagramList: ",value);
+	                parent.doLoadList(value);
+	            </handler>
+	        </netRemoteCallRPC>  
+            
+        </view>
+
+	</view>
+</class> 
+
+<class name="historyListItem" extends="view" layout="axis:x;spacing:0" 
+    bgcolor="0xFFFFFF"
+    onmouseover="this.setAttribute('bgcolor',canvas.baseMouseOvercolorizer)" 
+    onmouseout="this.setAttribute('bgcolor',0xFFFFFF)" >
+	<attribute name="diagramObj" value="null" />
+    
+	<attribute name="diagramNo" value="0" type="number" />
+	<attribute name="diagramrevisionId" value="0" type="number" />
+	<attribute name="diagramname" value="" type="string" />
+	<attribute name="typelabel" value="" type="string" />
+	<attribute name="inserted" value="" type="string" />
+	<attribute name="insertedby" value="" type="string" />
+	<attribute name="comment" value="" type="string" />	
+
+	<turnOverTextItem text="$once{ parent.diagramrevisionId }" width="40" />
+	<turnOverTextItem text="$once{ parent.inserted }" width="112" />
+	<turnOverTextItem text="$once{ parent.insertedby }" width="70" />
+	<turnOverTextItem text="$once{ parent.comment }" width="160" />
+    
+    <handler name="ondblclick">
+        this.parent.parent.parent.parent.onclickedItem.sendEvent(this);
+    </handler>
+    
+    <labelTooltip multiline="true">
+        <handler name="onInitText">
+            this.setAttribute('text','Comment: '+parent.comment)
+        </handler>
+    </labelTooltip>
+    
+</class>
+
+</library>

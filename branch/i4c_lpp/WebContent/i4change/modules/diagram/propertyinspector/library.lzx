@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+	
+	<include href="datacarrier/" />
+	<include href="properties/" />
+    
+    <include href="pendingDetails.lzx" />
+    <include href="approvalOfPendingObject.lzx" />
+    <include href="issueFlowDetails.lzx" />
+    <include href="objectPropertyDetails.lzx" />
+    <include href="organisationobject/" />
+    <include href="diagramObjectConnectedDiagramsSidebar.lzx" />
+    <include href="revisionhistory/" />
+    <include href="documents/" />
+
+</library>

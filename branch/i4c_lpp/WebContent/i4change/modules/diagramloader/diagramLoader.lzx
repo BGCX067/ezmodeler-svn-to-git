@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<library>
+
+<!--- "System" panel on the dashboard -->
+<class name="diagramLoader" extends="guiPresenterDasboard" resizeable="true"
+    width="500" height="360" closable="true" labelid="630" y="10">
+    <handler name="oninit">
+        //Add Help Item
+        canvas.addCurrentHelpId(36,this.__constructor__.classname);
+        canvas.addToCurrentDiagramList(this);
+    </handler> 
+    
+    <method name="updateDiagramRevision" args="diagram">
+        this._diagrams.updateDiagramRevision(diagram);
+    </method>
+    
+    <method name="refreshDiagramRevision" >
+        this._diagrams.refreshDiagramRevision();
+    </method>
+    
+    <view clickable="true" showhandcursor="false" y="20" x="1" width="${ parent.width-2 }" 
+          height="${ parent.height-21 }" ></view>
+              
+	<baseDiagramLoader name="_diagrams" y="20" x="1" width="${ parent.width-2 }" 
+		  height="${ parent.height-21 }" />
+		
+</class> 
+
+
+</library>

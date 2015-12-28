@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+	
+<class name="transactionListItem" extends="baseContentListItem">
+	
+	<attribute name="transactionId" value="0" type="number" />
+	<attribute name="paidDate" value="" type="string" />
+    <attribute name="amount" value="" type="string" />
+    <attribute name="status" value="" type="string" />
+    <attribute name="numberOfLicenses" value="" type="string" />
+    <attribute name="isControlled" value="" type="string" />
+    <attribute name="labelText" value="" type="string" />
+	
+	<turnOverTextItem text="${ parent.paidDate }" width="200" />
+	<turnOverTextItem text="${ parent.amount }" width="106" />
+    <turnOverTextItem text="${ parent.status }" width="106" />
+    <turnOverTextItem text="${ parent.numberOfLicenses }" width="106" />
+    <turnOverTextItem text="${ parent.isControlled }" width="106" />
+    <turnOverTextItem text="${ parent.labelText }" width="100" >
+    	<handler name="onclick">
+    		if (parent.status != "Completed") {
+    			//if ($debug) Debug.write("Transaction Not Complete yet");
+    			new lz.warningPopup(canvas,{error:canvas.getLabelName(1313),closable:true});
+    		} else {
+    		    this.generateDownLoadLinkInvoiceSelf.doCall();
+    		}
+    	</handler>
+        <netRemoteCallRPC name="generateDownLoadLinkInvoiceSelf" 
+        				  funcname="generateDownLoadLinkInvoiceSelf" 
+                          remotecontext="$once{  canvas.downloadServiceRPC }"> 
+	        <netparam><method name="getValue">return canvas.sessionId;</method></netparam>
+            <netparam><method name="getValue">return parent.parent.parent.obj.invoiceId;</method></netparam>
+	        <handler name="ondata" args="value">
+	            <![CDATA[
+	                //if ($debug) Debug.write("generateDownLoadLinkInvoiceSelf: ",value);
+			        var downloadurl = canvas.httpprotocol+'://'+canvas.rtmphostlocal+':'+canvas.httpport
+			        		+'/'+canvas.webAppRootKey+'/DownloadHashHandler?hash='+value
+			        		+'&sid='+canvas.sessionId;	                
+                    //if ($debug) Debug.write(downloadurl);
+                    lz.Browser.loadURL(downloadurl,"_PARENT");
+	            ]]>
+	        </handler>
+	        <!--
+
+                     -->
+	    </netRemoteCallRPC>    	
+    </turnOverTextItem>
+	
+</class>
+	
+
+<!--- User Profile Setting Panel -->
+<class name="userSettingsTabLicense" extends="view">  
+       
+	<!-- content -->	
+    
+    <method name="initFields" args="obj">
+        <![CDATA[
+        
+            
+        ]]>
+    </method>
+    
+    <method name="doSaveTemp">
+	    //if ($debug) Debug.write("Save Temp License Values");
+        
+	</method>
+	
+	<method name="loadItems">
+		this._content._turnoverlist.getTransactions.prepareCall();
+	</method>
+    
+    <!-- 143:userdata -->
+    <labelText labelid="1139" width="200" y="0" resize="false" fontstyle="bold" />            
+
+	<labelText labelid="1145" width="200" y="30" resize="false" fontstyle="bold" /> 
+	
+	<labelText labelid="1146" width="600" y="50" /> 
+	
+	<view name="_content" y="70">
+	
+	    <turnOverListOrderedPaged name="_turnoverlist" width="740" height="300" x="2" y="0" 
+			orderby="c.inserted" step="25" asc="false" listItemName="transactionListItem">
+	    	
+	    	<attribute name="labelText" value="" type="string" />
+	
+			<handler name="oninit">
+				<![CDATA[
+    				this.addHeaderItem(1140,200);
+    				this.addHeaderItem(1141,106);
+                    this.addHeaderItem(1142,106);
+                    this.addHeaderItem(1143,106);
+                    this.addHeaderItem(1144,106);
+                    this.addHeaderItem(1195,100);
+                    
+                    this.labelText = "<u>"+canvas.getLabelName(1196)+"</u>";
+                    
+    				this.getTransactions.doCall();
+				]]>
+			</handler>
+			
+			<handler name="oncallnext" >
+				this.getTransactions.doCall();
+			</handler>
+			
+			<handler name="oncallpre" >		
+				this.getTransactions.doCall();
+			</handler>
+			
+			<handler name="onclickedItem" args="obj">
+				if ($debug) Debug.write("onclickedItem",obj,obj.obj);
+				//parent._confvalueform.initValueFieldsByObject(obj.obj);
+			</handler>
+			
+			<netRemoteCallRPC name="getTransactions" funcname="getTransactions" 
+							  remotecontext="$once{  canvas.userServiceRPC }" >    
+			    <attribute name="loadingHolder" value="null" />  
+				<netparam><method name="getValue"> return canvas.sessionId; </method></netparam>
+				<netparam><method name="getValue"> return parent.parent.start; </method></netparam>
+				<netparam><method name="getValue"> return parent.parent.step; </method></netparam>
+				<netparam><method name="getValue"> return parent.parent.orderby; </method></netparam>
+				<netparam><method name="getValue"> return parent.parent.asc; </method></netparam>
+				<method name="prepareCall">
+                    this.loadingHolder = new lz.warningPopup(canvas,{error:canvas.getLabelName(1345),closable:true});
+                    this.doCall();
+                </method>
+		    	<handler name="ondata" args="value">
+		    		//if ($debug) Debug.write("getTransactions ",value);
+		    		//this.parent.destroy();
+		    		this.loadingHolder.close();
+		    		this.parent.initValues(value.records);
+		    		this.parent.renderContent(value.result);
+		    	</handler>
+		    </netRemoteCallRPC>	
+		    
+		    <!--
+		    new lz.transactionListItem(this._innerlist._inn._inn,{
+                                    obj:records[i],
+                                    paidDate:parseDateToStringTime(records[i].transactionPaypal.paidDate),
+                                    amount:records[i].transactionPaypal.amount+' USD',
+                                    status:records[i].transactionPaypal.status,
+                                    numberOfLicenses:records[i].transactionPaypal.numberOfLicenses,
+                                    isControlled:records[i].transactionPaypal.isControlled,
+                                    labelText:labelText
+                                });
+                                -->
+		    
+		    <method name="renderContent" args="records">
+                <![CDATA[
+                    //this.clearList();
+                    var list = this._innerlist._inn._inn;
+                    this.renderList = records;
+                    
+                    this._innerlist._inn.setAttribute("y",0);
+                    this._innerlist._inn._inn.setAttribute("height",records.length*20);
+                    
+                    this._innerlist._inn.resetItems();
+                    
+                    for (var i=0;i<list.subviews.length;i++){
+                        if (records.length > i) {
+                            list.subviews[i].setAttribute("clickable",true);
+                            list.subviews[i].obj = records[i];
+                            list.subviews[i].setAttribute("paidDate",parseDateToStringTime(records[i].transactionPaypal.paidDate));
+                            list.subviews[i].setAttribute("amount",records[i].transactionPaypal.amount+" USD");
+                            list.subviews[i].setAttribute("status",records[i].transactionPaypal.status);
+                            list.subviews[i].setAttribute("numberOfLicenses",records[i].transactionPaypal.numberOfLicenses);
+                            list.subviews[i].setAttribute("isControlled",records[i].transactionPaypal.isControlled);
+                            list.subviews[i].setAttribute("labelText",this.labelText);
+                        } else {
+                            list.subviews[i].obj = null;
+                            list.subviews[i].setAttribute("paidDate","");
+                            list.subviews[i].setAttribute("amount","");
+                            list.subviews[i].setAttribute("status","");
+                            list.subviews[i].setAttribute("numberOfLicenses","");
+                            list.subviews[i].setAttribute("isControlled","");
+                            list.subviews[i].setAttribute("labelText","");
+                            list.subviews[i].setAttribute("clickable",false);
+                        }
+                    }
+                    
+                ]]>
+            </method>
+            
+            <handler name="onScrollItem" args="item">
+                <![CDATA[
+                    var labelText = '<u>'+canvas.getLabelName(1196)+'</u>';
+                    
+                    if (this.renderList.length > item.itemId) {
+                        item.setAttribute("clickable",true);
+                        item.obj = this.renderList[item.itemId];
+                        item.setAttribute("paidDate",parseDateToStringTime(this.renderList[item.itemId].transactionPaypal.paidDate));
+                        item.setAttribute("amount",this.renderList[item.itemId].transactionPaypal.amount+" USD");
+                        item.setAttribute("status",this.renderList[item.itemId].transactionPaypal.status);
+                        item.setAttribute("numberOfLicenses",this.renderList[item.itemId].transactionPaypal.numberOfLicenses);
+                        item.setAttribute("isControlled",this.renderList[item.itemId].transactionPaypal.isControlled);
+                        item.setAttribute("labelText",this.labelText);
+                    } else {
+                        item.obj = null;
+                        item.setAttribute("paidDate","");
+                        item.setAttribute("amount","");
+                        item.setAttribute("status","");
+                        item.setAttribute("numberOfLicenses","");
+                        item.setAttribute("isControlled","");
+                        item.setAttribute("labelText","");
+                        item.setAttribute("clickable",false);
+                    }
+                ]]>
+            </handler>
+		    
+		    <!--
+		    <method name="renderContent" args="records">
+		    	<![CDATA[
+			    	this.clearList();
+			    	var labelText = '<u>'+canvas.getLabelName(1196)+'</u>';
+			    	for (var i=0;i<records.length;i++){
+			    		new lz.transactionListItem(this._innerlist._inn._inn,{
+		                            obj:records[i],
+	                                paidDate:parseDateToStringTime(records[i].transactionPaypal.paidDate),
+	                                amount:records[i].transactionPaypal.amount+' USD',
+	    							status:records[i].transactionPaypal.status,
+	    							numberOfLicenses:records[i].transactionPaypal.numberOfLicenses,
+	    							isControlled:records[i].transactionPaypal.isControlled,
+	    							labelText:labelText
+	                            });
+			    	}
+		    	]]>
+		    </method>
+		     -->
+	
+		</turnOverListOrderedPaged>
+	    
+    </view>
+
+       
+</class>
+
+</library>

@@ -1,0 +1,34 @@
+<canvas debug="true" >
+  
+  <class name="class1" extends="view" />
+  <class name="class2" extends="window" />
+  <class name="class11" extends="class1" />
+  <class name="class111" extends="class11" />
+  
+  <class1 id="inst1" />
+  <class2 id="inst2" />
+  <class11 id="inst11" />
+  <class111 id="inst111" />
+  
+<button> Check Debug
+  <handler name="onclick" >
+<![CDATA[
+	Debug.write("==============================");
+    Debug.write("inst1 instanceof lz.node", inst1 instanceof lz.views);
+    Debug.write("inst1 instanceof class1", inst1 instanceof class1);
+    
+    Debug.write("inst2 instanceof lz.node", inst2 instanceof lz.window);
+    Debug.write("inst2 instanceof class2", inst2 instanceof class2);
+    
+    Debug.write("inst11 instanceof lz.node", inst11 instanceof lz.node);
+    Debug.write("inst11 instanceof class1", inst11 instanceof class1);
+    Debug.write("inst11 instanceof class11", inst11 instanceof class11);
+    
+    Debug.write("inst111 instanceof lz.node", inst111 instanceof lz.node);
+    Debug.write("inst111 instanceof class1", inst111 instanceof class1);
+    Debug.write("inst111 instanceof class11", inst111 instanceof class11);
+    Debug.write("inst111 instanceof class111", inst111 instanceof class111);
+  ]]></handler>
+</button>
+  
+</canvas>

@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<library> 
+
+<class name="dataCarrierItem" extends="baseContentListItem" showhandcursor="false"> 
+
+    <attribute name="obj" value="null" />
+    <attribute name="diagramObjectId" value="0" type="number" />
+    <attribute name="dataCarrierName" value="" type="string" />
+    
+    <handler name="ondblclick">
+        //if ($debug) Debug.write("ondblcick: ",this);
+    </handler>
+
+    <turnOverTextItem text="$once{ parent.diagramObjectId }" width="100" />
+    <turnOverTextItem text="$once{ parent.dataCarrierName }" width="180" />
+    <turnOverTextItem width="20">
+        <view resource="whiteboard_item_delete">
+            <handler name="onclick">
+                parent.parent.destroy();
+                parent.parent.parent.parent.parent.updateBaseObject();
+            </handler>
+        </view>
+    </turnOverTextItem>
+    
+    
+    <!--
+    <labelTooltip text="$once{ canvas.getLabelName(810) + 
+        parseDateToStringTime(parent.obj.diagramObject.inserted) }" />
+     -->
+
+</class>
+
+<class name="dataCarrierItems" extends="view" >
+    
+    <attribute name="baseObject" value="null" />
+    <attribute name="diagramObjectId" value="0" type="number" />
+    <attribute name="baseObjectItemIndex" value="10" type="number" />
+    
+    <handler name="oninit">
+        <![CDATA[
+            ////if ($debug) Debug.write("this.baseObject: ",this.baseObject);
+            var dataCarrierList = this.baseObject[this.baseObject.length-this.baseObjectItemIndex];
+            ////if ($debug) Debug.write("dataCarrierList: ",dataCarrierList);
+            for (var i=0;i<dataCarrierList.length;i++) {
+                this.addDiagramObject(dataCarrierList[i].diagramObjectId,dataCarrierList[i].dataCarrierName);
+            }
+        ]]>
+    </handler>
+    
+    <method name="addAndUpdate" args="dataCarrierDiagramObjectId,dataCarrierName">
+        this.addDiagramObject(dataCarrierDiagramObjectId,dataCarrierName);
+        this.updateBaseObject();
+    </method>
+    
+    <method name="addDiagramObject" args="dataCarrierDiagramObjectId,dataCarrierName">
+        ////if ($debug) Debug.write("this.baseObject: ",this.baseObject);
+        new lz.dataCarrierItem(this._infoContent._inner,{
+                diagramObjectId:dataCarrierDiagramObjectId,
+                dataCarrierName:dataCarrierName
+            });
+    </method>
+    
+    <method name="updateBaseObject">
+        <![CDATA[
+            var dataCarrierList = new Array();
+            for (var i=0;i<this._infoContent._inner.subviews.length;i++) {
+                var item = this._infoContent._inner.subviews[i];
+                dataCarrierList.push({diagramObjectId:item.diagramObjectId,dataCarrierName:item.dataCarrierName});
+            }
+	        canvas.currentDiagramRef._scrollcontent.dragArea.contentArea._currentBoard.
+	                updateBaseactionobjectDataCarrierByNameAndIndex(this.baseObject[this.baseObject.length-1],
+                        this.baseObjectItemIndex,dataCarrierList);
+        ]]>
+    </method> 
+    
+    <labelText x="0" labelid="818" />    
+    
+    <view x="${ parent.parent.parent.width - 38 }" 
+          resource="edit_add_rsc" onmouseover="" onmouseout="">
+        <handler name="onclick">
+            new lz.datacarrierExplorer(canvas.currentDiagramRef,{
+                    name:'_datacarrierExplorer',refObj:parent
+                });
+        </handler>
+        <labelTooltip labelid="819" />
+    </view>
+    
+    <view x="80" y="20" name="_infoContent" height="160" clip="true"
+          width="${ parent.parent.parent.width - 96 }" bgcolor="0xDDDDDD">
+        <view name="_inner" layout="axis:y;spacing:2">
+            
+        </view>
+        <vscrollbar name="_scrollbar" />
+    </view>
+    
+</class>
+
+</library>

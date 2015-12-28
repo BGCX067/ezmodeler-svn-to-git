@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+    
+    <include href="incubator/roundrect.lzx"/>
+	<include href="incubator/gradientview.lzx" />
+    <include href="remote/" />
+    <include href="components/" /> 
+    <include href="hibernate/" />
+    <include href="contentviews/" />
+    <include href="usermanage/" />
+    <include href="navi/" />
+    <!-- -->
+    <include href="rte/" />
+    
+
+    <include href="auth/" />
+    
+    <!-- -->
+    <include href="drawboard/" />
+    <include href="drawtoolbar/" />
+    <include href="libraryexplorer/" />
+    
+
+
+	<!-- for main.lzx -->
+	<include href="functions.lzx" />
+	<include href="md5.lzx" />
+	<include href="mainAttributes.lzx" /> 
+	<include href="mainDatasets.lzx" /> 
+	<include href="mainMethods.lzx" /> 
+
+
+</library>

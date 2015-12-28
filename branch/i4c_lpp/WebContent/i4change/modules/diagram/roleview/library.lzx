@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+    
+    <include href="roleViewToolBar.lzx" />
+    <include href="roleViewMenubar.lzx" />
+    <include href="roleView.lzx" />
+
+</library>

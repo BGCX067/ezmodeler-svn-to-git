@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+	
+<class name="drawToolBar" extends="toolnaviinspector" labelid="542" 
+       width="62" height="422" >
+	
+	<attribute name="objectRef" value="null" />
+	
+	<method name="setSelection" args="obj">
+		if (obj.setSelectionToItem){			
+			if (this.objectRef!=null){
+				this.objectRef._isselected = false;
+				this.objectRef._area.setAttribute('bgcolor',0xFFFFFF);
+			}
+			this.objectRef = obj;
+			this.objectRef._isselected = true;
+			this.objectRef._area.setAttribute('bgcolor',canvas.baseMousecolorizer);
+			parent._scrollcontent.dragArea.contentArea._currentBoard.setModus(this.objectRef.modi);
+		}
+	</method>
+	
+	<handler name="oninit">
+		this._area.menupointer.onmouseup.sendEvent(this);
+	</handler>
+	
+	<view name="_area" width="62" y="22" x="4">
+		<wrappinglayout axis="x" spacing="2" />
+		
+		<drawToolBarItem name="menupointer" resoureceItem="menupointer_rsc" 
+						 modi="hand" labelid="545" />
+						 
+		<drawToolBarSeperator name="_drawToolBarSeperator1" />	
+						 
+		<drawToolBarItem name="plain" resoureceItem="plain" 
+						 modi="plain" labelid="543" />
+		<drawToolBarItem name="saveobj" resoureceItem="saveobj" 
+						 modi="saveobj" labelid="544" />
+						 
+		<drawToolBarSeperator name="_drawToolBarSeperator2" />
+		
+		<drawToolBarItem name="connector" resoureceItem="connector_rsc" 
+						 modi="connector" labelid="547" />				 
+						 
+		<drawToolBarSeperator name="_drawToolBarSeperator3" />
+		
+		<drawToolBarItem name="processgroup" resoureceItem="processgroup_menu" 
+						 modi="processgroup" labelid="546" />	
+			
+		<drawToolBarSeperator name="_drawToolBarSeperator4" />
+					 
+		<drawToolBarItem name="process" resoureceItem="process_menu" 
+						 modi="process" labelid="550" />	
+						 
+		<drawToolBarSeperator name="_drawToolBarSeperator5" />
+					 
+		<drawToolBarItem name="activity" resoureceItem="activity_menu" 
+						 modi="activity" labelid="551" />	
+						 
+		<drawToolBarSeperator name="_drawToolBarSeperator6" />
+					 
+		<drawToolBarItem name="company" resoureceItem="company_menu" 
+						 modi="company" labelid="552" />	
+						 
+		<drawToolBarSeperator name="_drawToolBarSeperator7" />
+					 
+		<drawToolBarItem name="departement" resoureceItem="departement_menu" 
+						 modi="departement" labelid="553" />	
+						 
+		<drawToolBarSeperator name="_drawToolBarSeperator8" />
+					 
+		<drawToolBarItem name="unit" resoureceItem="unit_menu" 
+						 modi="unit" labelid="554" />
+						 
+		<drawToolBarSeperator name="_drawToolBarSeperator9" />
+					 
+		<drawToolBarItem name="inputflow" resoureceItem="inputflow_menu" 
+						 modi="inputflow" labelid="555" />	
+						 
+		<drawToolBarSeperator name="_drawToolBarSeperator10" />
+					 
+		<drawToolBarItem name="outputflow" resoureceItem="outputflow_menu" 
+						 modi="outputflow" labelid="556" />					 				 					 
+									 
+	</view>
+	
+</class>
+
+</library>

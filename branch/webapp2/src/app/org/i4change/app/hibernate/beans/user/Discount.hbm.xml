@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+  <class table="discount" lazy="false" name="org.i4change.app.hibernate.beans.user.Discount">
+    <id column="discount_id" name="discountId">
+      <generator class="increment"/>
+    </id>
+    <property name="numberOfUsers" type="int" column="numberofusers"/>
+    <property name="discount" precision="2" type="double" column="discount"/>
+    <many-to-one outer-join="true" insert="true" column="organisation_id" lazy="false" update="true" name="organisation" class="org.i4change.app.hibernate.beans.domain.Organisation"/>
+    <property name="inserted" type="java.util.Date" column="inserted"/>
+    <property name="updated" type="java.util.Date" column="updated"/>
+    <property name="deleted" type="string" column="deleted"/>
+    <many-to-one outer-join="true" insert="true" column="user_id" lazy="false" update="true" name="user" class="org.i4change.app.hibernate.beans.user.Users"/>
+  </class>
+</hibernate-mapping>

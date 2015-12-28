@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+  <class table="users" lazy="false" name="org.i4change.app.hibernate.beans.user.Users">
+    <id column="user_id" name="user_id">
+      <generator class="increment"/>
+    </id>
+    <many-to-one outer-join="true" insert="true" column="adresses_id" lazy="false" update="true" name="adresses" class="org.i4change.app.hibernate.beans.adresses.Adresses"/>
+    <property name="age" type="java.util.Date" column="age"/>
+    <property name="availible" type="int" column="availible"/>
+    <property name="firstname" type="string" column="firstname"/>
+    <property name="uuid" type="string" column="uuid"/>
+    <property name="lastlogin" type="java.util.Date" column="lastlogin"/>
+    <property name="lastname" type="string" column="lastname"/>
+    <property name="lasttrans" type="long" column="lasttrans"/>
+    <property name="level_id" type="long" column="level_id"/>
+    <property name="login" type="string" column="login"/>
+    <property name="password" type="string" column="password"/>
+    <property name="regdate" type="java.util.Date" column="regdate"/>
+    <property name="status" type="int" column="status"/>
+    <property name="title_id" type="int" column="title_id"/>
+    <property name="starttime" type="java.util.Date" column="starttime"/>
+    <property name="updatetime" type="java.util.Date" column="updatetime"/>
+    <property name="deleted" type="string" column="deleted"/>
+    <property name="pictureuri" type="string" column="pictureuri"/>
+    <property name="language_id" type="long" column="language_id"/>
+    <property name="resethash" type="string" column="resethash"/>
+    <property name="activatehash" type="string" column="activatehash"/>
+    <property name="maxPendingOrganizations" type="long" column="max_pending_organizations"/>
+    <property name="createdOrganizations" type="long" column="created_organizations"/>
+    <property name="receivePendingReminder" type="boolean" column="receivependingreminder"/>
+    <property name="userHash" type="string" column="userhash"/>
+    <property name="doNotShowInOrgSelection" type="boolean" column="donotshowinorgselection"/>
+    <property name="xmlStringRegObjectObj" type="text" column="xmlstringregobjectobj"/>
+    <many-to-one outer-join="true" insert="true" column="company_adresses_id" lazy="false" update="true" name="companyAddress" class="org.i4change.app.hibernate.beans.adresses.Adresses"/>
+    <property name="isPending" type="boolean" column="ispending"/>
+    <property name="expireDate" type="java.util.Date" column="expiredate"/>
+    <property name="maxWorkDays" type="long" column="maxworkdays"/>
+    <property name="usedWorkDays" type="long" column="usedworkdays"/>
+    <property name="lastWorkDay" type="java.util.Date" column="lastworkday"/>
+    <property name="lastMailSend" type="java.util.Date" column="lastmailsend"/>
+    <property name="pricePerUser" type="float" column="priceperuser"/>
+    <property name="licenseUserPayed" type="long" column="licenseuserpayed"/>
+    <property name="licenseUserUsed" type="long" column="licenseuserused"/>
+    <property name="useDefaultDiscounts" type="boolean" column="usedefaultdiscounts"/>
+    <property name="unlimitedLicenses" type="boolean" column="unlimitedlicenses"/>
+  </class>
+</hibernate-mapping>

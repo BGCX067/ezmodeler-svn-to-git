@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+	<include href="invitationQuickLoader.lzx" />
+	<include href="netRemoteCallRPC.lzx" />
+	<include href="mainServiceRPC.lzx" />
+	<include href="applicationRPC.lzx" />
+	<include href="languageServiceRPC.lzx" />
+	<include href="websiteServiceRPC.lzx" />
+	<include href="userServiceRPC.lzx" />
+	<include href="errorServiceRPC.lzx" />
+	<include href="configServiceRPC.lzx" />
+	<include href="organisationServiceRPC.lzx" />
+	<include href="propertyServiceRPC.lzx" />
+	<include href="roleServiceRPC.lzx" />
+	<include href="downloadServiceRPC.lzx" />
+	<include href="diagramServiceRPC.lzx" />
+	<include href="helpServiceRPC.lzx" />
+	<include href="projectServiceRPC.lzx" />
+	<include href="reportServiceRPC.lzx" />
+	
+	
+</library>

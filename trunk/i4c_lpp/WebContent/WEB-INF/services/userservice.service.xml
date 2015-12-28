@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:lang="http://www.springframework.org/schema/lang"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+                           http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-2.0.xsd">
+    
+    <bean id="userservice.service" parent="txProxyTemplate">
+        <property name="target" ref="txUserservice.service" />
+    </bean>
+    
+    <!-- Class for Methods which can be invoked by the client -->
+    <bean id="txUserservice.service" class="org.i4change.app.remote.UserService">
+    	<property name="sessionmanagement" ref="i4change.Sessionmanagement" />
+        <property name="application" ref="web.handler" />
+        <property name="usermanagement" ref="i4change.Usermanagement" />
+        <property name="userDaoImpl" ref="i4change.UserDaoImpl" />
+        <property name="userPropertyDaoImpl" ref="i4change.UserPropertyDaoImpl" />
+        <property name="organisationUserDaoImpl" ref="i4change.OrganisationUserDaoImpl" />
+        <property name="configurationmanagement" ref="i4change.Configurationmanagement" />
+        <property name="mailItemServiceDaoImpl" ref="i4change.MailItemServiceDaoImpl" />
+        <property name="discountDaoImpl" ref="i4change.DiscountDaoImpl" />
+        <property name="userSidebarPropertyDaoImpl" ref="i4change.UserSidebarPropertyDaoImpl" />
+        <property name="salutationmanagement" ref="i4change.Salutationmanagement" />
+        <property name="transactionPaypalDaoImpl" ref="i4change.TransactionPaypalDaoImpl" />
+        <property name="invoiceDaoImpl" ref="i4change.InvoiceDaoImpl" />
+        <property name="processPayment" ref="i4change.ProcessPayment" />
+    </bean> 
+    
+    <bean id="i4change.Usermanagement"
+        class="org.i4change.app.data.user.Usermanagement">
+    	<property name="sessionFactory" ref="theSessionFactory"/>
+    	<property name="sessionmanagement" ref="i4change.Sessionmanagement" />
+        <property name="userDaoImpl" ref="i4change.UserDaoImpl" />
+        <property name="emailDaoImpl" ref="i4change.EmailDaoImpl" />
+        <property name="addressmanagement" ref="i4change.Addressmanagement" />
+        <property name="organisationUserDaoImpl" ref="i4change.OrganisationUserDaoImpl" />
+        <property name="userPropertyDaoImpl" ref="i4change.UserPropertyDaoImpl" />
+        <property name="manageCryptStyle" ref="i4change.ManageCryptStyle" />
+        <property name="mailItemServiceDaoImpl" ref="i4change.MailItemServiceDaoImpl" />
+        <property name="discountDaoImpl" ref="i4change.DiscountDaoImpl" />
+        <property name="transactionPaypalDaoImpl" ref="i4change.TransactionPaypalDaoImpl" />
+        <property name="generateInvoice" ref="i4change.GenerateInvoice" />
+        <property name="mailmanagement" ref="i4change.Mailmanagement" />
+        <property name="organisationDaoImpl" ref="i4change.OrganisationDaoImpl" />
+        <property name="resetPasswordTemplate" ref="i4change.ResetPasswordTemplate" />
+        <property name="countryDaoImpl" ref="i4change.CountryDaoImpl"/>
+        <property name="configurationmanagement" ref="i4change.Configurationmanagement" />
+        <property name="mailHandler" ref="i4change.MailHandler"/>
+        <property name="fieldmanagment" ref="i4change.Fieldmanagment" />
+        <property name="validierungsUtil" ref="i4change.ValidierungsUtil" />
+    </bean> 
+
+    <bean id="i4change.UserImport"
+        class="org.i4change.app.xmlimport.UserImport">
+        <property name="emailDaoImpl" ref="i4change.EmailDaoImpl" />
+        <property name="userDaoImpl" ref="i4change.UserDaoImpl" />
+        <property name="organisationDaoImpl" ref="i4change.OrganisationDaoImpl" />
+        <property name="addressmanagement" ref="i4change.Addressmanagement" />
+    </bean>
+    
+    
+    <bean id="i4change.UserDaoImpl"
+        class="org.i4change.app.data.user.daos.UserDaoImpl">
+    	<property name="sessionFactory" ref="theSessionFactory"/>
+    	<property name="organisationUserDaoImpl" ref="i4change.OrganisationUserDaoImpl" />
+    	<property name="manageCryptStyle" ref="i4change.ManageCryptStyle" />
+    	<property name="addressmanagement" ref="i4change.Addressmanagement" />
+    	<property name="configurationmanagement" ref="i4change.Configurationmanagement" />
+    </bean> 
+    
+    <bean id="i4change.EmailDaoImpl"
+        class="org.i4change.app.data.user.EmailDaoImpl">
+    	<property name="sessionFactory" ref="theSessionFactory"/>
+    	<property name="registerUserTemplate" ref="i4change.RegisterUserTemplate"/>
+    	<property name="configurationmanagement" ref="i4change.Configurationmanagement" />
+    	<property name="mailHandler" ref="i4change.MailHandler"/>
+    	<property name="fieldmanagment" ref="i4change.Fieldmanagment" />
+    </bean> 
+    
+    <bean id="i4change.Addressmanagement"
+        class="org.i4change.app.data.user.Addressmanagement">
+    	<property name="sessionFactory" ref="theSessionFactory"/>
+    	<property name="countryDaoImpl" ref="i4change.CountryDaoImpl"/>
+    </bean> 
+    
+    <bean id="i4change.UserPropertyDaoImpl"
+        class="org.i4change.app.data.user.daos.UserPropertyDaoImpl">
+    	<property name="sessionFactory" ref="theSessionFactory"/>
+    </bean>
+    
+    <bean id="i4change.CountryDaoImpl"
+        class="org.i4change.app.data.user.CountryDaoImpl">
+        <property name="sessionFactory" ref="theSessionFactory"/>
+    </bean>
+    
+    <bean id="i4change.DiscountDaoImpl"
+        class="org.i4change.app.data.user.daos.DiscountDaoImpl">
+        <property name="sessionFactory" ref="theSessionFactory"/>
+        <property name="userDaoImpl" ref="i4change.UserDaoImpl"/>
+    </bean>
+    
+    <bean id="i4change.Salutationmanagement"
+        class="org.i4change.app.data.user.Salutationmanagement">
+        <property name="sessionFactory" ref="theSessionFactory"/>
+        <property name="fieldmanagment" ref="i4change.Fieldmanagment" />
+    </bean>
+    
+    <bean id="i4change.AddressesEmailsDaoImpl"
+        class="org.i4change.app.data.user.daos.AddressesEmailsDaoImpl">
+        <property name="sessionFactory" ref="theSessionFactory"/>
+        <property name="emailDaoImpl" ref="i4change.EmailDaoImpl" />
+    </bean>
+    
+    <bean id="i4change.UserSidebarPropertyDaoImpl"
+        class="org.i4change.app.data.user.daos.UserSidebarPropertyDaoImpl">
+        <property name="sessionFactory" ref="theSessionFactory"/>
+        <property name="userDaoImpl" ref="i4change.UserDaoImpl"/>
+    </bean>
+    
+    <bean id="i4change.Groupmanagement"
+        class="org.i4change.app.data.user.Groupmanagement">
+        <property name="sessionFactory" ref="theSessionFactory"/>
+    </bean>
+    
+    <bean id="i4change.RegisterUserTemplate"
+        class="org.i4change.app.templates.RegisterUserTemplate">
+    	<property name="fieldmanagment" ref="i4change.Fieldmanagment" />
+    </bean>
+    
+    <bean id="i4change.ResetPasswordTemplate"
+        class="org.i4change.app.templates.ResetPasswordTemplate">
+    	<property name="fieldmanagment" ref="i4change.Fieldmanagment" />
+    </bean>
+    
+    
+     
+   
+</beans>

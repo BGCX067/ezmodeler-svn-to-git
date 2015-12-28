@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+    
+<class name="baseContentView" extends="view" >
+
+	<!--
+	 	This value is true if there is something to save
+	 -->
+    <attribute name="destroyByMethod" value="false" type="boolean" />
+    <attribute name="helpId" value="0" type="number" />
+    
+    <event name="ontabcontentleave" />
+    
+    <!-- triggered when you leave a tab, from base/components/presenter/barmenu.lzx -->
+    <!-- the diagram instances overwrite this method to trigger an update-/save-dialog -->
+    <method name="leaveDiagram">
+        return true;
+    </method>
+    
+    <method name="close">
+        ////if ($debug) Debug.write("close: ",this,this.destroyByMethod);
+        this.ontabcontentleave.sendEvent();
+        if (!this.destroyByMethod) this.destroy();
+        return this.destroyByMethod;
+    </method>
+    
+    <method name="setLeave" args="diagramRef">
+        //Empty Stub
+        ////if ($debug) Debug.write("setLeave: ",diagramRef);
+        return diagramRef.leaveDiagram();
+    </method> 
+
+</class>
+
+</library>

@@ -1,0 +1,1356 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+<class name="remoteDrawBoard" extends="drawBoardObjectConnector">
+    
+    <attribute name="diagramType" value="0" type="number" />    
+    
+    <attribute name="pTemplateId" value="1" type="number" />
+    
+    <attribute name="loadingDiagramListId" value="0" type="number" />   
+    <attribute name="loadDiagramDelegate" value="null" />
+    
+    <!-- First Load Objects, then Load Connectors -->
+    <attribute name="loadingObjects" value="true" type="boolean" />
+    
+    <attribute name="isRemoteLoaderAction" value="false" type="boolean" />
+    
+    <attribute name="remoteactionobjectList" value="null" />
+    
+    <attribute name="closeAfterUpdate" value="false" type="boolean" />
+    <attribute name="bulkcloseAfterUpdate" value="false" type="boolean" />
+    
+    <!-- Eleminate one of those Variables -->
+    <attribute name="currentDiagram" value="null" />
+    <attribute name="currentDiagramObject" value="null" />
+    <attribute name="currentInstanceList" value="null" />
+    
+    <attribute name="lastCheckedObject" value="null" />
+    <attribute name="lastCheckedObjectPreviousText" value="" type="string" />
+    <attribute name="lastCheckedObjectBaseObject" value="null" />
+    
+    <attribute name="exportType" value="svg" type="string" />
+    
+    <attribute name="read" value="true" type="boolean" />
+    <attribute name="write" value="true" type="boolean" />
+    <attribute name="onlyIssues" value="true" type="boolean" />
+    
+    <!-- needs to be stored seperated as Moderators always are allowed to read and write
+    <attribute name="storedRead" value="true" type="boolean" />
+    <attribute name="storedWrite" value="true" type="boolean" />
+    <attribute name="storedOnlyIssues" value="true" type="boolean" />
+     -->
+    
+    <!-- reference to the parent DiagramObjectId -->
+    <attribute name="parentDiagramObjectId" value="0" type="number" />
+    <attribute name="parentDiagramObject" value="null" />
+    
+    <!-- Temp Store to check Object Names -->
+    <attribute name="tempCheckDelegate" value="null" />
+    <attribute name="tempCheckTxt" value="" type="string" />
+    <attribute name="tempCheckParentObj" value="" type="string" />
+    <attribute name="tempCheckPreviousText" value="" type="string" />
+    <attribute name="tempCheckParentObjTypeOfObject" value="" type="string" />
+    
+    <!-- Export Options -->
+    <attribute name="includeText" value="true" type="boolean" />
+    <attribute name="printIdeas" value="true" type="boolean" />
+    <attribute name="includeDetails" value="true" type="boolean" />
+    
+    <!-- Attributes to be sent to the RPC-Calls -->
+    <attribute name="shortName" value="" type="string" />
+    <attribute name="revisionId" value="0" type="number" />
+    <attribute name="diagramName" value="" type="string" />
+    <attribute name="revisionComment" value="" type="string" />
+    
+    <!--
+        In some situation you do not want the auto-save to continue counting,
+        for example if there is a duplicate name warning, you do not want
+        the auto-save to proceed and actually save that duplicate name
+     -->
+    <attribute name="doCountAutoSave" value="true" type="boolean" />
+    
+    <attribute name="checkForUniqueNameIsRunning" value="false" type="boolean" />
+    <attribute name="doSaveRPCAfterCheck" value="false" type="boolean" />
+    <attribute name="doUpdateRPCAfterCheck" value="false" type="boolean" />
+    
+    <attribute name="projectId" value="0" type="number" />
+    
+    <handler name="oninit">
+        <![CDATA[
+            //Debug.write("********** this oninit: ",this);
+            
+            if (canvas.currentDiagram != null) {
+                if ($debug) Debug.write("Load Object",canvas.currentDiagram.project);
+                
+                this.currentDiagram = canvas.currentDiagram;
+                
+                if (canvas.currentDiagram.project) {
+                    this.projectId = canvas.currentDiagram.project.projectId;
+                }
+                
+                this.shortName = this.currentDiagram.shortName;
+                this.diagramName = this.currentDiagram.name;
+                
+                //this.storedRead = this.currentDiagram.canRead;
+                //this.storedWrite = this.currentDiagram.canWrite;
+                //this.storedOnlyIssues = this.currentDiagram.onlyIssues;
+                
+                //For Moderators its always read & write
+                //if (canvas.userobject.userlevel.level_id == 1){
+                //    this.read = this.currentDiagram.canRead;
+                //    this.write = this.currentDiagram.canWrite;
+                //    this.onlyIssues = this.currentDiagram.onlyIssues;
+                //}
+                
+                if ($debug) Debug.write("Load Object this.projectId: ",this.projectId);
+                
+                this.currentDiagramObject = canvas.currentDiagram;
+                this.currentInstanceList = canvas.currentInstanceList;
+                
+                this.loadingDiagramListId = 0;
+                this.loadingObjects = true;
+                this.startInitialLoadinProcess();
+                
+                this.revisionId = canvas.currentDiagram.diagramrevision.diagramrevisionId;
+                
+                //if ($debug) Debug.write("this.updateDiagram.revisionId: ",this.updateDiagram.revisionId);
+                
+                if (this.currentDiagram.parentDiagramObject != null) {
+                    this.parentDiagramObjectId = this.currentDiagram.parentDiagramObject.diagramObjectId;
+                    this.parentDiagramObject = this.currentDiagram.parentDiagramObject;
+                }
+                
+            } else if (canvas.currentDiagram == null) {
+                
+            	if (canvas.currentProjectId != null) {
+            	   this.projectId = canvas.currentProjectId;
+            	}
+            	
+            	//Auto Add Objects Drill Down or Single Role Diagram
+            	
+            	if ($debug) Debug.write("canvas.isTempNewlyCreated ",canvas.isTempNewlyCreated);
+            	
+                if (this.diagramType == 4) {
+                    //if ($debug) Debug.write(" canvas.currentRole: ",
+                             //canvas.currentRole.roleObject);
+                    var _startx = this.width/2-400;
+                    var _starty = this.height/2-300;
+                    
+                    var posObject = this.calcObjectPos(_startx,_startx,_starty,_starty,"unit",true,4,40);
+                    var x = posObject.x;
+                    var y = posObject.y;
+                    var width = posObject.width-20;
+                    var height = (posObject.height*3)-20;
+                    
+                    this.loadUnit( canvas.currentRole.roleObject.name,
+                         canvas.currentRole.roleObject.diagramObjectId,
+                        x,y,width,height,
+                        'unit'+this.getCounter(),false,null,null, new Array(),
+                        true,null); //do Auto Place this Object
+                } else if ( canvas.isTempNewlyCreated ) {
+                	
+                    canvas.isTempNewlyCreated = false;
+                    var baseObject =  canvas.tempNewlyCreatedBaseObject;
+                    
+                    if (baseObject[0] == "process" || baseObject[0] == "processtree" 
+                        || baseObject[0] == "processgroup"
+                        || baseObject[0] == "departement" || baseObject[0] == "departementFixed"
+                            || baseObject[0] == "company" || baseObject[0] == "companyFixed") {
+                        
+                        this.parentDiagramObjectId =  canvas.tempParentDiagramObjectId;
+                        //this.parentDiagramObject = this.currentDiagram.parentDiagramObject;
+                        
+                    }
+                    
+                    if ($debug) Debug.write("#### Create Drill Downed Object from Parent ",baseObject[0],baseObject);
+                    
+                    if (baseObject[0] == "process" || baseObject[0] == "processtree") {
+                    	if (this.diagramType == 1) {
+                    		var txt = baseObject[baseObject.length-8];
+                            var _startx = this.width/2-200;
+                            var _starty = this.height/2-100;
+                            
+                            //Is Process-Hierarchical
+                            this.loadFixedProcessDrag(txt,this.parentDiagramObjectId,
+                                    _startx,_starty,
+                                    canvas.defaultCompanyWidth,
+                                    canvas.defaultCompanyHeight,
+                                    'processtree'+this.getCounter(),
+                                    baseObject[7],baseObject[6]);
+                    		
+                    	} else {
+                    		
+                    		var txt = baseObject[baseObject.length-8];
+                            var _startx = this.width/2-200;
+                            var _starty = this.height/2-200;
+                            
+                            //Is Process-Flow
+                            this.loadProcessDrag(txt,this.parentDiagramObjectId,
+                                    _startx,_starty,
+                                    canvas.defaultCompanyWidth,
+                                    canvas.defaultCompanyHeight,
+                                    'process'+this.getCounter(),
+                                    baseObject[7],baseObject[6]);
+                    		
+                    	}
+                    }
+                    
+                    
+                }
+                
+            } 
+            
+        ]]>
+    </handler>
+    
+    <method name="stopDoCountAutoSave">
+    	this.doCountAutoSave = false;
+    </method>
+    
+    <method name="resumeDoCountAutoSave">
+        this.doCountAutoSave = true;
+    </method>
+    
+    <method name="startInitialLoadinProcess">
+        this.loadDiagramDelegate = new LzDelegate( this, "loadDiagramObject" );
+        if (this.currentInstanceList.length != 0){
+            //if ($debug) Debug.write("Loading Started");
+            this.isRemoteLoaderAction = true;
+            lz.Timer.addTimer( this.loadDiagramDelegate, 50 );
+        }
+    </method>   
+    
+    <method name="loadDiagramObject" args="item">
+        <![CDATA[
+            if (this.loadingObjects) {
+                if (this.currentInstanceList[this.loadingDiagramListId].graphAsObject[0]!='connector') {
+                    this.sendWatchObject("draw",this.currentInstanceList[this.loadingDiagramListId].graphAsObject,false,
+                        this.currentInstanceList[this.loadingDiagramListId].addInfos,
+                        this.currentInstanceList[this.loadingDiagramListId].diagramDocuments);
+                }
+            } else {
+                if (this.currentInstanceList[this.loadingDiagramListId].graphAsObject[0]=='connector') {
+                    this.sendWatchObject("draw",this.currentInstanceList[this.loadingDiagramListId].graphAsObject,false,
+                        this.currentInstanceList[this.loadingDiagramListId].addInfos,
+                        this.currentInstanceList[this.loadingDiagramListId].diagramDocuments);
+                }
+            }
+            this.loadingDiagramListId++;
+            if (this.loadingDiagramListId < this.currentInstanceList.length){
+                lz.Timer.addTimer( this.loadDiagramDelegate, 50 );
+            } else {
+                //if ($debug) Debug.write("Loading Completed");
+                
+                if (this.loadingObjects) {
+                    this.loadingDiagramListId = 0;
+                    this.loadingObjects = false;
+                    this.simulateAllConnectors();
+                    this.startInitialLoadinProcess();
+                } else {
+                    this.removeSimulatedConnectors();
+                    this.setModus("hand_single");
+                    lz.Focus.clearFocus();
+                    this.isRemoteLoaderAction = false;
+                }
+            }
+        ]]>
+    </method> 
+    
+    <method name="doSaveByToolSet">
+        if (this.currentDiagram == null){
+        	if (canvas.projectObj != null) {
+               var projectName = canvas.projectObj.name;
+            } else {
+                var projectName = canvas.getLabelName(1290);
+            }
+            //reset the attribute in case the previous save did fail
+	        this.closeAfterUpdate = false;
+	        new lz.saveDiagramWindow(canvas.main_content._content.inner,{
+	                refObj:this,
+	                projectName:projectName,projectId:this.projectId,
+	                parentDiagramObjectId:this.parentDiagramObjectId,
+	                parentDiagramObject:this.parentDiagramObject,
+	                diagramName:canvas.currentDiagramRef.currentDiagramTempName,
+	                shortName:this.shortName
+	            });
+        } else {
+        	
+        	if (this.projectId == 0) {
+                var projectName = canvas.getLabelName(1290);
+            } else if (this.projectId == canvas.projectObj.projectId) {
+                var projectName = canvas.projectObj.name;
+            } else {
+                var projectName = this.currentDiagram.project.name;
+            }
+            
+            //reset the attribute in case the previous save did fail
+            this.closeAfterUpdate = false;
+            //if ($debug) Debug.write("Load Object this.storedWrite 4: ",this.storedWrite);
+            new lz.updateDiagramWindow(canvas.main_content._content.inner,{
+                    parentDiagramObjectId:this.parentDiagramObjectId,
+                    projectName:projectName,projectId:this.projectId,
+                    parentDiagramObject:this.parentDiagramObject,refObj:this,
+                    //read:this.storedRead,write:this.storedWrite,
+                    //issueOnly:this.storedOnlyIssues,
+                    diagramName:this.currentDiagram.name,
+                    shortName:this.shortName
+                });
+        }
+    </method> 
+    
+    <!--
+    	This gets triggered if the System detects that the User will leave the Diagram
+    	and he should save something
+     -->
+    <method name="doSaveByMethod">
+    	//this.addItem(canvas.getLabelName(1290),"0");
+        if (this.currentDiagram == null){
+        	if (canvas.projectObj != null) {
+        	   var projectName = canvas.projectObj.name;
+        	} else {
+        		var projectName = canvas.getLabelName(1290);
+        	}
+            //reset the attribute in case the previous save did fail
+	        this.closeAfterUpdate = false;
+	        new lz.saveDiagramWindow(canvas.main_content._content.inner,{
+	                refObj:this,labelid:1261,
+	                projectName:projectName,projectId:this.projectId,
+	                parentDiagramObjectId:this.parentDiagramObjectId,
+	                parentDiagramObject:this.parentDiagramObject,
+	                diagramName:canvas.currentDiagramRef.currentDiagramTempName,
+                    shortName:this.shortName
+	            });
+        } else {
+        	
+        	if (this.projectId == 0) {
+        		var projectName = canvas.getLabelName(1290);
+        	} else if (this.projectId == canvas.projectObj.projectId) {
+        		var projectName = canvas.projectObj.name;
+        	} else {
+        		var projectName = this.currentDiagram.project.name;
+        	}
+        	
+            //reset the attribute in case the previous save did fail
+            this.closeAfterUpdate = false;
+            //if ($debug) Debug.write("Load Object this.storedWrite 4: ",this.storedWrite);
+            new lz.updateDiagramWindow(canvas.main_content._content.inner,{
+            	    projectName:projectName,projectId:this.projectId,
+                    parentDiagramObjectId:this.parentDiagramObjectId,
+                    parentDiagramObject:this.parentDiagramObject,refObj:this,
+                    //read:this.storedRead,write:this.storedWrite,issueOnly:this.storedOnlyIssues,
+                    labelid:1261,
+                    diagramName:this.currentDiagram.name,
+                    shortName:this.shortName
+                });
+        }
+    </method>   
+    
+    <handler name="ondrawmodus" args="modi">
+        if (modi == 'saveobj') {
+            //this.doSaveByToolSet();
+            this.doQuickSave();
+            
+        } else if (modi == 'drill_up') {
+            if (this.currentDiagram.parentDiagramObject != null) {
+                this.parentDiagramObjectId = this.currentDiagram.parentDiagramObject.diagramObjectId;
+                this.parentDiagramObject = this.currentDiagram.parentDiagramObject;
+                
+                new lz.drillUpChooseDiagram(parent.parent.parent.parent,{
+                        diagramObjectId:this.parentDiagramObjectId
+                    });
+                
+            } else {
+                new lz.errorPopup(canvas,{error:canvas.getLabelName(870),closable:true});
+            }
+        }
+    </handler>
+    
+    <method name="doQuickSave">
+        if (this.currentDiagram == null){
+            this.confirmSaveAsObjectToDatabase(parent.parent.parent.parent.currentDiagramTempName,"Quick-Save",true,true,true,this.projectId,this.shortName);
+        } else {
+        	//if ($debug) Debug.write("this.shortName ",this.shortName);
+            this.confirmUpdateAsObjectToDatabase(this.currentDiagram.name,"Quick-Save",true,true,true,this.projectId,this.shortName);
+        }
+    </method>
+    
+    <method name="doAutoSave">
+        if (this.currentDiagram == null){
+            this.confirmSaveAsObjectToDatabase(parent.parent.parent.parent.currentDiagramTempName,"Auto-Save",true,true,true,this.projectId,this.shortName);
+        } else {
+            this.confirmUpdateAsObjectToDatabase(this.currentDiagram.name,"Auto-Save",true,true,true,this.projectId,this.shortName);
+        }
+    </method>
+    
+    <method name="showExitDialog">
+        if (this.currentDiagram == null){
+        	
+        	if (canvas.projectObj != null) {
+               var projectName = canvas.projectObj.name;
+            } else {
+                var projectName = canvas.getLabelName(1290);
+            }
+            
+            new lz.saveCloseDiagramWindow(canvas.main_content._content.inner,{
+                    refObj:this,parentDiagramObjectId:this.parentDiagramObjectId,
+                    parentDiagramObject:this.parentDiagramObject,
+                    diagramName:canvas.currentDiagramRef.currentDiagramTempName
+                });
+        } else {
+        	
+        	if (this.projectId == 0) {
+                var projectName = canvas.getLabelName(1290);
+            } else if (this.projectId == canvas.projectObj.projectId) {
+                var projectName = canvas.projectObj.name;
+            } else {
+                var projectName = this.currentDiagram.project.name;
+            }
+            
+            //if ($debug) Debug.write("Load Object this.storedWrite 5: ",this.storedWrite);
+            new lz.updateCloseDiagramWindow(canvas.main_content._content.inner,{
+                    parentDiagramObjectId:this.parentDiagramObjectId,
+                    parentDiagramObject:this.parentDiagramObject,
+                    refObj:this,
+                    //read:this.storedRead,write:this.storedWrite,issueOnly:this.storedOnlyIssues,
+                    diagramName:this.currentDiagram.name
+                });
+        }
+    </method>
+    
+    <method name="checkForObjectType" args="objectType">
+        <![CDATA[
+            for (var i=0;i<this.baseactionobjectList.length;i++) {
+                //serach for the Object Type
+                if (this.baseactionobjectList[i][0] == objectType) {
+                    //Found, do not proceed with loop
+                    return true;
+                }
+            }
+            return false;
+        ]]>
+    </method>
+    
+    <method name="confirmSaveAsObjectToDatabaseWithProperties" args="diagramName,revisionComment,read,issueOnly,write,projectId,propList,shortName">
+        <![CDATA[
+        
+            this.projectId = projectId;
+            //this.read = read;
+            //this.onlyIssues = issueOnly;
+            //this.write = write;
+        
+            //if ($debug) Debug.write("confirmSaveAsObjectToDatabase shortName: ",shortName);
+            this.diagramName = diagramName;
+            this.revisionComment = revisionComment;
+            this.shortName = shortName;
+            //if ($debug) Debug.write("diagramType: ",this.diagramType);
+            //if ($debug) Debug.write("currentDiagram: ",this.currentDiagram);
+            
+            //if ($debug) Debug.write("baseactionobjectList: ",this.baseactionobjectList);
+            //if ($debug) Debug.write("baseactionobjectList Length: ",this.baseactionobjectList.length);
+            
+            this.remoteactionobjectList = new Array();
+            for (var i=0;i<this.baseactionobjectList.length;i++) {
+                this.remoteactionobjectList.push(this.baseactionobjectList[i]);
+                //simulate the Role as a Fixed, as we got only one Role Type
+                if (this.baseactionobjectList[i][0] == 'unit') {
+                    this.remoteactionobjectList[i][0] = 'unitFixed';
+                }
+                if (this.baseactionobjectList[i][0] == 'departement') {
+                    this.remoteactionobjectList[i][0] = 'departementFixed';
+                }
+                if (this.baseactionobjectList[i][0] == 'company') {
+                    this.remoteactionobjectList[i][0] = 'companyFixed';
+                }
+                //simulate the Process as a tree, as we got only one Process Type
+                if (this.baseactionobjectList[i][0] == 'process') {
+                    this.remoteactionobjectList[i][0] = 'processtree';
+                }
+            }
+            
+            this.saveNewDiagramWithProperties.propList = propList;
+            
+            this.saveNewDiagramWithProperties.doCall();
+        ]]>
+    </method>
+    
+    <method name="confirmSaveAsObjectToDatabase" args="diagramName,revisionComment,read,issueOnly,write,projectId,shortName">
+        <![CDATA[
+        
+            this.projectId = projectId;
+            //this.read = read;
+            //this.onlyIssues = issueOnly;
+            //this.write = write;
+        
+            //if ($debug) Debug.write("confirmSaveAsObjectToDatabase: ",diagramName,revisionComment);
+            this.diagramName = diagramName;
+            this.revisionComment = revisionComment;
+            this.shortName = shortName;
+            //if ($debug) Debug.write("diagramType: ",this.diagramType);
+            //if ($debug) Debug.write("currentDiagram: ",this.currentDiagram);
+            
+            //if ($debug) Debug.write("baseactionobjectList: ",this.baseactionobjectList);
+            //if ($debug) Debug.write("baseactionobjectList Length: ",this.baseactionobjectList.length);
+            
+            this.remoteactionobjectList = new Array();
+            for (var i=0;i<this.baseactionobjectList.length;i++) {
+                this.remoteactionobjectList.push(this.baseactionobjectList[i]);
+                //simulate the Role as a Fixed, as we got only one Role Type
+                if (this.baseactionobjectList[i][0] == 'unit') {
+                    this.remoteactionobjectList[i][0] = 'unitFixed';
+                }
+                if (this.baseactionobjectList[i][0] == 'departement') {
+                    this.remoteactionobjectList[i][0] = 'departementFixed';
+                }
+                if (this.baseactionobjectList[i][0] == 'company') {
+                    this.remoteactionobjectList[i][0] = 'companyFixed';
+                }
+                //simulate the Process as a tree, as we got only one Process Type
+                if (this.baseactionobjectList[i][0] == 'process') {
+                    this.remoteactionobjectList[i][0] = 'processtree';
+                }
+            }
+            
+            
+            //if ($debug) Debug.warn("checkForUniqueNameIsRunning ? -1 UP- ",this.checkForUniqueNameIsRunning);
+            
+            if (this.checkForUniqueNameIsRunning) {
+            	//if ($debug) Debug.warn("Check Is Running #######");
+            	this.doSaveRPCAfterCheck = true;
+            } else {
+            	this.saveNewDiagram.doCall();
+            }
+            
+        ]]>
+    </method>
+    
+    <method name="confirmUpdateAsObjectToDatabaseWithProperties" args="diagramName,revisionComment,read,issueOnly,write,projectId,propList,shortName">
+    	<![CDATA[
+        
+            this.projectId = projectId;
+            //this.read = read;
+            //this.onlyIssues = issueOnly;
+            //this.write = write;
+            
+            //if ($debug) Debug.write("confirmUpdateAsObjectToDatabase: ",diagramName,revisionComment);
+            this.diagramName = diagramName;
+            this.revisionComment = revisionComment;
+            this.shortName = shortName;
+            
+            //if ($debug) Debug.write("diagramType: ",this.diagramType);
+            //if ($debug) Debug.write("currentDiagram: ",this.currentDiagram);
+            
+            //if ($debug) Debug.write("baseactionobjectList: ",this.baseactionobjectList);
+            //if ($debug) Debug.write("baseactionobjectList Length: ",this.baseactionobjectList.length);
+            
+            this.remoteactionobjectList = new Array();
+            for (var i=0;i<this.baseactionobjectList.length;i++) {
+                this.remoteactionobjectList.push(this.baseactionobjectList[i]);
+                //simulate the Role as a Fixed, as we got only one Role Type
+                if (this.baseactionobjectList[i][0] == 'unit') {
+                    this.remoteactionobjectList[i][0] = 'unitFixed';
+                }
+                if (this.baseactionobjectList[i][0] == 'departement') {
+                    this.remoteactionobjectList[i][0] = 'departementFixed';
+                }
+                if (this.baseactionobjectList[i][0] == 'company') {
+                    this.remoteactionobjectList[i][0] = 'companyFixed';
+                }
+                //simulate the Process as a tree, as we got only one Process Type
+                if (this.baseactionobjectList[i][0] == 'process') {
+                    this.remoteactionobjectList[i][0] = 'processtree';
+                }
+            }
+            
+            this.updateDiagramWithProperties.propList = propList;
+            
+            //if ($debug) Debug.warn("checkForUniqueNameIsRunning ? -2 UP- ",this.checkForUniqueNameIsRunning);
+            
+            if (this.checkForUniqueNameIsRunning) {
+                if ($debug) Debug.warn("Check Is Running at a unual position check updatewith properties RCP Call #######");
+            } else {
+                //if ($debug) Debug.write("diagramNo: ",this.currentDiagram.diagramNo);
+                this.updateDiagramWithProperties.doCall();
+            }
+        ]]>
+    </method>
+    
+    <method name="confirmUpdateAsObjectToDatabase" args="diagramName,revisionComment,read,issueOnly,write,projectId,shortName">
+        <![CDATA[
+        
+           // lz.Focus.clearFocus();
+        
+            this.projectId = projectId;
+            //this.read = read;
+            //this.onlyIssues = issueOnly;
+            //this.write = write;
+            
+            //if ($debug) Debug.write("confirmUpdateAsObjectToDatabase: ",diagramName,revisionComment);
+            this.diagramName = diagramName;
+            this.revisionComment = revisionComment;
+            this.shortName = shortName;
+            //if ($debug) Debug.write("diagramType: ",this.diagramType);
+            //if ($debug) Debug.write("currentDiagram: ",this.currentDiagram);
+            
+            //if ($debug) Debug.write("baseactionobjectList: ",this.baseactionobjectList);
+            //if ($debug) Debug.write("baseactionobjectList Length: ",this.baseactionobjectList.length);
+            
+            this.remoteactionobjectList = new Array();
+            for (var i=0;i<this.baseactionobjectList.length;i++) {
+                this.remoteactionobjectList.push(this.baseactionobjectList[i]);
+                //simulate the Role as a Fixed, as we got only one Role Type
+                if (this.baseactionobjectList[i][0] == 'unit') {
+                    this.remoteactionobjectList[i][0] = 'unitFixed';
+                }
+                if (this.baseactionobjectList[i][0] == 'departement') {
+                    this.remoteactionobjectList[i][0] = 'departementFixed';
+                }
+                if (this.baseactionobjectList[i][0] == 'company') {
+                    this.remoteactionobjectList[i][0] = 'companyFixed';
+                }
+                //simulate the Process as a tree, as we got only one Process Type
+                if (this.baseactionobjectList[i][0] == 'process') {
+                    this.remoteactionobjectList[i][0] = 'processtree';
+                }
+            }
+            
+            if ($debug) Debug.warn("checkForUniqueNameIsRunning ? -1- ",this.checkForUniqueNameIsRunning);
+            
+            if (this.checkForUniqueNameIsRunning) {
+                if ($debug) Debug.warn("Check Up Is Running #######");
+                this.doUpdateRPCAfterCheck = true;
+            } else {
+                //if ($debug) Debug.write("diagramNo: ",this.currentDiagram.diagramNo);
+                this.updateDiagram.doCall();
+            }
+        ]]>
+    </method>
+    
+    
+    <netRemoteCallRPC name="saveNewDiagramWithProperties" funcname="saveNewDiagramWithProperties" activeErrorHandler="true"
+                      remotecontext="$once{  canvas.diagramServiceRPC }" >
+        <attribute name="propList" value="null" />
+        <handler name="sendCallBack" >
+            if (parent.closeAfterUpdate){
+                parent.showExitDialog();
+            } else {
+                //if ($debug) Debug.write("sendCallBack saveobj ");
+                parent.doSaveByToolSet();
+            }
+        </handler>
+        <netparam><method name="getValue">return canvas.sessionId;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.diagramName;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.revisionComment;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.remoteactionobjectList;</method></netparam>
+        <netparam><method name="getValue">return canvas.currentdomainObj.organisation_id;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.diagramType;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.read;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.write;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.onlyIssues;</method></netparam>
+        <netparam><method name="getValue">return null;</method></netparam>
+        <netparam><method name="getValue">return canvas.userlang;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.parentDiagramObjectId;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.projectId;</method></netparam>
+        <netparam><method name="getValue">return parent.propList;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.shortName;</method></netparam>
+        <handler name="ondata" args="value">
+            //The onResult-Handler will be called be the rtmpconnection
+            //if ($debug) Debug.write("saveNewDiagram: ",value);
+            if (value > 0){
+                if (parent.closeAfterUpdate){
+                    parent.parent.parent.parent.parent.doCloseAfterSaveEvent();
+                } else if (parent.bulkcloseAfterUpdate) {
+                    parent.parent.parent.parent.parent.doBulkCloseAfterSaveEvent();
+                } else {
+                    parent.getDiagramById.diagramId = value;
+                    parent.getDiagramObjectsByDiagramId.diagramId = value;
+                    parent.getDiagramById.doCall();
+                }
+            } else if (value == -39){
+                //if($debug) Debug.write("Duplicate Diagram Name");
+                new lz.callbackRpcErrorDialog(canvas,{callBackObject:this,errorid:Number(value)});
+            }
+        </handler>  
+    </netRemoteCallRPC>
+    
+    <netRemoteCallRPC name="saveNewDiagram" funcname="saveNewDiagram" activeErrorHandler="true"
+                      remotecontext="$once{  canvas.diagramServiceRPC }" >
+        <handler name="sendCallBack" >
+            if (parent.closeAfterUpdate){
+                parent.showExitDialog();
+            } else {
+            	//if ($debug) Debug.write("sendCallBack saveobj ");
+                parent.doSaveByToolSet();
+            }
+        </handler>
+        <netparam><method name="getValue">return canvas.sessionId;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.diagramName;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.revisionComment;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.remoteactionobjectList;</method></netparam>
+        <netparam><method name="getValue">return canvas.currentdomainObj.organisation_id;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.diagramType;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.read;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.write;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.onlyIssues;</method></netparam>
+        <netparam><method name="getValue">return null;</method></netparam>
+        <netparam><method name="getValue">return canvas.userlang;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.parentDiagramObjectId;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.projectId;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.shortName;</method></netparam>
+        <handler name="ondata" args="value">
+            //The onResult-Handler will be called be the rtmpconnection
+            //if ($debug) Debug.write("saveNewDiagram: ",value);
+            if (value > 0){
+                if (parent.closeAfterUpdate){
+                    parent.parent.parent.parent.parent.doCloseAfterSaveEvent();
+                } else if (parent.bulkcloseAfterUpdate) {
+                    parent.parent.parent.parent.parent.doBulkCloseAfterSaveEvent();
+                } else {
+                    parent.getDiagramById.diagramId = value;
+                    parent.getDiagramObjectsByDiagramId.diagramId = value;
+                    parent.getDiagramById.doCall();
+                }
+            } else if (value == -39){
+                //if($debug) Debug.write("Duplicate Diagram Name");
+                new lz.callbackRpcErrorDialog(canvas,{callBackObject:this,errorid:Number(value)});
+            }
+        </handler>  
+    </netRemoteCallRPC>    
+    
+    <netRemoteCallRPC name="updateDiagramWithProperties" funcname="updateDiagramWithProperties" activeErrorHandler="true"
+                      remotecontext="$once{  canvas.diagramServiceRPC }" >
+        <attribute name="forceUpdate" type="boolean" value="false" />
+        <attribute name="propList" value="null" />
+        <handler name="sendCallBack" >
+            if (parent.closeAfterUpdate){
+                parent.showExitDialog();
+            } else {
+                parent.doSaveByToolSet();
+            }
+        </handler>
+        <netparam><method name="getValue">return canvas.sessionId;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.diagramName;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.revisionComment;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.remoteactionobjectList;</method></netparam>
+        <netparam><method name="getValue">return canvas.currentdomainObj.organisation_id;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.diagramType;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.currentDiagram.diagramNo;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.read;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.write;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.onlyIssues;</method></netparam>
+        <netparam><method name="getValue">return null;</method></netparam>
+        <netparam><method name="getValue">return canvas.userlang;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.revisionId;</method></netparam>
+        <netparam><method name="getValue">return parent.forceUpdate;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.parentDiagramObjectId;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.projectId;</method></netparam>
+        <netparam><method name="getValue">return parent.propList;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.shortName;</method></netparam>
+        <handler name="ondata" args="value">
+            //The onResult-Handler will be called be the rtmpconnection
+            if ($debug) Debug.warn("############# updateDiagramWithProperties: ",value);
+            if (value > 0){
+                this.forceUpdate = false;
+                if (parent.closeAfterUpdate){
+                    parent.parent.parent.parent.parent.doCloseAfterSaveEvent();
+                } else if (parent.bulkcloseAfterUpdate) {
+                    parent.parent.parent.parent.parent.doBulkCloseAfterSaveEvent();
+                } else {
+                    parent.getDiagramById.diagramId = value;
+                    parent.getDiagramObjectsByDiagramId.diagramId = value;
+                    parent.getDiagramById.doCall(); 
+                }
+            } else {
+                //Fix to reset the status of the drawing-tool to prevent infinite drawing of objects
+                parent.clearCurrentClickAction();
+                if (value == -36){
+                    //if($debug) Debug.write("Over write Action");
+                    new lz.callbackRpcErrorDialogOverwrite(canvas,{callBackObject:this,errorid:value});
+                } else if (value == -39){
+                    //if($debug) Debug.write("Duplicate Diagram Name");
+                    new lz.callbackRpcErrorDialog(canvas,{callBackObject:this,errorid:Number(value)});
+                }
+            }
+        </handler>  
+        <handler name="sendOverwrite">
+            this.forceUpdate = true;
+            this.doCall();
+        </handler>
+    </netRemoteCallRPC>
+    
+    <netRemoteCallRPC name="updateDiagram" funcname="updateDiagram" activeErrorHandler="true"
+                      remotecontext="$once{  canvas.diagramServiceRPC }" >
+        <attribute name="forceUpdate" type="boolean" value="false" />
+        <handler name="sendCallBack" >
+            if (parent.closeAfterUpdate){
+                parent.showExitDialog();
+            } else {
+                parent.doSaveByToolSet();
+            }
+        </handler>
+        <netparam><method name="getValue">return canvas.sessionId;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.diagramName;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.revisionComment;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.remoteactionobjectList;</method></netparam>
+        <netparam><method name="getValue">return canvas.currentdomainObj.organisation_id;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.diagramType;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.currentDiagram.diagramNo;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.read;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.write;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.onlyIssues;</method></netparam>
+        <netparam><method name="getValue">return null;</method></netparam>
+        <netparam><method name="getValue">return canvas.userlang;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.revisionId;</method></netparam>
+        <netparam><method name="getValue">return parent.forceUpdate;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.parentDiagramObjectId;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.projectId;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.shortName;</method></netparam>
+        <handler name="ondata" args="value">
+            //The onResult-Handler will be called be the rtmpconnection
+            if ($debug) Debug.warn("############# updateDiagram: ",value);
+            if (value > 0){
+                this.forceUpdate = false;
+                if (parent.closeAfterUpdate){
+                    parent.parent.parent.parent.parent.doCloseAfterSaveEvent();
+                } else if (parent.bulkcloseAfterUpdate) {
+                    parent.parent.parent.parent.parent.doBulkCloseAfterSaveEvent();
+                } else {
+                    parent.getDiagramById.diagramId = value;
+                    parent.getDiagramObjectsByDiagramId.diagramId = value;
+                    parent.getDiagramById.doCall(); 
+                }
+            } else {
+            	//Fix to reset the status of the drawing-tool to prevent infinite drawing of objects
+            	parent.clearCurrentClickAction();
+                if (value == -36){
+                    //if($debug) Debug.write("Over write Action");
+                    new lz.callbackRpcErrorDialogOverwrite(canvas,{callBackObject:this,errorid:value});
+                } else if (value == -39){
+                    //if($debug) Debug.write("Duplicate Diagram Name");
+                    new lz.callbackRpcErrorDialog(canvas,{callBackObject:this,errorid:Number(value)});
+                }
+            }
+        </handler>  
+        <handler name="sendOverwrite">
+            this.forceUpdate = true;
+            this.doCall();
+        </handler>
+    </netRemoteCallRPC> 
+    
+    <!--
+        Reload the Diagram Objects to reset the Diagram Identifier
+     -->
+    <netRemoteCallRPC name="getDiagramById" funcname="getDiagramById" 
+                      remotecontext="$once{  canvas.diagramServiceRPC }" >      
+        <attribute name="diagramId" value="" type="string" />
+        <netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+        <netparam><method name="getValue">return parent.diagramId;</method></netparam> 
+        <handler name="ondata" args="value">
+            <![CDATA[
+                //if ($debug) Debug.write("getDiagramById: ",value);
+                parent.currentDiagram = value;
+                
+                parent.parent.parent.parent.parent.setCurrentSelectedObject(null);
+                parent.revisionId = parent.currentDiagram.diagramrevision.diagramrevisionId;
+                parent.diagramName = value.name;
+                parent.shortName = value.shortName;
+                
+                parent.parent.parent.parent.parent.currentDiagramTempName = value.name;
+                
+                parent.parent.parent.parent.parent.currentDiagramMini.setAttribute('btnName',
+                    parent.parent.parent.parent.parent.currentDiagramTempName);
+                    
+                parent.currentDiagramObject = value;
+                parent.parent.parent.parent.parent._diagramSideBar.updateSidebarByDiagramNo(value.diagramNo);
+                
+                parent.getDiagramObjectsByDiagramId.doCall();
+
+                //Reload the Items after save or update of Diagram
+                parent.parent.parent.parent.parent._diagramSideBar._innerSideBar._version.refresh(value);
+                
+                //if ($debug) Debug.write("parent.diagramType: ",parent.diagramType);
+                if (parent.diagramType == 3 || parent.diagramType == 1){
+                    parent.parent.parent.parent.parent._diagramSideBar._innerSideBar._libraryObjects.setDiagramObjects(parent.currentDiagram);
+                    parent.parent.parent.parent.parent._diagramSideBar._innerSideBar._libraryObjects.refresh();
+                    
+                    ////if ($debug) Debug.write("parent.parent.parent.parent._toolBar: ",parent.parent.parent.parent._toolBar);
+                    //FIXME: See ICH-714 - Fixes to reload the Toolbar depending on read or write access
+                    //parent.parent.parent.parent._toolBar.destroy();
+                    //parent.parent.parent.parent.initWriteDialogsByDiagram(parent.currentDiagram);
+                } else {
+                    parent.parent.parent.parent.parent._diagramSideBar._innerSideBar._hierarchicalExplorerSidebar.refresh();
+                    parent.parent.parent.parent.parent._diagramSideBar._innerSideBar._processAndActivitiesTableSidebar.refresh();
+                    parent.parent.parent.parent.parent._diagramSideBar._innerSideBar._flowsExplorerSidebar.refresh();
+                }
+                
+            ]]>
+        </handler>
+    </netRemoteCallRPC> 
+    
+   <netRemoteCallRPC name="getDiagramObjectsByDiagramId" funcname="getDiagramObjectsByDiagramId" 
+                      remotecontext="$once{  canvas.diagramServiceRPC }" >      
+        <attribute name="diagramId" value="" type="string" />
+        <netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+        <netparam><method name="getValue">return parent.diagramId;</method></netparam> 
+        <handler name="ondata" args="value">
+            //if ($debug) Debug.write("getDiagramObjectsByDiagramId: ",value);
+            parent.currentInstanceList = value;
+            parent.updateDiagramIdentifier(value);
+        </handler>
+    </netRemoteCallRPC>    
+    
+    <!--
+        Updates the DiagramObjectId and Connect-Obj for underlaying objects
+     -->
+    <method name="updateDiagramIdentifier" args="value">
+        <![CDATA[
+            //if ($debug) Debug.write("updateDiagramIdentifier: ",value);
+            for (var i=0;i<value.length;i++) {
+                ////if ($debug) Debug.write("this.value i : ",value[i].graphAsObject);
+                var newName = value[i].graphAsObject[value[i].graphAsObject.length-1];
+                ////if ($debug) Debug.write("newName: ",newName);
+                this.updateBaseObjectListItemByName(newName,
+                    value[i].graphAsObject[value[i].graphAsObject.length-7],
+                    value[i].graphAsObject[value[i].graphAsObject.length-9],
+                    value[i].graphAsObject[0]);
+            }    
+            
+            if (this.diagramType == 2 || this.diagramType == 4) {
+	            //Reset the Type of the Objects, otherwise the connector tool will trigger it
+	            for (var i=0;i<this.baseactionobjectList.length;i++) {
+	            	
+	                if (this.baseactionobjectList[i][0] == 'unitFixed') {
+	                    this.baseactionobjectList[i][0] = 'unit';
+	                }
+	                if (this.baseactionobjectList[i][0] == 'departementFixed') {
+	                    this.baseactionobjectList[i][0] = 'departement';
+	                }
+	                if (this.baseactionobjectList[i][0] == 'companyFixed') {
+	                    this.baseactionobjectList[i][0] = 'company';
+	                }
+	            }
+            }
+            
+            //reset Save Dialog if somebody wants to delete all objects
+            parent.parent.parent.parent.setAttribute('destroyByMethod',false);
+        ]]>        
+    </method>  
+    
+    <method name="abortSaveProcess">
+        if (this.closeAfterUpdate){
+            parent.parent.parent.parent.doCloseAfterSaveEvent();
+        } else if (this.bulkcloseAfterUpdate) {
+            parent.parent.parent.parent.doBulkCloseAfterSaveEvent();
+        }
+    </method>
+    
+    <method name="updateBaseObjectListItemByName" args="newName,diagramobjectid,connectObj,type">
+        <![CDATA[
+            ////if ($debug) Debug.write("updateBaseObjectListItemByName: ",newName,diagramobjectid);
+            for (var i=0;i<this.baseactionobjectList.length;i++) {
+                if (this.baseactionobjectList[i][this.baseactionobjectList[i].length-1] == newName){
+                    ////if ($debug) Debug.write("Found OLD,NEW",this.baseactionobjectList[i][this.baseactionobjectList[i].length-7],diagramobjectid);
+                    this.baseactionobjectList[i][this.baseactionobjectList[i].length-7] = diagramobjectid;
+                    if (type == "processtree" || type == "activity" 
+                            || type == "outputflow" || type == "inputflow") {
+                        ////if ($debug) Debug.write("Previous Value",this.baseactionobjectList[i][this.baseactionobjectList[i].length-9]);
+                        ////if ($debug) Debug.write("New Value",connectObj);
+                        this.baseactionobjectList[i][this.baseactionobjectList[i].length-9] = connectObj;
+                    }
+                    ////if ($debug) Debug.write("Updated Item: ",this.baseactionobjectList[i]);
+                } 
+            }        
+        ]]>        
+    </method>  
+    
+    <!-- check object for unique name
+        TODO: Check WHY there is this time lage here between check and check function
+     -->
+    <method name="checkObjectForUniqueName" args="objectName,baseObject,previousText,typeOfObject">
+        //if ($debug) Debug.write("checkObjectForUniqueName: ",objectName,baseObject,previousText,typeOfObject);
+        this.checkForUniqueNameIsRunning = true;
+        this.tempCheckDelegate = new LzDelegate( this, "checkObjectForUniqueNameTimerBased" );
+        this.tempCheckTxt = objectName;
+        this.tempCheckParentObj = baseObject;
+        this.tempCheckPreviousText = previousText;
+        this.tempCheckParentObjTypeOfObject = typeOfObject;
+        lz.Timer.addTimer( this.tempCheckDelegate, 500 );
+    </method>
+    
+    <method name="checkForDuplicatesComplete">
+    	//if ($debug) Debug.write("checkForDupuplicatesComplete");
+    	this.checkForUniqueNameIsRunning = false;
+    	
+    	if (this.doSaveRPCAfterCheck) {
+    		this.doSaveRPCAfterCheck = false;
+    		this.saveNewDiagram.doCall();
+    	} else if (this.doUpdateRPCAfterCheck) {
+    		this.doUpdateRPCAfterCheck = false;
+    		this.updateDiagram.doCall();
+    	}
+    </method>
+    
+    
+    <method name="checkObjectForUniqueNameTimerBased" args="item">
+        <![CDATA[
+            //if ($debug) Debug.write("### checkObjectForUniqueNameTimerBased");
+        
+            var objectName = this.tempCheckTxt;
+            var baseObject = this.tempCheckParentObj;
+            var previousText = this.tempCheckPreviousText;
+            var typeOfObject = this.tempCheckParentObjTypeOfObject;
+        
+            var diagramObjectId = null;
+            this.lastCheckedObject = baseObject;
+            this.lastCheckedObjectPreviousText = previousText;
+            ////if ($debug) Debug.write("previousText: ",previousText);
+            ////if ($debug) Debug.write("checkObjectForUniqueName,previousText: ",objectName,baseObject,previousText);
+            for (var i=0;i<this.baseactionobjectList.length;i++) {
+                if (this.baseactionobjectList[i][this.baseactionobjectList[i].length-1] == baseObject.name){
+                    ////if ($debug) Debug.write("Found ITEM: ",this.baseactionobjectList[i][this.baseactionobjectList[i].length-7]);
+                    ////if ($debug) Debug.write("Found ITEM Former Text: ",this.baseactionobjectList[i]);
+                    diagramObjectId = this.baseactionobjectList[i][this.baseactionobjectList[i].length-7];
+                }
+            }   
+            //Set diagramObjectId to -1, to find local duplicates, cause new object all have a 
+            //diagramObjectId of value 0, but that does not mean that these object are the same
+            if (diagramObjectId == 0) {
+                diagramObjectId = -1;
+            }
+            ////if ($debug) Debug.write("objectName,baseObject,diagramObjectId: ",objectName,baseObject,diagramObjectId);
+            //First check the Current Diagram
+            var foundHere = this.checkForLocalDuplicates(objectName,baseObject,diagramObjectId,typeOfObject);
+            
+            //store temp for Remote-Dialog
+            this.lastCheckedObjectBaseObject = baseObject;
+            
+            if (foundHere) {
+                //Need cause otherwise the Selection Box is drawn Endless
+                //this.endDrawSelectionBox();
+                //mousetracker_del.unregisterAll();
+                
+            	//if ($debug) Debug.write("uniqueObjectNameErrorDialog -checkForLocalDuplicates- ");
+            	
+                new lz.uniqueObjectNameErrorDialog(canvas.main_content._content.inner,{
+                        refObj:this,
+                        errorid:Number(-37),
+                        objectName:objectName,
+                        baseObject:this.lastCheckedObjectBaseObject,
+                        diagramObjectId:diagramObjectId,
+                        typeOfObject:typeOfObject,
+                        previousText:this.lastCheckedObjectPreviousText
+                    });
+            }else {
+                //check remote Diagrams
+                ////if ($debug) Debug.write("checkObjectForUniqueName: ",objectName,diagramObjectId);
+                this.checkForUniqueName.objectName = objectName;
+                this.checkForUniqueName.diagramObjectId = diagramObjectId;
+                this.checkForUniqueName.typeOfObject = typeOfObject;
+                this.checkForUniqueName.doCall();
+            }
+        ]]>
+    </method>
+    
+    <method name="checkForLocalDuplicates" args="objectName,baseObject,diagramObjectId,typeOfObject">
+        <![CDATA[
+            //if ($debug) Debug.write("checkForLocalDuplicates: ",objectName,baseObject.name,diagramObjectId,typeOfObject);
+        
+            //First check the Current Diagram
+            var foundHere = false;
+            for (var i=0;i<this.baseactionobjectList.length;i++) {
+                
+                ////if ($debug) Debug.write("Type here: ",this.baseactionobjectList[i][0]);
+                
+                if (this.baseactionobjectList[i][0] == typeOfObject 
+                            || this.baseactionobjectList[i][0] == typeOfObject+"Fixed") {
+                
+	                if (this.baseactionobjectList[i][this.baseactionobjectList[i].length-8] == objectName){
+	                    
+	                    //this.baseactionobjectList[i]
+	                    //baseObject
+	                    
+	                    //First test for same diagramObjectId
+	                    if (this.baseactionobjectList[i][this.baseactionobjectList[i].length-7] == diagramObjectId) {
+	                        ////if ($debug) Debug.write("Found Self");
+	                    } else {
+	                        //then test for same Object Name
+	                        if (this.baseactionobjectList[i][this.baseactionobjectList[i].length-1] == baseObject.name) {
+	                            if ($debug) Debug.write("Found Same");
+	                        } else {
+	                            //if ($debug) Debug.write("START -- Found Duplicate");
+	                            //if ($debug) Debug.write(this.baseactionobjectList[i]);
+	                            //if ($debug) Debug.write(baseObject.name);
+	                            //if ($debug) Debug.write("Found Duplicate -- END");
+	                            
+	                            foundHere = true;
+	                        }
+	                        //break;
+	                    }                    
+	                }
+                
+                }
+                
+            }   
+            
+            return foundHere;
+            
+        ]]>
+    </method>
+    
+   <netRemoteCallRPC name="checkForUniqueName" funcname="checkForUniqueName" 
+                      remotecontext="$once{  canvas.diagramServiceRPC }" showLoading="false" >      
+        <attribute name="objectName" value="" type="string" />
+        <attribute name="diagramObjectId" value="0" type="number" />
+        <attribute name="typeOfObject" value="" type="string" />
+        <netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+        <netparam><method name="getValue">return parent.objectName;</method></netparam> 
+        <netparam><method name="getValue">return parent.diagramObjectId;</method></netparam> 
+        <netparam><method name="getValue">return parent.typeOfObject;</method></netparam> 
+        <netparam><method name="getValue">return canvas.currentdomainObj.organisation_id;</method></netparam>
+        <handler name="ondata" args="value">
+            <![CDATA[
+                ////if ($debug) Debug.write("checkForUniqueName: ",value);
+                if (value < 0) {
+                	
+                	if ($debug) Debug.write("uniqueObjectNameErrorDialog -checkForUniqueName- ");
+                	
+                	//if ($debug) Debug.write("objectName ",this.objectName);
+                	//if ($debug) Debug.write("diagramObjectId ",this.diagramObjectId);
+                	//if ($debug) Debug.write("typeOfObject ",this.typeOfObject);
+                	//if ($debug) Debug.write("organisation_id ",canvas.currentdomainObj.organisation_id);
+                	
+                    new lz.uniqueObjectNameErrorDialog(canvas.main_content._content.inner,{
+                            refObj:parent,
+                            errorid:Number(value),
+                            objectName:this.objectName,
+                            baseObject:parent.lastCheckedObjectBaseObject,
+                            diagramObjectId:this.diagramObjectId,
+                            typeOfObject:parent.tempCheckParentObjTypeOfObject,
+                            previousText:parent.lastCheckedObjectPreviousText
+                        });
+                        
+                } else {
+                	parent.checkForDuplicatesComplete()
+                }
+            ]]>
+        </handler>
+    </netRemoteCallRPC>   
+    
+    <method name="sendNewName" args="objectName">
+        //if ($debug) Debug.write("sendNewName: ",this.lastCheckedObject.typeOfObject,objectName);
+        if (this.lastCheckedObject.typeOfObject == "inputflow") {
+            this.completedInputflowObjByRemote(this.lastCheckedObject,objectName);
+        } else if (this.lastCheckedObject.typeOfObject == "outputflow") {
+            this.completedOutputflowObjByRemote(this.lastCheckedObject,objectName);
+        } else {
+            this.completedObjectTextObjByRemote(this.lastCheckedObject,objectName);
+        }
+    </method>
+    
+    <method name="exportSVG">
+        this.exportType = "svg";
+        this.generateExportJob.doCall();
+    </method>
+    
+    <method name="exportPNG">
+        this.exportType = "png";
+        this.generateExportJob.doCall();
+    </method>
+    
+    <method name="exportJPG">
+        this.exportType = "jpg";
+        this.generateExportJob.doCall();
+    </method>
+    
+    <method name="exportPDF">
+        this.exportType = "pdf";
+        this.generateExportJob.doCall();
+    </method>
+    
+    <method name="exportXML">
+        this.exportType = "xml";
+        this.generateExportJob.doCall();
+    </method>
+    
+    <method name="exportCustom">
+        new lz.exportToCustomType(canvas,{refObj:this});
+    </method>
+    
+    <method name="exportPPTCustom">
+        new lz.exportPowerPointDiagram(canvas,{refObj:this});
+    </method>
+    
+    <method name="doExportByType" args="type">
+        this.exportType = type;
+        this.generateExportJob.doCall();
+    </method>
+    
+    <method name="doExportByTypeAndTemplate" args="type,pTemplateId,includeText,includeIdeas,includeDetails">
+        this.pTemplateId = pTemplateId;
+        this.exportType = type;
+        this.includeText = includeText;
+        this.printIdeas = includeIdeas;
+        this.includeDetails = includeDetails;
+        if (this.currentDiagram == null) {
+        	this.generateExportJob.diagramId = 0;
+        } else {
+        	this.generateExportJob.diagramId = this.currentDiagram.diagramId;
+        }
+        this.generateExportJob.doCall();
+    </method>
+    
+    <netRemoteCallRPC name="generateExportJob" funcname="generateExportJob" 
+                      remotecontext="$once{  canvas.applicationRPC }" >    
+        <attribute name="diagramType" value="0" type="number" />
+        <attribute name="diagramId" value="0" type="number" />
+        <netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+        <netparam><method name="getValue">return parent.parent.baseactionobjectList;</method></netparam>
+        <netparam><method name="getValue">return canvas.currentDiagramRef.currentDiagramTempName;</method></netparam>
+        <netparam><method name="getValue">return parent.diagramId;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.diagramType;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.pTemplateId;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.includeText;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.printIdeas;</method></netparam>
+        <netparam><method name="getValue">return parent.parent.includeDetails;</method></netparam>
+        <handler name="ondata" args="value">
+            <![CDATA[
+                //if ($debug) Debug.write("generateExportJob: ",value);
+                var downloadurl = canvas.httpprotocol+'://'+canvas.rtmphostlocal+':'+canvas.httpport
+                        +'/'+canvas.webAppRootKey+'/ExportDiagram?sid='+canvas.sessionId
+                        +'&exportId='+value+'&exportType='+parent.exportType;
+                //if ($debug) Debug.write(downloadurl);
+                lz.Browser.loadURL(downloadurl,'_parent');
+            ]]>
+        </handler>
+    </netRemoteCallRPC>    
+    
+    
+    <method name="showPreNextDiagramsOnFlows" args="bool">
+    	<![CDATA[
+	        //if ($debug) Debug.write("showPreNextDiagramsOnFlows ",bool);
+        	if (bool) {
+        		
+        		this.getFlowConnectedDiagramList.inputFlowIds = new Array();
+        		this.getFlowConnectedDiagramList.outputFlowIds = new Array();
+        		
+        		for (var i=0;i<this.baseactionobjectList.length;i++) {
+                    //simulate the Role as a Fixed, as we got only one Role Type
+                    if (this.baseactionobjectList[i][0] == 'inputflow') {
+                        this.getFlowConnectedDiagramList.inputFlowIds.push(this.baseactionobjectList[i][this.baseactionobjectList[i].length-7]);
+                    }
+                    if (this.baseactionobjectList[i][0] == 'outputflow') {
+                        this.getFlowConnectedDiagramList.outputFlowIds.push(this.baseactionobjectList[i][this.baseactionobjectList[i].length-7]);
+                    }
+                }
+                
+                //if ($debug) Debug.write("inputFlowIds: ",this.getFlowConnectedDiagramList.inputFlowIds);
+                //if ($debug) Debug.write("outputFlowIds: ",this.getFlowConnectedDiagramList.outputFlowIds);
+                
+                this.getFlowConnectedDiagramList.singleItem = false;
+                this.getFlowConnectedDiagramList.doCall();
+        		
+        	} else {
+        		
+        		for (var i=0;i<this.subviews.length;i++) {
+        			if (this.subviews[i].typeOfObject == "inputflow" 
+        			         || this.subviews[i].typeOfObject == "outputflow") {
+			             this.subviews[i].clearFlowDiagramList();	
+			         }
+        		}
+        		
+        	}
+    	]]>
+    </method>
+    
+    <method name="showPreNextDiagramsOnCertainFlow" args="objRef">
+    	this.getFlowConnectedDiagramList.inputFlowIds = new Array();
+        this.getFlowConnectedDiagramList.outputFlowIds = new Array();
+        
+        var baseObject = this.getBaseObjectListItemByName(objRef.name);
+        
+        if (baseObject[0] == 'inputflow') {
+            this.getFlowConnectedDiagramList.inputFlowIds.push(baseObject[baseObject.length-7]);
+        }
+        if (baseObject[0] == 'outputflow') {
+            this.getFlowConnectedDiagramList.outputFlowIds.push(baseObject[baseObject.length-7]);
+        }
+        
+        this.getFlowConnectedDiagramList.singleItem = true;
+        this.getFlowConnectedDiagramList.objRef = objRef;
+        this.getFlowConnectedDiagramList.doCall();
+    </method>
+    
+    <!--
+    public List<FlowConnectedDiagram> getFlowConnectedDiagramList(String SID, 
+            Vector inputFlowIds, Vector outputFlowIds)
+     -->
+    <netRemoteCallRPC name="getFlowConnectedDiagramList" funcname="getFlowConnectedDiagramList" 
+                      remotecontext="$once{  canvas.diagramServiceRPC }" >    
+        <attribute name="inputFlowIds" value="null" />
+        <attribute name="outputFlowIds" value="null" />
+        <attribute name="singleItem" value="false" type="boolean" />
+        <attribute name="objRef" value="null" />
+        <netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+        <netparam><method name="getValue">return parent.inputFlowIds;</method></netparam>
+        <netparam><method name="getValue">return parent.outputFlowIds;</method></netparam>
+        <handler name="ondata" args="value">
+            <![CDATA[
+                //if ($debug) Debug.write("getFlowConnectedDiagramList: ",value);
+                //for (var eg in value) {
+                //	if ($debug) Debug.write("diagramObjectId: ",value[eg].diagramObjectId);
+                //	if ($debug) Debug.write("diagrams Size: ",value[eg].diagrams.length);
+                //	if ($debug) Debug.write("diagrams: ",value[eg].diagrams);
+                //}
+                if (singleItem) {
+                    parent.setFlowTextNamesBySingleItem(value);
+                } else {
+                	parent.setFlowTextNames(value);
+                }
+            ]]>
+        </handler>
+    </netRemoteCallRPC>   
+    
+    <method name="setFlowTextNames" args="list">
+    	<![CDATA[
+    	   
+            for (var eg in list) {
+                
+            	if ($debug) Debug.write("diagramObjectId: ",list[eg].diagramObjectId);
+            	
+            	var baseObjectList = this.getBaseObjectListItemsByDiagramId(list[eg].diagramObjectId);
+            	
+            	for (var i = 0;i<baseObjectList.length;i++) {
+            		
+            		//if ($debug) Debug.write("baseObjectList[i]: ",baseObjectList[i]);
+            		
+            		var viewItem = this[baseObjectList[i][baseObjectList[i].length-1]];
+            		//if ($debug) Debug.write("viewItem: ",viewItem);
+            		
+            		viewItem.setFlowDiagramList(list[eg].diagrams);
+            		
+            	}
+            	
+            }
+    	
+    	]]>
+    </method>
+    
+    <method name="setFlowTextNamesBySingleItem" args="list">
+    	<![CDATA[
+           
+            for (var eg in list) {
+                
+                if ($debug) Debug.write("diagramObjectId: ",list[eg].diagramObjectId);
+                
+                this.getFlowConnectedDiagramList.objRef.setFlowDiagramList(list[eg].diagrams);
+                
+            }
+        
+        ]]>
+    </method>
+     
+        
+    
+</class>
+
+</library>

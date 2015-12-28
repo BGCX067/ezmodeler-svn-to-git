@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+<!--- configuration edit panel. -->
+<class name="modPropertyValueForm" extends="baseContentSaveView">
+
+	<!-- recordContent-id -->
+	<attribute name="propertyId" value="0" type="number" />
+    <attribute name="obj" value="null" />
+	
+	<!--handlers -->
+    
+    <handler name="oninit">
+        this.getAllOrganisations.doCall();
+        this.propertyValidationType.selectItemAt(0);
+    </handler>
+
+	<handler name="onsavecompleted" >
+		this.getPropertyById.doCall();
+	</handler>
+	
+	<handler name="onreload" >
+		if (this.propertyId!=0) this.getPropertyById.doCall();
+	</handler>	
+
+	<handler name="onnew">
+		this.propertyId=0;
+		this.propertyName.setAttribute('text',"");
+        this.tooltip.setAttribute('text',"");
+        this.objectTypeName.selectItemAt(0);
+        this.comment.setAttribute('text',"");
+        this.propertyValidationType.selectItemAt(0);
+	</handler>
+	
+    <handler name="ondelete" >
+		if (this.propertyId!=0){
+			this.deleteProperty.doCall();
+		}
+    </handler>
+	
+	<!-- methods -->
+
+    <method name="initValueFieldsByObject" args="obj">
+        if ($debug) Debug.write("initValueFieldsByObject: ",obj);
+		this.propertyId = obj.propertyId;
+		if (this.propertyId!=0){
+			this.getPropertyById.doCall();
+		}
+    </method>
+    
+    <method name="initFields" args="obj">
+    	<![CDATA[
+            if ($debug) Debug.write("initFields: ",obj);
+            this.obj = obj;
+			this.propertyName.setAttribute('text',canvas.getLabelName(obj.labelid));
+			this.tooltip.setAttribute('text',canvas.getLabelName(obj.toolTip));
+            this.objectTypeName.selectItem(obj.objectTypeName);
+            this.comment.setAttribute('text',obj.comment);
+            if (obj.propertyValidationTypeId == null) {
+                this.propertyValidationType.selectItemAt(0);
+            } else {
+                this.propertyValidationType.selectItem(String(obj.propertyValidationTypeId));
+            }
+        ]]>
+    </method>
+	
+	<!-- remotecalls -->
+    
+    <netRemoteCallHib name="getAllOrganisations" funcname="organisationservice.getAllOrganisations" 
+                      remotecontext="$once{ canvas.thishib }" >      
+        <netparam><method name="getValue"> return canvas.sessionId; </method></netparam> 
+        <handler name="ondata" args="value">
+            <![CDATA[
+                //The onResult-Handler will be called be the rtmpconnection
+                //Debug.write("allowFrontendRegister: ",value);
+                parent.organisation.addItemWithObject(canvas.getLabelName(996),0,null,null);
+                for (var i=0;i<value.length;i++){
+                    //set to null as only Admins will do that
+                    //they do not need a orgusre Object, as they have all menu options given
+                    parent.organisation.addItemWithObject(value[i].name,value[i].organisation_id,value[i],null);
+                }
+                parent.organisation.loadDefault();
+            ]]>
+        </handler>  
+    </netRemoteCallHib>       
+	
+  	<netRemoteCallHib name="getPropertyById" funcname="propertyservice.getPropertyById" 
+  		remotecontext="$once{ canvas.thishib }" > 
+  		<netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+    	<netparam><method name="getValue">return parent.parent.propertyId;</method></netparam>
+    	<handler name="ondata" args="value">
+    		parent.initFields(value);
+    	</handler>
+  	</netRemoteCallHib>
+	
+	<netRemoteCallHib name="deleteProperty" funcname="propertyservice.deleteProperty" 
+                      remotecontext="$once{ canvas.thishib }" >      
+  		<netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+    	<netparam><method name="getValue">return parent.parent.propertyId;</method></netparam>	
+        <handler name="ondata" args="value">
+			if ($debug) Debug.write("deleteProperty ",value);
+			if (value>0){
+				this.parent.parent._turnoverlist.oncallnext.sendEvent();
+				this.parent.onnew.sendEvent();
+			}
+		</handler>
+	</netRemoteCallHib>		
+
+  	<netRemoteCallHib name="saveOrUpdateProperty" funcname="propertyservice.saveOrUpdateProperty" 
+  		remotecontext="$once{ canvas.thishib }" registerObject="true" >   
+		<attribute name="sendObject" value="null" />
+		<!-- gets called by Observer
+        Long propertyId = Long.valueOf(values.get("propertyId").toString()).longValue();
+                
+                String propertyName = values.get("propertyName").toString();
+                String tooltip = values.get("tooltip").toString();
+                Long languages_id = Long.valueOf(values.get("languages_id").toString()).longValue();
+                String comment = values.get("comment").toString();
+                Boolean isPublic = Boolean.valueOf(values.get("isPublic").toString()).booleanValue();
+                Long organisation_id = Long.valueOf(values.get("organisation_id").toString()).longValue();
+                String objectTypeName = values.get("objectTypeName").toString();
+         -->
+  		<method name="prepareCall">
+  			this.sendObject=new Array();
+            this.sendObject["propertyId"] = this.parent.propertyId;
+            this.sendObject["propertyName"] = this.parent.propertyName.getText();
+            this.sendObject["tooltip"] = this.parent.tooltip.getText();
+            this.sendObject["languages_id"] = canvas.thishib.userlang;
+            this.sendObject["isPublic"] = false;
+            this.sendObject["organisation_id"] = hib.currentdomainObj.organisation_id;
+            this.sendObject["objectTypeName"] = this.parent.objectTypeName.getValue();
+            this.sendObject["comment"] = this.parent.comment.getText();
+            this.sendObject["propertyValidationTypeId"] = parent.propertyValidationType.getValue();
+            
+            if ($debug) Debug.write("prepareCall: ",this.sendObject);
+  		</method>
+  		<netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+    	<netparam><method name="getValue">return parent.sendObject;</method></netparam>	  		
+    	<handler name="ondata" args="val">
+			<![CDATA[
+    		if ($debug) Debug.write("saveOrUpdateproperty ",val);
+			if (val>0){
+				//Debug.write("updateConfByConfigurationId val greater 0: ",val);
+                parent.propertyId = val;
+                parent.getLanguageByIdAndMax.start = 0;
+                parent.getLanguageByIdAndMax.doCall();
+			}
+			]]>
+    	</handler>
+  	</netRemoteCallHib>	
+    
+    <!-- Reload Labels cause you need them to display changes -->
+    <netRemoteCallHib name="getLanguageByIdAndMax" funcname="languageservice.getLanguageByIdAndMax" 
+                    remotecontext="$once{ canvas.thishib }" >   
+        <attribute name="start" value="0" type="number" />
+        <attribute name="step" value="100" type="number" /> 
+        <attribute name="max" value="3000" type="number" />    
+        <netparam><method name="getValue">return canvas.thishib.userlang;</method></netparam>
+        <netparam><method name="getValue">return parent.start;</method></netparam> 
+        <netparam><method name="getValue">return parent.step;</method></netparam> 
+        <handler name="ondata" args="value">
+            <![CDATA[
+                if($debug) Debug.write("hibRtmpConnection/getLanguageByIdAndMax:[",value,"]");
+                setLabelObjectByHundred(this.start,value);
+                //The onResult-Handler will be called be the rtmpconnection
+                if (this.start <= max){
+                    this.start += this.step;
+                    this.doCall();
+                } else {
+                    this.parent.parent._turnoverlist.oncallnext.sendEvent();
+	                var obj = new Array();
+	                obj["propertyId"] = parent.propertyId;
+	                this.parent.initValueFieldsByObject(obj);
+                }
+            ]]>
+        </handler>  
+    </netRemoteCallHib>    
+	
+	<!-- content -->
+    
+    <labelText labelid="987" width="200" y="40" resize="false" fontstyle="bold" />
+    
+    <labelText labelid="988" width="200" y="70" resize="false" x="2"/>
+        <customEdittext name="propertyName" y="70" x="120" width="270" text="" />
+
+    <labelText labelid="989" width="200" y="100" resize="false" x="2"/>
+        <customEdittext name="tooltip" y="100" x="120" width="270" text="" />
+        
+    <labelText labelid="990" width="200" y="130" resize="false" x="2"/>
+        <omComboBox name="objectTypeName" y="130" x="120" width="270" editable="false">
+            <handler name="oninit">
+                this.addItem(canvas.getLabelName(999),"activity");
+                this.addItem(canvas.getLabelName(1006),"processtree");
+                this.addItem(canvas.getLabelName(1005),"processgroup");
+                this.addItem(canvas.getLabelName(1007),"unitFixed");
+                this.addItem(canvas.getLabelName(1002),"departementFixed");
+                this.addItem(canvas.getLabelName(1000),"companyFixed");
+                this.addItem(canvas.getLabelName(1001),"connector");
+                this.addItem(canvas.getLabelName(1003),"flow");
+                this.addItem(canvas.getLabelName(1004),"issueflow");
+                this.selectItemAt(0);
+            </handler>
+        </omComboBox>>
+        
+    <labelText labelid="1015" width="200" y="160" resize="false" x="2"/>   
+        <omComboBox name="propertyValidationType" y="160" x="120" width="270" editable="false">
+            <labelTextListItem datapath="propertyValidationTypes:/item/" 
+                               value="$path{'propertyValidationTypeId/text()'}"
+                               labelid="$path{'labelId/text()'}" />
+        </omComboBox>>         
+    
+    <labelText labelid="995" width="200" y="190" resize="false" x="2"/>
+        <customScrollEdittext name="comment" y="190" x="120" width="270" 
+            height="100" text="" />    
+         
+</class>
+
+</library>

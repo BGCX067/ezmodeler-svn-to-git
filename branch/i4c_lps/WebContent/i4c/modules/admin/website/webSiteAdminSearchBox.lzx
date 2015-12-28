@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+<!--- Configuration module for ADMIN -->
+<class name="webSiteAdminSearchBox"  extends="labelExplorerBox" labelid="1220"
+        docking="true" width="462" x="400" y="300" height="270"> 
+        
+    <attribute name="refObj" value="null" />
+        
+    <handler name="oninit">
+        lz.ModeManager.makeModal(this);
+        this._turnoverlist.getWebItemList.doCall();
+    </handler>
+    
+    <handler name="onclose">
+        lz.ModeManager.release(this);
+    </handler>
+    
+    <turnOverList name="_turnoverlist" width="460" height="200" x="1" y="30" 
+		orderby="webItemId" step="10" asc="true">
+        
+		<handler name="oninit">
+			this.addHeaderItem(1211,80);
+			this.addHeaderItem(1212,166);
+            this.addHeaderItem(1213,200);
+			this.getWebItemList.doCall();
+		</handler>
+		
+		<handler name="oncallnext" >
+			this.getWebItemList.doCall();
+		</handler>
+		
+		<handler name="oncallpre" >		
+			this.getWebItemList.doCall();
+		</handler>
+		
+		<handler name="onclickedItem" args="obj">
+			if ($debug) Debug.write("onclickedItem",obj,obj.obj);
+		</handler>
+		
+		<netRemoteCallRPC name="getWebItemList" funcname="getWebItemList" 
+                          remotecontext="$once{  canvas.websiteServiceRPC }" >      
+			<netparam><method name="getValue"> return canvas.sessionId; </method></netparam>
+			<netparam><method name="getValue"> return parent.parent.start; </method></netparam>
+			<netparam><method name="getValue"> return parent.parent.step; </method></netparam>
+			<netparam><method name="getValue"> return parent.parent.orderby; </method></netparam>
+			<netparam><method name="getValue"> return parent.parent.asc; </method></netparam>
+	    	<handler name="ondata" args="value">
+	    		if ($debug) Debug.write("getWebItemList ",value);
+	    		//this.parent.destroy();
+	    		this.parent.initValues(value.records);
+	    		this.parent.renderContent(value.result);
+	    	</handler>
+	    </netRemoteCallRPC>	
+	    
+	    <method name="renderContent" args="records">
+	    	<![CDATA[
+		    	this.clearList();
+		    	for (var i=0;i<records.length;i++){
+		    		new lz.webSiteAdminListItem(this._innerlist._inn._inn,{
+	                            obj:records[i],
+	                            webItemName:records[i].webItemName,
+	                            webItemId:records[i].webItemId,
+	                            typeName:records[i].webItemType.typeName
+	                        });
+		    	}
+	    	]]>
+	    </method>
+
+	</turnOverList>
+    
+    <simpleLabelButton labelid="174" x="350" y="240" width="100">
+        <handler name="onclick">
+            this.parent.close();
+        </handler>
+    </simpleLabelButton>
+    <simpleLabelButton labelid="175" x="240" y="240" width="100">
+        <handler name="onclick">
+            if ($debug) Debug.write("this.parent._turnoverlist.selected: ",this.parent._turnoverlist.selected);
+            parent.refObj.addItem(this.parent._turnoverlist.selected);
+            this.parent.close();
+        </handler>
+    </simpleLabelButton>        
+        
+</class>
+
+</library>

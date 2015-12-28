@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+<!--- base class for the item list views-->
+<class name="baseContentListItem" extends="view" layout="axis:x;spacing:0" 
+	bgcolor="0xFFFFFF" 
+	onmouseover="this.setAttribute('bgcolor',canvas.baseMouseOvercolorizer)" 
+	>
+    
+    <attribute name="isDoubleClickItem" value="false" type="boolean" />
+    <attribute name="isSelected" value="false" type="boolean" />
+    
+    <method name="select">
+        this.isSelected=true;
+        this.setAttribute('bgcolor',canvas.baseMouseOvercolorizer)
+    </method>
+    
+    <method name="deselect">
+        this.isSelected=false;
+        this.setAttribute('bgcolor',0xFFFFFF);
+    </method>
+    
+    <handler name="onmouseout">
+        if (!this.isSelected) this.setAttribute('bgcolor',0xFFFFFF);
+    </handler>
+	
+	<handler name="onclick">
+        if (!this.isDoubleClickItem){
+		  this.parent.parent.parent.parent.onclickedItem.sendEvent(this);
+        }
+	</handler>
+    
+    <handler name="ondblclick">
+        if (this.isDoubleClickItem){
+          this.parent.parent.parent.parent.onclickedItem.sendEvent(this);
+        }
+    </handler>
+    
+    <attribute name="obj" value="null" />
+
+</class>
+
+</library>

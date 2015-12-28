@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+<!--- LOGIN panel window -->
+<class name="orgLoginValues" extends="view" >
+	
+	<attribute name="showRegisterIng" value="true" type="boolean" />
+	 
+	<method name="loadOrgItems">
+        <![CDATA[
+            
+        	//if ($debug) Debug.write("loadOrgItems ### ",canvas.userobject.organisation_users);
+        
+            this.organisation.reset();
+            
+            if (canvas.userobject.level_id <= 2) {
+                
+                if (canvas.userobject.organisation_users.length==0){
+                    //if ($debug) Debug.warn("this user has no Organisation ");
+                    new lz.errorPopup(canvas,{error:"No Organization for this User"});
+                    this.close();
+                } else {
+                    
+                    //Only add the Organizations the user is already member 
+                    
+                    for (var i=0;i<canvas.userobject.organisation_users.length;i++){
+                        this.organisation.addItemWithObject(canvas.userobject.organisation_users[i].organisation.name,
+                            canvas.userobject.organisation_users[i].organisation.organisation_id,
+                            canvas.userobject.organisation_users[i].organisation,
+                            canvas.userobject.organisation_users[i]);
+                    }
+                    this.organisation.selectItemAt(0);
+                    
+                }                        
+                
+            } else {
+        
+                //Load all the Organizations for Admins
+                this.getAllOrganisations.doCall();
+                
+            }
+        ]]>
+    </method>
+    
+    
+    <netRemoteCallRPC name="getAllOrganisations" funcname="getAllOrganisations" 
+                      remotecontext="$once{ canvas.organisationServiceRPC }" >      
+        <netparam><method name="getValue"> return canvas.sessionId; </method></netparam> 
+        <handler name="ondata" args="value">
+            <![CDATA[
+	            //The onResult-Handler will be called be the rtmpconnection
+	            //if ($debug) Debug.write("getAllOrganisations: ",value);
+	            for (var i=0;i<value.length;i++){
+                    //set to null as only Admins will do that
+                    //they do not need a orgusre Object, as they have all menu options given
+	                parent.organisation.addItemWithObject(value[i].name,value[i].organisation_id,value[i],null);
+	            }
+                parent.organisation.selectItemAt(0);
+            ]]>
+        </handler>  
+    </netRemoteCallRPC>    
+    
+    <netRemoteCallRPC name="checkOrganizationStatus" funcname="checkOrganizationStatus" 
+                      remotecontext="$once{ canvas.organisationServiceRPC }" >  
+        <attribute name="rememberMe" value="false" type="boolean" />
+        <attribute name="language_id" value="0" type="number" />
+        <attribute name="organisation_id" value="0" type="number" />
+        <netparam><method name="getValue">return canvas.sessionId; </method></netparam> 
+        <netparam><method name="getValue">return canvas.currentdomainObj.organisation_id;</method></netparam>
+        <netparam><method name="getValue">return parent.rememberMe; </method></netparam>
+        <netparam><method name="getValue">return parent.language_id; </method></netparam> 
+        <netparam><method name="getValue">return parent.organisation_id; </method></netparam>  
+        <handler name="ondata" args="value">
+            <![CDATA[
+	            //The onResult-Handler will be called be the rtmpconnection
+	            if ($debug) Debug.write("checkOrganizationStatus ",value);
+	            if ($debug) Debug.write("checkOrganizationStatus -1- ",this.rememberMe);
+	            if ($debug) Debug.write("checkOrganizationStatus -2- ",this.language_id);
+	            if ($debug) Debug.write("checkOrganizationStatus -3- ",this.organisation_id);
+	            
+	            if (value > 0){
+	            	parent.getUserByOrganization.doCall();
+	                //show an Info Dialog with the remaining Days in this Pending Organization
+	            }
+            ]]>
+        </handler>  
+    </netRemoteCallRPC>  
+    
+    <netRemoteCallRPC name="getUserByOrganization" funcname="getUserByOrganization"
+    				  remotecontext="$once{ canvas.userServiceRPC }" >
+        <netparam><method name="getValue">return canvas.sessionId;</method></netparam>
+        <netparam><method name="getValue">return canvas.currentdomainObj.organisation_id;</method></netparam>
+        <handler name="ondata" args="value">
+            //The onResult-Handler will be called be the rtmpconnection
+            //if ($debug) Debug.write("getUserByOrganization ",value,canvas.currentdomainObj.organisation_id);
+            canvas.orgUserList = value;
+            //NOT USEDparent.getModeratorsByOrganization.doCall();
+            //if ($debug) Debug.write("propertyValidationTypes: ",propertyValidationTypes);
+            parent.getRolesBySelf.doCall();
+        </handler>  
+    </netRemoteCallRPC>     
+    
+    <netRemoteCallRPC name="getRolesBySelf" funcname="getRolesBySelf" 
+    				  remotecontext="$once{ canvas.roleServiceRPC }">    
+        <netparam><method name="getValue"> return canvas.sessionId; </method></netparam>   
+        <netparam><method name="getValue"> return canvas.currentdomainObj.organisation_id;</method></netparam> 
+        <handler name="ondata" args="value">
+            <![CDATA[
+	            //The onResult-Handler will be called be the rtmpconnection
+	            //if ($debug) Debug.write("hibRtmpConnection/getRolesBySelf [",value,"]");
+	            
+	            lz.Focus.clearFocus();
+	            
+	            if (parent.showRegisterIng) {
+	            
+    	            parent.parent.parent.parent.doClose();
+    	            
+                    if (value.length == 0) {
+                        canvas.initMainDialog();
+                    } else if (value.length == 1) {
+    	                canvas.currentRole = value[0];
+                        canvas.initMainDialog();
+    	            } else {
+                        
+                        var canCancel = false;
+                        if (canvas.userobject.userlevel.level_id > 1){
+                            canCancel = true;
+                        }
+                        canvas.initMainDialog();
+                    }
+                
+	            } else {
+	            	
+	            	if ($debug) Debug.write("canvas.sessionId ",canvas.sessionId);
+	            	
+	            	//return;
+	            	//lz.Browser.loadURL("../index.jsp?autologin="+canvas.sessionId,"_blank");
+	            	lz.Browser.loadURL("../index.jsp?autologin="+canvas.sessionId,"_blank");
+	            	
+	            }
+	            
+            ]]>
+        </handler>  
+    </netRemoteCallRPC>  
+    
+    <!-- Organization Area -->
+    
+    <labelText name="_labeldOrgChooseheader" y="24" labelid="1106" fontstyle="bold" />
+    
+    <infoIconBox y="44" name="_infoBoxForOrgSelection" iconResourceNameDynamic="icon_organization_rsc"
+                 x="4" width="$once{ parent.width - 20 }"
+                 labelid="639" />
+                 
+    <labelText name="_labelOrganization" labelid="184" width="200" y="134" resize="false" x="2" />     
+        <omComboBox name="organisation" width="170" y="134" x="120" editable="false" >
+            <method name="addItemWithObject" args="txt,val,obj,orgUser">
+                new lz.textlistitem(this,{
+                    		text:txt,value:val,obj:obj,orgUser:orgUser
+                		});
+            </method>  
+        </omComboBox>>
+        
+        
+    <simpleLabelButton labelid="1098" name="_back" width="120"
+        x="80" y="164" >
+        <handler name="onclick">
+            parent.parent.parent.parent.showFirstStep();
+        </handler>
+    </simpleLabelButton>   
+        
+        
+	<simpleLabelButton name="_loginButtonOrganization" labelid="185" width="120" 
+        x="205" y="164">
+    	<handler name="onclick">
+            <![CDATA[
+	            
+	            //set the Organisation Object
+				var organisation_id = Number(parent.organisation.getValue());
+                
+                var item = parent.organisation.getItem(parent.organisation.getValue());
+                canvas.currentdomain = item.obj.name;
+                canvas.currentdomainObj = item.obj;
+                canvas.currentdomainUserObj = item.orgUser;
+                
+                //if ($debug) Debug.write("canvas.currentdomainUserObj: ",canvas.currentdomainUserObj,item);
+                if (canvas.currentdomainUserObj != null && canvas.currentdomainUserObj.isModerator) {
+                    canvas.userobject.userlevel.level_id = 2;
+                }
+
+                var t = new lz.sharedObject();
+	            t.getLocal('userdata');
+	            var g = t.getData('userdata');
+	            if (g==null) g = new Array();
+	            
+	            if (!parent.showRegisterIng) {
+    	            
+                    parent.checkOrganizationStatus.rememberMe = true;
+                    
+	            } else {
+	            	
+	            	if (parent.parent._userValues._savelogindata.getValue()) {
+                        var t = new lz.sharedObject();
+                        t.getLocal('userdata');
+                        var g = t.getData('userdata');
+                        if (g==null) g = new Array();
+                        //g["userquality"] = parent.ncomboquality.getValue();
+                        //g["usercolor"] = parent.colors.getValue();
+                        g["rememberme"] = true;
+                        g["userhash"] = canvas.sessionId;
+                        t.flush(); 
+                    } else {
+                        var t = new lz.sharedObject();
+                        t.getLocal('userdata');
+                        var g = t.getData('userdata');
+                        if (g==null) g = new Array();
+                        g["rememberme"] = false;
+                        g["userhash"] = "";
+                        t.setData('userdata',g);
+                        t.flush();          
+                    }   
+                    
+                    parent.checkOrganizationStatus.rememberMe = parent.parent._userValues._savelogindata.getValue();
+	            	
+	            }
+	            
+	            parent.checkOrganizationStatus.language_id = Number(parent.parent._userValues.languages.getValue());
+                parent.checkOrganizationStatus.organisation_id = organisation_id;
+	            
+	            
+	            //hib.getRolesBySelf.doCall();
+	            parent.checkOrganizationStatus.doCall();
+	            
+            ]]>
+    	</handler>
+    </simpleLabelButton>    
+        
+</class>
+
+</library>

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:lang="http://www.springframework.org/schema/lang"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+                           http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-2.0.xsd">
+    
+    <bean id="reportservice.service" parent="txProxyTemplate">
+        <property name="target" ref="txReportservice.service" />
+    </bean>
+    
+    <!-- Class for Methods which can be invoked by the client -->
+	<bean id="txReportservice.service" 
+		class="org.i4change.app.remote.ReportService" >
+        <property name="application" ref="web.handler" />
+        <property name="diagramDaoImpl" ref="i4change.DiagramDaoImpl" />
+        <property name="diagramObjectDaoImpl" ref="i4change.DiagramObjectDaoImpl" />
+        <property name="diagramObjectPropertyDaoImpl" ref="i4change.DiagramObjectPropertyDaoImpl" />
+        <property name="projectDaoImpl" ref="i4change.ProjectDaoImpl" />
+        <property name="projectRelationDaoImpl" ref="i4change.ProjectRelationDaoImpl" />
+        <property name="generatePreview" ref="i4change.GeneratePreview" />
+        <property name="reportDaoImpl" ref="i4change.ReportDaoImpl" />
+        <property name="reportTypesDaoImpl" ref="i4change.ReportTypesDaoImpl" />
+        <property name="userDaoImpl" ref="i4change.UserDaoImpl" />
+        <property name="sessionmanagement" ref="i4change.Sessionmanagement" />
+    </bean> 
+    
+    <bean id="i4change.ReportManagement"
+        class="org.i4change.app.data.report.ReportManagement">
+        <property name="diagramInstanceObjectDaoImpl" ref="i4change.DiagramInstanceObjectDaoImpl" />
+        <property name="projectRelationDaoImpl" ref="i4change.ProjectRelationDaoImpl" />
+        <property name="diagramSummaryDaoImpl" ref="i4change.DiagramSummaryDaoImpl" />
+        <property name="generatePreview" ref="i4change.GeneratePreview" />
+        <property name="reportDaoImpl" ref="i4change.ReportDaoImpl" />
+    </bean> 
+    
+    <bean id="i4change.GeneratePreview" 
+        class="org.i4change.app.data.report.GeneratePreview">
+    	 <property name="generateImage" ref="i4change.GenerateImage" />
+    	 <property name="generateThumbs" ref="i4change.GenerateThumbs"/>
+    </bean> 
+    
+    <bean id="i4change.ReportDaoImpl"
+        class="org.i4change.app.data.report.daos.ReportDaoImpl">
+    	<property name="sessionFactory" ref="theSessionFactory"/>
+    	<property name="userDaoImpl" ref="i4change.UserDaoImpl"/>
+    </bean> 
+        
+    <bean id="i4change.ReportTypesDaoImpl"
+        class="org.i4change.app.data.report.daos.ReportTypesDaoImpl">
+        <property name="sessionFactory" ref="theSessionFactory"/>
+    </bean> 
+    
+</beans>

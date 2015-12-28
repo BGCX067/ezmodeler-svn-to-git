@@ -1,0 +1,359 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+   
+<class name="baseContentDiagramView" extends="baseContentView" bgcolor="white">
+    
+    <attribute name="diagramType" value="" type="string" />
+    
+    <attribute name="currentDiagramTempName" value="" type="string" />
+    <attribute name="currentDiagramMini" value="null" />
+    
+    <attribute name="propertyInspectorIsInited" value="false" type="boolean" />
+    
+    <handler name="oninit">
+        <![CDATA[
+            //Add Help Item
+            canvas.addCurrentHelpId(this.helpId,this.__constructor__.classname);
+            
+            canvas.addCurrentHelpId(45,"baseContentDiagramView");
+            
+            canvas.currentDiagramRef = this;
+            
+            ////if ($debug) Debug.write("WRITE AND ACCESS ALL");
+            //new lz.propertyInspector(this,{name:'_propertyInspector'}); 
+            this.initWriteDialogs();
+            
+            parent.parent.setActivate(this);
+            
+            if (canvas.currentDiagram != null) {
+                
+                this.currentDiagramTempName = canvas.currentDiagram.name;
+                var tempWidth = canvas.currentbarmenu.getCurrentSize();
+                this.currentDiagramMini = new lz.presenterminibtn(canvas.currentbarmenu,{objRef:this,
+                                                width:tempWidth,btnName:canvas.currentDiagram.name});
+
+                //if (canvas.currentDiagram.canWrite){
+                //    //if ($debug) Debug.write("WRITE AND ACCESS ALL");
+                //    new lz.propertyInspector(this,{name:'_propertyInspector'});
+                //    this.initWriteDialogs();                                
+                //} else if (canvas.currentDiagram.onlyIssues) {
+                //    //if ($debug) Debug.write("NO RIGHTS ONLY ISSUES");
+                //    new lz.propertyInspector(this,{name:'_propertyInspector'});
+                //    new lz.readOnlyToolBar(this);
+                //} else {
+                //    //if ($debug) Debug.write("NO RIGHTS READ ONLY");
+                //}
+                
+                //???
+                //if (this.diagramType=="roleview") {
+                //    menu_showRevisionHistory._checkbox.setValue(true);
+                //}
+                
+                //new lz.revisionhistory(this,{name:'_revisionhistory',
+                //        currentRemoteDiagram:canvas.currentDiagram
+                //    });
+            } else {
+                
+                //new lz.propertyInspector(this,{name:'_propertyInspector'});
+                if (this.diagramType != "singleRole") {
+                    
+                    //If this Diagram is created by Drill Down do not show this
+                    if ( canvas.isTempNewlyCreatedMainDiagram) {
+                        
+                        canvas.isTempNewlyCreatedMainDiagram = false;
+                        var baseObject =  canvas.tempNewlyCreatedBaseObject;
+                        if (baseObject[0] == "process" || baseObject[0] == "processtree" 
+                            || baseObject[0] == "processgroup" 
+                            || baseObject[0] == "departement" || baseObject[0] == "departementFixed"
+                            || baseObject[0] == "company" || baseObject[0] == "companyFixed") {
+	                        this.currentDiagramTempName = baseObject[baseObject.length-8];
+	                    }
+                        
+                    } else {
+                        this.currentDiagramTempName = 'Diagram-Name_'+ getStringDateFileSave();
+                    }
+                    
+                } else {
+                    this.currentDiagramTempName = 'My_Role_'+ getStringDateFileSave();
+                }
+                
+                ////if ($debug) Debug.write("canvas.currentbarmenu: ",canvas.currentbarmenu);
+                var tempWidth = canvas.currentbarmenu.getCurrentSize();
+                ////if ($debug) Debug.write("tempWidth: ",tempWidth);
+                this.currentDiagramMini = new lz.presenterminibtn(canvas.currentbarmenu,{objRef:this,
+                                                width:tempWidth,btnName:this.currentDiagramTempName});
+                ////if ($debug) Debug.write("this.currentDiagramMini: ",this.currentDiagramMini);
+                
+            }
+            
+            this.onMenu.sendEvent();
+            lz.Browser.loadJS('changeTitle("'+this.currentDiagramMini.btnName+'")');
+            
+            this._autoSaveItem.bringToFront();
+            this._diagramSideBar.bringToFront();
+        ]]>
+    </handler>  
+    
+    <method name="activate">
+        //if ($debug) Debug.write("activate: ",this);
+        this.setAttribute('visibility','visible');
+        this.bringToFront();
+        canvas.currentDiagramRef = this;
+        
+        this.onMenu.sendEvent();
+
+        if (this.currentDiagramMini!=null) {
+            ////if ($debug) Debug.write("this.currentDiagramMini.btnName: "+this.currentDiagramMini.btnName);
+            lz.Browser.loadJS('changeTitle("'+this.currentDiagramMini.btnName+'")');
+        }
+    </method>
+    
+    <handler name="onvisible" args="v">
+    	////if ($debug) Debug.write("onvisibility: ",v);
+    	//Set Active Status of Diagram
+    	this._scrollcontent.dragArea.contentArea._currentBoard.isActive = v;
+    </handler>
+    
+    <method name="leaveDiagram">
+        //Empty Stub
+        //if ($debug) Debug.write("CHECK FOR UPDATES",this.destroyByMethod,this._scrollcontent);
+        if (this.destroyByMethod) {
+        	//In case this scrollcontent is already gone, you have to process next action ICH-568
+            if (this._scrollcontent) {
+            	//only do that if the auto-save is on ICH-775
+            	if (this._autoSaveItem._checkBox.getValue()) {
+	            	this._scrollcontent.dragArea.contentArea._currentBoard.doSaveByMethod();
+	            	return false;
+            	} else {
+            		return true;
+            	}
+            } else {
+            	return true;
+            }
+        } else {
+            return true;
+        }
+    </method>
+    
+    <handler name="ondestroyByMethod">
+        //if ($debug) Debug.write("ondestroyByMethod: ",this.destroyByMethod);
+        if (this.destroyByMethod) {
+            if (this._scrollcontent.dragArea.contentArea._currentBoard.currentDiagram != null) {
+                this.currentDiagramTempName = this._scrollcontent.dragArea.contentArea._currentBoard.currentDiagram.name;
+            }
+            this.currentDiagramMini.setAttribute('btnName','*'+this.currentDiagramTempName);
+            this._autoSaveItem.oninit.sendEvent();
+        } else {
+            if (this._scrollcontent.dragArea.contentArea._currentBoard.currentDiagram != null) {
+                this.currentDiagramTempName = this._scrollcontent.dragArea.contentArea._currentBoard.currentDiagram.name;
+            }
+            this.currentDiagramMini.setAttribute('btnName',this.currentDiagramTempName);
+        }
+    </handler>
+    
+    <handler name="ontabcontentleave">
+        if (this.destroyByMethod){
+            this._scrollcontent.dragArea.contentArea._currentBoard.closeAfterUpdate = true;
+            this._scrollcontent.dragArea.contentArea._currentBoard.showExitDialog();
+        } else {
+            this.doCloseAfterSaveEvent();
+        }
+    </handler>
+    
+    <method name="doCloseAfterSaveEvent">
+        this.currentDiagramMini.destroy();
+        this.destroy();
+        //if ($debug) Debug.write("doCloseAfterSaveEvent: ");
+        if (this.currentDiagramMini.parent.subviews.length!=0){
+            this.currentDiagramMini.parent.subviews[0].onclick.sendEvent();
+        } else {
+            quicklinkAct('mainDashboard');
+        }
+    </method>   
+    
+    <method name="doCheckForBulkUpdates">
+        return this.destroyByMethod;
+    </method>
+    
+    <method name="startCheckForBulkUpdates">
+        if (this.destroyByMethod){
+            this._scrollcontent.dragArea.contentArea._currentBoard.bulkcloseAfterUpdate = true;
+            this._scrollcontent.dragArea.contentArea._currentBoard.showExitDialog();
+            return true;
+        } else {
+            this.currentDiagramMini.destroy();
+            this.destroy();
+            return false;
+        }
+    </method> 
+    
+    <method name="doBulkCloseAfterSaveEvent">
+        this.currentDiagramMini.destroy();
+        this.destroy();
+        ////if ($debug) Debug.write("doBulkCloseAfterSaveEvent: ",parent.parent);
+        parent.parent.confirmSaveEachAsObjectToDatabase();
+    </method>   
+    
+    <method name="setCurrentSelectedObject" args="refObj">
+    	//var mm = arguments.callee;
+    	////if ($debug) Debug.write("### setCurrentSelectedObject ### ",mm);
+        ////if ($debug) Debug.write("### setCurrentSelectedObject ### ",refObj);
+        //if (this._propertyInspector){
+        //    this._propertyInspector.setObjectSelectedObj(refObj);
+        //}
+        this._diagramSideBar.setCurrentSelectedObject(refObj);
+    </method>
+    
+    <view name="_autoSaveItem" y="${ canvas.height-82 }" x="2" opacity="0.8">
+        <attribute name="fadeDelegate" value="null" />
+        <attribute name="labelString" value="" type="string" />
+        <attribute name="labelWaitingString" value="" type="string" />
+        <attribute name="autoSaveTime" value="300" type="number" />
+        <handler name="oninit">
+            this.labelString = canvas.getLabelName(1097);
+            this.labelWaitingString = canvas.getLabelName(1105);
+            if (this.fadeDelegate == null) {
+                this.fadeDelegate = new LzDelegate( this, "doTime" );
+            }
+            this.autoSaveTime = canvas.autoSaveTime;
+            if (this._checkBox.getValue()) {
+                this.doTime();
+            } else {
+                this._checkBox.setAttribute("text",canvas.getLabelName(1096));
+            }
+        </handler>
+        <method name="doTime" args="item">
+            lz.Timer.removeTimer( this.fadeDelegate );
+            if (parent.destroyByMethod) {
+            	
+                if (parent._scrollcontent.dragArea.contentArea._currentBoard.doCountAutoSave){
+            	    //In some situation you do not want the counter to continue	
+                    this.autoSaveTime -= 1;
+            	}
+            	
+	            var dMinutes = Math.floor(this.autoSaveTime/60);
+	            var restSeconds = this.autoSaveTime - (dMinutes * 60);
+	            this._checkBox.setAttribute("text",this.labelString+" "+dMinutes+" min "+restSeconds+" sec");
+	            if (this._checkBox.getValue()) {
+	                lz.Timer.addTimer( this.fadeDelegate, 1000 );
+	            } else {
+	                this._checkBox.setAttribute("text",canvas.getLabelName(1096));
+	            }
+	            if (this.autoSaveTime == 0) {
+	                this.autoSaveTime = canvas.autoSaveTime;
+	                parent._scrollcontent.dragArea.contentArea._currentBoard.doAutoSave();
+	            }
+            } else {
+                this.autoSaveTime = canvas.autoSaveTime;
+                this._checkBox.setAttribute("text",this.labelWaitingString);
+                if (!this._checkBox.getValue()) {
+                    this._checkBox.setAttribute("text",canvas.getLabelName(1096));
+                }
+            }
+        </method>
+        
+         <labelCheckbox name="_checkBoxDiagramShowFlowText" labelid="1394" >
+            <attribute name="sendUpdates" value="true" type="boolean" />
+            <attribute name="isInited" value="false" type="boolean"/>
+            <handler name="onvalue" args="v">
+            	//if ($debug) Debug.write("onvalue ",v,this.sendUpdates);
+            	if (!this.isInited) {
+            		this.isInited = true;
+            		return;
+            	}
+                if (this.sendUpdates) {
+                	parent.parent._diagramSideBar.updateSidebar();
+                }
+                parent.parent._scrollcontent.dragArea.contentArea._currentBoard.showPreNextDiagramsOnFlows(v);
+            </handler>
+        </labelCheckbox>
+        
+        <labelCheckbox name="_checkBox" value="true" labelid="1096" y="18" >
+        	<attribute name="sendUpdates" value="true" type="boolean" />
+            <attribute name="isInited" value="false" type="boolean"/>
+            <handler name="onvalue" args="v">
+                //if ($debug) Debug.write("onvalue ",v,this.sendUpdates);
+                if (!this.isInited) {
+                    this.isInited = true;
+                    return;
+                }
+                parent.oninit.sendEvent();
+                if (this.sendUpdates) {
+                	parent.parent._diagramSideBar.updateSidebar();
+                }
+            </handler>
+        </labelCheckbox>
+    </view>
+    
+</class>
+
+
+<!--
+if (this.diagramType=="roleview") {
+            if (this._propertyInspector == null){
+                menu_showPropertyInspector._checkbox.setValue(false);
+            } else {
+                menu_showPropertyInspector._checkbox.setValue(true);
+            }
+            if (this._roleexplorer == null){
+                menu_showRoleExplorer._checkbox.setValue(false);
+            } else {
+                menu_showRoleExplorer._checkbox.setValue(true);
+            }
+            if (this._revisionhistory == null){
+                menu_showRevisionHistory._checkbox.setValue(false);
+            } else {
+                menu_showRevisionHistory._checkbox.setValue(true);
+            }
+        } else if (this.diagramType=="processgroup") {
+            if (this._propertyInspector == null){
+                menu_showPropertyInspectorProcess._checkbox.setValue(false);
+            } else {
+                menu_showPropertyInspectorProcess._checkbox.setValue(true);
+            }
+            if (this._processExplorer == null){
+                menu_showProcessExplorer._checkbox.setValue(false);
+            } else {
+                menu_showProcessExplorer._checkbox.setValue(true);
+            }
+            if (this._revisionhistory == null){
+                menu_showRevisionHistoryProcess._checkbox.setValue(false);
+            } else {
+                menu_showRevisionHistoryProcess._checkbox.setValue(true);
+            }
+        } else if (this.diagramType=="hierarchical") {
+            if (this._propertyInspector == null){
+                menu_showPropertyInspectorHierarchical._checkbox.setValue(false);
+            } else {
+                menu_showPropertyInspectorHierarchical._checkbox.setValue(true);
+            }
+            if (this._hierarchicalExplorer == null){
+                menu_showHierarchicalExplorer._checkbox.setValue(false);
+            } else {
+                menu_showHierarchicalExplorer._checkbox.setValue(true);
+            }
+            if (this._revisionhistory == null){
+                menu_showRevisionHistoryHierarchical._checkbox.setValue(false);
+            } else {
+                menu_showRevisionHistoryHierarchical._checkbox.setValue(true);
+            }
+        } else if (this.diagramType=="singleRole") {
+            if (this._propertyInspector == null){
+                menu_showPropertyInspectorSingleRole._checkbox.setValue(false);
+            } else {
+                menu_showPropertyInspectorSingleRole._checkbox.setValue(true);
+            }
+            if (this._roleexplorer == null){
+                menu_showRoleExplorerSingleRole._checkbox.setValue(false);
+            } else {
+                menu_showRoleExplorerSingleRole._checkbox.setValue(true);
+            }
+            if (this._revisionhistory == null){
+                menu_showRevisionHistorySingleRole._checkbox.setValue(false);
+            } else {
+                menu_showRevisionHistorySingleRole._checkbox.setValue(true);
+            }
+        }
+        -->
+
+</library>

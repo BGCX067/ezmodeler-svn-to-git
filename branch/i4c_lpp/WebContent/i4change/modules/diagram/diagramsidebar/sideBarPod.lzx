@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<library>
+    
+<class name="baseSideBarItem" extends="view" width="${ parent.width }" bgcolor="white">
+    <attribute name="isSideBarMainItem" value="true" type="boolean" />
+    <attribute name="refObj" value="null" />
+    <handler name="onclick">
+        this.refObj.sendClick();
+    </handler>
+</class>    
+    
+<class name="sideBarPodClosed" extends="baseSideBarItem" 
+       bgcolor="$once{ canvas.baseMousecolorizer }"
+       isSideBarMainItem="false">
+    <attribute name="labelid" type="number" value="0" />
+    <attribute name="iconName" value="icon_property_inspector" type="string" />
+    <view width="19" y="2" x="4" >
+        <handler name="oninit">
+            this.setSource(canvas.getIconPathByName(parent.iconName));
+        </handler>
+    </view>
+    <view x="0" width="50" y="6" name="_headerClosed">
+        <text name="_header" width="$once{ parent.width }" 
+                   multiline="true" fgcolor="0xFFFFFF" fontsize="10" >
+            <attribute name="labelid" value="$once{ parent.parent.labelid }" type="number" setter="setLabelId(labelid)" />
+		    <method name="setLabelId" args="_labelid" >
+		        this.labelid = _labelid;
+		        this.setAttribute("text","     "+canvas.getLabelName(this.labelid));
+		    </method>
+        </text>
+    </view>    
+</class>   
+    
+<class name="sideBarPod" extends="baseSideBarItem" visibility="hidden">
+    
+    <attribute name="labelid" type="number" value="0" />
+    <attribute name="isOpen" value="false" type="boolean" />
+    
+    <attribute name="contentHeight" type="number" value="0" />
+    <attribute name="contentY" type="number" value="0" />
+    
+    <!-- indicates if the content of this box is already inited -->
+    <attribute name="contentIsInited" value="false" type="boolean" />
+    
+    <attribute name="iconName" value="icon_property_inspector" type="string" />
+    
+    <handler name="contentInit" >
+        this.contentIsInited = true;
+    </handler>
+    
+    <handler name="oninit">
+        this._headerClosed = new lz.sideBarPodClosed(parent,{
+            name:this.name+'CLOSED',iconName:this.iconName,
+            labelid:this.labelid,refObj:this,x:16});
+    </handler>
+    
+    <method name="close">
+        this._close.doStart();
+    </method>
+    
+    <method name="showOpen">
+        this.setAttribute('height',this.contentHeight+this.contentY);
+        this.isOpen = true;
+        if (this.contentIsInited) {
+            this.content.setAttribute('visibility','visible');
+        }
+    </method>
+    
+    <method name="showClose">
+        this.setAttribute('height',20);
+        this.isOpen = false;
+        if (this.contentIsInited) {
+            this.content.setAttribute('visibility','hidden');
+        }
+    </method>
+    
+    <method name="sendClick">
+        parent.parent.setSelectionAndOpen(this);
+    </method>
+    
+    <method name="open">
+        this._open.setAttribute("to",this.contentHeight+this.contentY);
+        this._open.doStart();
+    </method>
+    
+    <method name="showClosedSideBarTabButton">
+        this._headerClosed.setAttribute('visibility','visible');
+    </method>
+    <method name="hideClosedSideBarTabButton">
+        this._headerClosed.setAttribute('visibility','hidden');
+    </method>
+    <method name="showOpenSideBarTabButton">
+        this.setAttribute('visibility','visible');
+    </method>
+    <method name="hideOpenSideBarTabButton">
+        this.setAttribute('visibility','hidden');
+    </method>    
+    
+    <view width="${ parent.width-16 }" x="16" height="21" name="_headerMain"
+          bgcolor="0xFFFFFF" >
+        <handler name="onclick">
+            if (parent.isOpen) {
+                parent.parent.parent.deSelection(parent);
+            } else {
+                parent.parent.parent.setSelection(parent);
+            }
+        </handler>
+        <view bgcolor="$once{ canvas.baseMousecolorizer }" y="1" width="${ parent.width }" height="20" >
+            <handler name="onmouseover">
+                this.setAttribute('bgcolor',canvas.baseMouseOvercolorizer);
+            </handler>
+            <handler name="onmouseout">
+                this.setAttribute('bgcolor',canvas.baseMousecolorizer);
+            </handler>
+            <handler name="onclick">
+                parent.onclick.sendEvent();
+            </handler>
+        </view>
+        <view width="19" y="2" x="4" >
+            <handler name="oninit">
+                this.setSource(canvas.getIconPathByName(parent.parent.iconName));
+            </handler>
+        </view>
+        <labelText name="_header" x="22"
+                   labelid="$once{ parent.parent.labelid }" y="1" fontsize="11"
+                   fgcolor="0xFFFFFF" />
+    </view>
+    
+    <animator name="_open" attribute="height" start="false" duration="350">
+        <handler name="onstop">
+            if (parent.contentIsInited){
+                parent.content.setAttribute('visibility','visible');
+            } else {
+                parent.contentInit.sendEvent();
+            }
+        </handler>
+    </animator>
+    
+    <animator name="_close" attribute="height" start="false" to="20" duration="350">
+        <handler name="onstart">
+            parent.content.setAttribute('visibility','hidden');
+        </handler>
+    </animator>
+    
+    <method name="clearList">
+        if (this.contentIsInited){
+            this.content.clearList();
+        }
+    </method>    
+    
+</class>   
+
+<class name="sideBarPodTest" extends="sideBarPod" labelid="604">
+
+    <view x="10" y="20" name="content" 
+          width="300" height="320" bgcolor="0xFF3300" visibility="hidden">
+        
+    </view>
+    
+</class> 
+
+</library>

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+	
+<!--- Admin module to configure the Conference or Audience room.-->
+<class name="objectTypeMod" extends="baseContentTabbedView" labelid="1367">	
+
+    <handler name="oninit">
+        //Add Help Item
+        //canvas.addCurrentHelpId(42,this.__constructor__.classname);
+    </handler>  
+        
+    <view>
+
+		<turnOverList name="_turnoverlist" width="540" height="600" x="2" y="0" 
+            orderby="c.propertyId" step="50" asc="true">
+    
+            <handler name="oninit">
+                this.addHeaderItem(984,80);
+                this.addHeaderItem(985,166);
+                this.addHeaderItem(986,140);
+                this.addHeaderItem(990,140);
+                this.getDiagramObjectTypesByOrg.doCall();
+            </handler>
+            
+            <handler name="oncallnext" >
+                this.getDiagramObjectTypesByOrg.doCall();
+            </handler>
+            
+            <handler name="oncallpre" >     
+                this.getDiagramObjectTypesByOrg.doCall();
+            </handler>
+            
+            <handler name="onclickedItem" args="obj">
+                Debug.write("onclickedItem",obj,obj.obj);
+                parent._objectTypeModValueForm.initValueFieldsByObject(obj.obj);
+            </handler>
+            
+            <netRemoteCallRPC name="getDiagramObjectTypesByOrg" funcname="getDiagramObjectTypesByOrg" 
+                              remotecontext="$once{  canvas.propertyServiceRPC }" >      
+                <netparam><method name="getValue"> return canvas.sessionId; </method></netparam>
+                <netparam><method name="getValue"> return canvas.currentdomainObj.organisation_id;</method></netparam>
+                <handler name="ondata" args="value">
+                    if ($debug) Debug.write("getDiagramObjectTypesByOrg: ",value);
+                    //this.parent.destroy();
+                    this.parent.initValues(value.length);
+                    this.parent.renderContent(value);
+                </handler>
+            </netRemoteCallRPC> 
+            
+            <method name="renderContent" args="records">
+                <![CDATA[
+                this.clearList();
+                for (var i=0;i<records.length;i++){
+                    new lz.objectTypeAdminListItem(this._innerlist._inn._inn,{
+                        obj:records[i],
+                        objectTypeId:records[i].objectTypeId,
+                        oName:canvas.getLabelName(records[i].labelid),
+                        objectTypeName:records[i].objectTypeName,
+                        organisation:((records[i].organisation != null) ? records[i].organisation.name : canvas.getLabelName(996))});
+                }
+                ]]>
+            </method>
+    
+        </turnOverList>
+        
+        <objectTypeModValueForm name="_objectTypeModValueForm" x="550" />
+    
+    </view>
+    
+    <vscrollbar name="_scrollbar" />
+    		
+</class>
+
+
+
+</library>

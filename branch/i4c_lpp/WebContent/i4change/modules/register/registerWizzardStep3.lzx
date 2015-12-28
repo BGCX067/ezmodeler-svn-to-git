@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+<class name="registerWizzardStep3" extends="baseRegisterWizzardStep" headerLabelId="1026" stepNo="4" >
+    
+    <handler name="oninit">
+        var dValues = parent.parent.getStep("organizationData");
+        //if ($debug) Debug.write("dValues: ",dValues);
+        if (dValues != null) {
+            var itemArray = new Array();
+            for (var eg in dValues["selectedAreas"]) {
+                itemArray.push(this.org_type.getItem(dValues["selectedAreas"][eg]));
+            }
+            
+            this.org_name.setAttribute("text",dValues["org_name"]);
+            //if ($debug) Debug.write("org_type itemArray: ",itemArray);
+            this.org_type.clearSelection();
+            this.org_type.select(itemArray);
+            this.org_value.selectItem(dValues["org_value"]);
+            this.org_stock_sign.setAttribute("text",dValues["org_stock_sign"]);
+            this.org_fortune500.selectItem(dValues["org_fortune500"]);
+            
+            this.state.addAndSelectItem(dValues["states_Name"],dValues["states_id"]);
+        } else {
+            var defaultstate = canvas.getCountryRecord(101);
+            this.state.addAndSelectItem(defaultstate.name,defaultstate.country_id);  
+        }
+    </handler>
+    
+    <!--
+    <method name="doSaveTemp">
+        <![CDATA[
+            var dValues = new Array();
+	        dValues["selectedAreas"] = this.org_type.getValue();
+            //if ($debug) Debug.write("dValues[selectedAreas]: ",dValues["selectedAreas"]);
+            dValues["org_name"] = this.org_name.getText();
+            //if ($debug) Debug.write("dValues[org_name]: ",dValues["org_name"]);
+            dValues["org_value"] = this.org_value.getValue();
+            //if ($debug) Debug.write("dValues[org_value]: ",dValues["org_value"]);
+            
+	        if (dValues["selectedAreas"] == null || dValues["selectedAreas"].length == 0) {
+                new lz.errorPopupWithLabel(canvas,{labelerrorid:1073});
+            } else if (dValues["org_name"].length == 0) {
+                new lz.errorPopupWithLabel(canvas,{labelerrorid:1074});
+            } else {
+                
+                dValues["org_stock_sign"] = this.org_stock_sign.getText();
+                dValues["org_fortune500"] = this.org_fortune500.getValue();
+                dValues["states_Name"]=this.state.getText();
+                dValues["states_id"]=Number(this.state.getValue());
+                
+                
+                parent.parent.saveStep(dValues,"organizationData");
+                return true;
+            }
+            
+            //if ($debug) Debug.write("dValues: ",dValues);
+	        return false;
+        ]]>
+    </method>
+     -->
+    
+    <method name="doSaveTemp">
+        <![CDATA[
+            //No mandatory Fields
+        
+            var dValues = new Object();
+            dValues["selectedAreas"] = this.org_type.getValue();
+            //if ($debug) Debug.write("dValues[selectedAreas]: ",dValues["selectedAreas"]);
+            dValues["org_name"] = this.org_name.getText();
+            //if ($debug) Debug.write("dValues[org_name]: ",dValues["org_name"]);
+            dValues["org_value"] = this.org_value.getValue();
+            //if ($debug) Debug.write("dValues[org_value]: ",dValues["org_value"]);
+            
+                
+            dValues["org_stock_sign"] = this.org_stock_sign.getText();
+            dValues["org_fortune500"] = this.org_fortune500.getValue();
+            dValues["states_Name"]=this.state.getText();
+            dValues["states_id"]=Number(this.state.getValue());
+            
+            
+            parent.parent.saveStep(dValues,"organizationData");
+            return true;
+        ]]>
+    </method>
+    
+    <labelText labelid="1072" width="200" y="0" resize="false" x="2"/>
+    <customEdittext name="org_name" y="0" x="150" width="340" text="" />
+        
+    <labelText labelid="1027" width="300" y="30" resize="false" x="2"/>
+    <list name="org_type" y="50" x="150" width="340" height="100" multiselect="true"  style="noStyle">
+        <labelTextListItem labelid="1028" value="1" />
+        <labelTextListItem labelid="1029" value="2" />
+        <labelTextListItem labelid="1030" value="3" />
+        <labelTextListItem labelid="1031" value="4" />
+        <labelTextListItem labelid="1032" value="5" />
+        <labelTextListItem labelid="1033" value="6" />
+        <labelTextListItem labelid="1034" value="7" />
+        <labelTextListItem labelid="1035" value="8" />
+        <labelTextListItem labelid="1036" value="9" />
+        <labelTextListItem labelid="1037" value="10" />
+        <labelTextListItem labelid="1038" value="11" />
+    </list> 
+    
+    <labelText labelid="1039" width="200" y="160" resize="false" x="2"/> 
+    <radiogroup name="org_value" x="150" y="180" width="340" >
+        <labelRadioButton labelid="1040" value="1" />
+        <labelRadioButton labelid="1041" value="2" />
+        <labelRadioButton labelid="1042" value="3" selected="true" />
+        <labelRadioButton labelid="1043" value="4" />
+        <labelRadioButton labelid="1044" value="5" />
+    </radiogroup>
+    
+    <labelText labelid="1045" width="200" y="284" resize="false" x="2"/>
+    <customEdittext name="org_stock_sign" y="284" x="250" width="240" text="" />
+    
+    <labelText labelid="1046" width="300" y="314" resize="false" x="2"/> 
+    <radiogroup name="org_fortune500" x="150" y="334" width="340" layout="class:simplelayout; axis:x">>
+        <labelRadioButton labelid="1047" value="1" />
+        <labelRadioButton labelid="1048" value="2" selected="true" />
+    </radiogroup>
+    
+    <labelText labelid="1070" width="300" y="356" resize="false" x="2"/>  
+    <validText name="state" width="340" y="376" x="150" fontsize="11" 
+        shownitems="7" validate_method="$once{ canvas.validateCountry }" 
+        resultId="country_id" resultName="name" /> 
+        
+    
+	
+</class>
+
+</library>

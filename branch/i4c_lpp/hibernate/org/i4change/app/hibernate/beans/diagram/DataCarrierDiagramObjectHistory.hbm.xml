@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+  <class table="datacarrier_diagramobject_history" lazy="false" name="org.i4change.app.hibernate.beans.diagram.DataCarrierDiagramObjectHistory">
+    <id column="datacarrier_diagramobject_history_id" name="dataCarrierDiagramObjectHistoryId">
+      <generator class="increment"/>
+    </id>
+    <property name="diagramObjectId" type="long" column="diagramobject_id"/>
+    <many-to-one outer-join="true" insert="false" column="datacarrier_object_diagramobject_id" lazy="false" update="false" name="dataCarrierObjectdiagramObject" class="org.i4change.app.hibernate.beans.diagram.DiagramObject"/>
+    <property name="dataCarrierObjectdiagramObjectId" type="long" column="datacarrier_object_diagramobject_id"/>
+    <property name="insertedBy" type="long" column="insertedby"/>
+    <property name="inserted" type="java.util.Date" column="inserted"/>
+    <property name="diagramId" type="long" column="diagramId"/>
+  </class>
+</hibernate-mapping>

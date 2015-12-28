@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+<class name="saveOrUpdatePropertyCategory" extends="guiPresenter" labelid="1324"
+    docking="true" resizeable="false" closable="true" width="400" height="340">
+    
+    <attribute name="propertyCategoryId" value="0" type="number" />
+    <attribute name="refObj" value="null" />
+    
+    <!-- Only Administrators can delete a Public Category -->
+    <attribute name="isAdministrationPanel" value="true" type="boolean" />
+    
+    <handler name="oninit">
+        //Add Help Item
+        //canvas.addCurrentHelpId(10,this.__constructor__.classname);
+        if (!this.isAdministrationPanel) {
+        	this._infoTextAdmin.setAttribute("visibility","hidden");
+        	this.isPublic.setAttribute("visibility","hidden");
+        	this.organisation.setAttribute("visibility","hidden");
+        	this.organisationLabel.setAttribute("visibility","hidden");
+        	this.setAttribute("height",240);
+        } else {
+            this.getAllOrganisations.doCall();
+        }
+        lz.ModeManager.makeModal(this);
+    </handler>
+    
+    <handler name="onclose">
+    	lz.ModeManager.release(this);
+    </handler>
+    
+    <method name="saveOrUpdate">
+    	this.saveOrUpdatePropertyCategory.prepareCall();
+    	this.saveOrUpdatePropertyCategory.doCall();
+    </method>
+    
+    <method name="setProperty" args="property">
+    	this.categoryName.setAttribute("text",property.categoryName);
+    	this.comment.setAttribute("text",property.comment);
+    	this.isPublic.setValue(property.isPublic);
+    	this.objectTypeName.selectItem(property.objectTypeName);
+    	if (property.organisation != null) {
+            this.organisation.selectItem(property.organisation.name,String(property.organisation.organisation_id));
+        } else {
+            this.organisation.resetItem();
+        }
+    </method>
+    
+    <netRemoteCallRPC name="getAllOrganisations" funcname="getAllOrganisations" 
+                      remotecontext="$once{  canvas.organisationServiceRPC }" >      
+        <netparam><method name="getValue"> return canvas.sessionId; </method></netparam> 
+        <handler name="ondata" args="value">
+            <![CDATA[
+                parent.organisation.valueList = value;
+            ]]>
+        </handler>  
+    </netRemoteCallRPC>    
+    
+    <netRemoteCallRPC name="saveOrUpdatePropertyCategory" 
+    				  funcname="saveOrUpdatePropertyCategory" 
+                      remotecontext="$once{  canvas.propertyServiceRPC }" >   
+        <attribute name="sendObject" value="null" />
+        <method name="prepareCall">
+            this.sendObject = new Object();
+            this.sendObject["categoryName"] = parent.categoryName.getText();
+            this.sendObject["comment"] = parent.comment.getText();
+            this.sendObject["propertyCategoryId"] = parent.propertyCategoryId;
+            this.sendObject["objectTypeName"] = parent.objectTypeName.getValue();
+            if (parent.isAdministrationPanel) {
+                this.sendObject["isPublic"] = this.parent.isPublic.getValue();
+                this.sendObject["organisation_id"] = this.parent.organisation.value;
+            } else {
+            	this.sendObject["isPublic"] = false;
+                this.sendObject["organisation_id"] = canvas.currentdomainObj.organisation_id;
+            }
+            //if ($debug) Debug.write("prepareCall: ",this.sendObject);
+        </method>
+        <netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+        <netparam><method name="getValue">return parent.sendObject;</method></netparam>         
+        <handler name="ondata" args="val">
+            <![CDATA[
+                if ($debug) Debug.write("saveOrUpdatePropertyCategory ",val);
+                if (val>0){
+                    //Debug.write("updateConfByConfigurationId val greater 0: ",val);
+                    parent.getPropertyCategoryById.propertyCategoryId = val;
+                    parent.getPropertyCategoryById.doCall();
+                    //parent.getLanguageByIdAndMax.start = 0;
+                    //parent.getLanguageByIdAndMax.doCall();
+                }
+            ]]>
+        </handler>
+    </netRemoteCallRPC>  
+    
+    <netRemoteCallRPC name="getPropertyCategoryById" 
+                      funcname="getPropertyCategoryById" 
+                      remotecontext="$once{  canvas.propertyServiceRPC }" >   
+        <attribute name="propertyCategoryId" value="0" type="number" />
+        <netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+        <netparam><method name="getValue">return parent.propertyCategoryId;</method></netparam>         
+        <handler name="ondata" args="val">
+            <![CDATA[
+                if ($debug) Debug.write("getPropertyCategoryById ",val);
+                if (parent.propertyCategoryId == 0) {
+                    parent.refObj.setPropertyCategory(val.categoryName,val.propertyCategoryId);
+                } else {
+                	parent.refObj.clearAndReload();
+                }
+                parent.close();
+            ]]>
+        </handler>
+    </netRemoteCallRPC>  
+          
+    
+    <labelText labelid="1325" width="200" y="22" resize="false" x="2"/>
+        <customEdittext name="categoryName" y="22" x="120" width="270" text="" />    
+            
+    <labelText labelid="990" width="200" y="52" resize="false" x="2"/>
+
+         
+    <labelText labelid="1337" width="200" y="82" resize="false" x="2"/>
+        <customScrollEdittext name="comment" y="82" x="120" width="270" 
+            height="100" text="" />  
+            
+    <labelCheckbox name="isPublic" labelid="1326" y="182" x="6">
+        <handler name="onvalue">
+            if (this.getValue()) {
+                //parent.organisation.selectItemAt(0);
+            }
+        </handler>
+    </labelCheckbox>              
+    
+    <labelText name="organisationLabel" labelid="1327" width="200" y="210" resize="false" x="2"/>   
+        <omDynamicComboBox name="organisation" y="210" x="120" width="270">
+            <handler name="initContent">
+                <![CDATA[
+                    this.initList();
+                    
+                    this.cList.addItem("No Organization","0");
+                    
+                    for (var i=0;i<this.valueList.length;i++){
+                        //set to null as only Admins will do that
+                        //they do not need a orgusre Object, as they have all menu options given
+                        this.cList.addItem(this.valueList[i].name,this.valueList[i].organisation_id);
+                    }   
+                    
+                    this.doDefaultSelection();
+                ]]>
+            </handler>
+        </omDynamicComboBox>
+    
+    <infoIconBox y="248" name="_infoTextAdmin" 
+    			 labelid="1328" width="$once{ parent.width - 20 }" x="10" />
+                 
+    <simpleLabelButton labelid="1330" width="100" x="$once{ parent.width-105*2 }" 
+                       y="${ parent.height-24 }">
+        <handler name="onclick">
+            this.parent.saveOrUpdate();
+        </handler>
+    </simpleLabelButton>  
+    <simpleLabelButton labelid="1331" width="100" x="$once{ parent.width-105*1 }" 
+                       y="${ parent.height-24 }">
+        <handler name="onclick">
+            this.parent.close();
+        </handler>
+    </simpleLabelButton>    
+ 
+</class>
+
+<class name="adminSaveOrUpdatePropertyCategory" extends="saveOrUpdatePropertyCategory">
+	
+    <omComboBox name="objectTypeName" y="52" x="120" width="270" editable="false">
+        <handler name="oninit">
+            this.selectItemAt(0);
+        </handler>
+        <labelTextListItem datapath="diagramObjectTypesDS:/item/" 
+                           value="$path{'name/text()'}"
+                           labelid="$path{'labelid/text()'}" />
+    </omComboBox>  
+        
+</class>
+
+<class name="modSaveOrUpdatePropertyCategory" extends="saveOrUpdatePropertyCategory"
+	   isAdministrationPanel="false">
+    
+    <omComboBox name="objectTypeName" y="52" x="120" width="270" editable="false">
+        <handler name="oninit">
+            this.selectItemAt(0);
+        </handler>
+        <labelTextListItem datapath="diagramObjectTypesModDS:/item/" 
+                           value="$path{'name/text()'}"
+                           labelid="$path{'labelid/text()'}" />
+    </omComboBox>  
+        
+</class>
+	
+</library>

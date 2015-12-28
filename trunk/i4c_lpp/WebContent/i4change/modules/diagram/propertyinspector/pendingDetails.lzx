@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<library>
+
+<!--
+<handler name="oninit">
+            <![CDATA[
+                var adminAdded = false;
+                for (var eg=0;eg<canvas.orgUserList.length;eg++) {
+                    //if ($debug) Debug.write("canvas.orgUserList[eg].orgUser.isModerator: ",canvas.orgUserList[eg].orgUser.isModerator);
+                    if (canvas.orgUserList[eg].orgUser.isModerator){
+                        this.addItem(canvas.orgUserList[eg].login,canvas.orgUserList[eg].user_id);
+                    } else if (canvas.orgUserList[eg].level_id > 1) {
+                        if (!adminAdded){
+                            adminAdded = true;
+                            this.addItem(canvas.getLabelName(946),"0");
+                        }
+                        this.addItem(canvas.orgUserList[eg].login,canvas.orgUserList[eg].user_id);
+                    }
+                }
+                this.selectItemAt(0);
+            ]]>
+        </handler>
+        <handler name="onselect" args="sel">
+            if (this.getValue()=="0"){
+                new lz.errorPopupWithLabel(canvas,{labelerrorid:945});
+                this.selectItemAt(0);
+            }
+        </handler>
+         -->
+
+<class name="pendingDetails" extends="view">
+    
+    <labelText x="2" labelid="660" />  
+    <attribute name="sendUpdateEvent" value="true" type="number" />
+     
+    <omComboBox name="users" x="80" width="220" editable="false" >
+        <handler name="onselect">
+            if (this.getValue()=="0"){
+                new lz.errorPopupWithLabel(canvas,{labelerrorid:945});
+            } else if (parent.sendUpdateEvent){
+                //if ($debug) Debug.write("USER_SELECTED: ",this);
+                parent.parent.parent.parent.parent.setNewPendingAssigneeValue(this.value,this.text);
+            }
+        </handler>              
+    </omComboBox>
+    
+    <handler name="oninit">
+        if (canvas.userobject.userlevel.level_id == 1){
+            new lz.infoIconBox(this._infoContent,{
+                    width:220,x:80,labelid:730
+                });
+        } else {
+            new lz.approvalOfPendingObject(this._infoContent);
+        }
+    </handler>
+    
+    <view y="20" name="_infoContent">
+        
+    </view>
+    
+</class>
+
+</library>

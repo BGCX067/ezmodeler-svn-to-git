@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+    <include href="manageroles/" /><!-- moderation module-->
+    <include href="manageusers/" /><!-- moderation module-->
+    <include href="managedomains/" /><!-- moderation module-->
+    <include href="pendingorg/" />
+    <include href="manageproperties/" />
+
+</library>

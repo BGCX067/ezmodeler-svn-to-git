@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+<class name="drawViewNew" extends="drawview" cachebitmap="false" x="-1" y="-1" >
+	
+	<attribute name="typeOfObject" value="paint" type="string" />
+
+    <attribute name="initwidth" value="0" type="number" />
+    <attribute name="initheight" value="0" type="number" />
+    
+    <attribute name="text" value="" type="string" />
+    
+    <handler name="oninit">
+        this.initwidth=this.width;
+        this.initheight=this.height;
+    </handler>
+    
+	<handler name="onwidth">
+        <![CDATA[
+        if(this.name.indexOf('line')>=0 
+        	|| this.name.indexOf('uline')>=0 
+        	|| this.name.indexOf('drawarrow')>=0
+        	|| this.name.indexOf('paint')>=0 
+        	|| this.name.indexOf('rectangle')>=0 
+        	|| this.name.indexOf('ellipse')>=0 ) {
+        	if (this.isinited) {
+        		this.getMCRef()._xscale = (this.width/this.initwidth)*100;
+        	}
+        }
+        ]]>
+    </handler>
+    
+    <handler name="onheight">
+    	<![CDATA[
+        if(this.name.indexOf('line')>=0 
+        	|| this.name.indexOf('uline')>=0 
+        	|| this.name.indexOf('drawarrow')>=0 
+        	|| this.name.indexOf('paint')>=0  
+        	|| this.name.indexOf('rectangle')>=0 
+        	|| this.name.indexOf('ellipse')>=0 ) {
+        	if (this.isinited) {
+        		this.getMCRef()._yscale = (this.height/this.initheight)*100;  
+        	}
+        }
+        ]]>   
+    </handler>
+    <!--
+    <dragstate name="dragger" drag_axis="both"
+	    drag_min_x="0"
+	    drag_max_x="$once{parent.width - this.width}"
+	    drag_min_y="0"
+	    drag_max_y="$once{parent.height - this.height}">
+    </dragstate>
+     -->
+</class>
+	
+</library>	

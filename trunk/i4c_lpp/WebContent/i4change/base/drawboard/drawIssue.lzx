@@ -1,0 +1,450 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+<class name="drawIssue" extends="drawOutputflow">
+	
+  	<attribute name="currentissueflowstroke" value="0x000000" />
+  	<attribute name="currentissueflowstrokeDis" value="1" type="number" />
+  	<attribute name="currentissueflowstrokeFill" value="0x9D97DF" />
+  	<attribute name="currentissueflowstrokeFillDis" value="1" type="number" />
+  	<attribute name="currentissueflowlineWidth" value="2" type="number" />
+  	
+  	<attribute name="drawIssueFactor" value="6" type="number" />
+	
+    <!-- ###########################
+    Companygroup
+     -->
+	<method name="startIssueflow">
+		//Debug.write("startRect");
+    	this.currentlayer = new lz.drawViewContainerNew(this,{name:'issue'+this.getCounter(),hasShadow:true,
+    		typeOfObject:'issueTemp',width:this.width+2,height:this.height+2});
+    	new lz.drawViewNew(this.currentlayer,{name:'_issueflow',typeOfObject:'issueflow',
+    		width:this.width+2,height:this.height+2});
+		this.drawlineOnObject(this.currentlayer._issueflow,-1,-1,0,0);
+		this.drawlineOnObject(this.currentlayer._issueflow,this.width,this.height,this.width+1,this.height+1);
+  	</method>  
+
+	<method name="loadIssueflow" args="txt,objectId,x,y,width,height,newName,assigneeUser_id,assigneeUserLogin,propertyMap">
+		<![CDATA[
+			this.currentlayer = new lz.drawViewContainerNew(this,{name:newName,hasShadow:true,
+					typeOfObject:'issueflowTemp',labelid:580,currentStyleTextClass:'styleableInputIssueFlow',
+					x:x,y:y,width:width,height:height});
+			////if ($debug) Debug.write(this.currentlayer,width,height);	
+    		new lz.drawViewNewItem(this.currentlayer,{name:'_issueflow',
+    				typeOfObject:'issueflow',x:0,y:0,
+    				width:width,height:height});
+			////if ($debug) Debug.write(this.currentlayer._issueflow,width,height);
+			//this.currentlayer = new lz.drawViewNew(this,{name:'issueflow'+this.getCounter(),typeOfObject:'issueflow',x:x,y:y,width:width,height:height});
+			this.drawIssueflowHistory(this.currentlayer,0,0,width,height,
+                this.currentissueflowstroke,this.currentissueflowlineWidth,
+                this.currentissueflowstrokeFill,this.currentissueflowstrokeDis,
+                this.currentissueflowstrokeFillDis);
+			
+            new lz.styleableTextAssigneeIssueFlow(this.currentlayer,{
+                    name:'_issueAssignee',
+                    text:assigneeUserLogin,
+                    lastAssigneeUser_id:assigneeUser_id
+                });
+                
+			//this.currentlayer._issueflow.setAttribute('stretches','both');
+			this.drawIssueflowFinal(this.currentlayer.name,this.currentissueflowstroke,
+                this.currentissueflowlineWidth,this.currentissueflowstrokeFill,
+                this.currentissueflowstrokeDis,this.currentissueflowstrokeFillDis,
+                x,y,width,height,txt,objectId,assigneeUser_id,assigneeUserLogin,propertyMap);
+			this.checkStepLayers();
+			this.currentlayer.initEditableText(txt);
+			this.currentlayer.typeOfObject = "issueflow";
+		]]>
+	</method>   
+    
+    <!--
+    var x = Math.round(this.startx/(canvas.defaultCompanyWidth*canvas.gridFixedFactor))*(canvas.defaultCompanyWidth*canvas.gridFixedFactor);
+            var width = this.endx - this.startx;
+            if (this.endx<this.startx){
+                x = this.endx;
+                width = Math.abs(width);
+            }
+            var y = Math.round(this.starty/(canvas.defaultCompanyHeight*canvas.gridFixedFactor))*(canvas.defaultCompanyHeight*canvas.gridFixedFactor);
+            var height = this.endy - this.starty;
+            if (this.endy<this.starty){
+                y = this.endy;
+                height = Math.abs(height);
+            }
+            
+            if (width<20){
+                width = canvas.defaultOutFlowWidth
+            }
+            if (height < 20) {
+                height = canvas.defaultOutFlowHeight;
+            }
+     -->	
+
+    <method name="endIssueflowDrag" args="x,y">
+        <![CDATA[
+            //if ($debug) Debug.write("endIssueflow this.startx, this.starty , this.endx, this.endy ",this.startx, this.starty , this.endx, this.endy);
+            //Using Company Size as default, cause Role-View uses same Grid Sizes as Hierarchical Grid
+            
+            var posObject = this.calcObjectPos(x,x,y,y,"any",false,1,40);
+            var x = posObject.x;
+            var y = posObject.y;
+            var width = posObject.width-20;
+            var height = posObject.height-20;
+            
+            this.currentlayer = new lz.drawViewContainerNew(this,{name:'issueflow'+this.getCounter(),hasShadow:true,
+                    typeOfObject:'issueflowTemp',labelid:580,currentStyleTextClass:'styleableInputIssueFlow',
+                    x:x,y:y,width:width,height:height});
+            ////if ($debug) Debug.write(this.currentlayer,width,height);  
+            new lz.drawViewNewItem(this.currentlayer,{name:'_issueflow',
+                    typeOfObject:'issueflow',x:0,y:0,
+                    width:width,height:height});
+            ////if ($debug) Debug.write(this.currentlayer._issueflow,width,height);
+            //this.currentlayer = new lz.drawViewNew(this,{name:'issueflow'+this.getCounter(),typeOfObject:'issueflow',x:x,y:y,width:width,height:height});
+            this.drawIssueflowHistory(this.currentlayer,0,0,width,height,
+                this.currentissueflowstroke,this.currentissueflowlineWidth,
+                this.currentissueflowstrokeFill,this.currentissueflowstrokeDis,
+                this.currentissueflowstrokeFillDis);
+            
+            new lz.styleableTextAssigneeIssueFlow(this.currentlayer,{
+                    name:'_issueAssignee',
+                    text:canvas.userobject.login,
+                    lastAssigneeUser_id:canvas.userobject.user_id
+                });
+            //if ($debug) Debug.write("endIssueflowDrag endIssueflowDrag",canvas.userobject.user_id);
+            //this.currentlayer._issueflow.setAttribute('stretches','both');
+            this.drawIssueflowFinal(this.currentlayer.name,this.currentissueflowstroke,
+                this.currentissueflowlineWidth,this.currentissueflowstrokeFill,
+                this.currentissueflowstrokeDis,this.currentissueflowstrokeFillDis,
+                x,y,width,height,
+                '',0,canvas.userobject.user_id,canvas.userobject.login,null);
+            
+            
+            this.checkStepLayers();
+            this.currentlayer.loadObjectIdentifier();
+            this.currentlayer.typeOfObject = "issueflow";
+        ]]>
+    </method>
+    
+	<method name="endIssueflow">
+		<![CDATA[
+			//if ($debug) Debug.write("endIssueflow this.startx, this.starty , this.endx, this.endy ",this.startx, this.starty , this.endx, this.endy);
+			this.currentlayer.destroy();
+			//Using Company Size as default, cause Role-View uses same Grid Sizes as Hierarchical Grid
+            
+            var posObject = this.calcObjectPos(this.startx,this.endx,this.starty,this.endy,"any",false,1,40);
+            var x = posObject.x;
+            var y = posObject.y;
+            var width = posObject.width-20;
+            var height = posObject.height-20;
+			
+			this.currentlayer = new lz.drawViewContainerNew(this,{name:'issueflow'+this.getCounter(),hasShadow:true,
+					typeOfObject:'issueflowTemp',labelid:580,currentStyleTextClass:'styleableInputIssueFlow',
+					x:x,y:y,width:width,height:height});
+			////if ($debug) Debug.write(this.currentlayer,width,height);	
+    		new lz.drawViewNewItem(this.currentlayer,{name:'_issueflow',
+    				typeOfObject:'issueflow',x:0,y:0,
+    				width:width,height:height});
+			////if ($debug) Debug.write(this.currentlayer._issueflow,width,height);
+			//this.currentlayer = new lz.drawViewNew(this,{name:'issueflow'+this.getCounter(),typeOfObject:'issueflow',x:x,y:y,width:width,height:height});
+			this.drawIssueflowHistory(this.currentlayer,0,0,width,height,
+                this.currentissueflowstroke,this.currentissueflowlineWidth,
+                this.currentissueflowstrokeFill,this.currentissueflowstrokeDis,
+                this.currentissueflowstrokeFillDis);
+			
+            new lz.styleableTextAssigneeIssueFlow(this.currentlayer,{
+                    name:'_issueAssignee',
+                    text:canvas.userobject.login,
+                    lastAssigneeUser_id:canvas.userobject.user_id
+                });
+                
+			//this.currentlayer._issueflow.setAttribute('stretches','both');
+			this.drawIssueflowFinal(this.currentlayer.name,this.currentissueflowstroke,
+                this.currentissueflowlineWidth,this.currentissueflowstrokeFill,
+                this.currentissueflowstrokeDis,this.currentissueflowstrokeFillDis,
+                x,y,width,height,
+                '',0,canvas.userobject.user_id,canvas.userobject.login,null);
+            
+            
+			this.checkStepLayers();
+			this.currentlayer.loadObjectIdentifier();
+			this.currentlayer.typeOfObject = "issueflow";
+		]]>
+	</method> 
+    
+  	<method name="drawIssueflow" args="x1,y1,x2,y2">
+   		<![CDATA[
+   			
+   			////if ($debug) Debug.write("drawIssueflow: ",currentlayer,x1,y1,x2,y2);
+   			
+   			currentlayer._issueflow.strokeStyle = this.currentissueflowstroke;
+   			currentlayer._issueflow.fillStyle = this.currentissueflowstrokeFill;
+ 
+   			var mx1 = ((Math.abs(x1-x2)/this.drawIssueFactor));
+   		
+   			if (x1 <= x2 && y2 >= y1) {
+	   			var my1 = y1+(Math.abs(y1-y2)/2);
+	   			currentlayer._issueflow.lineWidth = this.currentissueflowlineWidth;
+	    		currentlayer._issueflow.beginPath();
+	    		currentlayer._issueflow.moveTo(x2-mx1,y1);
+	    		currentlayer._issueflow.lineTo(x1+mx1,y1);
+	    		currentlayer._issueflow.lineTo(x1,my1);
+	    		currentlayer._issueflow.lineTo(x1+mx1,y2);
+	    		currentlayer._issueflow.lineTo(x2-mx1,y2);
+	    		currentlayer._issueflow.lineTo(x2,my1);
+    			currentlayer._issueflow.lineTo(x2-mx1,y1);
+    			currentlayer._issueflow.closePath();
+   			} else if (x1 <= x2 && y2 <= y1) {
+   				////if ($debug) Debug.write("PHASE 2");
+	   			var my1 = y1-(Math.abs(y1-y2)/2);
+	   			currentlayer._issueflow.lineWidth = this.currentissueflowlineWidth;
+	    		currentlayer._issueflow.beginPath();
+	    		currentlayer._issueflow.moveTo(x2-mx1,y2);
+	    		currentlayer._issueflow.lineTo(x1+mx1,y2);
+	    		currentlayer._issueflow.lineTo(x1,my1);
+	    		currentlayer._issueflow.lineTo(x1+mx1,y1);
+	    		currentlayer._issueflow.lineTo(x2-mx1,y1);
+	    		currentlayer._issueflow.lineTo(x2,my1);
+    			currentlayer._issueflow.lineTo(x2-mx1,y2);
+    			currentlayer._issueflow.closePath();
+   			} else if (x1 >= x2 && y2 <= y1) {
+	   			
+	   			var my1 = y2+(Math.abs(y1-y2)/2);
+	   			
+	   			currentlayer._issueflow.lineWidth = this.currentissueflowlineWidth;
+	    		currentlayer._issueflow.beginPath();
+	    		currentlayer._issueflow.moveTo(x1-mx1,y2);
+	    		currentlayer._issueflow.lineTo(x2+mx1,y2);
+	    		currentlayer._issueflow.lineTo(x2,my1);
+	    		currentlayer._issueflow.lineTo(x2+mx1,y1);
+	    		currentlayer._issueflow.lineTo(x1-mx1,y1);
+	    		currentlayer._issueflow.lineTo(x1,my1);
+    			currentlayer._issueflow.lineTo(x1-mx1,y2);
+    			currentlayer._issueflow.closePath();
+    			
+   			} else if (x1 >= x2 && y2 >= y1) {
+   				
+	   			var my1 = y2-(Math.abs(y1-y2)/2);
+	   			
+	   			currentlayer._issueflow.lineWidth = this.currentissueflowlineWidth;
+	    		currentlayer._issueflow.beginPath();
+	    		currentlayer._issueflow.moveTo(x1-mx1,y1);
+	    		currentlayer._issueflow.lineTo(x2+mx1,y1);
+	    		currentlayer._issueflow.lineTo(x2,my1);
+	    		currentlayer._issueflow.lineTo(x2+mx1,y2);
+	    		currentlayer._issueflow.lineTo(x1-mx1,y2);
+	    		currentlayer._issueflow.lineTo(x1,my1);
+    			currentlayer._issueflow.lineTo(x1-mx1,y1);
+    			currentlayer._issueflow.closePath();
+    			
+   			}
+    		
+    		//currentlayer._issueflow.closePath();
+    		
+    		if (this.currentissueflowstrokeDis!=-1){
+	    		currentlayer._issueflow.stroke();
+    		}
+
+    		if (this.currentissueflowstrokeFillDis!=-1){
+	    		currentlayer._issueflow.fill();
+    		}
+    		
+    	]]>   
+  	</method>    
+  	
+  	<method name="drawIssueflowOnTarget" args="targetOBj,x1,y1,x2,y2">
+   		<![CDATA[
+    		
+   			targetOBj._issueflow.strokeStyle = this.currentissueflowstroke;
+   			targetOBj._issueflow.fillStyle = this.currentissueflowstrokeFill;
+   		
+   			if (x1 <= x2 && y2 >= y1) {
+	   			var mx1 = ((Math.abs(x1-x2)/this.drawIssueFactor));
+	   			var my1 = y1+(Math.abs(y1-y2)/2);
+   			} else {
+   				//if ($debug) Debug.warn("Unkown Status");
+   			}
+   			
+   			targetOBj._issueflow.lineWidth = this.currentissueflowlineWidth;
+    		targetOBj._issueflow.beginPath();
+    		targetOBj._issueflow.moveTo(x2-mx1,y1);
+    		targetOBj._issueflow.lineTo(x1+mx1,y1);
+    		targetOBj._issueflow.lineTo(x1,my1);
+    		targetOBj._issueflow.lineTo(x1+mx1,y2);
+    		targetOBj._issueflow.lineTo(x2-mx1,y2);
+    		targetOBj._issueflow.lineTo(x2,my1);
+			targetOBj._issueflow.lineTo(x2-mx1,y1);
+			targetOBj._issueflow.closePath();
+
+    		if (this.currentrectanglestrokeDis!=-1){
+	    		targetOBj._issueflow.stroke();
+    		}
+
+    		if (this.currentrectanglestrokeFillDis!=-1){
+	    		targetOBj._issueflow.fill();
+    		}
+    		
+    	]]>   
+  	</method>    
+  	
+  	<method name="drawIssueflowToHistory" args="lastActionObject,parentView">
+		this.currentlayer = new lz.drawViewContainerNew(parentView,{name:lastActionObject[lastActionObject.length-1],
+			typeOfObject:'issueflow',hasShadow:true,
+			x:lastActionObject[lastActionObject.length-5],y:lastActionObject[lastActionObject.length-4],
+			width:lastActionObject[lastActionObject.length-3],height:lastActionObject[lastActionObject.length-2]});
+		new lz.drawViewNewItem(this.currentlayer,{name:'_issueflow',typeOfObject:'issueflow',x:lastActionObject[lastActionObject.length-5],y:lastActionObject[lastActionObject.length-4],width:lastActionObject[lastActionObject.length-3],height:lastActionObject[lastActionObject.length-2]});
+   		this.drawIssueflowHistory(this.currentlayer._issueflow,0,0,lastActionObject[lastActionObject.length-3],lastActionObject[lastActionObject.length-2],lastActionObject[1],lastActionObject[2],lastActionObject[3],lastActionObject[4],lastActionObject[5]);
+  	</method>
+    
+  	<method name="drawIssueflowHistory" args="parentObj,x1,y1,x2,y2,stroke,line,fill,strokeDis,fillDis">
+   		<![CDATA[
+   		
+   			parentObj._issueflow.strokeStyle = stroke;
+   			parentObj._issueflow.fillStyle = fill;
+   			
+    		////if ($debug) Debug.write("drawIssueflowHistory",parentObj,x1,y1,x2,y2,stroke,line,fill,strokeDis,fillDis);
+   			if (x1 <= x2 && y2 >= y1) {
+	   			var mx1 = ((Math.abs(x1-x2)/this.drawIssueFactor));
+	   			var my1 = y1+(Math.abs(y1-y2)/2);
+   			} else {
+   				//if ($debug) Debug.warn("Unkown Status");
+   			}
+   			
+   			
+   			parentObj._issueflow.lineWidth = this.currentissueflowlineWidth;
+    		parentObj._issueflow.beginPath();
+    		parentObj._issueflow.moveTo(x2-mx1,y1);
+    		parentObj._issueflow.lineTo(x1+mx1,y1);
+    		parentObj._issueflow.lineTo(x1,my1);
+    		parentObj._issueflow.lineTo(x1+mx1,y2);
+    		parentObj._issueflow.lineTo(x2-mx1,y2);
+    		parentObj._issueflow.lineTo(x2,my1);
+			parentObj._issueflow.lineTo(x2-mx1,y1);
+			parentObj._issueflow.closePath();
+	
+    		//parentObj._issueflow.closePath();
+    		
+    		if (strokeDis!=-1){
+	    		parentObj._issueflow.stroke();
+    		}
+    		
+    		if (fillDis!=-1){
+	    		parentObj._issueflow.fill();
+    		}
+	        //var t = new lz.styleableInputIssueflow(parentObj,{name:'_textview',
+	        //	text:'Issueflow',fontstyle:this.currentlayerstyle,
+	        //	fontsize:this.currentlayersize,fgcolor:this.currentlayerletter});
+		
+    	]]>   
+  	</method>  
+  	
+  	<method name="drawIssueflowFinal" args="newName,stroke,line,fill,strokeDis,fillDis,x,y,width,height,currentText,diagramobjectid,assigneeUser_id,assigneeUserLogin,propertyMap" >
+        
+  		////if ($debug) Debug.write("drawIssueflowFinal",newName,stroke,line,fill,
+        //    strokeDis,fillDis,x,y,width,height);
+            
+		var actionObject = new Array();
+	    actionObject[0] = 'issueflow';
+	    actionObject[1] = stroke;
+	    actionObject[2] = line;
+	    actionObject[3] = fill;
+	    actionObject[4] = strokeDis;
+	    actionObject[5] = fillDis;
+        actionObject[6] = propertyMap;
+        actionObject[7] = assigneeUserLogin;
+        actionObject[8] = assigneeUser_id;
+        actionObject[9] = currentText;
+        actionObject[10] = diagramobjectid;      
+        actionObject[11] = this.counter;
+	    actionObject[12] = x;
+	    actionObject[13] = y;
+	    actionObject[14] = width;
+	    actionObject[15] = height;	    
+	    actionObject[16] = newName;
+	    
+	    //if ($debug) Debug.write("##################### add to baseactionobjectList drawIssueflowFinal");
+	    
+	    this.baseactionobjectList.push(actionObject);
+	    this.onsharedMessage('draw',actionObject);
+        
+  	</method>
+    
+  	<method name="editIssueflowTextByValues" args="obj">
+		<![CDATA[
+			//if ($debug) Debug.write("editIssueflowTextByValues: ",obj);
+			if (!this.letterObjectIsActive){
+				//obj._issueflow.destroy();
+				
+				//this.drawIssueflowOnTarget()
+			    if (this.boundingref!=null) {
+                    //if ($debug) Debug.write("REMOVE BOUNDING REF");
+                    this.boundingref.removeIt();
+                }
+                
+			    var txt = obj._textview.getText();
+			    
+			    var _txt = obj._textview.getText();
+				var _fontstyle = obj._textview.fontstyle;
+				var _fontsize = obj._textview.fontsize;
+				var _fgcolor = obj._textview.fgcolor;
+				var _width = obj._textview.width;
+				var _height = obj._textview.height;
+				obj._textview.destroy();
+		        var t = new lz.styleableInputIssueFlow(obj,{name:'_textview',
+					text:_txt,
+					fontstyle:_fontstyle,
+					fontsize:_fontsize,
+					fgcolor:_fgcolor,
+					width:_width,height:_height});
+	        }	
+		]]>
+	</method>
+	
+	<method name="completedIssueflowObj" args="obj">
+		//if ($debug) Debug.write("completedIssueflowObj: ",obj);
+		var _parentObj = obj.parent;
+		var _txt = obj.getText();
+		var _fontstyle = obj.fontstyle;
+		var _fontsize = obj.fontsize;
+		var _fgcolor = obj.fgcolor;
+		var _width = obj.width;
+		var _height = obj.height;
+		obj.destroy();
+		var t = new lz.styleableTextIssueFlow(_parentObj,{name:'_textview',
+				text:_txt,
+				fontstyle:_fontstyle,
+				fontsize:_fontsize,
+				fgcolor:_fgcolor,
+				width:_width,height:_height});
+        this.updateObjTextByName(_parentObj.name,_txt);
+	</method>
+	
+	<method name="redrawIssueflowItemByScaling" args="refObj">
+		////if ($debug) Debug.write("redrawOutputflowItemByScaling: ",refObj,refObj.width,refObj.height);
+		refObj._issueflow.destroy();
+		new lz.drawViewNewItem(refObj,{name:'_issueflow',
+    				typeOfObject:'issueflow',x:0,y:0,
+    				width:refObj.width,height:refObj.height});
+    	refObj._issueflow.sendToBack();		
+    	this.drawIssueflowOnTarget(refObj,0,0,refObj.width,refObj.height);		
+	</method>
+	
+    <method name="updateIssueBaseObjectAssignee" args="newName,assigneeUser_id,assigneeUserLogin">
+        <![CDATA[
+            ////if ($debug) Debug.write("updateIssueBaseObjectAssignee",newName,assigneeUser_id,assigneeUserLogin);
+            for (var i=0;i<this.baseactionobjectList.length;i++){
+                var actionObject = this.baseactionobjectList[i];
+                var objName =  actionObject[actionObject.length-1];
+                ////if ($debug) Debug.write("objName,newName: ",objName,newName);
+                if (objName == newName){
+                    actionObject[actionObject.length-10] = assigneeUserLogin;
+                    actionObject[actionObject.length-9] = assigneeUser_id;   
+                    this.baseactionobjectList[i] = actionObject;
+                    break;
+                }
+            }
+            this.onsharedMessage('draw',actionObject);
+        ]]>
+    </method>
+	
+</class>
+
+</library>

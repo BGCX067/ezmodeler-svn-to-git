@@ -1,0 +1,544 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<library>
+
+<!--- "System" panel on the dashboard -->
+<class name="propertyInspectorSidebar" extends="sideBarPod" labelid="657"
+       contentHeight="300" contentY="20">
+          
+    <attribute name="selectedObj" value="null" />
+    <attribute name="baseObject" value="null" />
+    
+    <attribute name="currentPropertyList" value="null" />
+    
+    <attribute name="indexItem" value="0" type="number" />
+    
+    <attribute name="currentDrawArea" value="null" />
+    
+    <attribute name="contentIsInited" value="false" type="boolean" />
+    
+    <handler name="oninit">
+        //Add Help Item
+        canvas.addCurrentHelpId(20,this.__constructor__.classname);
+        //this.getPropertiesByOrganization.doCall();
+    </handler>  
+    
+    <method name="setObjectSelectedObj" args="objRef,baseObject,diagramObjectId">
+        <![CDATA[
+            if (this.currentDrawArea == null) {
+                this.currentDrawArea = canvas.currentDiagramRef._scrollcontent.dragArea.contentArea._currentBoard;
+            }
+            this.baseObject = baseObject;
+            this.selectedObj = objRef;
+            ////if ($debug) Debug.write("############ setObjectSelectedObj ",this,this.visibility);
+            //First check if content is already 
+            if (this.contentIsInited && this.content.visibility != "hidden") {
+                this.loadContentBySelection();
+            } 
+        ]]>
+    </method>
+    
+    <!--
+    <handler name="onvisible">
+        //if ($debug) Debug.warn("onvisible - Show Properties");
+        if (this.content.visibility != "hidden") {
+            this.loadContentBySelection();
+        }
+    </handler>
+     -->
+    
+    <method name="loadContentBySelection">
+        <![CDATA[
+            //Check content to be inited before loading items into it
+            
+            this.content.clearList();
+            
+            if ($debug) Debug.write("loadContentBySelection ",this.baseObject);
+            
+            if (this.selectedObj == null) {
+                this.content._name.setAttribute("text",'');
+            } else {
+                 
+                this.getDiagramObjectPropertyByObject.objectTypeAppName = this.baseObject[0];
+                this.getDiagramObjectPropertyByObject.diagramobjectId = this.baseObject[this.baseObject.length-7];
+                
+                if ($debug) Debug.write("objectTypeAppName,diagramobjectId ",
+                      this.getDiagramObjectPropertyByObject.objectTypeAppName,
+                      this.getDiagramObjectPropertyByObject.diagramobjectId);
+                      
+                this.getDiagramObjectPropertyByObject.doCall();
+                this.calcIndex();
+            }       
+        ]]>
+    </method>
+    
+    <method name="loadProperties">
+        ////if ($debug) Debug.write("######## ********** 2 ",this.indexItem);
+        var popertyList = this.baseObject[this.baseObject.length-this.indexItem];
+        this.content.loadPropertiesList(this.baseObject,this.currentPropertyList,popertyList,
+                        this.selectedObj.pending);
+    </method>
+    
+    <!--
+    public List<DiagramObjectPropertyDTO> getDiagramObjectPropertyByObject(String SID,
+            Long organisation_id, Long diagramObjectId, String objectTypeName)
+    -->
+    <netRemoteCallRPC name="getDiagramObjectPropertyByObject" funcname="getDiagramObjectPropertyByObject" 
+                      showLoading="false" remotecontext="$once{ canvas.propertyServiceRPC }" >   
+        <attribute name="diagramobjectId" type="number" value="0" />
+        <attribute name="objectTypeAppName" type="string" value="" />
+        <netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+        <netparam><method name="getValue">return canvas.currentdomainObj.organisation_id;</method></netparam>
+        <netparam><method name="getValue">return parent.diagramobjectId;</method></netparam>
+        <netparam><method name="getValue">return parent.objectTypeAppName;</method></netparam>
+        <handler name="ondata" args="value">
+            //if ($debug) Debug.write("getDiagramObjectPropertyByObject ",value,this.objectTypeAppName);
+            parent.currentPropertyList = value;
+            parent.loadProperties();
+        </handler>
+    </netRemoteCallRPC>       
+    
+    <handler name="contentInit" >
+    	this.contentIsInited = true;
+        new lz.propertyInspectorSidebarContent(this,{name:'content'});
+    </handler>
+    
+    <method name="updatePropValue" args="propertyId,text">
+        <![CDATA[
+            //if ($debug) Debug.write("updatePropValue",propertyId,text);
+        
+            //if ($debug) Debug.write("updatePropValue objRef.propObj: ",objRef.propObj);
+            
+            var newName = this.baseObject[this.baseObject.length-1];
+            if (this.indexItem == 0) {
+                this.calcIndex();
+            }
+            ////if ($debug) Debug.write("######## ********** 2 ",this.indexItem);
+            var popertyList = this.baseObject[this.baseObject.length-this.indexItem];
+            //if ($debug) Debug.write("updatePropValue popertyList: ",popertyList,this.indexItem,this.baseObject.length,this.baseObject);
+            if (popertyList == null || popertyList == "null") {
+                popertyList = new Array();
+            }
+            var foundItem = false;
+            var doUpdate = true;
+            for (var i=0;i<popertyList.length;i++) {
+                if (popertyList[i].propertyId == propertyId) {
+                    if (popertyList[i].propertyVal == text) {
+                        //Do not udpate in case its the same like before
+                        doUpdate = false;
+                    } else {
+                        popertyList[i].propertyVal = text;
+                    }
+                    foundItem = true;
+                    break;
+                }
+            }
+            
+            if (!foundItem) {
+            	if (text == null || text.length == 0) {
+            		//Do not update in case its an empty entry and there was no previous value
+            		doUpdate = false;
+            	} else {
+            		popertyList.push({'propertyId':propertyId,'propertyVal':text});
+            	}
+            }
+            
+            //if ($debug) Debug.write("doUpdate: ",foundItem,doUpdate,text);
+            if (doUpdate) {
+                //Update the Base Object
+                this.currentDrawArea.updateBaseactionobjectPropertyByNameAndIndex(newName,this.indexItem,popertyList);
+                //Turn on the save flag
+                this.currentDrawArea.turnOnSaveFlag();
+            }
+            
+        ]]>
+    </method>
+    
+    <method name="setNewAssigneeValue" args="value,text">
+        this.selectedObj._issueAssignee.lastAssigneeUser_id = Number(value);
+        this.selectedObj._issueAssignee.setAttribute('text',text);
+        this.currentDrawArea.updateIssueBaseObjectAssignee(
+            this.selectedObj.name,value,text);
+    </method>    
+    
+    <method name="setNewPendingAssigneeValue" args="value,text">
+        this.selectedObj._assignee.lastAssigneeUser_id = Number(value);
+        this.selectedObj._assignee.setAttribute('text',text);
+        this.currentDrawArea.setNewPendingAssigneeValue(
+            this.selectedObj.name,value,text);
+    </method>
+    
+    <method name="approveObject">
+        this.baseObject = this.currentDrawArea.getBaseObjectListItemByName(this.selectedObj.name);
+        this.currentDrawArea.deleteItemByName(this.selectedObj.name);
+        ////if ($debug) Debug.write("this.baseObject: ",this.baseObject);
+        this.baseObject[this.baseObject.length-9] = false;
+        
+        //Overwrite that cause remotely there are only Objects of Type *unitFixed* available
+        if (this.baseObject[0] == 'unit'){
+            this.baseObject[0] = 'unitFixed';
+        } else if (this.baseObject[0] == 'departement'){
+            this.baseObject[0] = 'departementFixed';
+        } else if (this.baseObject[0] == 'company'){
+            this.baseObject[0] = 'companyFixed';
+        }
+        this.currentDrawArea.sendWatchObject("draw",this.baseObject,false);
+    </method>
+    
+    <method name="removeObject">
+        //this.baseObject = currentDrawArea.getBaseObjectListItemByName(this.selectedObj.name);
+        this.currentDrawArea.deleteItemByName(this.selectedObj.name);
+    </method>
+    
+    <!--
+        Calculates the Index for the property value in the Base-Object
+     -->
+    <method name="calcIndex">
+        <![CDATA[
+        
+            var currentDrawArea = canvas.currentDiagramRef._scrollcontent.dragArea.contentArea._currentBoard;
+        
+            var objectTypeName = baseObject[0];
+            if (objectTypeName == "inputflow" || objectTypeName == "outputflow") {
+                objectTypeName = "flow";
+            }
+            
+            if (objectTypeName == "flow") {
+                this.indexItem = 11;
+            } else if (objectTypeName == "issueflow") {
+                this.indexItem = 11;
+            } else if (objectTypeName == "unit" || objectTypeName == "unitFixed"
+                    || objectTypeName == "departement" || objectTypeName == "departementFixed"
+                    || objectTypeName == "company" || objectTypeName == "companyFixed") {
+                if (currentDrawArea.diagramType == "2" || currentDrawArea.diagramType == "4") {
+                    this.indexItem = 13;
+                } else {
+                    this.indexItem = 10;
+                }
+            } else if (objectTypeName == "process" || objectTypeName == "processtree") {
+                if (currentDrawArea.diagramType == 2 || currentDrawArea.diagramType == 4) {
+                    this.indexItem = 11;
+                } else {
+                    this.indexItem = 10;
+                }
+            } else if (objectTypeName == "processgroup") {
+                this.indexItem = 10;
+            } else if (objectTypeName == "activity") {
+                this.indexItem = 11;
+            } else if (objectTypeName == "connector") {
+                this.indexItem = 10;
+            }
+            
+            ////if ($debug) Debug.write("******************** calcIndex: ",objectTypeName,this.indexItem);
+            
+        ]]>
+    </method>
+    
+</class>
+
+<class name="propertyListItem" extends="baseContentListItem">
+    <attribute name="propObj" value="null" />
+    <attribute name="refContentObj" value="null" />
+    <labelText labelid="$once{ parent.propObj.labelid }" width="160" multiline="true"
+               resize="false" y="2" />
+    <customEdittext name="_value" width="210" height="22"
+                    regexpType="$once{ parent.propObj.validationValue }"
+                    text="$once{ parent.propObj.value }">
+        <handler name="onblur">
+            parent.refContentObj.updatePropValue(parent.propObj.propertyId,this.text);
+        </handler>
+    </customEdittext>
+    <labelTooltip labelid="$once{ parent.propObj.toolTip }" />
+</class>
+
+
+<class name="propertyListItemMultiline" extends="baseContentListItem">
+    <attribute name="propObj" value="null" />
+    <attribute name="refContentObj" value="null" />
+    <labelText labelid="$once{ parent.propObj.labelid }" width="160" multiline="true"
+               resize="false" y="2" />
+    <customScrollEdittext name="_value" width="210" 
+          height="$once{ parent.propObj.textBoxHeight }" text="$once{ parent.propObj.value }">
+        <handler name="onblur">
+            parent.refContentObj.updatePropValue(parent.propObj.propertyId,this.getText());
+        </handler>
+    </customScrollEdittext>
+    <labelTooltip labelid="$once{ parent.propObj.toolTip }" />
+</class>
+
+<class name="propertyListIssueFlowDetails" extends="baseContentListItem">
+    
+    <labelText x="2" labelid="660" />  
+    <attribute name="sendUpdateEvent" value="false" type="number" />
+    <attribute name="refContentObj" value="null" />
+     
+    <omComboBox name="users" width="220" editable="false" >
+        <handler name="onselect">
+            if (this.getValue()=="0"){
+                new lz.errorPopupWithLabel(canvas,{labelerrorid:945});
+            } else if (parent.sendUpdateEvent){
+                //if ($debug) Debug.write("USER_SELECTED: ",this,parent.parent.parent.parent.parent);
+                parent.refContentObj.setNewAssigneeValue(this.value,this.text);
+            }
+        </handler>              
+    </omComboBox>
+    <labelTooltip labelid="1321" />
+</class>
+
+<class name="propertyListPendingDetails" extends="view">
+    
+    <labelText name="_label" x="2" labelid="660" width="100"/>  
+    <attribute name="sendUpdateEvent" value="false" type="number" />
+    <attribute name="refContentObj" value="null" />
+    
+    <method name="approveObject">
+    	this.refContentObj.approveObject();
+    </method>
+    
+    <method name="removeObject">
+    	this.refContentObj.removeObject();
+    </method>
+     
+    <omComboBox name="users" x="${ parent._label.width }" width="220" editable="false" >
+        <handler name="onselect">
+            if (this.getValue()=="0"){
+                new lz.errorPopupWithLabel(canvas,{labelerrorid:945});
+            } else if (parent.sendUpdateEvent){
+                //if ($debug) Debug.write("USER_SELECTED: ",this);
+                parent.refContentObj.setNewPendingAssigneeValue(this.value,this.text);
+            }
+        </handler>              
+    </omComboBox>
+    
+    <handler name="oninit">
+        if (canvas.userobject.userlevel.level_id == 1){
+            new lz.infoIconBox(this._infoContent,{
+                    width:this.users.width,x:0,labelid:730
+                });
+        } else {
+            new lz.propertyListApprovalOfPendingObject(this._infoContent,{refContentObj:this});
+        }
+    </handler>
+    
+    <view x="${ parent._label.width }" y="20" name="_infoContent" />
+    
+</class>
+
+<class name="propertyListApprovalOfPendingObject" extends="view" width="${ parent.width }">
+    <attribute name="refContentObj" value="null" />
+    <infoIconBox name="_infoBox" labelid="731" width="${ parent.width }" x="0"/>
+    <simpleLabelButton labelid="732" name="_approve" x="0" y="30" width="105" >
+        <handler name="onclick">
+            ////if ($debug) Debug.write("parent.parent.parent.parent.parent: ",parent.parent.parent.parent.parent.parent.parent);
+            parent.refContentObj.approveObject();
+        </handler>
+    </simpleLabelButton>
+    <simpleLabelButton labelid="733" name="_remove" x="105" y="30" width="105" >
+        <handler name="onclick">
+            parent.refContentObj.removeObject();
+        </handler>
+    </simpleLabelButton>
+</class>
+
+
+
+<class name="propertyList" extends="view" layout="axis:y;spacing:2" />
+
+<class name="propertyInspectorSidebarContent" extends="view" 
+       y="20" bgcolor="white" x="16" width="${ parent.width-16 }" 
+          height="300" clip="true">
+    
+    <attribute name="diagramobjectId" value="0" type="number" />
+    
+    <handler name="oninit">
+        <![CDATA[
+            this.addHeaderItem(1316,160);
+            var w = this.width-180;
+            if (w < 100){
+                w = 100;
+            }
+            this.addHeaderItem(1317,w);
+        ]]>
+    </handler>
+    
+    <!--
+    This is not a good idea, otherwise you overwrite some of the values
+    from the previous input
+    <handler name="onvisibility" args="visibility">
+        if ($debug) Debug.write("onvisibility",visibility);
+        if (this.visibility == "visible") {
+            parent.loadContentBySelection();
+        }
+    </handler>
+     -->
+    
+    <method name="clearList">
+        ////if ($debug) Debug.write("############ propertyInspectorSidebarContent clearList ");
+        this.selectedObj = null;
+        this._innerlist._inn._inn.destroy();
+        this._name.setAttribute("text",'');
+    </method>
+    
+    <method name="updatePropValue" args="propertyId,text">
+        parent.updatePropValue(propertyId,text);
+    </method>
+    
+    <method name="setNewAssigneeValue" args="value,text">
+    	parent.setNewAssigneeValue(value,text);
+    </method>
+    
+    <method name="setNewPendingAssigneeValue" args="value,text">
+        parent.setNewPendingAssigneeValue(value,text);
+    </method>
+    
+    <method name="approveObject">
+        parent.approveObject();
+    </method>
+    
+    <method name="removeObject">
+        parent.removeObject();
+    </method>
+    
+    <method name="loadPropertiesList" args="baseObject,pList,popertyListTemp,ispending">
+        <![CDATA[
+        
+            var propList = new lz.innerList(this._innerlist._inn,{name:'_inn'});
+            
+            if ($debug) Debug.write("baseObject: ",baseObject);
+            
+            //Add the Assignee to the List of Properties
+            if (baseObject[0] == "issueflow") {
+                var _issueFlowDetails = new lz.propertyListIssueFlowDetails(propList,{refContentObj:this});
+                ////if ($debug) Debug.write("canvas.currentDiagramRef: ",canvas.currentDiagramRef);
+                ////if ($debug) Debug.write("currentDrawArea: ",currentDrawArea);
+                var assigneeUser_id = baseObject[baseObject.length-9];
+                ////if ($debug) Debug.write("baseObject: ",assigneeUser_id);
+                var adminAdded = false;
+                for (var eg=0;eg<canvas.orgUserList.length;eg++) {
+                    if (canvas.orgUserList[eg].level_id > 1) {
+                        if (!adminAdded){
+                            adminAdded = true;
+                            _issueFlowDetails.users.addItem(canvas.getLabelName(946),"0");
+                        }
+                        _issueFlowDetails.users.addItem(canvas.orgUserList[eg].login,
+                            canvas.orgUserList[eg].user_id);
+                    } else {
+                        _issueFlowDetails.users.addItem(canvas.orgUserList[eg].login,
+                            canvas.orgUserList[eg].user_id);
+                    }
+                }
+                _issueFlowDetails.users.selectItem(String(assigneeUser_id));
+                _issueFlowDetails.sendUpdateEvent = true;
+            }
+            
+            //If this is a Pending Object add the Box with the approval or assignee?!
+            if (ispending) {
+                var _pendingDetails = new lz.propertyListPendingDetails(propList,{refContentObj:this});
+                var assigneeUser_id = baseObject[baseObject.length-10];
+                var assigneeUser_Name = baseObject[baseObject.length-11];
+                
+                var adminAdded = false;
+                for (var eg=0;eg<canvas.orgUserList.length;eg++) {
+                    ////if ($debug) Debug.write("canvas.orgUserList[eg].orgUser.isModerator: ",canvas.orgUserList[eg].orgUser.isModerator);
+                    if (canvas.orgUserList[eg].orgUser.isModerator){
+                         _pendingDetails.users.addItem(canvas.orgUserList[eg].login,canvas.orgUserList[eg].user_id);
+                    } else if (canvas.orgUserList[eg].level_id > 1) {
+                        if (!adminAdded){
+                            adminAdded = true;
+                            _pendingDetails.users.addItem(canvas.getLabelName(946),"0");
+                        }
+                        _pendingDetails.users.addItem(canvas.orgUserList[eg].login,canvas.orgUserList[eg].user_id);
+                    }
+                }
+                
+                //In case of there is no user with Moderation/Administration rights
+                if (_pendingDetails.users.getItem(String(assigneeUser_id)) == null){
+                    _pendingDetails.users.addItem(assigneeUser_Name,assigneeUser_id);
+                }
+                _pendingDetails.users.selectItem(String(assigneeUser_id));
+                _pendingDetails.sendUpdateEvent = true;
+            }
+            
+            //Init the ususal Properties with their values from temp and loaded
+            for (var i=0;i<pList.length;i++) {
+                
+                //Overwrite the Stored values with the ones that 
+                //we have in our current Diagram-Instance on the Screen
+                if (popertyListTemp != null && popertyListTemp != "null") {
+                	if ($debug) Debug.write("popertyListTemp: ",popertyListTemp,popertyListTemp.length);
+                    for (var k=0;k<popertyListTemp.length;k++) {
+                    	//if ($debug) Debug.write("popertyListTemp[k].propertyId",popertyListTemp[k].propertyId);
+                    	//if ($debug) Debug.write("pList[i].propertyId",pList[i].propertyId,pList[i]);
+                        if (popertyListTemp[k].propertyId == pList[i].propertyId) {
+                            pList[i].value = popertyListTemp[k].propertyVal;
+                            break;
+                        }
+                    }
+                }
+                
+                if (pList[i].textBoxHeight == null) {
+                    new lz.propertyListItem(propList,{
+                             propObj:pList[i],refContentObj:this
+                        });
+                } else {
+                    new lz.propertyListItemMultiline(propList,{
+                             propObj:pList[i],refContentObj:this
+                        });
+                }
+                
+            }
+            
+            this.sendInitialWidthUpdate();
+        ]]>
+    </method>
+    
+    <labelText x="2" y="2" labelid="658" />
+    <labelText name="_name" x="80" y="2" bgcolor="0xEFEFEF"
+               width="400" resize="false" />
+               
+               
+    <method name="sendInitialWidthUpdate">
+        for (var eg in this._innerlisthead._inn.subviews) {
+            this._innerlisthead._inn.subviews[eg].onwidth.sendEvent(this._innerlisthead._inn.subviews[eg].width);
+        }
+    </method> 
+    
+    <method name="addHeaderItem" args="labelid,width" >
+        new lz.turnOverListHeaderItem(this._innerlisthead._inn,{
+                labelid:labelid,width:width,
+                subviewsid:this._innerlisthead._inn.subviews.length
+            });
+    </method>
+    
+    <method name="sendWidthUpdate" args="w,subviewsid" >
+        <![CDATA[
+            //if ($debug) Debug.write("sendWidthUpdate",w,subviewsid);
+            var list = this._innerlist._inn._inn.subviews;
+            for (var i=0;i<list.length;i++){
+                list[i].subviews[subviewsid].setAttribute('width',w);
+            }
+        ]]>
+    </method>               
+    
+    <!-- =========  List Header area  =========-->
+
+    <view name="_innerlisthead" height="20" width="${ parent.width }" 
+        x="${ parent._innerlist.x }" y="22" clip="true" bgcolor="0xCCCCCC">
+        <view name="_inn" x="${ parent.parent._innerlist._inn.x }" 
+              layout="axis:x;spacing:0" />
+    </view> 
+    
+    <!-- =========  List Contents area  =========-->
+    <view name="_innerlist" height="${ parent.height-42 }" width="${ parent.width }"
+        y="42" clip="true">
+        <view name="_inn" >
+            <innerList name="_inn" />
+        </view>
+        <vscrollbar name="_scrollbar" />
+        <hscrollbar />
+    </view>
+     
+</class>
+
+
+
+</library>

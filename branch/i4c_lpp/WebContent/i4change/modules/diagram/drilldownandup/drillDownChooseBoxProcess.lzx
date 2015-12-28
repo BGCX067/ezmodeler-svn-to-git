@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+	
+<class name="drillDownChooseBoxProcess" extends="guiPresenter" labelid="852" 
+    docking="true" resizeable="false" closable="true" width="304" height="66">
+    
+    <attribute name="diagramObjectId" value="0" type="number" />
+    
+    <simpleLabelButton labelid="861" width="300" x="2" y="22">
+    	<handler name="onclick">   
+        
+            canvas.currentDiagram = null;
+            canvas.isTempNewlyCreated = true;
+            canvas.isTempNewlyCreatedMainDiagram = true;
+            canvas.tempParentDiagramObjectId = parent.diagramObjectId;
+            
+            //if ($debug) Debug.write("Make new Process Diagram by " +
+                           // "currentDrillDownType ",canvas.currentDrillDownType);
+                            
+            //if ($debug) Debug.write("Make new Process Diagram");
+            quicklinkAct('processgroup');
+
+            parent.close();
+    	</handler>
+    </simpleLabelButton>
+    
+    <simpleLabelButton labelid="862" width="300" x="2" y="46">
+    	<handler name="onclick">
+            
+            canvas.currentDiagram = null;
+            canvas.isTempNewlyCreated = true;
+            canvas.isTempNewlyCreatedMainDiagram = true;
+            canvas.tempParentDiagramObjectId = parent.diagramObjectId;
+            
+            //if ($debug) Debug.write("Make new Process Diagram by " +
+                           // "currentDrillDownType ",canvas.currentDrillDownType);
+                            
+            //if ($debug) Debug.write("Make new lz.Flow Diagram");
+            quicklinkAct('roleView');
+
+            parent.close();
+    	</handler>
+    </simpleLabelButton>  
+     
+</class>
+
+</library>

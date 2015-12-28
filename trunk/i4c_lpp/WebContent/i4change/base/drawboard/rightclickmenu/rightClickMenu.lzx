@@ -1,0 +1,100 @@
+<library>
+	
+
+<class name="rightClickMenu" extends="view" width="200" bgcolor="0x666666" >
+    
+    <attribute name="itemRef" value="null" />
+    <attribute name="whiteBoardRef" value="null" />
+    
+    <handler name="oninit">
+    	//if ($debug) Debug.write("rightClickMenu: ",this.itemRef,this);
+    	//this._mylist.addItem("name1","value1");
+    	//this._mylist.addItem("name2","value2");
+    	if (this.itemRef[0]=='processgroup'){
+    		//if ($debug) Debug.write('processgroup RC');
+    		this._mylist.addItem(canvas.getLabelName(565),"processgroupDetails");
+    		this._mylist.addItem(canvas.getLabelName(566),"processgroupCreateProcess");
+    	} else if (this.itemRef[0]=='process'){
+    		//if ($debug) Debug.write('processgroup RC');
+    		this._mylist.addItem(canvas.getLabelName(569),"processDetails");
+    		this._mylist.addItem(canvas.getLabelName(570),"processCreateProcess");
+    	} else {
+    		this.close();
+    		return;
+    	}
+    	this.setShadow(); 	
+    </handler>
+
+    <method name="setShadow">
+        <![CDATA[
+        	//if ($debug) Debug.write("setShadow: ",this.isinited)
+	        if (this.isinited){
+	        	this.normalMC = this.getMCRef();
+	           	this.displacementMap = new flash.filters.DropShadowFilter();
+	            this.normalMC.filters = [this.displacementMap];
+	        }
+        ]]>              
+    </method>	
+    
+    <method name="setNewValue" args="newVal">
+    	//if ($debug) Debug.write("setNewValue: ",newVal);
+    	
+    	this.close();
+    	if (newVal=='processgroupCreateProcess'){
+    		canvas.setInitObject(this.itemRef);
+    		quicklinkAct('processgroup');
+    	}
+    </method>
+      
+    <method name="close">
+    	this.onclose.sendEvent();
+    	this.destroy();  
+    </method>
+    
+    <handler name="onclose">
+    	lz.ModeManager.release(this);
+    </handler>
+    
+    <!--- @keywords private -->
+    <method name="passModeEvent" args="eventStr,view" > 
+        <![CDATA[
+           if ( eventStr == "onmousedown"  ){
+               if ( view != null ) {
+                  if ( !view.childOf(this) ) {
+                       this.close();
+                  }
+               } else {
+                   this.close();
+               }
+           }
+           if (view && view.childOf(this)) {
+               if (view[ eventStr ]) {
+                   view[ eventStr ].sendEvent( view );
+               }
+               return false;
+           }
+          return true;
+       ]]> 
+    </method> 
+    
+	<list name="_mylist" width="200" y="6" >
+		<handler name="onselect">
+			parent.setNewValue(this.getValue());
+		</handler>
+	</list>     
+    
+    <!--
+    
+    <method name="addItem" args="name,value">
+    	this.inner.addItem(name,value);
+    </method>
+   
+    <view name="content" width="198" height="$once{ this.inner.height }"
+    	  x="1" y="1" bgcolor="0xFFFFFF">
+    	<floatinglist name="inner" />
+    </view>
+     -->
+     
+</class>
+
+</library>

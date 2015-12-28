@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:lang="http://www.springframework.org/schema/lang"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+                           http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-2.0.xsd">
+    
+    <bean id="i4change.GenerateInvoice"
+        class="org.i4change.app.payment.GenerateInvoice">
+        <property name="invoiceDaoImpl" ref="i4change.InvoiceDaoImpl"/>
+        <property name="configurationmanagement" ref="i4change.Configurationmanagement"/>
+        <property name="generateDocument" ref="i4change.GenerateDocument" />
+        <property name="countryDaoImpl" ref="i4change.CountryDaoImpl"/>
+    </bean>
+    
+    <bean id="i4change.TransactionsCompleted" 
+          class="org.i4change.paypal.payment.TransactionsCompleted">
+    	<property name="transactionPaypalDaoImpl" ref="i4change.TransactionPaypalDaoImpl" />
+    </bean> 
+    
+    <bean id="i4change.TransactionPaypalDaoImpl"
+        class="org.i4change.app.data.user.daos.TransactionPaypalDaoImpl">
+        <property name="sessionFactory" ref="theSessionFactory"/>
+        <property name="userDaoImpl" ref="i4change.UserDaoImpl"/>
+    </bean>
+    
+    <bean id="i4change.InvoiceDaoImpl"
+        class="org.i4change.app.data.user.daos.InvoiceDaoImpl">
+        <property name="sessionFactory" ref="theSessionFactory"/>
+    </bean>
+    
+    <bean id="i4change.ProcessPayment"
+        class="org.i4change.paypal.payment.ProcessPayment">
+    </bean>
+    
+    
+</beans>

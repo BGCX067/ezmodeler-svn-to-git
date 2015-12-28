@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+	<security>
+        <allow>
+            <pattern>^org.i4change.app.http.javarpc\.WebsiteServiceRPC</pattern>
+        </allow>
+    </security>
+    
+    <!-- See WEB-INF/classes/TypesExample.java for java source. -->
+    <javaCallRPC name="websiteServiceRPC" scope="webapp" secure="$once{ canvas.javaRPCSecure }" secureport="$once{ canvas.httpport }"
+    		 autoload="false" objectreturntype="javabean"
+    		 remoteclassname="org.i4change.app.http.javarpc.WebsiteServiceRPC">
+
+        <handler name="onload">
+            // Set buttons visible only after JavaRPC object loads
+            //if ($debug) Debug.write('websiteServiceRPC onload:', this);
+            userServiceRPC.load();
+            //this.getRoomItems.doCall();
+        </handler>
+
+        <handler name="ondata" args="res">
+            ////if ($debug) Debug.write('(types ondata) response is:', res);
+        </handler>
+
+        <!--
+        <netRemoteCallRPC name="getRoomItems" funcname="getRooItems" 
+            remotecontext="$once{ canvas.websiteServiceRPC }" > 
+            <param><method name="getValue">return canvas.sessionId;</method></param>
+            <handler name="ondata" args="value">
+                //if ($debug) Debug.write("webItemId: getRooItems ",value);
+            </handler>
+        </netRemoteCallRPC>
+         -->
+        
+        <!--
+            See Main-Service.lzx
+         -->
+         
+        <netRemoteCallRPC name="getWebItemTypes" funcname="getWebItemTypes" showLoading="false">
+        	<netparam><method name="getValue"> return canvas.sessionId; </method></netparam> 
+            <handler name="ondata" args="value">
+            	//if ($debug) Debug.write("getWebItemTypes/ondata: ",value);
+                canvas.webItemTypes = value;
+            </handler>
+        </netRemoteCallRPC>
+        
+        
+    </javaCallRPC>
+
+</library>

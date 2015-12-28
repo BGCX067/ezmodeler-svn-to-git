@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+	
+	<!-- -->
+	
+	<!-- -->
+	<include href="dashboard/" />
+	 
+	<include href="popups/" />
+	
+    <!-- -->
+    <include href="dragitem/" />
+	<include href="roles/" />
+	 
+    
+    <!-- -->
+    <include href="diagram/" />
+     
+    
+    <include href="issueexplorer/" />
+    
+    <!-- -->
+    <include href="importeditor/" />
+    <include href="helpcenter/" />
+    <include href="firststartwizzard/" />
+    
+    
+    <include href="diagramloader/" />
+    <!-- -->
+	<include href="admin/" />
+	
+	
+    <include href="moderator/" />
+    
+     
+    <include href="register/" />
+    <include href="settings/" />
+    <!-- -->
+    <include href="deepsearchmodule/" />
+    
+    
+    
+    <include href="topbar/" />
+    <!-- -->
+    <include href="website/" />
+    
+    
+    <!-- -->
+    <include href="helpandfaq/" />
+    <include href="kdashboard/" />
+    <include href="projectoverview/" />
+    <include href="projects/" />
+    
+</library>

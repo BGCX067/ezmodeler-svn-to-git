@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+    
+    <class name="hierarchicalMenubar" extends="_menubar" height="28" showhandcursor="false" >
+        <handler name="oninit">
+            //Add Help Item
+            canvas.addCurrentHelpId(35,this.__constructor__.classname);
+        </handler>          
+        <!-- save menu -->
+        <fileMenuBar />
+        <!-- file menu
+        <_labelMenu labelid="624" width="250">
+            <_labelMenuItemView labelid="628" command="cmd_showHierarchicalExplorer"
+                                id="menu_showHierarchicalExplorer" />
+            <_labelMenuItemView labelid="626" command="cmd_showRevisionHistoryHierarchical"
+                                id="menu_showRevisionHistoryHierarchical" />
+            <_labelMenuItemView labelid="657" command="cmd_showPropertyInspectorProcessHierarchical" 
+                                id="menu_showPropertyInspectorHierarchical" />
+        </_labelMenu> 
+         -->
+    </class>
+    
+	<class name="hierarchicalMenubarAdmin" extends="hierarchicalMenubar" >
+        <modMenuBarItems />    
+        <adminMenuBarItems />  
+        <usermenuBarItems />
+	</class>    
+    
+    <class name="hierarchicalMenubarMod" extends="hierarchicalMenubar">
+        <modMenuBarItems />    
+        <usermenuBarItems />
+    </class>  
+    
+    <class name="hierarchicalMenubarUser" extends="hierarchicalMenubar" >
+        <usermenuBarItems />
+    </class>  
+    
+</library>

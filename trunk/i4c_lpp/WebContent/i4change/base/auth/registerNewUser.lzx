@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+<class name="registerNewUser" extends="labelExplorerBox" labelid="113"
+    docking="true" resizeable="false" closable="false" width="400" x="400" y="40" height="360">
+    
+    <attribute name="refObj" value="null" />
+    <attribute name="regObject" value="null" />
+    
+    <handler name="oninit">
+        var defaultstate = canvas.getCountryRecord(1);
+        this.state.addAndSelectItem(defaultstate.name,defaultstate.country_id);        
+    </handler>
+    
+    <handler name="onclose">
+    	this.refObj._register.setAttribute('visible',true);
+    	this.refObj.doreset.doStart();
+    </handler>
+    
+
+    <method name="register">
+        this.registerB.onclick.sendEvent();
+    </method>
+
+    <labelText labelid="117" width="200" y="42" resize="false" x="2"/>
+        <customEdittext name="firstname" y="42" x="120" width="270" text="">
+            <handler name="onblur">
+                parent.username.setAttribute("text",this.getText()+"."+parent.lastname.getText());
+            </handler>
+        </customEdittext>
+        
+    <labelText labelid="118" width="200" y="72" resize="false" x="2"/>
+        <customEdittext name="lastname" y="72" x="120" width="270" text="" >
+            <handler name="onblur">
+                parent.username.setAttribute("text",parent.firstname.getText()+"."+this.getText());
+            </handler>
+        </customEdittext>    
+        
+    <labelText labelid="114" width="200" y="102" resize="false" x="2"/>
+        <labelText name="username" y="102" x="120" width="270" text="" resize="false" bgcolor="0xCCCCCC" />
+
+    <labelText labelid="115" width="200" y="132" resize="false" x="2"/>
+        <customEdittext name="userpass1" y="132" password="true" x="120" width="270" text="" />
+        
+    <labelText labelid="116" width="200" y="162" resize="false" x="2"/>
+        <customEdittext name="userpass2" y="162" password="true" x="120" width="270" text="" />                    
+
+    <labelText labelid="119" width="200" y="192" resize="false" x="2"/>
+        <customEdittext name="email" y="192" x="120" regexpType="email" 
+        				width="270" text="" />
+         
+    <labelText labelid="120" width="200" y="222" resize="false" x="2"/>  
+
+		<validText name="state" width="270" y="222" x="120" fontsize="12" 
+            shownitems="7" validate_method="$once{ canvas.validateCountry }" 
+            resultId="country_id" resultName="name" />        
+<!--
+    <labelText text="Language: " width="200" y="252" resize="false" x="2"/>  
+        
+        <omComboBox name="languages" width="270" y="252" x="120" editable="false">
+            <netRemoteCallRPC name="getLanguages" funcname="xmlcrm.getLanguages" remotecontext="$once{  canvas. }" >      
+                <handler name="oninit">
+                    this.doCall();
+                </handler>
+                <handler name="ondata" args="value">
+                    //The onResult-Handler will be called be the rtmpconnection
+                    //Debug.write("getLanguages: ",value);
+                    <![CDATA[
+                    for (var i=0;i<value.length;i++){
+                        this.parent.addItem(value[i].name,value[i].language_id);
+                    }
+                    this.parent.selectItem(value[0].language_id);
+                    ]]>
+                </handler>  
+            </netRemoteCallRPC>
+        </omComboBox>      
+         -->   
+    <simpleLabelButton name="registerB" labelid="121" width="120" x="140" y="332">
+    	<handler name="onclick">
+            <![CDATA[
+                if (this.parent.firstname.getText().length < 3) {
+                    new lz.errorPopupWithLabel(canvas,{labelerrorid:883});
+                } else if (this.parent.lastname.getText().length < 3) {
+                    new lz.errorPopupWithLabel(canvas,{labelerrorid:884});
+                } else if (this.parent.email.getText().length < 1) {
+                    new lz.errorPopupWithLabel(canvas,{labelerrorid:885});
+                } else {
+	                var pwd1 = this.parent.userpass1.getText();
+	                var pwd2 = this.parent.userpass2.getText();            
+	                if (pwd1!=pwd2) {
+	                    new lz.rpcErrorDialog(canvas.main_content._content.inner,{errorid:-6});
+	                } else if(pwd1.length<4){
+	                    new lz.rpcErrorDialog(canvas.main_content._content.inner,{errorid:-7});
+	                } else {
+	                    this.parent.regObject = new Array();
+	                    this.parent.regObject["SID"]=canvas.sessionId;
+	                    this.parent.regObject["Username"]=this.parent.username.getText();
+	                    this.parent.regObject["Userpass"]=this.parent.userpass1.getText();
+	                    this.parent.regObject["lastname"]=this.parent.lastname.getText();
+	                    this.parent.regObject["firstname"]=this.parent.firstname.getText();
+	                    this.parent.regObject["email"]=this.parent.email.getText();
+	                    this.parent.regObject["age"]=0;
+	                    this.parent.regObject["street"]='';
+	                    this.parent.regObject["additionalname"]='';
+	                    this.parent.regObject["fax"]='';
+	                    this.parent.regObject["zip"]='';
+	                    this.parent.regObject["states_id"]=Number(this.parent.state.getValue());
+	                    this.parent.regObject["town"]='';
+	                    this.parent.regObject["language_id"]=0;   
+	                    this.parent.regObject["domain"]=canvas.rtmphostlocal; 
+	                    this.parent.regObject["port"]=canvas.httpport; 
+	                    this.parent.regObject["webapp"]=canvas.webAppRootKey; 
+	                    this.parent.registerUserByObject.doCall();
+	                }
+                }
+            ]]>
+    	</handler>
+    </simpleLabelButton>   
+    
+    <simpleLabelButton labelid="122" width="120" x="270" y="332">
+    	<handler name="onclick">
+    		this.parent.close();
+    	</handler>
+    </simpleLabelButton>   
+	
+     <netRemoteCallRPC name="registerUserByObject" funcname="registerUserByObject" 
+     	remotecontext="$once{  canvas.mainServiceRPC }" activeErrorHandler="true" >     
+        <netparam>
+        	<method name="getValue"> 
+        		return this.parent.parent.regObject; 
+        	</method>
+        </netparam>           
+         <handler name="ondata" args="value">
+         	<![CDATA[
+            //The onResult-Handler will be called be the rtmpconnection
+            //if ($debug) Debug.write("registerUserByObject: ",value);
+			if (!(value<0)){
+				//Debug.write("successfully registered");
+                 new lz.rpcErrorDialog(canvas,{labelid:886,errorid:-18});
+                 this.parent.refObj.username.setAttribute("text",this.parent.username.getText());
+                 this.parent.refObj.userpass.setAttribute("text",this.parent.userpass1.getText());
+                 this.parent.close();
+			}
+			]]>
+         </handler>  
+     </netRemoteCallRPC>	
+	
+</class>
+
+</library>

@@ -1,0 +1,292 @@
+<library>
+  
+  <!--
+    This implements a static GraphBox
+    -->
+  <class name="GraphBox" extends="drawview" oninit="this.bringToFront();">
+    
+    <attribute name="colorBody" type="number" value="0xa0a0a0"/>
+    <attribute name="hSize" type="number" value="6"/>
+    <attribute name="dragYOnly" value="false" type="boolean"/>
+    <attribute name="activity_name" value="false" type="number"/>
+    <attribute name="obj_type" value="false" type="string"/>
+    
+    <text name="caption" x="5" y="1" fgcolor="white" fontstyle="bold" width="$once{parent.width - 10}">Abc</text>
+<inputtext name="myText" x="5" y="22" width="${parent.width}" height="${parent.height}" multiline="true">
+     Abc</inputtext>
+    
+    <view name="btnDetails" visible="false" x="${parent.width - 36}" y="2" resource="resources/zoom.png"/>
+    <view name="btnDelete" visible="false" x="${parent.width - 18}" y="2" resource="resources/delete.png"/>
+    
+    <method name="materialize">
+      this.active = false;
+    </method>
+    
+    <method event="onx">
+      parent.boxMoving(this);
+    </method>
+    
+    <method event="ony">
+      parent.boxMoving(this);
+    </method>
+    
+    <method event="onclick">
+      var cx = this.getMouse('x');
+      var cy = this.getMouse('y');
+      if ( btnDetails.containsPt(cx - btnDetails.x, cy - btnDetails.y) ) {
+        doAction("details");
+      }
+      if ( btnDelete.containsPt(cx - btnDelete.x, cy - btnDelete.y) ) {
+        doAction("remove");
+      }
+    </method>
+    
+    <method event="onmousedown">
+      bringToFront();
+      var s = checkCursor();
+      if ( s == "handle" ) {
+        parent.startConnecting(this);
+      }
+    </method>
+    
+    <method event="onmouseup">
+      parent.endConnecting(this);
+    </method>
+    
+    <method event="onmouseover">
+      this.active = true;
+      parent.boxUnderMouse(this);
+      redraw();
+    </method>
+    
+    <method event="onmouseout">
+      this.active = false;
+      parent.boxLeftUnderMouse(this);
+      redraw();
+    </method>
+    
+    <method name="checkConnectFrom" args="from">
+      return true;
+    </method>
+    
+    <method name="doAction" args="action">
+      if ( action == "remove" ) {
+        parent.remove(this);
+      }
+    </method>
+    
+
+   <!--
+    This method will check if the mouse is on top of one of the small boxes, and if yes
+	will return "handle" to draw connector else  will return "drag" to drag
+    -->
+
+    <method name="checkCursor">
+      <![CDATA[
+        var mx = getMouse('x');
+        var my = getMouse('y');
+        
+        var x1 = 0;
+        var y1 = 0;
+        var x2 = x1 + hSize;
+        var y2 = y1 + hSize;
+        if ( x1 <= mx && mx <= x2 && y1 <= my && my <= y2 ) {
+          return "handle";
+        }
+        
+        var x1 = (this.width - hSize) / 2;
+        var y1 = 0;
+        var x2 = x1 + hSize;
+        var y2 = y1 + hSize;
+        if ( x1 <= mx && mx <= x2 && y1 <= my && my <= y2 ) {
+          return "handle";
+        }
+        
+        var x1 = this.width - hSize;
+        var y1 = 0;
+        var x2 = x1 + hSize;
+        var y2 = y1 + hSize;
+        if ( x1 <= mx && mx <= x2 && y1 <= my && my <= y2 ) {
+          return "handle";
+        }
+        
+        var x1 = this.width - hSize;
+        var y1 = (this.height - hSize) / 2;
+        var x2 = x1 + hSize;
+        var y2 = y1 + hSize;
+        if ( x1 <= mx && mx <= x2 && y1 <= my && my <= y2 ) {
+          return "handle";
+        }
+        
+        var x1 = this.width - hSize;
+        var y1 = this.height - hSize;
+        var x2 = x1 + hSize;
+        var y2 = y1 + hSize;
+        if ( x1 <= mx && mx <= x2 && y1 <= my && my <= y2 ) {
+          return "handle";
+        }
+        
+        var x1 = (this.width - hSize) / 2;
+        var y1 = this.height - hSize;
+        var x2 = x1 + hSize;
+        var y2 = y1 + hSize;
+        if ( x1 <= mx && mx <= x2 && y1 <= my && my <= y2 ) {
+          return "handle";
+        }
+        
+        var x1 = 0;
+        var y1 = this.height - hSize;
+        var x2 = x1 + hSize;
+        var y2 = y1 + hSize;
+        if ( x1 <= mx && mx <= x2 && y1 <= my && my <= y2 ) {
+          return "handle";
+        }
+        
+        x1 = 0;
+        y1 = (this.height - hSize) / 2;
+        x2 = x1 + hSize;
+        y2 = y1 + hSize;
+        if ( x1 <= mx && mx <= x2 && y1 <= my && my <= y2 ) {
+          return "handle";
+        }
+        
+        return "drag";
+      ]]>
+    </method>    
+    
+    <method name="rememberNextHandle" args="hx,hy">
+        this.handleX = hx;
+        this.handleY = hy;
+    </method>
+    
+    <method name="findNextHandle" args="hx,hy">
+      <![CDATA[
+        var x1 = this.x;
+        var y1 = this.y;
+        var x2 = this.x + this.width;
+        var y2 = this.y + this.height;
+        
+        if ( hy <= y1 ) {
+          if ( hx <= x1 ) {
+            rememberNextHandle(x1, y1);
+          }
+          else if ( hx >= x2 ) {
+            rememberNextHandle(x2, y1);
+          }
+          else {
+            rememberNextHandle((x1 + x2) / 2, y1);
+          }
+        }
+        else if ( hy >= y2 ) {
+          if ( hx <= x1 ) {
+            rememberNextHandle(x1, y2);
+          }
+          else if ( hx >= x2 ) {
+            rememberNextHandle(x2, y2);
+          }
+          else {
+            rememberNextHandle((x1 + x2) / 2, y2);
+          }
+        }
+        else {
+          if ( hx < x1 ) {
+            rememberNextHandle(x1, (y1 + y2) / 2);
+          }
+          else {
+            rememberNextHandle(x2, (y1 + y2) / 2);
+          }
+        }
+      ]]>
+    </method>
+    
+    <method name="getNextHandleX">
+      return this.handleX;
+    </method>
+    
+    <method name="getNextHandleY">
+      return this.handleY;
+    </method>
+    
+    <method name="redraw">
+      <![CDATA[
+        if ( this["active"] == null ) {
+          this.active = false;
+        }
+        
+        btnDetails.setVisible(this.active);
+        btnDelete.setVisible(this.active);
+        
+        this.clear();
+        
+        this.fillStyle = colorBody;
+        this.strokeStyle = 0x000000;
+        this.lineWidth = 1;
+        this.globalAlpha = 1.0;
+        
+        this.lineWidth = 2;
+        this.beginPath();
+        this.fillStyle = colorBody;
+        this.rect(0, 0, this.width, this.height, 0);
+        this.fill();
+        this.stroke();
+      
+        this.beginPath();
+        this.fillStyle = 0x808080;
+        this.rect(0, 0, this.width, 19, 0);
+        this.fill();
+        this.stroke();
+        this.lineWidth = 1;
+        
+        if ( this.active ) {
+            this.fillStyle = 0xff0000;
+            this.strokeStyle = 0x000000;
+            this.lineWidth = 1;
+            this.globalAlpha = 1.0;
+            
+            this.beginPath();
+            this.rect(0, 0, hSize, hSize, 0);
+            this.fill();
+            this.stroke();
+            
+            this.beginPath();
+            this.rect((this.width - hSize) / 2, 0, hSize, hSize, 0);
+            this.fill();
+            this.stroke();
+            
+            this.beginPath();
+            this.rect(this.width - hSize, 0, hSize, hSize, 0);
+            this.fill();
+            this.stroke();
+            
+            this.beginPath();
+            this.rect(this.width - hSize, this.height / 2 - 3, hSize, hSize, 0);
+            this.fill();
+            this.stroke();
+            
+            this.beginPath();
+            this.rect(this.width - hSize, this.height - hSize, hSize, hSize, 0);
+            this.fill();
+            this.stroke();
+            
+            this.beginPath();
+            this.rect((this.width - hSize) / 2, this.height - hSize, hSize, hSize, 0);
+            this.fill();
+            this.stroke();
+            
+            this.beginPath();
+            this.rect(0, this.height - hSize, hSize, hSize, 0);
+            this.fill();
+            this.stroke();
+        
+            this.beginPath();
+            this.rect(0, (this.height - hSize) / 2, hSize, hSize, 0);
+            this.fill();
+            this.stroke();
+        }
+      ]]>
+      
+    </method>
+    
+  </class>
+  
+</library>

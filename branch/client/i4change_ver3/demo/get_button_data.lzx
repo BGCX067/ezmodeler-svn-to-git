@@ -1,0 +1,23 @@
+<canvas height="100%" width="100%" debug="true">
+  <dataset name="menu"/>
+  <button>
+    Show XML Data
+	<handler name="onclick">
+	  var d = canvas.datasets.menu;
+	  d.setSrc('http://127.0.0.1:8000/lps-4.0b1/i4change_ver2/demo/test.xml');
+	  d.setRequest(true);
+	  d.doRequest();
+	</handler>
+	<datapointer xpath="menu:/myXML">
+	  <handler name="ondata">
+	    Debug.write(this.serialize());
+		<![CDATA[
+		  for (i=1;i<=2;i++) {
+		    var xp = 'menu:/myXML[1]/person['+i+']/firstName[1]/text()';
+			Debug.write(this.xpathQuery(xp));
+		  }
+		]]>
+	  </handler>
+	</datapointer>
+  </button>
+</canvas>

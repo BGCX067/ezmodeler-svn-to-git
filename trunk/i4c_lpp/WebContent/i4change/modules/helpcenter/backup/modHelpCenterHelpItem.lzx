@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<library>
+    
+<class name="helpCenterItemModListSingleItem" extends="view" layout="axis:x;spacing:2" 
+       bgcolor="white" width="400" x="2" height="20">
+    
+    <attribute name="helpItem" value="null" />
+    
+    <handler name="oninit">
+        //if ($debug) Debug.write("helpItem: ",this.helpItem);
+        if (!this.helpItem.isAgentHelp) {
+            this.isAgentHelp.setAttribute('opacity',0.3);
+            this.isAgentHelp.toolTip.setAttribute('labelid',766);
+        }
+    </handler>
+    <method name="closeItem">
+        if (this.isOpen) {
+            this.doClose.doStart();
+        }
+    </method>
+    
+    <netRemoteCallRPC name="deleteHelpTopic" funcname="deleteHelpTopic" 
+                      remotecontext="$once{  canvas.helpServiceRPC }" >      
+        <netparam><method name="getValue"> return canvas.sessionId; </method></netparam>
+        <netparam><method name="getValue">return parent.parent.helpItem.helptopicId;</method></netparam>
+        <handler name="ondata" args="value">
+            <![CDATA[
+                //if ($debug) Debug.write("deleteHelpTopic: ",value);
+                parent.parent.parent.parent.reload();
+            ]]>
+        </handler>
+    </netRemoteCallRPC> 
+    
+    <labelText labelid="$once{ parent.helpItem.topicLabelId }" fgcolor="0x000000" width="350" resize="false" />
+    <labelTooltip labelid="$once{ parent.helpItem.topicLabelId }" />
+    
+    <view name="isAgentHelp" resource="agentHelp_help_item_rsc" onclick="">
+        <labelTooltip name="toolTip" inittwice="true" labelid="765" />
+    </view>
+    <view resource="edit_help_item_rsc">
+        <handler name="onclick">
+            new lz.rteEditorView(canvas,{
+                    isNewItem:false,helpItem:parent.helpItem,
+                    refObj:parent.parent.parent.parent,
+                    helpId:parent.helpItem.helpId,
+                    helpName:parent.helpItem.helpName
+                });
+        </handler>
+        <labelTooltip labelid="764" />
+    </view>
+    <view resource="delete_help_item_rsc" >
+        <handler name="onclick">
+            parent.clearAll();
+        </handler>
+        <labelTooltip labelid="760" />
+    </view>
+    <method name="clearAll">
+        new lz.confirmDeleteWindowCustomLabel(canvas,{refObj:this,
+                funcNameConfirm:'clearAllConfirm',messageLabelid:767});
+    </method>
+    
+    <method name="clearAllConfirm" >
+        this.deleteHelpTopic.doCall();
+    </method>
+    
+</class>
+    
+<class name="helpItemMod" extends="view" height="280" y="20" bgcolor="0xFFFFFF">
+    <attribute name="helpId" value="0" type="number" />
+    <attribute name="helpName" value="" type="string" />
+    <attribute name="helpIdsArray" value="null" />
+    <handler name="oninit">
+        <![CDATA[
+            this.helpIdsArray = new Array()
+            this.helpIdsArray.push(this.helpId);
+            this.getHelpTopicByHelpIdRange.doCall();
+        ]]>
+    </handler>
+    <method name="reload">
+        this.clearContent();
+        this.getLanguageByIdAndMax.start = 0;
+        this.getLanguageByIdAndMax.doCall();
+    </method>
+    
+    <netRemoteCallRPC name="getLanguageByIdAndMax" funcname="getLanguageByIdAndMax" 
+                    remotecontext="$once{  canvas.languageServiceRPC }" >   
+        <attribute name="start" value="0" type="number" />
+        <attribute name="step" value="100" type="number" /> 
+        <attribute name="max" value="3000" type="number" />    
+        <netparam><method name="getValue">return  canvas.userlang;</method></netparam>
+        <netparam><method name="getValue">return parent.start;</method></netparam> 
+        <netparam><method name="getValue">return parent.step;</method></netparam> 
+        <handler name="ondata" args="value">
+            <![CDATA[
+                //if($debug) Debug.write("hibRtmpConnection/getLanguageByIdAndMax:[",value,"]");
+                setLabelObjectByHundred(this.start,value);
+                //The onResult-Handler will be called be the rtmpconnection
+                if (this.start <= max){
+                    this.start += this.step;
+                    this.doCall();
+                } else {
+                    parent.getHelpTopicByHelpIdRange.doCall();
+                    _modHelpCenterItemsTable.reload();
+                }
+            ]]>
+        </handler>  
+    </netRemoteCallRPC>
+            
+    <netRemoteCallRPC name="getHelpTopicByHelpIdRange" funcname="getHelpTopicByHelpIdRange" 
+                      remotecontext="$once{  canvas.helpServiceRPC }" >      
+        <netparam><method name="getValue"> return canvas.sessionId; </method></netparam>
+        <netparam><method name="getValue">return parent.parent.helpIdsArray;</method></netparam>
+        <handler name="ondata" args="value">
+            <![CDATA[
+                //if ($debug) Debug.write("getHelpTopicByHelpIdRange: ",value);
+                for (var i=0;i<value.length;i++) {
+                    parent.doAddItem(value[i]);
+                }
+            ]]>
+        </handler>
+    </netRemoteCallRPC> 
+    <method name="doAddItem" args="helpItem">
+        new lz.helpCenterItemModListSingleItem(this._inn._inn,{helpItem:helpItem});
+    </method>     
+    <method name="clearContent">
+        for (var eg in this._inn._inn.subviews) {
+            this._inn._inn.subviews[eg].destroy();
+        }
+    </method>
+    <view name="_bar" layout="axis:x;spacing:2">
+	    <view resource="add_help_item_rsc" >
+	        <handler name="onclick">
+	            new lz.rteEditorView(canvas,{
+                        refObj:parent.parent,
+                        helpId:parent.parent.helpId,
+                        helpName:parent.parent.helpName
+                    });
+	        </handler>
+	        <labelTooltip labelid="761" />
+	    </view>
+        <view resource="reload_help_item_rsc" >
+            <handler name="onclick">
+                parent.parent.reload();
+            </handler>
+            <labelTooltip labelid="762" />
+        </view>
+    </view>
+    <view name="_inn" y="20" height="$once{ parent.height-20 }" width="420">
+        <view name="_inn" layout="axis:y;spacing:2" />
+        <vscrollbar name="_scrollbar" />
+    </view>
+</class>
+    
+<class name="modHelpCenterHelpItem" extends="view" bgcolor="white" width="420" x="2" height="20">
+    <attribute name="helpId" value="0" type="number" />
+    <attribute name="helpName" value="" type="string" />
+    <attribute name="isOpen" value="false" type="boolean" />
+    <method name="closeItem">
+        if (this.isOpen) {
+            this.doClose.doStart();
+        }
+    </method>
+    <labelText text="$once{ parent.helpId }" x="0" width="80" resize="false">
+        <handler name="onclick">
+            //if ($debug) Debug.write("helpdName: ",this);
+            if (parent.isOpen) {
+                parent.doClose.doStart();
+            } else {
+                parent.parent.parent.closeAllItems();
+                parent.doOpen.doStart();
+            }
+        </handler>
+    </labelText>
+    <labelText text="$once{ parent.helpName }" x="80" width="320" resize="false">
+        <handler name="onclick">
+	        //if ($debug) Debug.write("helpdName: ",this);
+	        if (parent.isOpen) {
+	            parent.doClose.doStart();
+	        } else {
+	            parent.parent.parent.closeAllItems();
+	            parent.doOpen.doStart();
+	        }
+	    </handler>
+    </labelText>
+    <labelTooltip labelid="753" />
+    
+    <animator name="doOpen" attribute="height" from="20" to="300" start="false" duration="750" >
+        <handler name="onstop">
+            parent.isOpen = true;
+            //new lz.rte(this,{y:80});
+            new lz.helpItemMod(parent,{name:'_inner',helpId:parent.helpId,helpName:parent.helpName});
+            //new lz.rteEditorView(parent,{name:'_inner',helpId:parent.helpId,helpName:parent.helpName});
+        </handler>
+    </animator>
+    <animator name="doClose" attribute="height" from="300" to="20" start="false" duration="750"  >
+        <handler name="onstart">
+            parent._inner.destroy();
+        </handler>
+        <handler name="onstop">
+            parent.isOpen = false;
+        </handler>
+    </animator>
+</class>
+
+</library>

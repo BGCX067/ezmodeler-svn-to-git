@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+<!--- LOGIN panel window -->
+<class name="userValues" extends="view" >
+	
+	<handler name="oninit">
+		LzFocus.setFocus(this.username,true);
+	</handler>
+	
+    <netRemoteCallHib name="allowFrontendRegister" funcname="xmlcrm.allowFrontendRegister" 
+                      remotecontext="$once{ canvas.thishib }" >      
+        <handler name="oninit">
+            this.doCall();
+        </handler> 
+        <handler name="ondata" args="value">
+            //The onResult-Handler will be called be the rtmpconnection
+            //Debug.write("allowFrontendRegister: ",value);
+            if (value.conf_value==1){
+            	parent._register.setAttribute('visible',true);
+            }
+        </handler>  
+    </netRemoteCallHib>  
+
+    <netRemoteCallHib name="loginUser" funcname="xmlcrm.loginUser" 
+		remotecontext="$once{ canvas.thishib }" activeErrorHandler="true" >
+    	<attribute name="newUserLang" value="0" type="number" />      
+        <netparam><method name="getValue"> return canvas.sessionId; </method></netparam>  
+        <netparam><method name="getValue"> return parent.parent.username.getText();</method></netparam>  
+        <netparam><method name="getValue"> return parent.parent.userpass.getText();</method></netparam>  
+        <netparam><method name="getValue"> return Number(parent.parent.languages.getValue());</method></netparam>  
+        <handler name="ondata" args="value">
+			<![CDATA[
+	            //The onResult-Handler will be called be the rtmpconnection
+	            if ($debug) Debug.write("loginUser ondata: ",value);
+				if (!(value<0) && value != null){
+				
+					LzFocus.clearFocus();
+					
+					canvas.setAttribute('user_id',value.user_id);
+					canvas.setAttribute('firstName',value.firstname);
+					canvas.setAttribute('lastName',value.lastname);
+					canvas.setAttribute('mail','');
+					canvas.setAttribute('lastLogin','');
+					canvas.setAttribute('official_code','');
+					canvas.setAttribute('picture_uri','');
+					canvas.setAttribute('language','');
+					canvas.setAttribute('currentuser',value.login);
+					
+					if (parent.languages.getText()=='arabic') {
+						canvas.isrtl = true;
+					}
+					//hib.newUserLang = Number(parent.languages.getValue());
+                    this.newUserLang = Number(parent.languages.getValue());
+					hib.userobject = value;
+                    
+					parent.checkUserStatus.doCall();
+				}
+            ]]>
+        </handler>  
+    </netRemoteCallHib>
+    
+    <netRemoteCallHib name="checkUserStatus" funcname="userservice.checkUserStatus" 
+		remotecontext="$once{ canvas.thishib }" activeErrorHandler="true" >
+        <netparam><method name="getValue"> return canvas.sessionId; </method></netparam>  
+        <handler name="ondata" args="value">
+			<![CDATA[
+	            //The onResult-Handler will be called be the rtmpconnection
+	            if ($debug) Debug.write("checkUserStatus ondata: ",value);
+				if (!(value<0) && value != null){
+                    
+                    canvas.thishib.getLicenseDefaultConfiguration.doCall();
+                    
+					if (parent.loginUser.newUserLang == hib.userlang) {
+                        parent.parent.parent.parent.loadOrgItems();
+                    } else {
+                        hib.userlang = parent.loginUser.newUserLang;
+                        canvas.thishib.loaderVar = new lz.autoLoader(canvas);
+                        canvas.thishib.loaderVar.src.setText("Loading Language");
+                        parent.getLanguageByIdAndMax.start = 0;
+                        parent.getLanguageByIdAndMax.doCall();
+                    }
+                    
+				}
+            ]]>
+        </handler>  
+    </netRemoteCallHib>
+    
+    
+    <netRemoteCallHib name="getLanguageByIdAndMax" funcname="languageservice.getLanguageByIdAndMax" 
+                      remotecontext="$once{ canvas.thishib }" >
+        <attribute name="start" value="0" type="number" />
+        <attribute name="step" value="100" type="number" /> 
+        <attribute name="max" value="3000" type="number" />    
+        <netparam><method name="getValue">return hib.userlang;</method></netparam> 
+        <netparam><method name="getValue">return parent.start;</method></netparam> 
+        <netparam><method name="getValue">return parent.step;</method></netparam> 
+        <handler name="ondata" args="value">
+            <![CDATA[
+                if($debug) Debug.write("hibRtmpConnection/getLanguageByIdAndMax:[",value,"]");
+                setLabelObjectByHundred(this.start,value);
+                //The onResult-Handler will be called be the rtmpconnection
+                if (this.start <= max){
+                    this.start += this.step;
+                    canvas.thishib.loaderVar.setProgress();
+                    this.doCall();
+                } else {
+                    canvas.thishib.loaderVar.close();
+                    parent.parent.parent.parent.loadOrgItems();
+                }
+            ]]>
+        </handler>  
+    </netRemoteCallHib>
+    
+    <labelText name="_labeldUserName" labelid="109" width="200" y="24" resize="false" x="2"/>
+        <customEdittext name="username" y="24" x="120" width="170" >
+            <handler name="oninit">
+                var t = new sharedObject();
+                t.getLocal('userdata');
+                var g = t.getData('userdata');
+                if($debug) Debug.write("checkLoginData/g: ",g);
+                if(g!=null) if (g["username"]!=null) this.setText(g["username"]);
+            </handler>             
+        </customEdittext>    
+
+    <labelText name="_labelPassword" labelid="110" width="200" y="54" resize="false" x="2"/>
+        <customEdittext name="userpass" y="54" password="true" x="120" width="170" >
+            <method event="oninit">
+                var t = new sharedObject();
+                t.getLocal('userdata');
+                var g = t.getData('userdata');
+                if(g!=null) if (g["userpass"]!=null) this.setText(g["userpass"]);
+            </method>                
+        </customEdittext>
+    
+    <labelText name="_labelLanguage" labelid="111" width="200" y="84" resize="false" x="2"/>  
+        
+        <omComboBox name="languages" width="170" y="84" x="120" editable="false" >
+            <textlistitem datapath="languagesSet:/item" text="$path{ 'name/text()' }" 
+                value="$path{ 'language_id/text()' }" />
+            <handler name="oninit_dev">
+                <![CDATA[
+                var t = new sharedObject();
+                t.getLocal('userdata');
+                var g = t.getData('userdata');
+                if($debug) Debug.write("checkLoginData/g: ",g);
+                if(g!=null) {
+                	if (g["userlang"]!=null && g["userlang"] != undefined) {
+                		this.selectItem(g["userlang"]);
+                	} else {
+                		this.selectItem(String(canvas.thishib.userlang));
+                	}
+                } else {
+            		this.selectItem(String(canvas.thishib.userlang));
+            	}
+                ]]>
+            </handler>   
+            <handler name="oninit">
+                this.selectItemAt(0);
+            </handler>             
+        </omComboBox>>
+        
+	    <labelCheckbox x="120" y="144"
+	        name="_savelogindata" labelid="288" >
+	        <handler name="oninit">
+	            var t = new sharedObject();
+	            if($debug) Debug.write("checkLoginData/t: ",t);
+	            t.getLocal('userdata');
+	            var g = t.getData('userdata');
+	            if($debug) Debug.write("checkLoginData/g: ",g);
+	            var save = g["saveuserdata"];
+	            if($debug) Debug.write("checkLoginData/save: ",save);
+	            if(save) this.setValue(true);
+	        </handler>
+	    </labelCheckbox>        
+
+
+	<simpleLabelButton labelid="123" name="_register" width="120" visible="false" 
+        x="80" y="164" >
+    	<handler name="onclick">
+	    	parent._register.setAttribute('visible',false);
+	    	parent.parent.parent.parent.childObj = new lz.registerWizzard(canvas.main_content._content.inner,{refObj:parent.parent.parent.parent});    	
+            parent.parent.parent.parent.showRegForm.doStart();
+    	</handler>
+    </simpleLabelButton>   
+    
+    <simpleLabelButton name="_loginButton" labelid="185" width="120" 
+        x="205" y="164">
+    	<handler name="onclick">
+            this.parent.errormess.setText('');
+            if ($debug) Debug.write("_loginButton ONCLICK");
+    		this.parent.loginUser.doCall();
+    	</handler>
+    </simpleLabelButton>   
+    
+    <text name="errormess" resize="true" y="168" x="2" fgcolor="red" fontsize="12"/>
+    
+           
+</class>
+
+</library>

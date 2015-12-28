@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+	
+<class name="roleViewToolBar" extends="baseToolBar" 
+	   labelid="542" width="62" height="294" >
+	
+	<handler name="oninit">
+		this._area.menupointer_single.onmouseup.sendEvent(this);
+	</handler>
+    <handler name="oninit">
+        //Add Help Item
+        canvas.addCurrentHelpId(20,this.__constructor__.classname);
+    </handler>  
+	<view name="_area" width="58" y="22" x="4" >
+		<wrappinglayout axis="x" spacing="2" />
+		
+		<drawToolBarItem name="menupointer_single" resoureceItem="menupointer_rsc" 
+						 modi="hand_single" labelid="545" />
+		
+        <!--
+		<drawToolBarItem name="menupointer" resoureceItem="menupointer_multi_rsc" 
+						 modi="hand" labelid="577" />
+		 -->
+         			 
+		<drawToolBarSeperator name="_drawToolBarSeperator1" />	
+						 
+		<drawToolBarItem name="plain" resoureceItem="plain" setSelectionToItem="false"
+						 modi="plain" labelid="543" />
+		<drawToolBarItem name="saveobj" resoureceItem="saveobj" setSelectionToItem="false"
+						 modi="saveobj" labelid="544" />
+                         
+        <drawToolBarSeperator name="_drawToolBarSeperator_zoom" />     
+        
+        <drawToolBarItem name="zoom_in" resoureceItem="zoom_in_rsc" setSelectionToItem="false"
+                         modi="zoom_in" labelid="848" />
+        <drawToolBarItem name="zoom_out" resoureceItem="zoom_out_rsc" setSelectionToItem="false"
+                         modi="zoom_out" labelid="849" />         
+						 
+		<drawToolBarSeperator name="_drawToolBarSeperator10" />
+					 
+		<drawToolBarItem name="letter" resoureceItem="letter_menu" 
+						 modi="letter" labelid="578" />		
+						 
+		<drawToolBarItem name="issueflow" resoureceItem="issueflow_menu" 
+						 modi="issueflow" labelid="579" />						 
+			
+		<drawToolBarSeperator name="_drawToolBarSeperator2" />
+		
+		<drawToolBarItem name="connector" resoureceItem="connector_rsc" 
+						 modi="connector" labelid="547" />			
+						 
+		<drawToolBarSeperator name="_drawToolBarSeperator4" /> 
+						 
+		<drawToolBarItem name="process" resoureceItem="process_menu" 
+						 modi="process" labelid="550" />	
+					 
+		<drawToolBarItem name="activity" resoureceItem="activity_menu" 
+						 modi="activity" labelid="551" />	
+						 
+	    <!--
+		<drawToolBarSeperator name="_drawToolBarSeperator6" />
+					 
+		<drawToolBarItem name="unit" resoureceItem="unit_menu" 
+						 modi="unit" labelid="554" />
+		 -->
+		 			 
+		<drawToolBarSeperator name="_drawToolBarSeperator9" />
+					 
+		<drawToolBarItem name="inputflow" resoureceItem="inputflow_menu" 
+						 modi="inputflow" labelid="555" />	
+					 
+		<drawToolBarItem name="outputflow" resoureceItem="outputflow_menu" 
+						 modi="outputflow" labelid="556" />		
+						 
+		<drawToolBarSeperator name="_drawToolBarSeperator8" />
+        
+        <drawToolBarItem name="company" resoureceItem="company_menu" 
+                         visibility="$once{ (canvas.userobject.userlevel.level_id == 1) ? 'hidden' : 'visible' }"
+                         modi="company" labelid="552" />   
+                         
+        <drawToolBarItem name="companyPending" resoureceItem="company_menu" 
+                         visibility="$once{ (canvas.userobject.userlevel.level_id == 1) ? 'visible' : 'hidden' }"
+                         modi="companyPending" labelid="552" />          
+		                         
+        <drawToolBarItem name="departement" resoureceItem="departement_menu" 
+                         visibility="$once{ (canvas.userobject.userlevel.level_id == 1) ? 'hidden' : 'visible' }"
+                         modi="departement" labelid="553" />   
+                                            
+         <drawToolBarItem name="departementPending" resoureceItem="departement_menu" 
+                         visibility="$once{ (canvas.userobject.userlevel.level_id == 1) ?  'visible' : 'hidden' }"
+                         modi="departementPending" labelid="553" />  
+          
+		<drawToolBarItem name="unit" 
+                         visibility="$once{ (canvas.userobject.userlevel.level_id == 1) ? 'hidden' : 'visible' }"
+                         resoureceItem="unit_menu" modi="unit" labelid="554" />			
+                         			 
+        <drawToolBarItem name="unitPending" 
+                         visibility="$once{ (canvas.userobject.userlevel.level_id == 1) ? 'visible' : 'hidden' }"
+                         resoureceItem="unit_menu" modi="unitPending" labelid="554" /> 
+
+                                              			 					 
+	</view>
+	
+</class>
+
+</library>

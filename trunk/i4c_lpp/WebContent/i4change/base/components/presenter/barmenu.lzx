@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+<class name="barmenu" extends="view" width="${ canvas.width }" x="0" y="0" showhandcursor="false"
+    height="22" layout="axis:x;spacing:1" clickable="true"
+    bgcolor="$once{ canvas.baseMousecolorizer }">
+    
+    <attribute name="staticwidth" type="number" value="120" />
+    <attribute name="currentBtn" value="null" />
+    <attribute name="tempPostSaveBtn" value="null" />
+    
+    <handler name="oninit">
+        canvas.currentbarmenu = this;
+    </handler>
+    
+    <method name="getCurrentSize">
+        <![CDATA[
+            if ( ((this.subviews.length+1)*(this.staticwidth+1)) <= this.width) {
+                return this.staticwidth;
+            } else {
+                var newwidth = Math.round((this.width-this.subviews.length)/(this.subviews.length+1));
+                for (var i=0;i<this.subviews.length;i++) {
+                    this.subviews[i].setAttribute('width',newwidth);
+                }
+                return newwidth;
+            }   
+        ]]>
+    </method>
+    
+    <handler name="onwidth">
+        <![CDATA[
+            if ( ((this.subviews.length)*(this.staticwidth+1)) <= this.width) {
+                for (var i=0;i<this.subviews.length;i++) {
+                    this.subviews[i].setAttribute('width',this.staticwidth);
+                }
+            } else {
+                var newwidth = Math.round((this.width-this.subviews.length)/(this.subviews.length));
+                for (var i=0;i<this.subviews.length;i++) {
+                    this.subviews[i].setAttribute('width',newwidth);
+                }
+            } 
+        ]]>
+    </handler>
+    
+    <method name="sendActiveWindow" args="btn,win">
+        //if($debug)  Debug.write("sendActiveWindow: ",btn,win);
+        //this.objRef.parent.parent.setActivate(this.objRef);
+        //this.setAttribute("isactive",true);
+        <![CDATA[
+            this.tempPostSaveBtn = btn;
+            if (this.currentBtn!=null){
+                if (!this.currentBtn.objRef.parent.parent.setLeave(this.currentBtn.objRef)) {
+                    //Do not proceed
+                    //if ($debug) Debug.write("SHOW UPDATE DIALOG");
+                    return;
+                }
+                
+                this.currentBtn.setAttribute("isactive",false);
+                //if($debug)  Debug.write("sendActiveWindow ###### SET OPACITY: ",btn,win);
+                this.currentBtn._close.setAttribute("opacity",0.5);
+                
+                //if($debug)  Debug.write("sendActiveWindow1: ",this.currentBtn);
+                this.currentBtn._minimizebtn_mo.setAttribute('visibility','hidden');
+                this.currentBtn._minimizebtn_dn.setAttribute('visibility','hidden');
+            }
+            this.currentBtn = btn;
+            this.currentBtn.objRef.parent.parent.setActivate(this.currentBtn.objRef);
+            this.currentBtn.setAttribute("isactive",true);
+            //if($debug)  Debug.write("sendActiveWindow2: ",this.currentBtn);
+            this.currentBtn._close.setAttribute("opacity",1);
+            this.currentBtn._minimizebtn_mo.setAttribute('visibility','hidden');
+            this.currentBtn._minimizebtn_dn.setAttribute('visibility','visible');
+            this.currentBtn.setAttribute("isactive",true);
+        ]]>
+    </method>
+    
+</class>
+
+</library>

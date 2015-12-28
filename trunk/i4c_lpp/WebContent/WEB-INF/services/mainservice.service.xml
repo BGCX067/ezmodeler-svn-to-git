@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:lang="http://www.springframework.org/schema/lang"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+                           http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-2.0.xsd">
+    
+    
+    <bean id="mainService.service" parent="txProxyTemplate">
+        <property name="target" ref="txMainService.service" />
+    </bean>
+    
+    <!-- Class for Methods which can be invoked by the client -->
+    <bean id="txMainService.service" 
+        class="org.i4change.app.remote.MainService">
+        <property name="presentationTemplateDaoImpl" ref="i4change.PresentationTemplateDaoImpl" />
+        <property name="usermanagement" ref="i4change.Usermanagement" />
+        <property name="sessionmanagement" ref="i4change.Sessionmanagement" />
+        <property name="userDaoImpl" ref="i4change.UserDaoImpl" />   
+        <property name="userPropertyDaoImpl" ref="i4change.UserPropertyDaoImpl" /> 
+        <property name="countryDaoImpl" ref="i4change.CountryDaoImpl" />
+        <property name="navimanagement" ref="i4change.Navimanagement" />
+        <property name="organisationUserDaoImpl" ref="i4change.OrganisationUserDaoImpl" />  
+        <property name="configurationmanagement" ref="i4change.Configurationmanagement" />
+        <property name="loadAtomRssFeed" ref="i4change.LoadAtomRssFeed" />
+    </bean>
+    
+    <bean id="i4change.LoadAtomRssFeed"
+        class="org.i4change.app.rss.LoadAtomRssFeed">
+    	<property name="configurationmanagement" ref="i4change.Configurationmanagement" />
+    </bean>
+    
+    <bean id="i4change.Sessionmanagement" 
+        class="org.i4change.app.data.basic.Sessionmanagement">
+        <property name="sessionFactory" ref="theSessionFactory"/>
+        <property name="manageCryptStyle" ref="i4change.ManageCryptStyle" />
+    </bean>
+    
+    <bean id="i4change.ManageCryptStyle"
+        class="org.i4change.app.utils.crypt.ManageCryptStyle">
+        <property name="configurationmanagement" ref="i4change.Configurationmanagement" />
+    </bean>
+    
+    <bean id="i4change.Navimanagement"
+        class="org.i4change.app.data.basic.Navimanagement">
+        <property name="sessionFactory" ref="theSessionFactory"/>
+        <property name="fieldmanagment" ref="i4change.Fieldmanagment" />
+    </bean>
+    
+    
+</beans>

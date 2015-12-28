@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+    
+    <resource name="delete_help_item_rsc" src="resources/cancel.png" />
+    <resource name="add_help_item_rsc" src="resources/edit_add.png" />
+    <resource name="reload_help_item_rsc" src="resources/reload.png" />
+    <resource name="edit_help_item_rsc" src="resources/color_line.png" />
+    <resource name="agentHelp_help_item_rsc" src="resources/button_ok.png" />
+    <resource name="search_help_item_rsc" src="resources/viewmag.png" />
+    
+    <include href="helpCenter.lzx" />
+    <include href="modHelpCenter.lzx" />
+
+</library>

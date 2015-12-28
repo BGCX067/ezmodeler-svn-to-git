@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+<class name="baseturnOverListPaged" extends="view">
+	
+	<attribute name="start" value="0" type="number" />
+    <attribute name="step" value="100" type="number" />
+    <attribute name="orderby" value="firstname" type="string" />
+    <attribute name="asc" value="true" type="boolean" />
+    <attribute name="records" value="0" type="number" />
+    
+    <attribute name="selected" value="null" />
+    
+    <event name="oncallnext" />
+    <event name="oncallpre" />
+    
+    <event name="onScrollItem" />
+    
+    <attribute name="listItemName" value="basePagingListItem" type="string" />
+    
+    <attribute name="itemHeight" value="20" type="number"/>
+    
+    <handler name="oninit">
+        //this inits the items
+        this._innerlist._inn.initItems(this.listItemName)
+    </handler>  
+    
+    <handler name="onclickedItem" args="obj" >
+        if (this.selected != null) {
+            this.selected.deselect();
+        }
+        this.selected = obj;
+        this.selected.select();
+    </handler>
+    
+    <method name="callfirst">
+        this.start = 0;
+        this.oncallnext.sendEvent();
+    </method>
+    
+    <method name="reload">
+    	this.oncallnext.sendEvent();
+    </method>
+    
+    <method name="calllast">
+        this.start = this.records-this.step;
+        this.oncallnext.sendEvent();
+    </method>
+    
+    <method name="callnext">
+        this._next1.setAttribute('enabled',false);
+        this._pre2.setAttribute('enabled',false);
+        if (this.records>(this.start+this.step)){
+            this.start+=this.step;
+        }
+        this.oncallnext.sendEvent();
+    </method>
+    
+    <method name="callpre">
+        this._next1.setAttribute('enabled',false);
+        this._pre2.setAttribute('enabled',false);
+        if (this.start>0){
+            this.start-=this.step;
+        }
+        this.oncallpre.sendEvent();
+    </method>
+    
+    <method name="initValues" args="rec">
+        <![CDATA[
+            this.records = rec;
+            if (this.records>(this.start+this.step)){
+                if (this["_next1"]) this._next1.setAttribute('enabled',true);
+            } else {
+                if (this["_next1"]) this._next1.setAttribute('enabled',false);
+            }
+            if (this.start>0){
+                if (this["_pre2"]) this._pre2.setAttribute('enabled',true);
+            } else {
+                if (this["_pre2"]) this._pre2.setAttribute('enabled',false);
+            }
+            this._records.setAttribute("text",this.start + ' - ' +(this.start+this.step) + ' ' + canvas.getLabelName(272) + ' ' + this.records);
+        ]]>
+    </method>
+    
+    <method name="addHeaderItem" args="labelid,width" >
+        new lz.turnOverListHeaderItem(this._innerlisthead._inn,{
+                labelid:labelid,width:width,
+                subviewsid:this._innerlisthead._inn.subviews.length
+            });
+    </method>
+    
+    <method name="sendInitialWidthUpdate">
+        for (var eg in this._innerlisthead._inn.subviews) {
+            this._innerlisthead._inn.subviews[eg].onwidth.sendEvent(this._innerlisthead._inn.subviews[eg].width);
+        }
+    </method> 
+    
+    <method name="sendWidthUpdate" args="w,subviewsid" >
+        <![CDATA[
+        ////Debug.write(w,subviewsid,this._innerlist._inn);
+        for (var i=0;i<this._innerlist._inn._inn.subviews.length;i++){
+            this._innerlist._inn._inn.subviews[i].subviews[subviewsid].setAttribute('width',w);
+        }
+        ]]>
+    </method>
+    
+    <method name="clearList">
+        this._innerlist._inn._inn.destroy();
+        new lz.innerList(this._innerlist._inn,{name:'_inn'});
+    </method>
+
+    <labelText name="_records" x="2" resize="true" />
+    
+    <!-- =========  List Header area  =========-->
+    <view name="_innerlisthead" height="20" width="${ parent.width }" y="22" clip="true">
+        <view name="_inn" x="${ parent.parent._innerlist._inn.x }" layout="axis:x;spacing:0" />
+    </view> 
+    
+    <!-- =========  List Contents area  =========-->   
+    <listPagedContent name="_innerlist" height="$once{ parent.height-42 }" 
+          width="${ parent.width }" y="42" itemHeight="$once{ parent.itemHeight }" />
+</class>
+	
+<!--- common TurnOverList view class. -->
+<class name="turnOverListPaged" extends="baseturnOverListPaged">
+
+    <!-- =========  Control area  =========-->
+    <view name="_menu" align="right" layout="axis:x;spacing:0">
+    	<iconViewToolTip name="_reload" iconSourceName="transaction_refresh_rsc" 
+                     width="20" height="20" labelid="1345">
+            <handler name="onclick">
+                parent.parent.reload();
+            </handler>
+        </iconViewToolTip>
+    	<iconViewToolTip name="_pre1" iconSourceName="icon_turnoverlist_first_rsc" 
+                     width="20" height="20" labelid="368">
+            <handler name="onclick">
+                parent.parent.callfirst();
+            </handler>
+        </iconViewToolTip>
+        <iconViewToolTip name="_pre2" iconSourceName="icon_turnoverlist_left_rsc" 
+                     width="20" height="20" labelid="369">
+            <handler name="onclick">
+                parent.parent.callpre();
+            </handler>
+        </iconViewToolTip>
+    	<view height="20" width="1" bgcolor="$once{ canvas.basebgcolorizer }" />
+    	<omComboBox name="languages" width="100" 
+    				editable="false" height="20" shownitems="8">
+            <attribute name="sendEventToReload" value="false" type="boolean" />
+            <textlistitem value="10" text="10" />
+            <textlistitem value="25" text="25" />
+            <textlistitem value="50" text="50" />
+            <textlistitem value="75" text="75" />
+            <textlistitem value="100" text="100" />
+            <textlistitem value="200" text="200" />
+            <textlistitem value="500" text="500" />
+            <textlistitem value="1000" text="1000" />
+            <textlistitem value="2500" text="2500" />
+            <handler name="onselect">
+                if (this.sendEventToReload){ 
+                    parent.parent.setAttribute('step',Number(this.getValue()));
+                }
+            </handler>
+            <handler name="oninit">
+                this.selectItem(String(parent.parent.step));
+                this.sendEventToReload = true;
+            </handler>
+        </omComboBox>
+    	<iconViewToolTip name="_next1" iconSourceName="icon_turnoverlist_right_rsc" 
+                     width="20" height="20" labelid="370">
+            <handler name="onclick">
+                parent.parent.calllast();
+            </handler>
+        </iconViewToolTip>
+    	<iconViewToolTip name="_next2" iconSourceName="icon_turnoverlist_last_rsc" 
+                     width="20" height="20" labelid="371">
+            <handler name="onclick">
+                parent.parent.calllast();
+            </handler>
+        </iconViewToolTip>
+        <view height="20" width="1" bgcolor="$once{ canvas.basebgcolorizer }" />
+    </view>
+    
+    
+    <!-- 368:goto first
+	<simpleLabelButtonTooltip name="_pre1" x="${ parent.width-196 }" width="22" height="22" 
+		enabled="true" onclick="parent.callfirst()" tooltipId="368">
+		<view x="3" y="3" oninit="this.setSource(canvas.getIconPathByName('icon_turnoverlist_first_rsc'))" />
+	</simpleLabelButtonTooltip> -->
+
+    <!-- 369:goto previous
+	<simpleLabelButtonTooltip name="_pre2" x="${ parent.width-172 }" width="22" height="22" 
+		enabled="false" onclick="parent.callpre()" tooltipId="369" >
+		<view x="3" y="3" oninit="this.setSource(canvas.getIconPathByName('icon_turnoverlist_left_rsc'))" />
+	</simpleLabelButtonTooltip> -->
+
+    <!-- combobox to decide the step number
+    <omComboBox name="languages" width="100" x="${ parent.width-149 }" 
+			  editable="false" height="22" shownitems="8">
+		<attribute name="sendEventToReload" value="false" type="boolean" />
+        <textlistitem value="10" text="10" />
+        <textlistitem value="25" text="25" />
+        <textlistitem value="50" text="50" />
+        <textlistitem value="75" text="75" />
+        <textlistitem value="100" text="100" />
+        <textlistitem value="200" text="200" />
+        <textlistitem value="500" text="500" />
+        <textlistitem value="1000" text="1000" />
+        <handler name="onselect">
+        	if (this.sendEventToReload){ 
+        		parent.setAttribute('step',Number(this.getValue()));
+        	}
+        </handler>
+        <handler name="oninit">
+        	this.selectItem(String(parent.step));
+        	this.sendEventToReload = true;
+        </handler>
+	</omComboBox> -->
+	
+	<!-- 370:goto next
+	<simpleLabelButtonTooltip name="_next1" x="${ parent.width-48 }" width="22" height="22" 
+		enabled="false" onclick="parent.callnext()" tooltipId="370">
+		<view x="3" y="3" oninit="this.setSource(canvas.getIconPathByName('icon_turnoverlist_right_rsc'))" />
+	</simpleLabelButtonTooltip> -->
+
+    <!-- 371:goto last
+	<simpleLabelButtonTooltip name="_next2" x="${ parent.width-24 }" width="22" height="22" 
+		enabled="true" onclick="parent.calllast()" tooltipId="371">
+		<view x="3" y="3" oninit="this.setSource(canvas.getIconPathByName('icon_turnoverlist_last_rsc'))" />
+	</simpleLabelButtonTooltip> -->
+	
+</class>
+
+</library>

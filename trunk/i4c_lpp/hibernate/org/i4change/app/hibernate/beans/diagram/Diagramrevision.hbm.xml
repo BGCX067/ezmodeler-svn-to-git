@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+  <class table="diagramrevision" lazy="false" name="org.i4change.app.hibernate.beans.diagram.Diagramrevision">
+    <id column="diagramrevision_id" name="diagramrevisionId">
+      <generator class="increment"/>
+    </id>
+    <property name="insertedby" type="long" column="insertedby"/>
+    <property name="inserted" type="java.util.Date" column="inserted"/>
+    <property name="comment" type="string" column="comment"/>
+    <property name="updatedby" type="long" column="updatedby"/>
+    <property name="updated" type="java.util.Date" column="updated"/>
+    <property name="deleted" type="string" column="deleted"/>
+  </class>
+</hibernate-mapping>

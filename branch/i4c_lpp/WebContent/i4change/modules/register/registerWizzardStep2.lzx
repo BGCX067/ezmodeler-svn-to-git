@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+<class name="registerWizzardStep2" extends="baseRegisterWizzardStep" headerLabelId="1025" stepNo="2" >
+    
+    <handler name="oninit">
+        var dValues = parent.parent.getStep("personalData");
+        //if ($debug) Debug.write("dValues: ",dValues)
+        if (dValues != null) {
+	        this.username.setAttribute("text",dValues["Username"]);
+	        this.userpass1.setAttribute("text",dValues["Userpass"]);
+            this.userpass2.setAttribute("text",dValues["Userpass"]);
+	        this.lastname.setAttribute("text",dValues["lastname"]);
+	        this.firstname.setAttribute("text",dValues["firstname"]);
+	        this.email.setAttribute("text",dValues["email"]);
+            this.state.addAndSelectItem(dValues["states_Name"],dValues["states_id"]);
+        } else {
+            var defaultstate = canvas.getCountryRecord(101);
+            ////if ($debug) Debug.write("defaultstate: ",defaultstate,canvas.statesInitValues);
+            this.state.addAndSelectItem(defaultstate.name,defaultstate.country_id);  
+        }
+    </handler>
+    
+    <method name="doSaveTemp">
+        <![CDATA[
+            if (this.firstname.getText().length < 3) {
+                new lz.errorPopupWithLabel(canvas,{labelerrorid:883});
+                return false;
+            } else if (this.lastname.getText().length < 3) {
+                new lz.errorPopupWithLabel(canvas,{labelerrorid:884});
+                return false;
+            } else if (this.email.getText().length < 1) {
+                new lz.errorPopupWithLabel(canvas,{labelerrorid:885});
+                return false;
+            } else {
+                var pwd1 = this.userpass1.getText();
+                var pwd2 = this.userpass2.getText();            
+                if (pwd1!=pwd2) {
+                    new lz.rpcErrorDialog(canvas,{errorid:-6});
+                    return false;
+                } else if(pwd1.length<4){
+                    new lz.rpcErrorDialog(canvas,{errorid:-7});
+                    return false;
+                } else {
+			        var dValues = new Object();
+			        dValues["SID"]=canvas.sessionId;
+			        dValues["Username"]=this.username.getText();
+			        dValues["Userpass"]=this.userpass1.getText();
+			        dValues["lastname"]=this.lastname.getText();
+			        dValues["firstname"]=this.firstname.getText();
+			        dValues["email"]=this.email.getText();
+			        dValues["age"]=0;
+			        dValues["street"]='';
+			        dValues["additionalname"]='';
+			        dValues["fax"]='';
+			        dValues["zip"]='';
+			        dValues["states_Name"]=this.state.getText();
+			        dValues["states_id"]=Number(this.state.getValue());
+			        dValues["town"]='';
+			        dValues["language_id"]=0;   
+			        dValues["domain"]=canvas.rtmphostlocal; 
+			        dValues["port"]=canvas.httpport; 
+			        dValues["webapp"]=canvas.webAppRootKey; 
+			        parent.parent.saveStep(dValues,"personalData");
+			        return true;
+                }
+            }
+        ]]>
+    </method>
+    
+    <labelText labelid="117" width="200" y="0" resize="false" x="2"/>
+        <customEdittext name="firstname" y="0" x="150" width="340" text="">
+            <handler name="onblur">
+                parent.username.setAttribute("text",this.getText()+"."+parent.lastname.getText());
+            </handler>
+        </customEdittext>
+        
+    <labelText labelid="118" width="200" y="30" resize="false" x="2"/>
+        <customEdittext name="lastname" y="30" x="150" width="340" text="" >
+            <handler name="onblur">
+                parent.username.setAttribute("text",parent.firstname.getText()+"."+this.getText());
+            </handler>
+        </customEdittext>    
+        
+    <labelText labelid="114" width="200" y="60" resize="false" x="2"/>
+        <customEdittext name="username" y="60" x="150" width="340" text="" />
+
+    <labelText labelid="115" width="200" y="90" resize="false" x="2"/>
+        <customEdittext name="userpass1" y="90" password="true" x="150" width="340" text="" />
+        
+    <labelText labelid="116" width="200" y="120" resize="false" x="2"/>
+        <customEdittext name="userpass2" y="120" password="true" x="150" width="340" text="" />                    
+
+    <labelText labelid="119" width="200" y="150" resize="false" x="2"/>
+        <customEdittext name="email" y="150" x="150" regexpType="email" 
+        				width="340" text="" />
+         
+    <labelText labelid="120" width="200" y="180" resize="false" x="2"/>  
+
+		<validText name="state" width="340" y="180" x="150" fontsize="11" 
+            shownitems="7" validate_method="$once{ canvas.validateCountry }" 
+            resultId="country_id" resultName="name" />        
+	
+</class>
+
+</library>

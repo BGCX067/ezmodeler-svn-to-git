@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+<!--- Configuration module for ADMIN -->
+<class name="propertyEditorSearchListItems" extends="labelExplorerBox" labelid="1357"
+        docking="true" width="400" x="440" y="300" height="120"> 
+        
+    <attribute name="refObj" value="null" />
+        
+    <handler name="oninit">
+        lz.ModeManager.makeModal(this);
+        //lz.Focus.setFocus(this.listItemValue);
+        lz.Focus.setFocus(this.listItemValue,true);
+    </handler>
+    
+    <handler name="onclose">
+        lz.ModeManager.release(this);
+    </handler>
+    
+    <labelText labelid="1358" width="120" y="24" resize="false" x="2"/>
+        <customEdittext name="listItemValue" y="24" x="120" width="270" text="" />
+    
+    <simpleLabelButton labelid="1359" x="$once{ parent.width - 105*2 }" 
+    				   y="$once{ parent.height - 24 }" width="100">
+        <handler name="onclick">
+        	var obj = new Object();
+        	obj.key = parent.listItemValue.text;
+        	obj.value = parent.listItemValue.text;
+        	obj.propertyListItemId = 0;
+        	this.parent.refObj.addItem(obj);
+            this.parent.close();
+        </handler>
+    </simpleLabelButton>
+    
+    <simpleLabelButton labelid="1360" x="$once{ parent.width - 105 }" 
+    				   y="$once{ parent.height - 24 }" width="100">
+        <handler name="onclick">
+            this.parent.close();
+        </handler>
+    </simpleLabelButton>        
+        
+</class>
+
+</library>

@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<library>
+
+<dataset name="iconTypesDocuments">
+	<item>
+		<labelid>1471</labelid>
+		<value>icon_document_attach</value>
+	</item>
+	<item>
+        <labelid>1472</labelid>
+        <value>icon_document_info</value>
+    </item>
+    <item>
+        <labelid>1473</labelid>
+        <value>icon_document_form</value>
+    </item>
+    <item>
+        <labelid>1474</labelid>
+        <value>icon_document_stop</value>
+    </item>
+</dataset>
+
+<class name="labelTextListIconItem" extends="labelTextListItem" text_x="20">
+	<attribute name="iconSourceName" value="" type="string"/>
+	<handler name="ondata">
+        this._icon.setSource(canvas.getIconPathByName(this.iconSourceName));
+    </handler>
+	<view name="_icon" y="1" />
+</class>
+
+<class name="attachDocumentToShape" extends="view" y="-122" width="$once{ parent.width-4 }"
+	   bgcolor="$once{ canvas.basebgcolorizer }" height="120" x="2" >
+	
+	<attribute name="fileHash" value="" type="string"/>
+    <attribute name="isInternal" value="false" type="boolean"/>
+    
+	<method name="show">
+		this.doShow.doStart();
+	</method>
+	
+	<method name="doSave">
+		var tString = this.file_name.getText();
+		if (tString.length == 0) {
+            new lz.errorPopupWithLabel(canvas,{
+                        labelerrorid:1478
+                    });
+            return;
+		}
+		
+		this.saveDiagramDocumentByObject.fileName = tString;
+		this.saveDiagramDocumentByObject.diagramobjectId = parent.diagramobjectId;
+		this.saveDiagramDocumentByObject.fileIconName = this.icon_type.getValue();
+		
+		this.saveDiagramDocumentByObject.fileHash = this.fileHash;
+		this.saveDiagramDocumentByObject.isInternal = this.isInternal;
+		this.saveDiagramDocumentByObject.url = this.file_url.getText();
+		
+		this.saveDiagramDocumentByObject.doCall();
+	</method>
+	
+	<!--
+    	public Long saveDiagramDocumentByObject(String SID, Long diagramObjectId, String fileName, String fileIconName,
+                String fileHash, Boolean isInternal, String url)
+     -->
+    <netRemoteCallRPC name="saveDiagramDocumentByObject" funcname="saveDiagramDocumentByObject" 
+                      showLoading="true" remotecontext="$once{ canvas.diagramServiceRPC }" >  
+                       
+        <attribute name="diagramobjectId" type="number" value="0" />
+        <attribute name="fileName" type="string" value="" />
+        <attribute name="fileIconName" type="string" value="" />
+        <attribute name="fileHash" type="string" value="" />
+        <attribute name="isInternal" type="boolean" value="true" />
+        <attribute name="url" type="string" value="" />
+        
+        <netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+        <netparam><method name="getValue">return parent.diagramobjectId;</method></netparam>
+        <netparam><method name="getValue">return parent.fileName;</method></netparam>
+        <netparam><method name="getValue">return parent.fileIconName;</method></netparam>
+        <netparam><method name="getValue">return parent.fileHash;</method></netparam>
+        <netparam><method name="getValue">return parent.isInternal;</method></netparam>
+        <netparam><method name="getValue">return parent.url;</method></netparam>
+        
+        <handler name="ondata" args="value">
+        	<![CDATA[
+                if ($debug) Debug.write("saveDiagramDocumentByObject ",value);
+                if (value > 0) {
+                	parent.parent.getDiagramDocumentByObject.doCall();
+                	parent.doClear();
+                	parent.doHide.doStart();
+                }
+            ]]>
+        </handler>
+    </netRemoteCallRPC> 
+    
+    
+	<method name="doClear">
+        this.file_name.setAttribute("text","");
+        this.file_url.setAttribute("enabled",true);
+        this.file_url.setAttribute("text","http://");
+        this.isInternal = false;
+        this.icon_type.selectItemAt(0);
+    </method>
+	
+	<view name="_bg" bgcolor="0xFFFFFF" x="1" y="1" width="$once{ parent.width-2 }" height="118" />
+		
+	<labelText labelid="1468" x="2" y="10" />
+	<customEdittext name="file_name" y="10" x="100" width="$once{ parent.width - 114 }" text="" />
+	
+	<labelText labelid="1469" x="2" y="34" />
+    <customEdittext name="file_url" y="34" x="100" width="$once{ parent.width - 114 }" text="http://" />
+    
+    <labelText labelid="1470" x="2" y="58" />
+    
+    <omComboBox name="icon_type" width="$once{ parent.width - 114 }" y="58" x="100" editable="false" >
+    	<labelTextListIconItem datapath="iconTypesDocuments:/item" labelid="$path{ 'labelid/text()' }"
+    						    iconSourceName="$path{ 'value/text()' }" value="$path{ 'value/text()' }"/>
+    	<!--iconTypesDocuments
+        <labelTextListIconItem labelid="1471" value="icon_document_attach" iconSourceName="icon_document_attach" />
+        <labelTextListIconItem labelid="1472" value="icon_document_info" iconSourceName="icon_document_info" />
+        <labelTextListIconItem labelid="1473" value="icon_document_form" iconSourceName="icon_document_form" />
+        <labelTextListIconItem labelid="1474" value="icon_document_stop" iconSourceName="icon_document_stop" />
+         -->
+        <handler name="oninit">
+        	this.selectItemAt(0);
+        </handler>
+    </omComboBox>
+    
+    <simpleLabelButton labelid="1475" name="_save" width="100"
+                x="$once{ parent.width - 306 }" y="94" >
+        <handler name="onclick">
+            parent.doSave();
+        </handler>
+    </simpleLabelButton>  
+    
+    <simpleLabelButton labelid="1477" name="_upload" width="100"
+                x="$once{ parent.width - 204 }" y="94" >
+    	
+        <handler name="onclick">
+        	var tLink = new Date();
+        	var fileHash = hex_md5("t"+tLink.getTime());
+        	
+            new lz.documentUploadWindow(canvas,{
+                            fileHash:fileHash,
+                            returnObj:this
+                        });
+        </handler>
+        
+        <method name="sendRefresh" args="refObjWin">
+        	parent.file_name.setAttribute("text",refObjWin.txtFile.text);
+        	parent.file_url.setAttribute("text",refObjWin.fileHash);
+        	parent.file_url.setAttribute("enabled",false);
+        	parent.saveDiagramDocumentByObject.fileHash = refObjWin.fileHash;
+        	parent.isInternal = true;
+        </method>
+        
+    </simpleLabelButton>  
+    
+    <simpleLabelButton labelid="1476" name="_cancel" width="100"
+                x="$once{ parent.width - 102 }" y="94" >
+        <handler name="onclick">
+        	parent.doClear();
+            parent.doHide.doStart();
+        </handler>
+    </simpleLabelButton>  
+	
+	<animator name="doShow" to="2" duration="500" attribute="y" start="false"></animator>
+    <animator name="doHide" to="-122" duration="500" attribute="y" start="false"></animator>
+    
+	
+</class>
+    
+</library>

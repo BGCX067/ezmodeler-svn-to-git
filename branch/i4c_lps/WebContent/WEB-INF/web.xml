@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app id="WebApp_ID" version="2.4" 
+	xmlns="http://java.sun.com/xml/ns/j2ee" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+<!--
+<web-app id="WebApp_ID" version="2.5" xmlns="http://java.sun.com/xml/ns/javaee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
+ -->	
+	<display-name>i4c_lps</display-name>
+	
+	<listener> 
+		<listener-class> 
+	        org.springframework.web.context.ContextLoaderListener 
+		</listener-class> 
+	</listener>
+	
+	<servlet>
+	    <servlet-name>QuartzInitializer</servlet-name>
+	    <servlet-class>
+	        org.quartz.ee.servlet.QuartzInitializerServlet
+	    </servlet-class>
+	    <init-param>
+	        <param-name>shutdown-on-unload</param-name>
+	        <param-value>true</param-value>
+	    </init-param>
+	    <init-param>
+	        <param-name>start-scheduler-on-load</param-name>
+	        <param-value>true</param-value>
+	    </init-param>
+	    <load-on-startup>1</load-on-startup>
+	</servlet>
+	
+	<servlet>
+	 	<description>Start Servlet for the i4Change</description>
+	 	<display-name>Application</display-name>
+	 	<servlet-name>Application</servlet-name>
+	 	<servlet-class>org.i4change.app.servlets.StartUpServlet</servlet-class>
+	 	<load-on-startup>1</load-on-startup>
+	 </servlet>
+ 
+	<servlet>
+		<servlet-name>LPS</servlet-name>
+		<servlet-class>org.openlaszlo.servlets.LZServlet</servlet-class>
+	</servlet>
+
+	<servlet>
+		<servlet-name>LZViewer</servlet-name>
+		<servlet-class>org.openlaszlo.servlets.LZViewer</servlet-class>
+	</servlet>
+
+	<servlet>
+		<servlet-name>AuthenticationServlet</servlet-name>
+		<servlet-class>AuthenticationServlet</servlet-class>
+	</servlet>
+
+	<servlet>
+		<servlet-name>AxisServlet</servlet-name>
+		<servlet-class>
+          org.apache.axis.transport.http.AxisServlet
+		</servlet-class>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>LPS</servlet-name>
+		<url-pattern>*.lzx</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>LPS</servlet-name>
+		<url-pattern>*.lzo</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>LZViewer</servlet-name>
+		<url-pattern>/LZViewer</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>AuthenticationServlet</servlet-name>
+		<url-pattern>/AuthenticationServlet</url-pattern>
+	</servlet-mapping>
+
+	<servlet-mapping>
+		<servlet-name>AxisServlet</servlet-name>
+		<url-pattern>*.jws</url-pattern>
+	</servlet-mapping>
+    
+	<servlet>
+		<servlet-name>DownloadHandler</servlet-name>
+		<servlet-class>org.i4change.app.servlets.DownloadHandler</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>Install</servlet-name>
+		<servlet-class>org.i4change.app.servlets.Install</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>UploadHandler</servlet-name>
+		<servlet-class>org.i4change.app.servlets.UploadHandler</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>SVGExport</servlet-name>
+		<servlet-class>org.i4change.app.servlets.SVGExport</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>ExportDiagram</servlet-name>
+		<servlet-class>org.i4change.app.servlets.ExportDiagram</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>LangExport</servlet-name>
+		<servlet-class>org.i4change.app.servlets.LangExport</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>Export</servlet-name>
+		<servlet-class>org.i4change.app.servlets.Export</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>Import</servlet-name>
+		<servlet-class>org.i4change.app.servlets.Import</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>ImportDiagram</servlet-name>
+		<servlet-class>org.i4change.app.servlets.ImportDiagram</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>HelpExport</servlet-name>
+		<servlet-class>org.i4change.app.servlets.HelpExport</servlet-class>
+	</servlet>
+	<servlet>
+		<description>Activate user Servlet</description>
+		<display-name>activateUser</display-name>
+		<servlet-name>activateUser</servlet-name>
+		<servlet-class>org.i4change.app.servlets.ActivateUser</servlet-class>
+	</servlet>
+	<servlet>
+		<description>SystemExport</description>
+		<display-name>SystemExport</display-name>
+		<servlet-name>SystemExport</servlet-name>
+		<servlet-class>org.i4change.app.servlets.SystemExport</servlet-class>
+	</servlet>
+	<servlet>
+		<description>SystemImport</description>
+		<display-name>SystemImport</display-name>
+		<servlet-name>SystemImport</servlet-name>
+		<servlet-class>org.i4change.app.servlets.SystemImport</servlet-class>
+	</servlet>
+	<servlet>
+		<description>Unregister</description>
+		<display-name>Unregister</display-name>
+		<servlet-name>Unregister</servlet-name>
+		<servlet-class>org.i4change.app.servlets.Unregister</servlet-class>
+	</servlet>
+	<servlet>
+		<description>CreatePaper</description>
+		<display-name>CreatePaper</display-name>
+		<servlet-name>CreatePaper</servlet-name>
+		<servlet-class>org.i4change.app.servlets.CreatePaper</servlet-class>
+	</servlet>
+	<servlet>
+		<description>DownloadHashHandler</description>
+		<display-name>DownloadHashHandler</display-name>
+		<servlet-name>DownloadHashHandler</servlet-name>
+		<servlet-class>org.i4change.app.servlets.DownloadHashHandler</servlet-class>
+	</servlet>
+ 
+	<servlet>
+		<description>Gateway</description>
+		<display-name>Gateway</display-name>
+		<servlet-name>Gateway</servlet-name>
+		<servlet-class>org.i4change.app.servlets.Gateway</servlet-class>
+	</servlet>
+	
+	<servlet>
+		<description>Process Payment</description>
+		<display-name>doDirectPayment</display-name>
+		<servlet-name>doDirectPayment</servlet-name>
+		<servlet-class>org.i4change.paypal.payment.DoDirectPayment</servlet-class>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>doDirectPayment</servlet-name>
+		<url-pattern>/doDirectPayment</url-pattern>
+	</servlet-mapping>
+ 
+	<servlet-mapping>
+		<servlet-name>DownloadHandler</servlet-name>
+		<url-pattern>/DownloadHandler</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>Install</servlet-name>
+		<url-pattern>/Install</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>Install</servlet-name>
+		<url-pattern>/install</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>UploadHandler</servlet-name>
+		<url-pattern>/UploadHandler</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>SVGExport</servlet-name>
+		<url-pattern>/SVGExport</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>ExportDiagram</servlet-name>
+		<url-pattern>/ExportDiagram</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>LangExport</servlet-name>
+		<url-pattern>/LangExport</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>Export</servlet-name>
+		<url-pattern>/Export</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>Import</servlet-name>
+		<url-pattern>/Import</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>ImportDiagram</servlet-name>
+		<url-pattern>/ImportDiagram</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>HelpExport</servlet-name>
+		<url-pattern>/HelpExport</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>activateUser</servlet-name>
+		<url-pattern>/activateUser</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>SystemExport</servlet-name>
+		<url-pattern>/SystemExport</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>SystemImport</servlet-name>
+		<url-pattern>/SystemImport</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>Unregister</servlet-name>
+		<url-pattern>/Unregister</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>CreatePaper</servlet-name>
+		<url-pattern>/CreatePaper</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>DownloadHashHandler</servlet-name>
+		<url-pattern>/DownloadHashHandler</url-pattern>
+	</servlet-mapping> 
+
+	<servlet-mapping>
+		<servlet-name>Gateway</servlet-name>
+		<url-pattern>/Gateway</url-pattern>
+	</servlet-mapping>   
+
+	<welcome-file-list>
+		<welcome-file>index.jsp</welcome-file>
+		<welcome-file>index.html</welcome-file>
+	</welcome-file-list>
+	
+	<security-constraint>
+        <web-resource-collection>
+            <web-resource-name>Forbidden</web-resource-name>
+            <url-pattern>/streams/*</url-pattern>
+        </web-resource-collection>
+        <web-resource-collection>
+            <web-resource-name>Forbidden</web-resource-name>
+            <url-pattern>/conf/*</url-pattern>
+        </web-resource-collection>
+        <web-resource-collection>
+            <web-resource-name>Forbidden</web-resource-name>
+            <url-pattern>/upload/*</url-pattern>
+        </web-resource-collection>
+        <web-resource-collection>
+            <web-resource-name>Forbidden</web-resource-name>
+            <url-pattern>/uploadtemp/*</url-pattern>
+        </web-resource-collection>
+        <web-resource-collection>
+            <web-resource-name>Forbidden</web-resource-name>
+            <url-pattern>/jod/*</url-pattern>
+        </web-resource-collection>
+        <auth-constraint/>
+    </security-constraint>
+    
+    <login-config>
+        <auth-method>BASIC</auth-method>
+    </login-config>
+    
+</web-app>

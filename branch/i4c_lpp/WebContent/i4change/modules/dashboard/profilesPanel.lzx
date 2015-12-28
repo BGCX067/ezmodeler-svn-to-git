@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<library>
+
+<!--- Logged-in User Profile Panel on the dashboard -->
+<class name="profilesPanel" extends="guiPresenterDasboard" resizeable="false"
+    width="400" height="280" y="10" closable="true" labelid="375" >
+    <handler name="oninit">
+        //Add Help Item
+        canvas.addCurrentHelpId(39,this.__constructor__.classname);
+    </handler>    
+	<view y="20" bgcolor="white" x="1" width="$once{ parent.width-2 }" 
+		  height="$once{ parent.height-21 }" >
+    <handler name="oninit">
+        <![CDATA[
+			this.getUserPictureURI.doCall();
+        ]]>
+    </handler>
+    <method name="sendRefresh">
+    	this.getUserPictureURI.doCall();
+    </method>
+  	<netRemoteCallRPC name="getUserPictureURI" funcname="getUserPictureURI" 
+  		remotecontext="$once{  canvas.userServiceRPC }" > 
+  		<netparam><method name="getValue"> return canvas.sessionId; </method></netparam>
+    	<handler name="ondata" args="value">
+    		<![CDATA[
+				//if($debug) Debug.write("dashboard/getUserPictureURI: ",value);
+				parent._username.setAttribute("text",canvas.getLabelName(376)+canvas.userobject.login);
+				if (value==null || value.length==0){
+					value = "d.jpg";
+				} else {
+					value = "_profile_"+value;
+				}
+		        var downloadurl = canvas.httpprotocol+'://'+canvas.rtmphostlocal+':'+canvas.httpport
+		        		+'/'+canvas.webAppRootKey+'/DownloadHandler?fileName='+value
+		        		+'&moduleName=userprofile&parentPath=&room=&domain='
+		        		+'&sid='+canvas.sessionId;
+		        //if($debug) Debug.write("dashboard/downloadurl "+downloadurl);
+		        parent._userpic.setAttribute('src',downloadurl);	
+	        ]]>
+    	</handler>
+  	</netRemoteCallRPC>	    
+    
+    <view id="mainBaseText" resource="logo_ichange_fc_rsc" y="0" x="2" 
+          onmouseover="" onmouseout="">
+        <handler name="onclick">
+            lz.Browser.loadURL(canvas.currentappnameurl,"_blank");
+        </handler>  
+        <labelTooltip id="mainBaseTextLabel" /> 
+        <text x="170" y="150" fontstyle="italic" fontsize="10" 
+              oninit=""
+              text="empower people to exceed expectations">
+            <method name="setShadow" >
+	            <![CDATA[
+                //this.setShadow();
+	            if (this.isinited){
+	                this.normalMC = this.getMCRef();
+	                this.displacementMap = new flash.filters.DropShadowFilter();
+	                this.normalMC.filters = [this.displacementMap];
+	            }
+	            ]]>              
+	        </method> 
+        </text>
+    </view>
+    
+    <!--
+    <text id="mainBaseText" x="200" y="100"
+        fgcolor="0xEFEFEF" fontsize="20" fontstyle="bold">
+        <method name="setShadow" >
+            <![CDATA[
+            if (this.isinited){
+                this.normalMC = this.getMCRef();
+                this.displacementMap = new flash.filters.DropShadowFilter();
+                this.normalMC.filters = [this.displacementMap];
+            }
+            ]]>              
+        </method> 
+             
+    </text>
+  	 -->
+     
+    <labelText name="_username" fontstyle="bold" y="160" labelid="376" x="10" />
+    <!--
+    <labelText name="_newmessages" y="40" labelid="378" x="10" />
+     -->
+    <image y="180" x="10" name="_userpic" />
+    
+    <!--
+    <simpleLabelButton y="190" labelid="379" x="150"
+        onclick="new lz.uploadWindow(canvas.main_content._content.inner,{x:300,uploadmodule:'userprofile',isOnlyProfile:true,isdefaultreturn:false,returnObj:this.parent});" />  
+        
+    <simpleLabelButton y="210" labelid="377" x="150"
+        onclick="quicklinkAct('userSettings')" />  
+    
+    <simpleLabelButton y="230" text="Show First Start Wizzard" x="150"
+        onclick="new lz.firstStartWizzard(canvas)" />  
+     -->      
+           
+	</view>
+</class> 
+
+</library>

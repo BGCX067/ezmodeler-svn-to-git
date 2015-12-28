@@ -1,0 +1,37 @@
+<canvas height="280">
+  <simplelayout spacing="5"/>
+  <dataset name="mydata">
+    <record y="100" z="4235"> This is some text 
+      <deeper>
+        <deeprecord > This is a deeper level </deeprecord>
+        <deeprecord> It's dark down here! </deeprecord>
+        <deeprecord> Last deep record </deeprecord>
+      </deeper>
+    </record>
+    <record y="200" z="4235"> This is more text </record>
+    <record y="300" z="4235"> Exciting no? </record>
+    <record y="400" z="4235"> The final line of text </record>
+  </dataset>
+
+  <view>
+    <simplelayout/>
+    <datapointer id="mydp" xpath="mydata:/record[1]"/>
+    <button> Move forward with select
+      <handler name="onclick">
+        if (mydp.selectNext()) var s = mydp.getNodeAttribute('y');
+        else var s = "hit last record; reset with xpath";
+        output.setText(s);
+      </handler>
+    </button>
+    <button> Set with XPath
+      <handler name="onclick">
+          if (mydp.getNodeName() == "record")
+            var xp = "mydata:/record[1]/deeper/deeprecord[1]";
+          else var xp = "mydata:/record[1]";
+          mydp.setXPath( xp ); output.setText(mydp.getNodeText());
+      </handler>
+    </button>
+  </view>
+
+  <text name="output" width="200">Data will appear here.</text>
+</canvas>

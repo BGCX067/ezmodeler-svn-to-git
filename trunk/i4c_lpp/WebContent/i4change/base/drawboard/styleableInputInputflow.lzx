@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+<class name="styleableInputInputflow" extends="inputtext" x="1" y="1" multiline="true"
+		width="${ (parent.width*2/3)-2 }" height="${ parent.height-2 }" >
+
+	<attribute name="startAdjustHight" value="false" type="boolean" />
+	
+	<handler name="oninit">
+		<![CDATA[
+			lz.Focus.setFocus(this);	
+			if (lz.Keys.downKeysArray.length != 1
+				&& lz.Keys.downKeysArray[0] != canvas.continousCreationKey ) { 
+				//if ($debug) Debug.write("Is continous Tool Menu 1");
+				parent.parent.parent.parent.parent.parent._toolBar.doSelectItem("hand_single");
+			}
+		]]>
+	</handler>
+
+	<handler name="onblur" args="obj">
+		//if ($debug) Debug.write("obj",this);
+		parent.parent.completedInputflowObj(this);
+	</handler>
+</class>
+
+<class name="styleableTextIntputFlow" extends="text" x="1" y="1" multiline="true"
+		width="${ (parent.width*2/3)-2 }" height="${ parent.height-2 }" >
+
+
+</class>
+
+</library>

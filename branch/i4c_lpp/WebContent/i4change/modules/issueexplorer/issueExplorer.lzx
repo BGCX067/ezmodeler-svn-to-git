@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<library>
+    
+    
+
+<!--- "System" panel on the dashboard -->
+<class name="issueExplorer" extends="guiPresenterDasboard" resizeable="false"
+       width="360" height="330" closable="true" 
+       labelid="$once { (canvas.userobject.userlevel.level_id == 1) ? 661 : 747 }">
+    <handler name="oninit">
+        //Add Help Item
+        canvas.addCurrentHelpId(31,this.__constructor__.classname);
+    </handler>     
+	<view y="20" bgcolor="white" name="_inner" x="1" width="$once{ parent.width-2 }" 
+		  height="$once{ parent.height-21 }" />
+          
+        <attribute name="currentDiagram" value="null" />
+        
+        <event name="onopen" />
+        
+        <netRemoteCallRPC name="getDiagramObjectsById" funcname="getDiagramObjectsById" 
+                          remotecontext="$once{  canvas.diagramServiceRPC }" >      
+            <attribute name="diagramId" value="" type="string" />
+            <netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+            <netparam><method name="getValue">return parent.diagramId;</method></netparam> 
+            <netparam><method name="getValue">return canvas.currentdomainObj.organisation_id;</method></netparam>
+            <handler name="ondata" args="value">
+                //if ($debug) Debug.write("getDiagramObjectsByNo: ",value);
+                parent.loadDiagram(value);
+            </handler>
+        </netRemoteCallRPC>         
+        
+        <method name="loadDiagram" args="value">
+            //if ($debug) Debug.write("loadDiagram: ",this.currentDiagram);
+            
+            canvas.currentDiagram = this.currentDiagram;
+            canvas.currentInstanceList = value;
+            
+            if (this.currentDiagram.diagramType.diagramTypeId == 1) {
+                quicklinkAct('processgroup');
+            } else if (this.currentDiagram.diagramType.diagramTypeId == 2) {
+                quicklinkAct('roleView');
+            } else if (this.currentDiagram.diagramType.diagramTypeId == 3) {
+                quicklinkAct('hierarchical');
+            } else if (this.currentDiagram.diagramType.diagramTypeId == 4) {
+                quicklinkAct('singleRole');
+            }
+            this.onopen.sendEvent();
+        </method>
+        
+        <view name="regress_issuelist" resource="_regress_issuelist_rsc" x="2" y="24">
+            <handler name="onclick">
+                parent._list.getIssuesByOrganizationAssignedToMe.doCall();
+            </handler>
+            <labelTooltip labelid="954" />
+        </view>
+
+        <view name="_list" y="42" width="${ parent.width }"  height="${ parent.height-42 }" >
+            
+            <handler name="oninit">
+                this.addHeaderItem(662,144);
+                this.addHeaderItem(663,144);
+                this.addHeaderItem(948,50);
+                this.getIssuesByOrganizationAssignedToMe.doCall();
+            </handler>             
+            
+            <handler name="onclickedItem" args="obj">
+                if (obj.diagramObj.diagram != null) {
+	                //if ($debug) Debug.write("obj",obj.diagramObj.diagram.diagramId);
+	                parent.currentDiagram = obj.diagramObj.diagram;
+	                parent.getDiagramObjectsById.diagramId = obj.diagramObj.diagram.diagramId;
+	                parent.getDiagramObjectsById.doCall();
+                } else {
+	                new lz.errorPopupWithLabel(canvas,{labelerrorid:947});
+	            }
+            </handler>
+            
+            <method name="clickedApproveItem" args="obj,bool">
+                this.approveSingleDiagramObject.diagramObjectId = obj.diagramObj.diagramObjectId
+                this.approveSingleDiagramObject.approve = bool;                
+                if (bool) {
+	                this.approveSingleDiagramObject.doCall();
+                } else {
+	                new lz.confirmDeleteWindowCustomLabel(canvas,{refObj:this,
+	                        funcNameConfirm:'clearAllConfirm',messageLabelid:952});
+                }
+            </method>
+		    
+		    <method name="clearAllConfirm" >
+		        this.approveSingleDiagramObject.doCall();
+		    </method>            
+            
+            <netRemoteCallRPC name="approveSingleDiagramObject" funcname="approveSingleDiagramObject" 
+                              remotecontext="$once{  canvas.diagramServiceRPC }" activeErrorHandler="true" >    
+                <attribute name="diagramObjectId" value="0" type="number" />  
+                <attribute name="approve" value="true" type="boolean" />  
+                <netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+                <netparam><method name="getValue">return parent.diagramObjectId;</method></netparam>
+                <netparam><method name="getValue">return parent.approve;</method></netparam>
+                <handler name="ondata" args="value">
+                    //if ($debug) Debug.write("approveSingleDiagramObject: ",value);
+                    parent.getIssuesByOrganizationAssignedToMe.doCall();
+                </handler>
+            </netRemoteCallRPC>              
+            
+            <method name="addHeaderItem" args="labelid,width" >
+                ////if ($debug) Debug.write("addHeaderItem: ",labelid,width,this.width,this._innerlisthead._inn.width);
+                new lz.turnOverListHeaderItem(this._innerlisthead._inn,{labelid:labelid,width:width,subviewsid:this._innerlisthead._inn.subviews.length});
+            </method>       
+            
+            <method name="doLoadList" args="loadList">
+                <![CDATA[
+                    this.clearList();
+                    for (var i=0;i<loadList.length;i++) {
+                        ////if ($debug) Debug.write("loadList[i]: ",loadList[i]);
+                        if (loadList[i].objectTypeName=="issueflow") {
+                            new lz.ideaListItem(this._innerlist._inn._inn,{
+                                diagramObj:loadList[i],
+                                diagramname:loadList[i].diagram.name,
+                                issuename:loadList[i].name,
+                                inserted:parseDateToStringTime(loadList[i].inserted)
+                            });
+                        } else if (loadList[i].diagram != null){
+	                        new lz.pendingListItem(this._innerlist._inn._inn,{
+	                            diagramObj:loadList[i],
+	                            diagramname:loadList[i].diagram.name,
+	                            issuename:loadList[i].name,
+	                            inserted:parseDateToStringTime(loadList[i].inserted)
+	                        });
+                        } else {
+                            new lz.pendingListItem(this._innerlist._inn._inn,{
+                                diagramObj:loadList[i],
+                                diagramname:"No Diagram available",
+                                issuename:loadList[i].name,
+                                inserted:parseDateToStringTime(loadList[i].inserted)
+                            });
+                        }
+                    }
+                ]]>
+            </method> 
+            
+            <method name="sendWidthUpdate" args="w,subviewsid" >
+                <![CDATA[
+                ////Debug.write(w,subviewsid,this._innerlist._inn);
+                for (var i=0;i<this._innerlist._inn._inn.subviews.length;i++){
+                    this._innerlist._inn._inn.subviews[i].subviews[subviewsid].setAttribute('width',w);
+                }
+                ]]>
+            </method>   
+            
+		    <method name="clearList">
+		        this._innerlist._inn._inn.destroy();
+		        new lz.innerList(this._innerlist._inn,{name:'_inn'});
+		    </method>
+                      
+            <view name="_innerlisthead" height="20" width="${ parent.width }" 
+                x="${ parent._innerlist.x }" y="2" clip="true">
+                <view name="_inn" layout="axis:x;spacing:0" />
+            </view>         
+    
+            <view name="_innerlist" height="${ parent.height-22 }" width="${ parent.width }"
+                y="22" clip="true">
+                <view name="_inn" >
+                    <innerList name="_inn" />
+                </view>
+                <vscrollbar name="_scrollbar" />
+                <hscrollbar />
+            </view>
+                
+            <netRemoteCallRPC name="getIssuesByOrganizationAssignedToMe" 
+                              funcname="getIssuesByOrganizationAssignedToMe" 
+                              remotecontext="$once{  canvas.diagramServiceRPC }" >      
+                <netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+                <netparam><method name="getValue">return canvas.currentdomainObj.organisation_id;</method></netparam>
+                <handler name="ondata" args="value">
+                    //if ($debug) Debug.write("getIssuesByOrganizationAsignedToMe: ",value);
+                    parent.doLoadList(value);
+                </handler>
+            </netRemoteCallRPC>  
+            
+        </view>
+    
+</class> 
+
+<class name="baseissuesListItem" extends="basePagingListItem" >
+    
+    <attribute name="obj" value="null" />
+
+    <attribute name="diagramObj" value="null" />
+    
+    <attribute name="objectTypeName" value="" type="string" />
+    <attribute name="diagramNo" value="0" type="number" />
+    <attribute name="diagramrevisionId" value="0" type="number" />
+    <attribute name="diagramname" value="" type="string" />
+    <attribute name="issuename" value="" type="string" />
+    <attribute name="typelabel" value="" type="string" />
+    <attribute name="inserted" value="" type="string" />
+    
+    
+    <!--
+    <handler name="ondblclick">
+        this.parent.parent.parent.parent.onclickedItem.sendEvent(this);
+    </handler>
+     -->
+    
+</class>
+
+<!--
+<class name="ideaListItem" extends="baseissuesListItem" >
+    
+    <turnOverTextItem name="_issuename" text="${ parent.issuename }" width="144" />
+    <turnOverTextItem name="_diagramname" text="${ parent.diagramname }" width="144" />
+    
+    <view width="50" />
+    
+</class>
+ -->
+
+<class name="pendingListItem" extends="baseissuesListItem" >
+
+    <turnOverTextItem name="_issuename" text="${ parent.issuename }" width="144" />
+    <turnOverTextItem name="_diagramname" text="${ parent.diagramname }" width="144" />
+    
+    <view name="_diagramActions" width="50" visible="${ (parent.clickable) ? ((parent.objectTypeName!='issueflow') ? true : false ) : false }">
+        <view resource="_approve_pending_org_rsc" x="4" y="0">
+            <handler name="onclick">
+                this.parent.parent.parent.parent.parent.parent.clickedApproveItem(this.parent.parent,true);
+            </handler>
+            <labelTooltip labelid="949" />
+        </view>
+        <view resource="_deny_pending_org_rsc" x="24" y="0">
+            <handler name="onclick">
+                this.parent.parent.parent.parent.parent.parent.clickedApproveItem(this.parent.parent,false);
+            </handler>
+            <labelTooltip labelid="950" />
+        </view>
+    </view>
+    
+    <labelTooltip>
+        <handler name="onInitText">
+            this.setAttribute('text','Created at: '+parent.inserted+' by:'+parent.diagramObj.insertedby.login)
+        </handler>
+    </labelTooltip>
+    
+</class>
+
+</library>

@@ -1,0 +1,407 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+    
+<class name="confirmLicenseWindow" extends="labelExplorerBox" labelid="703"
+    docking="true" width="264" x="${ parent.width/2 - this.width/2 }" y="100" height="200">
+    
+    <attribute name="refObj" value="null" />
+    <attribute name="numberOfLicenses" type="string" value="" />
+    <attribute name="funcNameConfirm" value="confirmAdd" type="string" />
+    
+    <handler name="oninit">
+        lz.ModeManager.makeModal(this);
+    </handler>
+    
+    <handler name="onclose">
+        lz.ModeManager.release(this);
+    </handler>
+    
+    <infoIconBox iconResourceName="messagebox_warning_rsc"
+                 labelid="1168"
+                 width="$once{ parent.width-10 }" y="22" x="10" />
+                 
+    <labelText labelid="1169" x="10" multiline="true"
+               width="$once{ parent.width-10 }" y="100" />
+    <labelText text="$once{ parent.numberOfLicenses }" x="10" fontstyle="bold"
+               width="$once{ parent.width-10 }" y="120" />
+    
+    <simpleLabelButton labelid="1170" width="100" x="40" y="170">
+        <handler name="onclick">
+            //if ($debug) Debug.write("confirm",this.parent.refObj,this.parent.refObj[parent.funcNameConfirm]);
+            this.parent.refObj[parent.funcNameConfirm]();
+            this.parent.close();
+        </handler>
+    </simpleLabelButton>
+    
+    <simpleLabelButton labelid="706" width="100" x="150" y="170">
+        <handler name="onclick">
+            //Debug.write("cancel");
+            this.parent.close();
+        </handler>
+    </simpleLabelButton> 
+    
+</class>
+	
+<!--- User Profile edit panel in the useradmin leftblock. Private class only for useradmin -->
+<class name="userModeratorValueForm" extends="baseContentSaveView" addExisiting="true" width="454">
+
+	<!--- recordContent-id -->
+	<attribute name="user_id" value="0" type="number" />
+    <attribute name="obj" value="null" />
+	
+	<!--handlers -->
+
+	<handler name="onsavecompleted" >
+		//this.getUserById.doCall();
+	</handler>
+	
+	<handler name="onreload" >
+		if (this.user_id!=0) this.getUserById.doCall();
+	</handler>	
+
+	<handler name="onnew">
+		this.user_id=0;
+        this.username.setAttribute("text",'');
+        this.firstname.setAttribute("text",'');
+        this.lastname.setAttribute("text",'');
+        this.email.setAttribute("text",'');
+        this.age.setAttribute("text",'');
+        this.street.setAttribute("text",'');
+        this.house.setAttribute("text",'');
+        this.zip.setAttribute("text",'');
+        this.town.setAttribute("text",'');
+		this.userpass1.setAttribute("text",'');
+        var defaultstate = canvas.getCountryRecord(1);
+        this.state.addAndSelectItem(defaultstate.name,defaultstate.country_id);
+        this.adress_comment.setAttribute("text",'');
+        this.status.selectItem(String('1'));
+        this._organisationslist.clearList();
+        this.sendMail.setValue(true);
+        
+        
+	</handler>
+    
+    <handler name="onaddExisting">
+        //this._addExistingUser.setAttribute('visibility','visible');
+        //this._addExistingUser._doShow.doStart();
+        new lz.addFromExistingUsers(this.parent,{x:this.x,refObj:parent._turnoverlist});
+    </handler>
+	
+    <handler name="ondelete" >
+		if (this.user_id!=0){
+            //if ($debug) Debug.write("ondelete: ",this.obj);
+			this.deleteUserFromOrganization.doCall();
+		}
+    </handler>
+	
+	<!-- methods -->
+
+    <method name="initValueFieldsByObject" args="obj">
+		this.user_id = obj.user_id;
+		if (this.user_id!=0){
+			//if ($debug) Debug.write("this.getUserById this.user_id",this.user_id);
+			this.getUserById.doCall();
+		}
+    </method>
+    
+    <method name="initFields" args="obj">
+    	<![CDATA[
+        
+            //if ($debug) Debug.write("initFields: ",obj);
+            //if ($debug) Debug.write("obj.organisation_users: ",obj.organisation_users);
+        
+            this.obj = obj;
+			this.username.setAttribute("text",obj.login);
+			this.firstname.setAttribute("text",obj.firstname);
+			this.lastname.setAttribute("text",obj.lastname);
+			this.userpass1.setAttribute("text",'');
+			this.email.setAttribute("text",obj.adresses.email);
+			this.age.setAttribute("text",parseDateToString(obj.age));
+			this.street.setAttribute("text",obj.adresses.street);
+			this.house.setAttribute("text",obj.adresses.additionalname);
+			this.zip.setAttribute("text",obj.adresses.zip);
+			this.town.setAttribute("text",obj.adresses.town);
+            this.state.addAndSelectItem(obj.adresses.states.name,String(obj.adresses.states.country_id));
+			this.adress_comment.setAttribute("text",obj.adresses.comment);
+			this.status.selectItem(String(obj.status));
+			this.salutation.selectItem(String(obj.title_id));
+            this.sendMail.setValue(false);
+			
+            for (var eg in obj.organisation_users) {
+                var organisation_user = obj.organisation_users[eg];
+                //if ($debug) Debug.write("organisation_user: ",organisation_user);
+                if (organisation_user.organisation.organisation_id == canvas.currentdomainObj.organisation_id) {
+                    this.isModerator.setValue(organisation_user.isModerator);
+                }
+            }
+            
+            if (obj.isPending) {
+            	this.isPending.setAttribute("labelid",1111);
+            } else {
+            	this.isPending.setAttribute("labelid",1112);
+            }
+            
+            if (obj.maxWorkDays != null){
+                this.workdays.setAttribute('text',obj.maxWorkDays);
+            } else {
+                this.workdays.setAttribute('text',canvas.getLabelName(1115));
+            }
+            if (obj.expireDate != null){
+                this.expireDate.setAttribute('text',parseDateToString(obj.expireDate));
+            } else {
+                this.expireDate.setAttribute('text',canvas.getLabelName(1115));
+            }     
+            
+        ]]>
+    </method>
+	
+	<!-- remotecalls -->
+	
+  	<netRemoteCallRPC name="getUserById" funcname="getUserById" 
+  		remotecontext="$once{  canvas.userServiceRPC }" > 
+  		<netparam><method name="getValue"> return canvas.sessionId; </method></netparam>
+    	<netparam><method name="getValue">return parent.parent.user_id;</method></netparam>
+    	<handler name="ondata" args="value">
+			////if($debug) Debug.write("[admin]userValueForm/getUserById: ",value);
+    		parent.initFields(value);
+    	</handler>
+  	</netRemoteCallRPC>
+    
+    
+    <netRemoteCallRPC name="deleteUserFromOrganization" funcname="deleteUserFromOrganization" 
+        remotecontext="$once{  canvas.userServiceRPC }" activeErrorHandler="true" > 
+        <netparam><method name="getValue"> return canvas.sessionId; </method></netparam>
+        <netparam><method name="getValue">return parent.parent.user_id;</method></netparam>
+        <netparam><method name="getValue">return canvas.currentdomainObj.organisation_id;</method></netparam>
+        <handler name="ondata" args="value">
+            //if($debug) Debug.write("deleteUserFromOrganization: ",value);
+            if (value == -49){
+                this.parent.parent._turnoverlist.oncallnext.sendEvent();
+                this.parent.onnew.sendEvent();
+            }
+        </handler>
+    </netRemoteCallRPC>
+    
+	
+	<netRemoteCallRPC name="deleteUserAdmin" funcname="deleteUserAdmin" remotecontext="$once{  canvas.userServiceRPC }" >      
+		<netparam><method name="getValue"> return canvas.sessionId; </method></netparam>
+		<netparam><method name="getValue"> return parent.parent.user_id; </method></netparam>
+		<handler name="ondata" args="value">
+			//Debug.write("deleteUserAdmin ",value);
+			//this.parent.destroy();
+			if (value>0){
+				this.parent.parent._turnoverlist.oncallnext.sendEvent();
+				this.parent.onnew.sendEvent();
+			}
+		</handler>
+	</netRemoteCallRPC>		
+
+  	<netRemoteCallRPC name="saveOrUpdateUserOnly" funcname="saveOrUpdateUserOnly" 
+  		remotecontext="$once{  canvas.userServiceRPC }" registerObject="true" activeErrorHandler="false" >   
+		<attribute name="sendObject" value="null" />
+		<!-- gets called by Observer -->
+  		<method name="prepareCall">
+  			this.sendObject=new Object();
+  			this.sendObject["user_idClient"] = this.parent.user_id;
+  			this.sendObject["login"] = this.parent.username.getText();
+  			this.sendObject["password"] = this.parent.userpass1.getText();
+  			this.sendObject["firstname"] = this.parent.firstname.getText();
+  			this.sendObject["lastname"] = this.parent.lastname.getText();
+  			this.sendObject["email"] = this.parent.email.getText();
+  			this.sendObject["street"] = this.parent.street.getText();
+  			this.sendObject["additionalname"] = this.parent.house.getText();
+  			this.sendObject["zip"] = this.parent.zip.getText();
+  			this.sendObject["town"] = this.parent.town.getText();
+  			this.sendObject["states_id"] = this.parent.state.getValue();
+  			this.sendObject["comment"] = this.parent.adress_comment.getText();
+  			this.sendObject["telefon"] = '';
+  			this.sendObject["fax"] = '';
+			var date = this.parent.age.getText();
+			if (date.length>0) date = parseStringToDate(date);
+  			this.sendObject["userage"] = date;
+  			this.sendObject["mobil"] = '';
+  			this.sendObject["availible"] = 0;
+  			this.sendObject["status"] = Number(this.parent.status.getValue());
+			this.sendObject["title_id"] = Number(this.parent.salutation.getValue());
+            this.sendObject["organisation_id"] = canvas.currentdomainObj.organisation_id;
+            this.sendObject["isModerator"] = parent.isModerator.getValue();
+            this.sendObject["sendMail"] = parent.sendMail.getValue();
+  			//Debug.write("prepareCall: ",this.sendObject);
+  		</method>
+  		<netparam><method name="getValue"> return canvas.sessionId; </method></netparam>
+    	<netparam><method name="getValue">return parent.sendObject;</method></netparam>	  		
+    	<handler name="ondata" args="val">
+			<![CDATA[
+				//Debug.write("saveOrUpdateUser: ",val);
+				if (val>0){
+					var obj = new Array();
+					obj["user_id"] = val;
+					
+					if (parent.user_id == 0){
+						parent.getUserLicense.doCall();
+					}
+					
+					this.parent.initValueFieldsByObject(obj);
+					
+				}
+				this.parent.parent._turnoverlist.oncallnext.sendEvent();
+                //reload Org-User-List
+			]]>
+    	</handler>
+  	</netRemoteCallRPC>	
+  	
+    <netRemoteCallRPC name="getUserLicense" funcname="getUserLicense" 
+        remotecontext="$once{  canvas.userServiceRPC }" > 
+        <netparam><method name="getValue"> return canvas.sessionId; </method></netparam>
+        <handler name="ondata" args="value">
+            <![CDATA[
+                if (value.unlimitedLicenses) {
+		        	new lz.confirmLicenseWindow(canvas,{
+							refObj:this,numberOfLicenses:canvas.getLabelName(1115)
+						});
+		        } else {
+			        var licenseUserPayed = 0;
+			        if (value.licenseUserPayed != null) {
+			        	licenseUserPayed = value.licenseUserPayed;
+			        }
+			        var licenseUserUsed = 0;
+			        if (value.licenseUserUsed != null) {
+			        	licenseUserUsed = value.licenseUserUsed;
+			        }
+					if ((licenseUserPayed-licenseUserUsed)>0) {
+						new lz.confirmLicenseWindow(canvas,{
+								refObj:this,numberOfLicenses:(licenseUserPayed-licenseUserUsed)
+							});
+					} else {
+						new lz.errorPopupWithLabelAndLink(canvas,{
+								labelerrorid:1166,labellinkButton:1167
+							});
+					}
+		        }
+            ]]>
+        </handler>
+        <method name="confirmAdd">
+            //if ($debug) Debug.write("Activate User add License");
+            parent.activateUserByMod.doCall();
+        </method>
+    </netRemoteCallRPC> 
+    
+    <!--
+    public Long activateUserByMod(String SID, Long user_id) {
+     -->
+    <netRemoteCallRPC name="activateUserByMod" funcname="activateUserByMod" 
+        remotecontext="$once{  canvas.userServiceRPC }" activeErrorHandler="true" > 
+        <netparam><method name="getValue"> return canvas.sessionId; </method></netparam>
+        <netparam><method name="getValue"> return parent.parent.user_id; </method></netparam>
+        <handler name="ondata" args="value">
+            <![CDATA[
+                //if ($debug) Debug.write("activateUserByMod: ",value);
+                if (!value<0) {
+                    parent.getUserById.doCall();
+                }
+            ]]>
+        </handler>
+    </netRemoteCallRPC> 
+        
+	
+	<!-- content -->
+    
+    <labelText labelid="143" width="200" y="40" resize="false" fontstyle="bold" />
+    
+    <labelText labelid="132" width="200" y="70" resize="false" x="2"/>
+        <customEdittext name="username" y="70" x="120" width="270" text="" />
+
+    <labelText labelid="133" width="200" y="100" resize="false" x="2"/>
+        <customEdittext name="userpass1" y="100" password="true" x="120" width="270" text="" />
+    <!--    
+    <labelText labelid="134" width="200" y="130" resize="false" x="2"/>
+        <customEdittext name="userpass2" y="130" password="true" x="120" width="270" text="" />   
+     -->
+    <labelText labelid="135" width="200" y="130" resize="false" x="2"/>
+        <omComboBox name="salutation" width="100" y="130" x="120" editable="false" fontsize="11">
+	        <handler name="oninit" >
+	            <![CDATA[
+		            for (var i=0;i<canvas.salutationsInitValues.length;i++){
+		                this.addItem(canvas.salutationsInitValues[i].label.value,canvas.salutationsInitValues[i].salutations_id);
+		            }
+		            this.selectItem(String(canvas.salutationsInitValues[0].salutations_id));
+	            ]]>
+	        </handler> 
+        </omComboBox>
+        <customEdittext name="firstname" y="130" x="230" width="160" text="" />
+        
+    <labelText labelid="136" width="200" y="160" resize="false" x="2"/>
+        <customEdittext name="lastname" y="160" x="120" width="270" text="" />                
+
+    <labelText labelid="137" width="200" y="190" resize="false" x="2"/>
+        <customEdittext name="email" y="190" x="120" width="270" regexpType="email" 
+        				text="" />
+        
+    <labelText labelid="138" width="200" y="220" resize="false" x="2"/>
+        <dateField name="age" y="220" x="120" width="270" text="" />
+        
+    <labelText labelid="139" width="200" y="250" resize="false" x="2"/>
+        <customEdittext name="street" y="250" x="120" width="220" text="" />
+        <customEdittext name="house" y="250" x="350" width="40" text="" />
+        
+    <labelText labelid="140" width="280" y="280" resize="false" x="2"/>
+        <customEdittext name="zip" y="280" x="120" width="70" text="" />   
+        <customEdittext name="town" y="280" x="200" width="190" text="" />                        
+         
+    <labelText labelid="141" width="200" y="310" resize="false" x="2"/>  
+		<validText name="state" width="270" y="310" x="120" 
+            shownitems="7" validate_method="$once{ canvas.validateCountry }" 
+            resultId="country_id" resultName="name" />    
+
+    <labelText labelid="158" width="200" y="340" resize="false" x="2"/>  
+        <omComboBox name="status" width="270" y="340" x="120" editable="false" >
+	        <handler name="oninit" >
+	            <![CDATA[
+	            this.addItem(canvas.getLabelName(159),'0');
+	            this.addItem(canvas.getLabelName(160),'1');
+	            this.selectItem('0');
+	            ]]>
+	        </handler> 
+        </omComboBox>
+        
+    <labelText labelid="142" width="200" y="370" resize="false" x="2"/>
+        <customEdittext name="adress_comment" y="370" x="120" width="270" 
+            height="70" text="" multiline="true"/>
+
+    <labelCheckbox name="isModerator" x="4" y="470" />
+        <labelText x="30" y="466" labelid="957" 
+                   multiline="true" width="360" />
+                   
+    <labelCheckbox name="sendMail" x="4" y="520" />
+        <labelText x="30" y="520" labelid="965" 
+                   multiline="true" width="360" />
+                   
+    <labelText labelid="1116" width="300" y="576" resize="false" 
+           x="2" fontstyle="bold" /> 
+    
+    <simpleLabelButton x="270" labelid="1172" y="576" fontstyle="bold" height="20" text_x="22">
+        <handler name="onclick">
+            if (parent.user_id != 0) {
+                parent.getUserLicense.doCall();
+            } else {
+                new lz.errorPopupWithLabel(canvas,{
+                        labelerrorid:1173
+                    });
+            }
+        </handler>
+        <view x="2" y="2" 
+            oninit="this.setSource(canvas.getIconPathByName('icon_add_user_license_rsc'))" />
+    </simpleLabelButton>
+     
+    <labelText name="isPending" labelid="1111" width="390" y="600" resize="false" 
+           x="2" multiline="true" />       
+             
+   <labelText labelid="1113" width="200" y="650" resize="false" x="2" />  
+        <labelText name="expireDate" text="" y="650" x="120" width="140" />
+        
+   <labelText labelid="1114" width="200" y="680" resize="false" x="2" />  
+        <labelText name="workdays" text="" y="680" x="120" width="140" />
+                         
+</class>
+
+</library>

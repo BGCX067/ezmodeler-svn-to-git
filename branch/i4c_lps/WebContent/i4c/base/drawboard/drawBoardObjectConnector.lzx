@@ -1,0 +1,701 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+    
+
+<class name="drawBoardObjectConnector" extends="drawBoardConnector">
+	
+	<attribute name="connectorObjdraw_del" value="$once{ new LzDelegate(this, 'drawObjConnector' )}" />
+
+    <attribute name="connectortracker_del" value="$once{ new LzDelegate(this, 'trackConnector' )}" />
+    
+    <attribute name="objList" value="null" />
+    <attribute name="currentObject" value="null" />
+    
+    <attribute name="objConnectionStarted" value="false" type="boolean" />
+    
+    <attribute name="startObjectConnector" value="null" />
+    <attribute name="endObjectConnector" value="null" />
+    <attribute name="startObjectConnectorView" value="null" />
+    <attribute name="endObjectConnectorView" value="null" />
+    
+    <handler name="ondrawmodus" args="draw">
+    	if ($debug) Debug.write("drawmodus ",this,draw);
+    	if (this.drawmodus=='connector'){
+            this.connectortracker_del.register(lz.Idle,'onidle');
+        } else {
+            this.connectortracker_del.unregisterAll();
+        }
+    </handler>
+    
+    <handler name="onboundingIsActive" args="bool">
+        this.boundingIsActive = bool;
+        if (!this.boundingIsActive){
+            this.removeAllBoundingBoxConnectors();
+        }
+    </handler>
+    
+    <method name="trackConnector" args="item">
+    	<![CDATA[
+    		//if ($debug) Debug.write("trackConnector ",this.isActive);
+    	
+    		if (!this.isActive) {
+    			//Don't do anything if this Diagram is non-active
+    			return;
+    		}
+    		
+	    	this.objList = this.getObjectInBoundsConnectable(this.getMouse('x'),this.getMouse('y'));
+	    	
+	    	var newObject = null;
+	    	if(objList.length != 0){
+	    		newObject = objList[objList.length-1];
+	    	}
+	    	
+	    	if (newObject != this.currentObject) {
+	    		if (this.currentObject != null) {
+	    			this[this.currentObject[this.currentObject.length-1]].deHighlight();
+	    		}
+	    		this.currentObject = newObject;
+	    		if (this.currentObject != null) {
+	    			this[this.currentObject[this.currentObject.length-1]].setHighlight();
+	    		}
+	    	}
+    	]]>
+    </method>
+    
+    <method name="startObjConnector">
+    	if (this.currentObject != null) {
+    		this.objConnectionStarted = true;
+    		
+    		//Set two things => the Base Object and the View-Object,
+            //We need the view object, cause we need to calculate the result by loading
+    		this.startObjectConnector = this.currentObject;
+    		this.startObjectConnectorView = this[this.startObjectConnector[this.startObjectConnector.length-1]];
+    		  
+            this.doDrawConnectorObject();
+            this.connectorObjdraw_del.register(lz.Idle,'onidle');
+    		//this.startDrawConnector(null);
+    	}
+    </method>
+    
+    <method name="endObjConnector">
+    	if ($debug) Debug.write("############## endObjConnector");
+    	if (this.objConnectionStarted) {
+        	this.connectorObjdraw_del.unregisterAll();
+        	
+        	//this.currentlayer.destroy();
+        	if (this.endObjectConnector != null) {
+        	    this.drawObjConnectorToStage(true);
+        	   
+                //Reset values to default
+                this[this.currentObject[this.currentObject.length-1]].deHighlight();
+                this.currentObject = null;
+                //change to Hand-Selection Tool
+                parent.parent.parent._toolBar.doSelectItem("hand_single");
+        	} else {
+        		//just remove the Temp-Connector Line
+        		this.currentlayer.destroy();
+        	}
+        	
+        	//Reset Connection-Tool-Status
+        	this.objConnectionStarted = false;
+    	} 
+    	//this.endObjectConnector
+    </method>
+    
+    <!-- This Method will be triggered by lz.Idle Loop -->
+    <method name="drawObjConnector" args="item">
+    	this.drawObjConnectorToStage(null);
+    </method>
+    
+    <method name="drawObjConnectorToStage" args="register">
+    	<![CDATA[
+            
+        	this.currentlayer.destroy();
+            this.doDrawConnectorObject();
+        
+            this.endx = this.getMouse('x');
+            this.endy = this.getMouse('y');
+            
+            //Calc Starting Points
+            if (this.startObjectConnector[this.startObjectConnector.length-5] + this.startObjectConnector[this.startObjectConnector.length-3] < this.endx) {
+            	//RIGHT
+            	//new lz.connectorPoint(this,{name:'w4',x:this.width-10,y:(this.height/2)-10});
+            	this.startx = this.startObjectConnector[this.startObjectConnector.length-5] + this.startObjectConnector[this.startObjectConnector.length-3];
+                this.starty = this.startObjectConnector[this.startObjectConnector.length-4] + this.startObjectConnector[this.startObjectConnector.length-2]/2;
+            	var startName = "w4";
+            } else {
+            	//BOTTOM
+            	//new lz.connectorPoint(this,{name:'w2',x:(this.width/2)-10,y:this.height-10});
+            	this.startx = this.startObjectConnector[this.startObjectConnector.length-5] + this.startObjectConnector[this.startObjectConnector.length-3]/2;
+            	this.starty = this.startObjectConnector[this.startObjectConnector.length-4] + this.startObjectConnector[this.startObjectConnector.length-2];
+            	var startName = "w2";
+            }
+            
+            var endName = "";
+            //var startName = "w1";
+            //var lastStepx = 0;
+            //var lastStepy = 0;
+            
+            //Set two things => the Base Object and the View-Object,
+            //We need the view object, cause we need to calculate the result by loading
+            this.endObjectConnector = this.currentObject;
+            
+            
+            //if (this.currentObject)
+            //if ($debug) Debug.write("this.currentObject",this.currentObject);
+            
+            if (this.endObjectConnector != null) {
+            	this.endObjectConnectorView = this[this.endObjectConnector[this.endObjectConnector.length-1]];
+                if (this.endObjectConnector[this.endObjectConnector.length-5] > this.startx) {
+                    //LEFT
+                    //new lz.connectorPoint(this,{name:'w3',x:-10,y:(this.height/2)-10});
+                    endName = "w3";
+                    this.endx = this.endObjectConnector[this.endObjectConnector.length-5];
+                    this.endy = this.endObjectConnector[this.endObjectConnector.length-4] + this.endObjectConnector[this.endObjectConnector.length-2]/2;
+                } else {
+                    //TOP
+                    //new lz.connectorPoint(this,{name:'w1',x:(this.width/2)-10,y:-10});
+                    endName = "w1";
+                    this.endx = this.endObjectConnector[this.endObjectConnector.length-5] + this.endObjectConnector[this.endObjectConnector.length-3]/2;
+                    this.endy = this.endObjectConnector[this.endObjectConnector.length-4];
+                }
+                //if ($debug) Debug.write("Calced Alternate X|Y",this.endx,this.endy);
+                
+            } else {
+            	this.endObjectConnectorView = null;
+                if (startName == "w4"){
+                    endName = "w3";
+                } else if (startName == "w2"){
+                    endName = "w1";
+                }
+            }
+            
+            this.drawObjConnectorLiveLineWithObjects(this.currentlayer,
+                this.startx,this.starty,this.endx,this.endy,
+                startName,endName,0, register);
+            //this.connectorObjdraw_del.unregisterAll();
+        
+        ]]>
+    </method>
+    
+    <method name="drawObjConnectorLiveLineWithObjects" args="targetObj,startx,starty,endx,endy,startName,endName,caseItem,register">
+        <![CDATA[
+            //this.drawDottedLine(targetObj,startx,starty,endx,endy,
+                //this.currentConnectorStroke,this.currentConnectorLineWidth);
+            
+        //Fixme get rid of the var
+            var objectBreakPixels = 20;
+            
+            var objectBreakPixelsX = 25;
+            var objectBreakPixelsY = 16;
+            
+            if (this.diagramType == 2 || this.diagramType == 4) {
+            	objectBreakPixelsX = 10;
+                objectBreakPixelsY = 20;
+            }
+            
+            var pointList = new Array();
+            
+            //if ($debug) Debug.write("this.startObjectConnector: ",this.startObjectConnector);
+
+            if (startName == "w4") {
+                if (endName == "w1" ) { 
+                	if ($debug) Debug.warn("Where to find this Case -3- w4 => w1 ? Self Connection in hierarchy");
+                    var newx = startx+objectBreakPixels;
+                    var lastStepy = endy-objectBreakPixels;
+                    if (startx != newx){
+                        pointList.push([startx,starty,newx,starty]);
+                    }
+                    if (starty != lastStepy){
+                        pointList.push([newx,starty,newx,lastStepy]);
+                    }
+                    if (newx != endx){
+                        pointList.push([newx,lastStepy,endx,lastStepy]);
+                    }
+                    if (lastStepy != endy){
+                        pointList.push([endx,lastStepy,endx,endy]);
+                    }
+                } else if (endName == "w3" ) { 
+                	
+                	//if ($debug) Debug.write("w4 => w3 ",endx - startx);
+                	
+                	if (endx - startx <= 56) {
+                    	if (starty == endy) {
+                    		//Case 2
+                    		//P1
+                    		pointList.push([startx,starty,endx,endy]);
+                    	} else {
+                    		//Case 3
+                    		//P1
+                    		pointList.push([startx,starty,startx+objectBreakPixelsX,starty]);
+                    		//P2
+                    		pointList.push([startx+objectBreakPixelsX,starty,startx+objectBreakPixelsX,endy]);
+                    		//P3
+                            pointList.push([startx+objectBreakPixelsX,endy,endx,endy]);
+                    	}
+                    } else if (starty >= endy){
+                    	//if ($debug) Debug.write("Case 2 a)");
+                    	//Case 2 a)
+                    	//P1
+                    	pointList.push([startx,starty,startx+objectBreakPixelsX,starty]);
+                    	//P2
+                    	pointList.push([startx+objectBreakPixelsX,starty,
+                    	           startx+objectBreakPixelsX,
+                    	           starty-this.startObjectConnectorView.height/2-objectBreakPixelsY]);
+                        //P3
+                        pointList.push([startx+objectBreakPixelsX,
+                                   starty-this.startObjectConnectorView.height/2-objectBreakPixelsY,
+                                   endx-objectBreakPixelsX,
+                                   starty-this.startObjectConnectorView.height/2-objectBreakPixelsY]);
+                    	//P4
+                        pointList.push([endx-objectBreakPixelsX,
+                                   starty-this.startObjectConnectorView.height/2-objectBreakPixelsY,
+                                   endx-objectBreakPixelsX,endy]);
+                        //P5
+                        pointList.push([endx-objectBreakPixelsX,endy,endx,endy]);
+                                   
+                    } else {
+                    	//Case 2 b)
+                    	//if ($debug) Debug.write("FIX Case 2 b)");
+                    	//P1
+                        pointList.push([startx,starty,startx+objectBreakPixelsX,starty]);
+                        //P2
+                        pointList.push([startx+objectBreakPixelsX,starty,
+                                   startx+objectBreakPixelsX,
+                                   starty+this.startObjectConnectorView.height/2+objectBreakPixelsY]);
+                        //P3
+                        pointList.push([startx+objectBreakPixelsX,
+                                   starty+this.startObjectConnectorView.height/2+objectBreakPixelsY,
+                                   endx-objectBreakPixelsX,
+                                   starty+this.startObjectConnectorView.height/2+objectBreakPixelsY]);
+                        //P4
+                        pointList.push([endx-objectBreakPixelsX,
+                                   starty+this.startObjectConnectorView.height/2+objectBreakPixelsY,
+                                   endx-objectBreakPixelsX,endy]);
+                        //P5
+                        pointList.push([endx-objectBreakPixelsX,endy,endx,endy]);
+                    }
+                    
+                } else {
+                	
+                	if ($debug) Debug.warn("Where to find this Case -1- ?");
+                    ////if ($debug) Debug.write("endx,startx: ",endx,startx);
+                    var newx = startx+objectBreakPixels;
+                    if (startx - newx != 0){
+                        pointList.push([startx,starty,newx,starty]);
+                    }
+                    if (starty - endy != 0){
+                        pointList.push([newx,starty,newx,endy]);
+                    }
+                    if (newx - endx != 0){
+                        pointList.push([newx,endy,endx,endy]);
+                    }
+                }
+                
+            } else if (startName == "w2") {
+            	
+                if (endName == "w3" ) { 
+                    var newy = starty+objectBreakPixels;
+                    var lastStepx = endx-objectBreakPixels;
+                    if (starty - newy != 0){
+                        pointList.push([startx,starty,startx,newy]);
+                    }
+                    if (startx - lastStepx != 0){
+                        pointList.push([startx,newy,lastStepx,newy]);
+                    }
+                    if (newy - endy != 0){
+                        pointList.push([lastStepx,newy,lastStepx,endy]);
+                    }
+                    if (lastStepx - endx != 0){
+                        pointList.push([lastStepx,endy,endx,endy]);
+                    }
+                } else if (endName == "w1") {
+                	
+                	if (startx + this.startObjectConnectorView.width/2 >= endx) {
+                		
+                		//if (startx == endx && endy-starty == 32) {
+                		if (startx == endx && endy-starty <= 56 && endy-starty > 0) {
+                			
+                			//if ($debug) Debug.write("Found Ending Zone Case 1b",(endy-starty));
+                			//Case 1 b)
+                			//P1
+                			pointList.push([startx,starty,endx,endy]);
+                			
+                		//} else if (endy-starty == 32) {
+                	    } else if (endy-starty > 0 && endy-starty <= 78) {
+                			if ($debug) Debug.write("Found Ending Zone Case 1c",(endy-starty));
+                            //Case 1 c)
+                            //P1
+                            pointList.push([startx,starty,startx,starty + objectBreakPixelsY]);
+                            //P2
+                            pointList.push([startx,starty + objectBreakPixelsY,
+                                          endx,starty + objectBreakPixelsY]); 
+                            //P3
+                            pointList.push([endx,starty + objectBreakPixelsY,endx,endy]); 
+                                          
+            			} else {
+                		
+                    		//Bottom => Up, see Case 1
+                    		//P1
+                    		pointList.push([startx,starty,startx,starty + objectBreakPixelsY]);
+                    		//P2
+                    		pointList.push([startx,starty + objectBreakPixelsY,
+                    		              startx - this.startObjectConnectorView.width/2 - objectBreakPixelsX,
+                    		              starty + objectBreakPixelsY]);
+                    		//P3
+                            pointList.push([startx - this.startObjectConnectorView.width/2 - objectBreakPixelsX,
+                                          starty + objectBreakPixelsY,
+                                          startx - this.startObjectConnectorView.width/2 - objectBreakPixelsX,
+                                          endy - objectBreakPixelsY]);
+                            //P4
+                            pointList.push([startx - this.startObjectConnectorView.width/2 - objectBreakPixelsX,
+                                          endy - objectBreakPixelsY,
+                                          endx,endy - objectBreakPixelsY]);             
+                    		//P5
+                            pointList.push([endx,endy - objectBreakPixelsY,endx,endy]);  
+                        
+                		}
+                                      
+                	} else {
+                		if ($debug) Debug.warn ("Unhandled Case w2 => w1");
+                	}
+                    
+                } else {
+                        
+                    if ($debug) Debug.warn("Where to find this Case -2- ?");
+                    var newy = starty+objectBreakPixels;
+                    if (starty != newy){
+                        pointList.push([startx,starty,startx,newy]);
+                    }
+                    if (startx != endx){
+                        pointList.push([startx,newy,endx,newy]);
+                    }
+                    if (newy != endy){
+                        pointList.push([endx,newy,endx,endy]);
+                    }
+                    
+                }
+                
+            }
+            
+            //Register Object to Base-Object-Table
+            //If null don't do anything
+            if (register!=null) {
+                pointList = this.doShrinkObjectBoundsAndRegister(register,targetObj,pointList,startName,endName);
+            }
+
+            ////if ($debug) Debug.write("TT: ",pointList.length);
+            
+            for (var i=0;i<pointList.length;i++){
+                this.drawDottedLine(targetObj,pointList[i][0],pointList[i][1],pointList[i][2],pointList[i][3],
+                    this.currentConnectorStroke,this.currentConnectorLineWidth);
+            }
+            
+            
+            this.drawObjConnectorArrows(targetObj,pointList);
+        ]]>
+    </method>
+    
+    <!--
+        This re-calcs the Objects Bounds sothat the Connection-Object is in its optimal size in the Stage
+     -->
+    <method name="doShrinkObjectBoundsAndRegister" args="register,targetObj,pointList,startName,endName">
+    	<![CDATA[
+            
+            var shrinkPointList = new Array();
+            
+            var minx = pointList[0][0];
+            var maxx = pointList[0][0];
+            var miny = pointList[0][1];
+            var maxy = pointList[0][1];
+            
+            for (var i=0;i<pointList.length;i++) {
+            	if (pointList[i][0] < minx) {
+            		minx = pointList[i][0];
+            	}
+            	if (pointList[i][2] < minx) {
+                    minx = pointList[i][2];
+                }
+                if (pointList[i][0] > maxx) {
+                    maxx = pointList[i][0];
+                }
+                if (pointList[i][2] > maxx) {
+                    maxx = pointList[i][2];
+                }
+                if (pointList[i][1] < miny) {
+                    miny = pointList[i][1];
+                }
+                if (pointList[i][3] < miny) {
+                    miny = pointList[i][3];
+                }
+                if (pointList[i][1] > maxy) {
+                    maxy = pointList[i][1];
+                }
+                if (pointList[i][3] > maxy) {
+                    maxy = pointList[i][3];
+                }
+            }
+            
+            //if ($debug) Debug.write("minx,maxx,miny,maxy: ",minx,maxx,miny,maxy);
+            
+            targetObj.setAttribute("x",minx);
+            targetObj.setAttribute("y",miny);
+            
+            targetObj.setAttribute("width",maxx-minx);
+            targetObj.setAttribute("height",maxy-miny);
+            
+            for (var i=0;i<pointList.length;i++) {
+            	shrinkPointList.push([pointList[i][0]-minx,pointList[i][1]-miny,pointList[i][2]-minx,pointList[i][3]-miny]);
+            }
+    	
+        	if (register){
+                //Add to baseObjectList
+                this.drawConnectorRegisterFinal(targetObj.name,this.startObjectConnector[this.startObjectConnector.length-1],
+                    startName,this.endObjectConnector[this.endObjectConnector.length-1],
+                    endName,shrinkPointList,targetObj.x,targetObj.y,
+                    targetObj.width,targetObj.height,null);
+            } else {
+                //Update baseObjectList
+                this.updateConnectorRegisterFinal(targetObj.name,targetObj.x,targetObj.y,
+                    targetObj.width,targetObj.height,shrinkPointList);
+            }
+            
+            return shrinkPointList;
+        
+        ]]>
+    </method>
+    
+    <method name="drawObjConnectorArrows" args="targetObj,pointList">
+    	<![CDATA[
+    	   
+            var i = pointList.length-1;
+            var x1 = pointList[i][0];
+            var y1 = pointList[i][1];
+            var x2 = pointList[i][2];
+            var y2 = pointList[i][3];
+            //pointList
+            //if ($debug) Debug.write("i,x1,y1,x2,y2: ",i,x1,y1,x2,y2);
+            
+            var resourceName = "";
+                    
+            if (x1 == x2) {
+                if (y1 < y2){
+                    //if ($debug) Debug.write("SHOW DOWN");
+                    var resourceName = "down";
+                    new LzView(targetObj,{resource:"no_arrow_connector_down_warning",x:x2-6,y:y2-6});
+                } else if (y1 > y2){
+                    //if ($debug) Debug.write("SHOW UP");
+                    var resourceName = "up";
+                    new LzView(targetObj,{resource:"no_arrow_connector_up_warning",x:x2-6,y:y2});
+                } else if (y1 == y2) {
+                    if ($debug) Debug.warn("EQUALS: x1 == x2 y1 == y2 ",x1,y2,x2,y2);
+                    var i = pointList.length-2;
+                    var x1_pre = pointList[i][0];
+                    var y1_pre = pointList[i][1];
+                    var x2_pre = pointList[i][2];
+                    var y2_pre = pointList[i][3];
+                    //if ($debug) Debug.warn("EQUALS: " +
+                    //            "x1_pre,x2_pre,y1_pre,y2_pre: ",x1_pre,x2_pre,y1_pre,y2_pre,
+                    //            "x1,x2,y1,y2: ",x1,x2,y1,y2);
+                    
+                    if (y1_pre < y2){
+                        //if ($debug) Debug.write("SHOW DOWN 2");
+                        var resourceName = "down";
+                        new LzView(targetObj,{resource:"no_arrow_connector_down_warning",x:x2-6,y:y2-6});
+                    } else if (y2_pre > y2){
+                        //if ($debug) Debug.write("SHOW UP 2");
+                        var resourceName = "up";
+                        new LzView(targetObj,{resource:"no_arrow_connector_up_warning",x:x2-6,y:y2});
+                    } else if (x1_pre < x2){
+                        //if ($debug) Debug.write("SHOW RIGHT 2");
+                        var resourceName = "right";
+                        new LzView(targetObj,{resource:"no_arrow_connector_right_warning",x:x2-6,y:y2-6});
+                    } else if (x1_pre > x2){
+                        //if ($debug) Debug.write("SHOW LEFT 2");
+                        var resourceName = "left";
+                        new LzView(targetObj,{resource:"no_arrow_connector_left_warning",x:x2,y:y2-6});
+                    } else {
+                        if ($debug) Debug.warn("NO ARROW DIR FOUND: x1,y2 == x2,y2 y1_pre == y2 x1_pre == x2",y2_pre,y2);
+                        var i = pointList.length-3;
+                        var x1_prepre = pointList[i][0];
+                        var y1_prepre = pointList[i][1];
+                        var x2_prepre = pointList[i][2];
+                        var y2_prepre = pointList[i][3];
+                        //if ($debug) Debug.warn("EQUALS: " +
+                        //            "x1_prepre,x2_prepre,y1_prepre,y2_prepre: ",
+                        //            x1_prepre,x2_prepre,y1_prepre,y2_prepre,
+                        //            "x1,x2,y1,y2: ",x1,x2,y1,y2);
+                                    
+                        if (y1_prepre < y2){
+                            //if ($debug) Debug.write("SHOW DOWN 3");
+                            var resourceName = "down";
+                            new LzView(targetObj,{resource:"no_arrow_connector_down_warning",x:x2-6,y:y2-6});
+                        } else if (y1_prepre > y2){
+                            //if ($debug) Debug.write("SHOW UP 3");
+                            var resourceName = "up";
+                            new LzView(targetObj,{resource:"no_arrow_connector_up_warning",x:x2-6,y:y2});
+                        } else if (x1_prepre < x2){
+                            //if ($debug) Debug.write("SHOW RIGHT 3");
+                            var resourceName = "right";
+                            new LzView(targetObj,{resource:"no_arrow_connector_right_warning",x:x2-6,y:y2-6});
+                        } else if (x1_prepre > x2){
+                            //if ($debug) Debug.write("SHOW LEFT 3");
+                            var resourceName = "left";
+                            new LzView(targetObj,{resource:"no_arrow_connector_left_warning",x:x2,y:y2-6});
+                        } else {
+                            if ($debug) Debug.warn("UNKOWN CONNECTOR");
+                        }
+                    }
+                } else {
+                    if ($debug) Debug.warn("NO ARROW DIR FOUND: x1 == x2 x1,y2,x2,y2 ",x1,y2,x2,y2);
+                }
+            } else if (y1 == y2){
+                if (x1 < x2){
+                    //if ($debug) Debug.write("SHOW RIGHT");
+                    var resourceName = "right";
+                    new LzView(targetObj,{resource:"no_arrow_connector_right_warning",x:x2-6,y:y2-6});
+                } else if (x1 > x2){
+                    //if ($debug) Debug.write("SHOW LEFT");
+                    var resourceName = "left";
+                    new LzView(targetObj,{resource:"no_arrow_connector_left_warning",x:x2,y:y2-6});
+                } else {
+                    if ($debug) Debug.warn("NO ARROW DIR FOUND: y1 == y2 x1,y2,x2,y2 ",x1,y2,x2,y2);
+                }
+            } else {
+                if ($debug) Debug.warn("NO ARROW DIR FOUND: x1,y2,x2,y2 ",x1,y2,x2,y2);
+            }
+                
+            this.updateDiagramobjectConnectorArrowId(targetObj.name,resourceName);
+    	
+    	]]>
+    </method>
+    
+    <method name="checkObjConnections" args="objRef">
+        <![CDATA[
+        
+            var foundConnections = new Array();
+            for (var i=0;i<this.baseactionobjectList.length;i++) {
+                if (this.baseactionobjectList[i][0]=="connector"){
+                    ////if ($debug) Debug.write("Found Connector: ",this.baseactionobjectList[i]);
+                    ////if ($debug) Debug.write("Found StartName: ",this.baseactionobjectList[i][1],objRef.name);
+                    ////if ($debug) Debug.write("Found EndName: ",this.baseactionobjectList[i][3],objRef.name);
+                    if (this.baseactionobjectList[i][1]==objRef.name) {
+                        foundConnections.push(this.baseactionobjectList[i]);
+                    }
+                    if (this.baseactionobjectList[i][3]==objRef.name) {
+                        foundConnections.push(this.baseactionobjectList[i]);
+                    }
+                }
+            }
+            
+            
+            //if ($debug) Debug.write("Number of Found Connections: ",foundConnections.length,foundConnections);
+            
+            for (var i=0;i<foundConnections.length;i++) {
+            	
+            	//Simulate start and end Object
+            	var startObject = null
+                var endObject = null;
+                var targetObject = null;
+                for (var k=0;k<this.subviews.length;k++) {
+                    if (this.subviews[k].name == foundConnections[i][1]) {
+                        startObject = this.subviews[k];
+                        this.startObjectConnector = this.getBaseObjectListItemByName(startObject.name);
+                        this.startObjectConnectorView = startObject;
+                    }
+                    if (this.subviews[k].name == foundConnections[i][3]) {
+                        endObject = this.subviews[k];
+                        this.endObjectConnector = this.getBaseObjectListItemByName(endObject.name);
+                        this.endObjectConnectorView = endObject;
+                    }
+                    if (this.subviews[k].name == foundConnections[i][foundConnections[i].length-1]) {
+                        targetObject = this.subviews[k];
+                    }
+                }
+                
+                while (targetObject.subviews.length>0){
+                    targetObject.subviews[0].destroy();
+                }
+                
+                //if ($debug) Debug.write("start,end,target: ",this.startObjectConnector,this.endObjectConnector,targetObject);
+                
+                //Do Reset targetObject values to default ones
+                targetObject.setAttribute("x",0);
+                targetObject.setAttribute("y",0);
+                targetObject.setAttribute("width",this.width);
+                targetObject.setAttribute("height",this.height);
+                
+                //Calc Starting Points
+                if (startObject.x + startObject.width < endObject.x) {
+                    //RIGHT
+                    //new lz.connectorPoint(this,{name:'w4',x:this.width-10,y:(this.height/2)-10});
+                    this.startx = startObject.x + startObject.width;
+                    this.starty = startObject.y + startObject.height/2;
+                    var startName = "w4";
+                } else {
+                    //BOTTOM
+                    //new lz.connectorPoint(this,{name:'w2',x:(this.width/2)-10,y:this.height-10});
+                    this.startx = startObject.x + startObject.width/2;
+                    this.starty = startObject.y + startObject.height;
+                    var startName = "w2";
+                }
+                
+                var endName = "";
+                
+                //if (this.currentObject)
+                //if ($debug) Debug.write("this.currentObject",this.currentObject);
+                
+                if (endObject.x > this.startx) {
+                    //LEFT
+                    //new lz.connectorPoint(this,{name:'w3',x:-10,y:(this.height/2)-10});
+                    endName = "w3";
+                    this.endx = endObject.x;
+                    this.endy = endObject.y + endObject.height/2;
+                } else {
+                    //TOP
+                    //new lz.connectorPoint(this,{name:'w1',x:(this.width/2)-10,y:-10});
+                    endName = "w1";
+                    this.endx = endObject.x + endObject.width/2;
+                    this.endy = endObject.y;
+                }
+                //if ($debug) Debug.write("Calced Alternate X|Y",this.endx,this.endy);
+                
+                this.drawObjConnectorLiveLineWithObjects(targetObject,
+                    this.startx,this.starty,this.endx,this.endy,
+                    startName,endName,0,false);
+            }
+            
+        ]]>
+    </method>
+    
+    <method name="loadObjConnectorLine" args="lastactionObject">
+    	<![CDATA[
+    	    if ($debug) Debug.write("loadObjConnectorLine",lastactionObject);
+            var newName = lastactionObject[lastactionObject.length-1];
+            
+            var targetObj = new lz.drawViewNew(this,{name:newName,
+                                x:lastactionObject[lastactionObject.length-5],
+                                y:lastactionObject[lastactionObject.length-4],
+                                width:lastactionObject[lastactionObject.length-3],
+                                height:lastactionObject[lastactionObject.length-2],
+                                typeOfObject:'connector'});     
+            targetObj.strokeStyle = lastactionObject[6];
+            targetObj.lineWidth = lastactionObject[7];
+            
+            var pointList = lastactionObject[5];
+            
+            for (var i=0;i<pointList.length;i++){
+                this.drawDottedLine(targetObj,pointList[i][0],pointList[i][1],pointList[i][2],pointList[i][3],
+                    this.currentConnectorStroke,this.currentConnectorLineWidth);
+            }
+            
+            this.baseactionobjectList.push(lastactionObject);
+            
+            this.drawObjConnectorArrows(targetObj,pointList);
+    	]]>
+    </method>
+        
+    
+</class>
+
+</library>

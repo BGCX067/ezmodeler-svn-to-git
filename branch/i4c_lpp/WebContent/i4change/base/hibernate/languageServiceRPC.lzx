@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+	
+	<dataset name="languagesSet" /> 
+	
+	<security>
+        <allow>
+            <pattern>^org.i4change.app.http.javarpc\.LanguageServiceRPC</pattern>
+        </allow>
+    </security>
+    
+    <!-- See WEB-INF/classes/TypesExample.java for java source. -->
+    <javaCallRPC name="languageServiceRPC" scope="webapp" secure="$once{ canvas.javaRPCSecure }" secureport="$once{ canvas.httpport }"
+    		 autoload="false" objectreturntype="javabean"
+    		 remoteclassname="org.i4change.app.http.javarpc.LanguageServiceRPC">
+
+        <handler name="onload">
+            // Set buttons visible only after JavaRPC object loads
+            //if ($debug) Debug.write('onload:', this);
+            mainServiceRPC.load();
+        </handler>
+
+        <handler name="ondata" args="res">
+            ////if ($debug) Debug.write('(types ondata) response is:', res);
+        </handler>
+
+        <netRemoteCallRPC name="getLanguages" funcname="getLanguages" 
+        				  dataobject="languagesSet" showLoading="false" >
+            <handler name="ondata" args="value">
+            	<![CDATA[
+	            	//The onResult-Handler will be called be the rtmpconnection
+	            	//if ($debug) Debug.write("getLanguages: ",value);
+		            canvas.loaderVar.setProgress();
+		            
+		            
+		            if (canvas.autologin.length != 0) {
+		            	
+		            	canvas.userStoredHash = canvas.autologin;
+                        mainServiceRPC.getStoredUserSessionBySID.doCall();
+                                
+		            } else {
+		            
+    		            var t = new lz.sharedObject();
+    		            //if($debug) Debug.write("autologin/t: ",t);
+    		            t.getLocal('userdata');
+    		            var g = t.getData('userdata');
+    		            //if($debug) Debug.write("autologin/g: ",g);
+    		            var save = g["rememberme"];
+    		            //if($debug) Debug.write("autologin/save: ",save);
+    		            if(save) {
+    		            	var hash = g["userhash"];
+    		            	//if($debug) Debug.write("autologin/hash: ",hash);
+    		            	if (hash != undefined && hash.length > 0) {
+    		            		//if($debug) Debug.write("load Login Data");
+    		            		canvas.userStoredHash = hash;
+    		            		mainServiceRPC.getStoredUserSessionBySID.doCall();
+    		            	} else {
+    		            		parent.getDefaultLanguage.doCall();
+    		            	}
+    		            } else {
+    		            	parent.getDefaultLanguage.doCall();
+    		            }
+		            
+		            }
+	            ]]>
+            </handler>
+        </netRemoteCallRPC>
+        
+        <netRemoteCallRPC name="getDefaultLanguage" funcname="getDefaultLanguage" showLoading="false" >
+            <handler name="ondata" args="value">
+            	//The onResult-Handler will be called be the rtmpconnection
+            	//if ($debug) Debug.write("getDefaultLanguage: ",value);
+	            canvas.userlang = value;
+	            canvas.loaderVar.src.setAttribute("text","Loading Default Language");
+	            websiteServiceRPC.getWebItemTypes.doCall();
+	            parent.getLanguageByIdAndMaxLabeled.doCall();
+            </handler>
+        </netRemoteCallRPC>
+        
+        <!--
+        <netRemoteCallRPC name="getWebItemTypes" funcname="getWebItemTypes" >
+        	<netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+            <handler name="ondata" args="value">
+            	//The onResult-Handler will be called be the rtmpconnection
+            	//if ($debug) Debug.write("getWebItemTypes: ",value);
+	            canvas.userlang = value;
+	            canvas.loaderVar.src.setAttribute("text","Loading Default Language");
+	            parent.getWebItemTypes.doCall();
+	            parent.getLanguageByIdAndMaxLabeled.doCall();
+            </handler>
+        </netRemoteCallRPC>
+         -->
+         
+        <netRemoteCallRPC name="getLanguageByIdAndMaxLabeled" 
+        				  funcname="getLanguageByIdAndMaxLabeled" showLoading="false" >
+	        <attribute name="start" value="0" type="number" />
+	        <attribute name="step" value="100" type="number" /> 
+	        <attribute name="max" value="3000" type="number" />    
+	        <param><method name="getValue">return canvas.userlang;</method></param> 
+	        <param><method name="getValue">return parent.start;</method></param> 
+	        <param><method name="getValue">return parent.step;</method></param> 
+	        <param><method name="getValue">return (($debug) ? true : false);</method></param>         	
+            <handler name="ondata" args="value">
+	            <![CDATA[
+	                ////if($debug) Debug.write("hibRtmpConnection/getLanguageByIdAndMax:[",value,"]",$debug,this.start,this.max);
+	                //if($debug) Debug.write("hibRtmpConnection/getLanguageByIdAndMax:",this.max);
+	                setLabelObjectByHundred(this.start,value);
+	                //The onResult-Handler will be called be the rtmpconnection
+	                if (this.start <= this.max){
+	                    this.start += this.step;
+	                    canvas.loaderVar.setProgress();
+	                    this.doCall();
+	                } else {
+	                    if (canvas.initlanguageLoaded){
+	                        canvas.initMainDialog();
+	                    } else {
+	                        canvas.initlanguageLoaded=true;
+	                        canvas.loaderVar.setProgress();
+	                        canvas.loaderVar.src.setAttribute("text","Loading Default Values");
+	                        mainServiceRPC.getStates.doCall();
+	                    }
+	                }
+	            ]]>
+	        </handler>
+        </netRemoteCallRPC>
+        
+        
+    </javaCallRPC>
+
+</library>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+	
+<class name="drillUpChooseDiagram" extends="guiPresenter" labelid="871" 
+       x="$once{ parent.width/2 - this.width/2 }" y="100" 
+       docking="true" resizeable="false" closable="true" width="404" height="266">
+    
+    <attribute name="diagramObjectId" value="0" type="number" />
+    
+    <handler name="oninit">
+        this._diagramObjectConnectedDiagrams.doInitNewItemList(null,this.diagramObjectId);
+    </handler>
+    
+    <infoIconBox y="24" x="10" width="$once{ parent.width - 20 }"
+                 labelid="872" />
+                 
+    <diagramObjectConnectedDiagrams name="_diagramObjectConnectedDiagrams" x="5"
+                                    y="50" activateSingle="true" />
+    
+    
+    <simpleLabelButton labelid="873" width="100" x="$once{ parent.width - 105 }" 
+                       y="$once{ parent.height - 28 }">
+    	<handler name="onclick">
+            
+            parent.close();
+    	</handler>
+    </simpleLabelButton>  
+     
+</class>
+
+</library>

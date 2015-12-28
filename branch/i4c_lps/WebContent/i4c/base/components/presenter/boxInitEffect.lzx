@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+<class name="boxInitEffect" extends="view" width="10" height="4" 
+    opacity="0.6" bgcolor="$once{ canvas.basebgcolorizer }" >
+    
+    <attribute name="zielx" value="200" type="number" />
+    <attribute name="ziely" value="200" type="number" />
+    <attribute name="zielwidth" value="100" type="number" />
+    <attribute name="zielheight" value="100" type="number" />
+    
+    <attribute name="objRef" value="null" />
+    
+    <method name="sendStop">
+        this.objRef.sendAnniComplete();
+        this.destroy();
+    </method>
+
+    <animatorgroup name="anm" start="true" process="simultaneous" 
+        duration="300" onstop="this.parent.anm_2.doStart()" >
+        <animator attribute="x" to="$once{ parent.parent.zielx }" />
+        <animator attribute="width" to="$once{ parent.parent.zielwidth }" />
+    </animatorgroup>
+    
+    <animatorgroup name="anm_2" start="false" process="simultaneous" 
+        duration="500" onstop="this.parent.sendStop()" >
+        <animator attribute="y" to="$once{ parent.parent.ziely }" />
+        <animator attribute="height" to="$once{ parent.parent.zielheight }" />
+    </animatorgroup>
+    
+    
+</class>
+
+</library>

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+	<resource name="drawarrow_rsc" src="resources/drawarrowgray.swf" />
+	<resource name="_boundingBoxPointerTR" src="resources/boundingBoxTR.png" />
+	<resource name="_boundingBoxPointerTL" src="resources/boundingBoxTL.png" />
+	<resource name="_boundingBoxPointerUR" src="resources/boundingBoxUR.png" />
+	<resource name="_boundingBoxPointerUR_noresize" src="resources/boundingBoxUR_noresize.png" />
+	<resource name="_boundingBoxPointerUL" src="resources/boundingBoxUL.png" />
+	<resource name="_boundingBoxPointer" src="resources/boundingBoxPointer.png" />
+	<resource name="processgroup_whiteboard" src="i4change/processgroup_item.swf" />
+	
+	
+	<resource name="whiteboard_item_delete" src="resources/cancel.png" />
+	<resource name="no_role_warning" src="resources/messagebox_warning.png" />
+    
+    <resource name="no_arrow_connector_up_warning" src="resources/arrow_line_up.png" />
+    <resource name="no_arrow_connector_down_warning" src="resources/arrow_line_down.png" />
+    <resource name="no_arrow_connector_left_warning" src="resources/arrow_line_left.png" />
+    <resource name="no_arrow_connector_right_warning" src="resources/arrow_line_right.png" />
+    
+    <resource name="cursor_drag_all_directions_rsc" src="resources/cursor_drag_all_directions.swf" />
+	
+	<include href="drawViewNew.lzx" />
+	
+	<include href="helper/" />
+	
+	<include href="baseDraw.lzx" />
+	<include href="drawViewContainerNew.lzx" />
+	<include href="connectorPoint.lzx" />
+	<include href="swfResourceView.lzx" />
+	<include href="baseDrawObject.lzx" />
+	<include href="baseDrawLetter.lzx" />
+	<include href="imageForDrawView.lzx" />
+	<include href="baseDrawImage.lzx" />
+	<include href="baseDrawSave.lzx" />
+	<include href="baseDrawWords.lzx" />
+	<include href="drawProcessGroup.lzx" />
+	<include href="drawProcess.lzx" />
+	<include href="drawActivity.lzx" />
+	<include href="drawCompany.lzx" />
+	<include href="drawDepartement.lzx" />
+	<include href="drawUnit.lzx" />
+	<include href="drawInputflow.lzx" />
+	<include href="drawOutputflow.lzx" />
+	<include href="drawIssue.lzx" />
+	<include href="drawBoardConnector.lzx" />
+	<include href="drawBoardObjectConnector.lzx" />
+	<include href="remoteDrawBoard.lzx" />
+	<include href="styleableInputDrawBoard.lzx" />
+	<include href="styleableInputOutputflow.lzx" />
+    <include href="styleableInputInputflow.lzx" />
+	<include href="styleableInputIssueFlow.lzx" />
+    <include href="styleableTextPending.lzx" />
+	<include href="baseDrawBoardWords.lzx" />
+	<include href="rightclickmenu/" />
+	
+</library>	

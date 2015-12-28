@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+<!--- Language editor module. You can edit the label for your language. -->
+<class name="mainDiagram" extends="baseContentView">
+	
+    <attribute name="currentActivediagramRef" value="null" />
+    
+	<handler name="oninit">
+		//if ($debug) Debug.write("processgroup: ",this);
+	</handler>
+    
+    <method name="setActivate" args="diagramRef">
+        ////if ($debug) Debug.write("setActivate: ",diagramRef);
+        if (this.currentActivediagramRef != null){
+            this.currentActivediagramRef.currentDiagramMini.isactive = false;
+            this.currentActivediagramRef.currentDiagramMini.onmouseout.sendEvent();
+        }
+        for (var eg in this.contentArea.subviews){
+            this.contentArea.subviews[eg].setAttribute('visibility','hidden');
+        }
+        
+        this.currentActivediagramRef = diagramRef;
+        this.currentActivediagramRef.activate();
+    </method>      
+    
+    <method name="checkForBulkUpdates">
+        var bool = false;
+        for (var eg in this.contentArea.subviews) {
+            var bool = this.contentArea.subviews[eg].doCheckForBulkUpdates();
+            if (bool) {
+                break;
+            }
+        }
+        //if ($debug) Debug.write("checkForBulkUpdates Return Val: ",bool);
+        if (bool){
+            new lz.saveAllDiagramWindow(canvas.main_content._content.inner,{refObj:this});
+        }
+        return bool;
+    </method>   
+    
+    <method name="doNotSaveObjectToDatabase">
+        var t = new Array();
+        t.action = 'mainDashboard';
+        ////if($debug) Debug.write( 'conferenceMenubar: doActionMenu(): ' , t);
+        loadContent(t);
+    </method>  
+    
+    <method name="confirmSaveEachAsObjectToDatabase">
+        if (this.contentArea.subviews.length != 0){
+	        if (!this.contentArea.subviews[0].startCheckForBulkUpdates()){
+	            this.confirmSaveEachAsObjectToDatabase();
+	        }
+        } else {
+	        var t = new Array();
+	        t.action = 'mainDashboard';
+	        ////if($debug) Debug.write( 'conferenceMenubar: doActionMenu(): ' , t);
+	        loadContent(t);
+        }
+    </method>
+	
+	<view name="currentHeaderBar">
+        <simplelayout axis="x" spacing="2" />
+        
+    </view>
+    
+    <view y="22" name="contentArea" />
+    
+    <barmenu y="0" name="barArea" />
+    
+</class>
+
+</library>

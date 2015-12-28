@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+<!--- Configuration module for ADMIN -->
+<class name="webSiteAdmin"  extends="baseContentTabbedView" labelid="1198"> 
+        
+    <handler name="oninit">
+        //Add Help Item
+        canvas.addCurrentHelpId(50,this.__constructor__.classname);
+    </handler> 
+    
+	<view>
+		
+        <labelText x="2" labelid="592" y="2" fontstyle="bold" />
+        
+        <omComboBox name="_helpItemFilter" editable="false" x="70" width="140">
+        	<attribute name="initialClick" value="true" type="boolean" />
+            <handler name="oninit">
+                this.addItem(canvas.getLabelName(1403),"0");
+                this.addItem(canvas.getLabelName(1404),"1");
+                this.addItem(canvas.getLabelName(1405),"2");
+                this.selectItemAt(0);
+            </handler>
+            <handler name="onselect" args="sel">
+                if ($debug) Debug.write("onselect",sel);
+                parent._turnoverlist.searchOnlyHelpItems = Number(sel.value);
+                if (this.initialClick) {
+                	this.initialClick = false;
+                	return;
+                }
+                parent._turnoverlist.reload();
+            </handler>
+        </omComboBox> 
+        
+        <labelText x="220" labelid="1393" y="2" fontstyle="bold" width="40" />   
+        
+        <customEdittext name="search" y="0" x="252" width="188" text="">
+            <handler name="onkeyup" args="k">
+                if (k == 13) {
+                    parent._turnoverlist.start = 0;
+                    parent._turnoverlist.reload();
+                }
+            </handler>
+        </customEdittext>
+        
+        <view y="2" x="442" bgcolor="0xFFFFFF" width="18" height="18">
+            <view resource="search_help_item_rsc" y="1" x="1" />
+            <handler name="onclick">
+                parent._turnoverlist.reload();
+            </handler>
+            <labelTooltip labelid="771" />
+        </view> 
+	
+        <turnOverListOrdered name="_turnoverlist" width="460" height="600" x="2" y="30" 
+    		orderby="c.webItemId" step="50" asc="false">
+        	
+        	<attribute name="searchOnlyHelpItems" value="0" type="number" />
+    		<handler name="oninit">
+    			
+    			//addHeaderItemOrdered ( labelid,width,orderBy,asc,isSelected )
+    			//this.addHeaderItemOrdered(591,44,"c.diagram.diagramNo",true,(( this.orderby == "c.diagram.diagramNo" ) ? true : false));
+    			
+    			this.addHeaderItemOrdered(1211,80,"c.webItemId",false,true);
+    			this.addHeaderItemOrdered(1213,166,"c.webItemName",true,false);
+                this.addHeaderItemOrdered(1212,200,"c.webItemType.typeName",true,false);
+                
+    			this.getWebItemSearchList.doCall();
+    			
+    		</handler>
+    		
+    		<handler name="oncallnext" >
+    			this.reload();
+    		</handler>
+    		
+    		<handler name="oncallpre" >		
+    			this.reload();
+    		</handler>
+    		
+    		<handler name="onclickedItem" args="obj">
+    			//if ($debug) Debug.write("onclickedItem",obj,obj.obj);
+    			parent._webSiteAdminValueForm.initValueFieldsByObject(obj.obj);
+    		</handler>
+    		
+    		<method name="reload">
+    			this.getWebItemSearchList.doCall();
+    		</method>
+    		
+    		<handler name="onUpdateOrder">
+    			this.reload();
+    		</handler>
+    		
+    		<netRemoteCallRPC name="getWebItemSearchList" funcname="getWebItemSearchList" 
+                              remotecontext="$once{  canvas.websiteServiceRPC }" >      
+    			<netparam><method name="getValue"> return canvas.sessionId; </method></netparam>
+    			<netparam><method name="getValue"> return parent.parent.start; </method></netparam>
+    			<netparam><method name="getValue"> return parent.parent.step; </method></netparam>
+    			<netparam><method name="getValue"> return parent.parent.orderby; </method></netparam>
+    			<netparam><method name="getValue"> return parent.parent.asc; </method></netparam>
+    	    	<netparam><method name="getValue"> return parent.parent.searchOnlyHelpItems; </method></netparam>
+                <netparam><method name="getValue"> return parent.parent.parent.search.getText(); </method></netparam>
+                <handler name="ondata" args="value">
+                	if ($debug) Debug.write("getWebItemSearchList ",value);
+    	    		//if ($debug) Debug.write("getWebItemSearchList ",value);
+    	    		//this.parent.destroy();
+    	    		this.parent.initValues(value.records);
+    	    		this.parent.renderContent(value.result);
+    	    	</handler>
+    	    </netRemoteCallRPC>	
+    	    
+    	    <method name="renderContent" args="records">
+    	    	<![CDATA[
+        	    	this.clearList();
+        	    	for (var i=0;i<records.length;i++){
+        	    		new lz.webSiteAdminListItem(this._innerlist._inn._inn,{
+                                    obj:records[i],
+                                    webItemName:records[i].webItemName,
+                                    webItemId:records[i].webItemId,
+                                    typeName:records[i].webItemType.typeName
+                                });
+        	    	}
+    	    	]]>
+    	    </method>
+    
+    	</turnOverListOrdered>
+	    
+	    <webSiteAdminValueForm name="_webSiteAdminValueForm" x="480" />
+    
+    </view>
+    
+    <vscrollbar name="_scrollbar" />
+        
+</class>
+
+</library>

@@ -1,0 +1,28 @@
+<canvas bgcolor="#D4D0C8">
+  <dataset name="dset" src="http://127.0.0.1:8000/DBTest/getcontacts.jsp" request="true" type="http"/>
+  <!-- 1 -->
+  <dataset name="dsSendData" request="false" src="http://127.0.0.1:8000/DBTest/contactmgr.jsp" type="http"/>
+
+
+  <view>
+
+    <method name="sendData_new" args="action">
+      var d=canvas.datasets.dsSendData;                       // 3
+      var p=new LzParam();                                    // 3a
+      p.addValue("action", action, true);
+      d.setQueryString(p);                                   // 3c
+      d.doRequest();                                         // 3d
+    </method>
+
+    <simplelayout axis="y"/>
+	
+
+	<button> Add Direct..
+        <handler name="onclick">
+
+          parent.sendData_new("newselect");
+        </handler>
+	</button>
+
+  </view>
+</canvas>

@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+    
+<class name="addOrganizationWizzard" extends="view" >
+    
+    <event name="onComplete" />
+    
+    <method name="register">
+        //this.registerB.onclick.sendEvent();
+        this.addPendingOrganization.orgName = this._orgItems.orgname.getText();
+        this.addPendingOrganization.orgPatternMap = this._orgItems._orgPatternlist.getValuesForUpdate();
+        this.addPendingOrganization.doCall();
+    </method>
+    
+    <infoIconBox y="0" x="10" width="$once{ parent.width - 20 }"
+                 labelid="907" />    
+                 
+    <pendingOrgForm name="_orgItems" y="60" /> 
+    
+    <netRemoteCallRPC name="addPendingOrganization" funcname="addPendingOrganization" 
+        remotecontext="$once{  canvas.organisationServiceRPC }" activeErrorHandler="true" >
+        <attribute name="orgPatternMap" value="null" />
+        <attribute name="orgName" value="null" />         
+        <netparam><method name="getValue">return canvas.sessionId;</method></netparam>
+        <netparam><method name="getValue">return parent.orgName;</method></netparam>
+        <netparam><method name="getValue">return parent.orgPatternMap;</method></netparam>     
+        <handler name="ondata" args="value">
+            <![CDATA[
+                //The onResult-Handler will be called be the rtmpconnection
+                //if ($debug) Debug.write("addPendingOrganization: ",value);
+                if (value > 0) {
+                    parent.getOrganisationsByUser.newOrgId = value;
+                    parent.getOrganisationsByUser.doCall();
+                }
+            ]]>
+        </handler>  
+    </netRemoteCallRPC>   
+    
+    <netRemoteCallRPC name="getOrganisationsByUser" funcname="getOrganisationsByUser" 
+                      remotecontext="$once{  canvas.organisationServiceRPC }" >      
+        <netparam><method name="getValue"> return canvas.sessionId; </method></netparam> 
+        <attribute name="newOrgId" value="0" type="number"/>
+        <handler name="ondata" args="value">
+            <![CDATA[
+                //The onResult-Handler will be called be the rtmpconnection
+                //if ($debug) Debug.write("getOrganisationsByUser: ",value);
+                canvas.userobject.organisation_users = value;
+                for (var i=0;i<value.length;i++){
+                    if (newOrgId == value[i].organisation.organisation_id) {
+                        //if ($debug) Debug.write("Found Newly added Org",i,value[i]);
+                        canvas.currentdomain = value[i].organisation.name;
+                        canvas.currentdomainObj = value[i].organisation; 
+                        canvas.currentdomainUserObj = value[i];
+                    }
+                }
+                
+                //if ($debug) Debug.write("canvas.currentdomainUserObj: ",canvas.currentdomainUserObj,canvas.currentdomainObj);
+                if (canvas.currentdomainUserObj != null && canvas.currentdomainUserObj.isModerator) {
+                    canvas.userobject.userlevel.level_id = 2;
+                }
+                parent.checkOrganizationStatusStub.doCall();
+            ]]>
+        </handler>  
+    </netRemoteCallRPC>       
+ 
+            
+    <netRemoteCallRPC name="checkOrganizationStatusStub" funcname="checkOrganizationStatusStub"
+                  activeErrorHandler="true" remotecontext="$once{  canvas.organisationServiceRPC }" >
+        <netparam><method name="getValue">return canvas.sessionId;</method></netparam>
+        <netparam><method name="getValue">return canvas.currentdomainObj.organisation_id;</method></netparam>
+        <handler name="ondata" args="value">
+            //The onResult-Handler will be called be the rtmpconnection
+            //if ($debug) Debug.write("checkOrganizationStatus ",value);
+            if (value > 0){
+                parent.getUserByOrganization.doCall();
+                parent.getPropertyValidationTypes.doCall();
+                //show an Info Dialog with the remaining Days in this Pending Organization
+            }
+        </handler>  
+    </netRemoteCallRPC> 
+    
+    <netRemoteCallRPC name="getPropertyValidationTypes" funcname="getPropertyValidationTypes" 
+                      dataobject="propertyValidationTypes" remotecontext="$once{  canvas.propertyServiceRPC }" >
+        <netparam><method name="getValue">return canvas.sessionId;</method></netparam>
+        <handler name="ondata" args="value">
+            //The onResult-Handler will be called be the rtmpconnection
+            //if ($debug) Debug.write("getPropertyValidationTypes ",value);
+        </handler>  
+    </netRemoteCallRPC> 
+    
+    <netRemoteCallRPC name="getUserByOrganization" funcname="getUserByOrganization"
+                      remotecontext="$once{  canvas.userServiceRPC }" >
+        <netparam><method name="getValue">return canvas.sessionId;</method></netparam>
+        <netparam><method name="getValue">return canvas.currentdomainObj.organisation_id;</method></netparam>
+        <handler name="ondata" args="value">
+            //The onResult-Handler will be called be the rtmpconnection
+            //if ($debug) Debug.write("getUserByOrganization ",value,canvas.currentdomainObj.organisation_id);
+            canvas.orgUserList = value;
+            //parent.getModeratorsByOrganization.doCall();
+            parent.getRolesBySelf.doCall();
+        </handler>  
+    </netRemoteCallRPC> 
+    
+    <netRemoteCallRPC name="getRolesBySelf" funcname="getRolesBySelf" 
+                      remotecontext="$once{  canvas.roleServiceRPC }" >    
+        <netparam><method name="getValue"> return canvas.sessionId; </method></netparam>   
+        <netparam><method name="getValue"> return canvas.currentdomainObj.organisation_id;</method></netparam> 
+        <handler name="ondata" args="value">
+            <![CDATA[
+                //The onResult-Handler will be called be the rtmpconnection
+                //if ($debug) Debug.write("hibRtmpConnection/getRolesBySelf [",value,"]");
+                
+                _currentUserHeaderMenu.setAttribute('visibility','visible');
+	            if (canvas.currentRole != null) {
+	                _currentUserHeaderMenu.setAttribute('text',
+	                            canvas.userobject.login + '@' + canvas.currentdomainObj.name 
+	                            + " (" + canvas.getLabelName(709) + canvas.currentRole.roleObject.name + ")");            
+	            } else {
+	                _currentUserHeaderMenu.setAttribute('text',
+	                            canvas.userobject.login + '@' + canvas.currentdomainObj.name );            
+	            }
+	            _currentUserHeaderMenu.bringToFront();
+                parent.onComplete.sendEvent();
+            ]]>
+        </handler>  
+    </netRemoteCallRPC>
+                    
+
+</class>
+
+</library>

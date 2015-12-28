@@ -1,0 +1,334 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+	
+<class name="diagramObjectListItemSearchDetails" extends="baseContentListItem">
+	
+	<attribute name="diagramId" value="0" type="number" />
+	<attribute name="diagramName" value="" type="string" />
+	<attribute name="shortName" value="" type="string" />
+	<attribute name="diagramNo" value="0" type="number" />
+	<attribute name="diagramType" value="0" type="number" />
+	<attribute name="revision" value="0" type="number" />
+	<attribute name="project" value="" type="string" />
+	
+    <turnOverTextItem text="$once{ parent.diagramNo }" width="44" />
+    <turnOverTextItem text="$once{ parent.revision }" width="44" />
+    <turnOverTextItem text="$once{ parent.shortName }" width="44" />
+    <turnOverTextItem text="$once{ parent.diagramName }" width="200" />
+	<turnOverTextItem text="$once{ parent.project }" width="100" />
+	<turnOverTextItemLabeld labelid="$once{ parent.diagramType }" width="85" />
+	
+</class>	
+
+	
+<class name="diagramObjectDetails" extends="baseContentTabbedView" closeable="true"
+       labelid="1440" width="${ canvas.width }" height="${ canvas.height-48 }">	
+       
+    <view>
+    	
+    	<attribute name="diagramObject_id" value="0" type="number" />
+    
+        <!-- Properties of the Diagram Object -->
+        <attribute name="currentPropertyList" value="null" />
+        <attribute name="currentPropertyCategoryList" value="null" />  
+        
+        <attribute name="currentSavePropertyList" value="null" />
+        <attribute name="currentCategoryId" value="0" type="number" />  
+        
+        <attribute name="diagramObject" value="null" />
+    
+        <handler name="oninit">
+        	this.currentSavePropertyList = new Array();
+        	this.diagramObject_id = canvas.diagramObject_id;
+        	if ($debug) Debug.write("diagramObjectDetails ",this,this.diagramObject_id);
+        	this.getDiagramObjectSearchDetailsById.doCall();
+        </handler>
+        
+        <netRemoteCallRPC name="getDiagramObjectSearchDetailsById" funcname="getDiagramObjectSearchDetailsById" 
+                              remotecontext="$once{  canvas.diagramServiceRPC }" >      
+            <netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+            <netparam><method name="getValue">return parent.parent.diagramObject_id;</method></netparam>
+            <handler name="ondata" args="value">
+                if ($debug) Debug.write("getDiagramObjectSearchDetailsById: ",value);
+                parent.loadDetails(value);
+                parent.getDiagramObjectPropertyByObjectAndCat.objectTypeAppName = value.objectTypeName;
+                parent.getDiagramObjectPropertyByObjectAndCat.doCall();
+            </handler>
+        </netRemoteCallRPC>
+        
+        <netRemoteCallRPC name="getDiagramObjectPropertyByObjectAndCat" funcname="getDiagramObjectPropertyByObjectAndCat" 
+                          showLoading="false" remotecontext="$once{ canvas.propertyServiceRPC }" >   
+            <attribute name="objectTypeAppName" type="string" value="" />
+            <netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+            <netparam><method name="getValue">return canvas.currentdomainObj.organisation_id;</method></netparam>
+            <netparam><method name="getValue">return parent.parent.diagramObject_id;</method></netparam>
+            <netparam><method name="getValue">return parent.objectTypeAppName;</method></netparam>
+            <netparam><method name="getValue">return parent.parent.currentCategoryId;</method></netparam>
+            <param><method name="getValue">return canvas.userlang;</method></param> 
+            <handler name="ondata" args="value">
+                if ($debug) Debug.write("getDiagramObjectPropertyByObjectAndCat ",value,parent.currentCategoryId,this.objectTypeAppName);
+                parent.currentPropertyList = value.properties;
+                parent.currentPropertyCategoryList = value.propertyCategory;
+                parent.loadProperties();
+            </handler>
+        </netRemoteCallRPC> 
+        
+        <method name="loadDetails" args="diagramObject">
+        	<![CDATA[
+        	
+            	if (diagramObject.name.length > 10) {
+            	    var title = diagramObject.name.substring(0, 10);
+            	} else {
+            		var title = diagramObject.name;
+            	}
+            	this.currentDiagramMini.setAttribute("btnName",title);
+            	
+            	this._name.setText(diagramObject.name);
+            	
+            	this._type.setAttribute("text",diagramObject.objectTypeName);
+        	
+            	this._created.setAttribute("text",parseDateToStringTime(diagramObject.inserted));
+            	if (diagramObject.insertedby != null) {
+                    this.createdBy.setUser(diagramObject.insertedby);
+            	}
+            	
+            	this._lastupdate.setAttribute("text",parseDateToStringTime(diagramObject.updated));
+                if (diagramObject.updatedby != null) {
+                    this.updatedBy.setUser(diagramObject.updatedby);
+                }
+                
+                this.diagramList.loadList(diagramObject.diagram);
+                
+        	]]>
+        </method>
+        
+        <method name="reloadContentProperty">
+            if (this.isLoaded) {
+                this.currentSavePropertyList = new Array();
+                this.getDiagramObjectPropertyByObjectAndCat.doCall();
+            }
+        </method>
+        
+        <method name="updatePropValue" args="propertyId,text">
+            <![CDATA[
+                if ($debug) Debug.write("updatePropValue :: ",propertyId,text,this.currentSavePropertyList);
+                
+                var foundItem = false;
+                var doUpdate = true;
+        
+                for (var i=0;i<this.currentSavePropertyList.length;i++) {
+                    if (this.currentSavePropertyList[i].propertyId == propertyId) {
+                        if (this.currentSavePropertyList[i].propertyVal == text) {
+                            //Do not udpate in case its the same like before
+                            doUpdate = false;
+                        } else {
+                            this.currentSavePropertyList[i].propertyVal = text;
+                        }
+                        foundItem = true;
+                        break;
+                    }
+                }
+                
+                if (!foundItem) {
+                    if (text == null || text.length == 0) {
+                        //Do not update in case its an empty entry and there was no previous value
+                        doUpdate = false;
+                    } else {
+                        this.currentSavePropertyList.push({'propertyId':propertyId,'propertyVal':text});
+                    }
+                }
+                
+            ]]>
+        </method>
+        
+        <method name="loadContentByCategory" args="catId">
+            this.currentCategoryId = catId;
+            this.properties.clearList();
+            this.getDiagramObjectPropertyByObjectAndCat.doCall();
+        </method> 
+        
+        <method name="loadProperties">
+        	this.properties.clearList();
+            this.isLoaded = true;
+            ////if ($debug) Debug.write("######## ********** 2 ",this.indexItem);
+            this.properties.loadCategories(this.currentPropertyCategoryList,this.currentCategoryId);
+            this.properties.loadPropertiesList(null,this.currentPropertyList,this.currentSavePropertyList,
+                            this.diagramObject.pending);
+        </method>
+        
+        <labelText labelid="1452" y="4" fontsize="14" fontstyle="bold" />
+        
+        <labelText labelid="1441" y="30" />
+        
+        <customScrollEdittext name="_name" y="30" x="160"
+        					  width="400" height="118" />
+        					  
+        <labelText labelid="1443" y="150" />
+        
+        <labelText name="_created" bgcolor="0xEEEEEE" resize="false" x="160"
+        		   y="150" width="400" height="18" />
+        		   
+        <labelText labelid="1453" y="170" />
+        
+        <labelText name="_type" bgcolor="0xEEEEEE" resize="false" x="160"
+                   y="170" width="400" height="18" />    		   
+        	
+        <labelText labelid="1444" y="190" />
+        
+        <view name="createdBy" y="190" bgcolor="0xEEEEEE" x="160"
+        	  width="400" layout="axis:x;spacing:2">
+        	<method name="setUser" args="userObj">
+        		<![CDATA[
+            		var downloadurl = canvas.httpprotocol+'://'+canvas.rtmphostlocal+':'+canvas.httpport
+                                    +'/'+canvas.webAppRootKey+'/DownloadHandler?fileName=remoteuserprofile'
+                                    +'&moduleName=chat&parentPath=&room_id='
+                                    +'&remoteUserid='+userObj.user_id
+                                    +'&sid='+canvas.sessionId;   
+                     
+                    this._pic.setAttribute("src",downloadurl);
+                    
+                    var thisText = " "+userObj.firstname
+                                        +" "+userObj.lastname
+                                        +" ["+userObj.login+"]";
+                                        
+                    this._userName.setAttribute("text",thisText);
+                ]]>
+        	</method>
+        	<image name="_pic" />
+        	<labelText name="_userName" />
+        </view>		
+        
+        <labelText labelid="1445" y="230" />
+        
+        <labelText name="_lastupdate" bgcolor="0xEEEEEE" resize="false" x="160"
+                   y="230" width="400" height="18" />
+            
+        <labelText labelid="1446" y="250" />
+        
+        <view name="updatedBy" y="250" bgcolor="0xEEEEEE" x="160"
+              width="400" layout="axis:x;spacing:2">
+            <method name="setUser" args="userObj">
+                <![CDATA[
+                    var downloadurl = canvas.httpprotocol+'://'+canvas.rtmphostlocal+':'+canvas.httpport
+                                    +'/'+canvas.webAppRootKey+'/DownloadHandler?fileName=remoteuserprofile'
+                                    +'&moduleName=chat&parentPath=&room_id='
+                                    +'&remoteUserid='+userObj.user_id
+                                    +'&sid='+canvas.sessionId;   
+                     
+                    this._pic.setAttribute("src",downloadurl);
+                    
+                    var thisText = " "+userObj.firstname
+                                        +" "+userObj.lastname
+                                        +" ["+userObj.login+"]";
+                                        
+                    this._userName.setAttribute("text",thisText);
+                ]]>
+            </method>
+            <image name="_pic" />
+            <labelText name="_userName" />
+        </view> 	  
+            
+        <labelText labelid="1449" y="290" fontstyle="bold"/>
+        
+        <view name="diagramList" y="310" bgcolor="0xEEEEEE" x="0" width="560" height="120">
+        	
+        	<attribute name="selected" value="null" />
+        	
+        	<handler name="oninit">
+        		this.addHeaderItem(591,44);
+                this.addHeaderItem(589,44);
+                this.addHeaderItem(1392,44);
+                this.addHeaderItem(586,230);
+                this.addHeaderItem(1291,100);
+                this.addHeaderItem(793,80);
+        	</handler>
+        	
+        	<method name="loadList" args="diagramList">
+        		<![CDATA[
+        		    this.clearList();
+        		    
+        		    for (var i=0;i<diagramList.length;i++) {
+        		    	new lz.diagramObjectListItemSearchDetails(this._innerlist._inn._inn,{
+        		    	            diagramId:diagramList[i].diagramId,
+                                    diagramName:diagramList[i].name,
+                                    shortName:diagramList[i].shortName,
+                                    diagramNo:diagramList[i].diagramNo,
+                                    diagramType:diagramList[i].diagramType,
+                                    revision:diagramList[i].revision,
+                                    project:diagramList[i].project
+        		    	         });
+        		    }
+        		    
+        		    this.sendInitialWidthUpdate();
+        		]]>
+        	</method>
+        	
+            <handler name="onclickedItem" args="obj" >
+                if (this.selected != null) {
+                    this.selected.deselect();
+                }
+                this.selected = obj;
+                this.selected.select();
+                
+                if ($debug) Debug.write("onclickedItem ",obj.diagramId);
+                
+                diagramServiceRPC.loadLatestDiagramById(obj.diagramId);
+            </handler>    	
+            	
+            <method name="addHeaderItem" args="labelid,width" >
+                new lz.turnOverListHeaderItem(this._innerlisthead._inn,{
+                        labelid:labelid,width:width,
+                        subviewsid:this._innerlisthead._inn.subviews.length
+                    });
+            </method>    	
+            
+            <method name="sendInitialWidthUpdate">
+                for (var eg in this._innerlisthead._inn.subviews) {
+                    this._innerlisthead._inn.subviews[eg].onwidth.sendEvent(this._innerlisthead._inn.subviews[eg].width);
+                }
+            </method> 
+            
+            <method name="sendWidthUpdate" args="w,subviewsid" >
+                <![CDATA[
+                ////Debug.write(w,subviewsid,this._innerlist._inn);
+                for (var i=0;i<this._innerlist._inn._inn.subviews.length;i++){
+                    this._innerlist._inn._inn.subviews[i].subviews[subviewsid].setAttribute('width',w);
+                }
+                ]]>
+            </method>
+            
+            <method name="clearList">
+                this._innerlist._inn._inn.destroy();
+                new lz.innerList(this._innerlist._inn,{name:'_inn'});
+            </method>        
+        	
+            <view name="_innerlisthead" height="20" width="${ parent.width }" 
+                x="${ parent._innerlist.x }" y="0" clip="true">
+                <view name="_inn" x="${ parent.parent._innerlist._inn.x }" 
+                      layout="axis:x;spacing:0" />
+            </view> 
+            
+            <view name="_innerlist" height="${ parent.height-20 }" width="${ parent.width }"
+                y="20" clip="true">
+                <view name="_inn" >
+                    <innerList name="_inn" />
+                </view>
+                <vscrollbar name="_scrollbar" />
+                <hscrollbar />
+            </view>        
+            
+        </view>
+        
+        <labelText labelid="1454" y="432" fontstyle="bold"/>
+        
+        <propertyInspectorSidebarContent y="452" name="properties" width="560" height="200" x="0">
+                    
+        </propertyInspectorSidebarContent> 
+    
+   </view>
+    
+    <vscrollbar name="_scrollbar" />
+    
+</class>
+
+</library>

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+     
+<class name="searchtextfield" extends="view" width="164" height="18"
+					bgcolor="0x666666">
+		
+	<attribute name="timerDelegate" value="null" />
+	<attribute name="timerStarted" value="false" type="boolean" />
+	
+	<!-- canvas.startsearchTime -->
+	<attribute name="startSearchDelay" value="250" type="number" />
+	<!-- canvas.minimumChars -->
+	<attribute name="minimumchars" value="2" type="number" />
+	
+	<handler name="oninit">
+        this.timerDelegate = new LzDelegate( this, "startSearch" );
+    </handler>
+    
+    <event name="search" />
+    
+    <method name="startOrResetTimer">
+    	////if ($debug) Debug.write("startOrResetTimer: ",this.timerStarted);
+    	if (!this.timerStarted){
+    		this.timerStarted = true;
+    		////if ($debug) Debug.write("lz.Timer.addTimer");
+    		lz.Timer.addTimer( this.timerDelegate, this.startSearchDelay );
+    	} else {
+    		////if ($debug) Debug.write("lz.Timer.resetTimer");
+    		lz.Timer.resetTimer( this.timerDelegate, this.startSearchDelay );
+    	}
+    </method>
+ 
+    <method name="startSearch">
+    	////if ($debug) Debug.write("lz.Timer.removeTimer");
+    	if (this.timerStarted){
+	        lz.Timer.removeTimer( this.timerDelegate );
+	        this.timerStarted = false;
+    	}
+        this.search.sendEvent(this._innerText.getText());
+    </method>
+    
+    <method name="getText">
+    	var m = this._innerText.getText();
+    	if (m!=null){
+    		return m;
+    	} else {
+    		return "";
+    	}
+    </method>
+    
+    <method name="setText" args="txt">
+    	this._innerText.setAttribute("text",txt);
+    </method>
+	
+	<inputtext name="_innerText" x="1" y="1" bgcolor="0xEEEEEE" width="$once{ parent.width-2 }" 
+		height="$once{ parent.height-2 }" fontsize="10" >
+		<handler name="onfocus">
+			this.setAttribute('bgcolor',"0xFFFFFF");
+		</handler>
+		<handler name="onblur">
+			this.setAttribute('bgcolor',"0xEEEEEE");
+		</handler>
+		<handler name="ontext" args="t">
+			<![CDATA[
+				////if ($debug) Debug.write("ontext2",t,this);
+				if (t.length>parent.minimumchars) {
+					parent.startOrResetTimer();
+				}
+			]]>
+		</handler>
+		<handler name="onkeyup" args="k">
+			<![CDATA[
+				if (k==13 && this.getText().length>parent.minimumchars) {
+					parent.startSearch();
+				}
+			]]>
+		</handler>
+	</inputtext>			
+
+</class>
+	
+</library>
+ 

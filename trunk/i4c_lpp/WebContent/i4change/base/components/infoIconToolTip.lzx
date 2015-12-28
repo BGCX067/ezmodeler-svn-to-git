@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library> 
+
+<class name="infoIconToolTip" extends="view" width="24"
+       onmouseover="" onmouseout="" >
+    
+    <attribute name="iconResourceName" value="info_icon_rsc" type="string" />
+    
+    <attribute name="labelid" type="number" />
+    <attribute name="text" type="string" value="" />
+    
+    <handler name="oninit">
+        if (this.text != "") {
+            this._cText.setAttribute('text',this.text);
+        }
+    </handler>
+    
+    <view resource="$once{ parent.iconResourceName }" x="2" y="2" />
+    
+    <labelTooltip labelid="$once{ parent.labelid }" multiline="true" />
+            
+</class>
+
+<class name="iconViewPure" extends="view" width="22" height="22">
+    
+    <attribute name="iconSourceName" value="info_icon_rsc" type="string" />
+    
+    <handler name="oninit">
+        this.setSource(canvas.getIconPathByName(this.iconSourceName));
+    </handler>
+            
+</class>
+
+<class name="iconViewToolTip" extends="view" width="22" height="22" 
+       bgcolor="$once{ canvas.basebgcolorizer }">
+    
+    <attribute name="iconSourceName" value="info_icon_rsc" type="string" />
+    
+    <attribute name="labelid" type="number" />
+    <attribute name="text" type="string" value="" />
+    
+    <handler name="oninit">
+        if (this.text != "") {
+            this._cText.setAttribute('text',this.text);
+        }
+        this._iconItem.setSource(canvas.getIconPathByName(this.iconSourceName));
+    </handler>
+    
+    <handler name="onmouseover">
+    	this._icon.setAttribute("bgcolor",canvas.baseMouseOvercolorizer);
+    </handler> 
+    
+    <handler name="onmouseout">
+        this._icon.setAttribute("bgcolor",0xFFFFFF);
+    </handler>
+    
+    <handler name="onmousedown">
+        this._icon.setAttribute("bgcolor",0xFFFFFF);
+    </handler>
+    
+    <view name="_icon" bgcolor="0xFFFFFF" width="$once{parent.width-1}" 
+    	  x="1" y="1" height="$once{parent.height-2}" />
+    
+    <view name="_iconItem" valign="middle" align="center" />
+    
+    <labelTooltip labelid="$once{ parent.labelid }" />
+            
+</class>
+
+</library>

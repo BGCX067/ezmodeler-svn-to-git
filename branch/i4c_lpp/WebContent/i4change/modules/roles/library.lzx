@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+    <include href="applyRoleToUserFrontend.lzx" />
+    <include href="addPendingRole.lzx" />
+    <include href="changeRoleData.lzx" />
+    <include href="checkRoleData.lzx" />
+    <include href="changeAndAddRole.lzx" />
+
+</library>

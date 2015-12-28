@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+ 
+<class name="issuesListItem" extends="basePagingListItem" >
+	
+    <attribute name="obj" value="null" />
+
+    <attribute name="diagramObj" value="null" />
+    
+    <attribute name="objectTypeName" value="" type="string" />
+    <attribute name="diagramNo" value="0" type="number" />
+    <attribute name="diagramrevisionId" value="0" type="number" />
+    <attribute name="diagramname" value="" type="string" />
+    <attribute name="issuename" value="" type="string" />
+    <attribute name="typelabel" value="" type="string" />
+    <attribute name="inserted" value="" type="string" />
+    <attribute name="assignee" value="" type="string" />
+    <attribute name="user_id" value="0" type="number" />
+    
+    <turnOverTextItem name="_issuename" text="${ parent.issuename }" width="184" />
+    <turnOverTextItem name="_diagramname" text="${ parent.diagramname }" width="144" />
+    <turnOverTextItem name="_assignee" text="${ parent.assignee }" width="100" />
+    
+    <labelTooltip userId="${ parent.user_id }">
+        <handler name="onInitText">
+            this.setAttribute('text','Created at: '+parent.inserted+' by:'+parent.diagramObj.insertedby.login)
+        </handler>
+    </labelTooltip>
+    
+</class>
+
+<class name="issuesListDashBoard" extends="kDashBoardBox" labelid="1226">
+    
+    <view y="34" name="_inner" x="4" width="$once{ parent.width-6 }" 
+                  height="$once{ parent.height-34 }" />
+       
+    <!--        
+    <view name="regress_issuelist" resource="_regress_issuelist_rsc" x="$once{ parent.width - 28 }" y="42">
+        <handler name="onclick">
+            parent._list.getIssuesByOrganizationAssignedToMe.doCall();
+        </handler>
+        <labelTooltip labelid="954" />
+    </view>
+     -->
+    
+    <labelText x="2" labelid="1293" y="40" />
+    
+    <omComboBox name="_projectsFilter" editable="false" x="80" y="40" width="150">
+        <handler name="oninit">
+            this.addItem(canvas.getLabelName(1295),"1");
+            this.addItem(canvas.getLabelName(1294),"2");
+            this.selectItemAt(0);
+        </handler>
+        <handler name="onselect" args="sel">
+            if ($debug) Debug.write("onselect",sel);
+            parent._list.getIssuesByOrganizationAssignedToMe.ideaTypeId = Number(sel.value);
+            parent._list.getIssuesByOrganizationAssignedToMe.doCall();
+        </handler>
+    </omComboBox>    
+      
+    <turnOverListOrderedPaged name="_list" y="68" width="${ parent.width }"  
+			  height="${ parent.height-68 }" orderby="c.issueassigneeId" 
+              asc="false" listItemName="issuesListItem" step="100">
+        
+        <handler name="oninit">
+            this.addHeaderItem(662,184);
+            this.addHeaderItem(663,144);
+            this.addHeaderItem(1296,100);
+            this.getIssuesByOrganizationAssignedToMe.doCall();
+        </handler>     
+        
+        <handler name="onUpdateOrder">
+            //if ($debug) Debug.write("onUpdateOrder");
+            this.getIssuesByOrganizationAssignedToMe.doCall();
+        </handler>
+        
+        <handler name="oncallnext" >
+            this.getIssuesByOrganizationAssignedToMe.doCall();
+        </handler>
+        
+        <handler name="oncallpre" >     
+            this.getIssuesByOrganizationAssignedToMe.doCall();
+        </handler>
+        
+        <handler name="onclickedItem" args="obj">
+            if (obj.diagramObj.diagram != null) {
+                if ($debug) Debug.write("obj",obj.diagramObj);
+                diagramServiceRPC.loadLatestDiagramById(obj.diagramObj.diagram.diagramId);
+            } else {
+                new lz.errorPopupWithLabel(canvas,{labelerrorid:947});
+            }
+        </handler>
+        
+        <method name="clickedApproveItem" args="obj,bool">
+            this.approveSingleDiagramObject.diagramObjectId = obj.diagramObj.diagramObjectId
+            this.approveSingleDiagramObject.approve = bool;                
+            if (bool) {
+                this.approveSingleDiagramObject.doCall();
+            } else {
+                new lz.confirmDeleteWindowCustomLabel(canvas,{refObj:this,
+                        funcNameConfirm:'clearAllConfirm',messageLabelid:952});
+            }
+        </method>
+        
+        <method name="clearAllConfirm" >
+            this.approveSingleDiagramObject.doCall();
+        </method>            
+        
+        <netRemoteCallRPC name="approveSingleDiagramObject" funcname="approveSingleDiagramObject" 
+                          remotecontext="$once{  canvas.diagramServiceRPC }" activeErrorHandler="true" >    
+            <attribute name="diagramObjectId" value="0" type="number" />  
+            <attribute name="approve" value="true" type="boolean" />  
+            <netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+            <netparam><method name="getValue">return parent.diagramObjectId;</method></netparam>
+            <netparam><method name="getValue">return parent.approve;</method></netparam>
+            <handler name="ondata" args="value">
+                //if ($debug) Debug.write("approveSingleDiagramObject: ",value);
+                parent.getIssuesByOrganizationAssignedToMe.doCall();
+            </handler>
+        </netRemoteCallRPC>              
+        
+        <netRemoteCallRPC name="getIssuesByOrganizationAssignedToMe" 
+                          funcname="getIssuesByOrganizationAssignedToMe" 
+                          remotecontext="$once{  canvas.diagramServiceRPC }" > 
+            <attribute name="ideaTypeId" value="1" type="number" />   
+            <netparam><method name="getValue">return canvas.sessionId; </method></netparam>
+            <netparam><method name="getValue">return parent.parent.start;</method></netparam>
+            <netparam><method name="getValue">return parent.parent.step;</method></netparam>
+            <netparam><method name="getValue">return parent.parent.orderby;</method></netparam>
+            <netparam><method name="getValue">return parent.parent.asc;</method></netparam>
+            <netparam><method name="getValue">return canvas.currentdomainObj.organisation_id;</method></netparam>
+            <netparam><method name="getValue">return "%";</method></netparam>
+            <netparam><method name="getValue">return parent.ideaTypeId;</method></netparam>             
+            <handler name="ondata" args="value">
+                if ($debug) Debug.write("getIssuesByOrganizationAssignedToMe: ",value);
+                this.parent.initValues(value.records);
+                this.parent.renderContent(value.result);
+                //parent.doLoadList(value);
+            </handler>
+        </netRemoteCallRPC> 
+        
+        <method name="renderContent" args="records">
+            <![CDATA[
+                //this.clearList();
+                var list = this._innerlist._inn._inn;
+                this.renderList = records;
+                
+                this._innerlist._inn.setAttribute("y",0);
+                this._innerlist._inn._inn.setAttribute("height",records.length*20);
+                
+                this._innerlist._inn.resetItems();
+                
+                for (var i=0;i<list.subviews.length;i++){
+                    if (records.length > i) {
+                        list.subviews[i].setAttribute("clickable",true);
+                        list.subviews[i].diagramObj = records[i];
+                        list.subviews[i].setAttribute("issuename",records[i].name);
+                        list.subviews[i].setAttribute("objectTypeName",records[i].objectTypeName);
+                        list.subviews[i].setAttribute("diagramname",records[i].diagram.name);
+                        list.subviews[i].setAttribute("assignee",records[i].assignee.firstname+" "+records[i].assignee.lastname);
+                        list.subviews[i].setAttribute("user_id",records[i].insertedby.user_id);
+                        list.subviews[i].inserted = parseDateToStringTime(records[i].inserted);
+                    } else {
+                        list.subviews[i].diagramObj = null;
+                        list.subviews[i].setAttribute("issuename","");
+                        list.subviews[i].setAttribute("diagramname","");
+                        list.subviews[i].setAttribute("objectTypeName","");
+                        list.subviews[i].setAttribute("assignee","");
+                        list.subviews[i].setAttribute("user_id","");
+                        list.subviews[i].inserted = "";
+                        list.subviews[i].setAttribute("clickable",false);
+                    }
+                }
+                
+            ]]>
+        </method>
+        
+        <handler name="onScrollItem" args="item">
+            <![CDATA[
+                if (this.renderList.length > item.itemId) {
+                    item.setAttribute("clickable",true);
+                    item.diagramObj = this.renderList[item.itemId];
+                    item.setAttribute("objectTypeName",this.renderList[item.itemId].issueflow);
+                    item.setAttribute("issuename",this.renderList[item.itemId].name);
+                    item.setAttribute("diagramname",this.renderList[item.itemId].diagram.name);
+                    item.setAttribute("assignee",this.renderList[item.itemId].assignee.firstname+" "+this.renderList[item.itemId].assignee.lastname);
+                    item.setAttribute("user_id",this.renderList[item.itemId].insertedby.user_id);
+                    item.inserted = parseDateToStringTime(this.renderList[item.itemId].inserted);
+                } else {
+                    item.diagramObj = null;
+                    item.setAttribute("issuename","");
+                    item.setAttribute("objectTypeName","");
+                    item.setAttribute("diagramname","");
+                    item.setAttribute("assignee","");
+                    item.setAttribute("user_id",0);
+                    item.inserted = "";
+                    item.setAttribute("clickable",false);
+                }
+            ]]>
+        </handler> 
+        
+    </turnOverListOrderedPaged>
+            
+</class>
+
+</library>

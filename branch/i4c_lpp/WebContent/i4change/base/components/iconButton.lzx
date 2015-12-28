@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+<class name="iconButton" extends="view" width="20" height="20" 
+	   bgcolor="0x000000">
+    
+    <attribute name="enabled" value="true" type="boolean" />
+    <attribute name="ressource_xinset" value="2" type="number"/>
+    <attribute name="ressource_yinset" value="2" type="number"/>
+    <attribute name="ressourceName" value="ressourceName" type="string" />
+    
+    <handler name="onenabled" args="ena">
+        //Debug.write("onenabled: ",ena);
+        ( this.enabled ) ? this.bg_view.setAttribute('bgcolor',0xFFFFFF) : this.bg_view.setAttribute('bgcolor',0xFFFFFF);
+    </handler>
+    <handler name="onmouseover">
+        if (this.enabled) this.bg_view.setAttribute('bgcolor',canvas.baseMousecolorizer);
+    </handler>
+    <handler name="onmouseout">
+        if (this.enabled) this.bg_view.setAttribute('bgcolor',0xFFFFFF);
+    </handler>
+    <handler name="onmousedown">
+        if (this.enabled) this.bg_view.setAttribute('bgcolor',canvas.basebgcolorizer);
+    </handler>
+    <handler name="onmouseup">
+        if (this.enabled) this.bg_view.setAttribute('bgcolor',0xFFFFFF);
+    </handler>  
+    <view name="bg_view" x="1" y="1" width="$once{ parent.width - 1 }" 
+            height="$once{ parent.height - 2 }" bgcolor="0xFFFFFF" />
+    <view name="ressource_view" x="$once{ parent.ressource_xinset }" 
+            y="$once{ parent.ressource_yinset }" 
+            resource="$once{ parent.ressourceName }" />
+                                  
+</class>
+
+</library>
